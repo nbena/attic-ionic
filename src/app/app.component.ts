@@ -4,6 +4,7 @@ import { Platform, MenuController, Nav } from 'ionic-angular';
 
 import { StatusBar, Splashscreen } from 'ionic-native';
 
+//mine
 import { NotesPage } from '../pages/notes/notes';
 import { TagsPage } from '../pages/tags/tags';
 
