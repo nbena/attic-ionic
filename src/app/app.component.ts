@@ -8,15 +8,17 @@ import { StatusBar, Splashscreen } from 'ionic-native';
 import { NotesPage } from '../pages/notes/notes';
 import { TagsPage } from '../pages/tags/tags';
 
+import { LoginPage } from '../pages/login/login';
+
 
 @Component({
   templateUrl: 'app.html'
+  // template: '<ion-nav [root]="rootPage"></ion-nav>'
 })
 export class MyApp {
   @ViewChild(Nav) nav: Nav;
 
-  // make HelloIonicPage the root (or first) page
-  rootPage: any = NotesPage;
+  rootPage: any = LoginPage;
   pages: Array<{title: string, component: any}>;
 
   constructor(
@@ -27,9 +29,12 @@ export class MyApp {
 
     // set our app's pages
     this.pages = [
+    //   { title: 'Login', component: LoginPage },
       { title: 'Notes', component: NotesPage },
       { title: 'Tags', component: TagsPage }
     ];
+
+
   }
 
   initializeApp() {
