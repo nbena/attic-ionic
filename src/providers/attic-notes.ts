@@ -56,17 +56,59 @@ export class AtticNotes {
 
       let url = Const.API_URI;
       url = url+'/api/notes/all/unpop';
-      this.http.post(url, {}, {headers: headers})
+      this.http.get(url,{headers: headers})
         .subscribe(res=>{
 
           let data=res.json();
-          console.log(data);
+          // console.log(data);
           //handle error.
           if(data.ok==false){
             throw new Error(data.msg);
           }
           resolve(data.result);
         }, (err)=>{
+          reject(err);
+        })
+    });
+  }
+
+  loadNotesMin(){
+    return new Promise((resolve, reject)=>{
+
+      let headers = new Headers();
+      headers.append('Authorization', this.auth.token);
+
+      let uri = Const.API_URI+'/api/notes/all/min';
+      this.http.get(uri, {headers: headers})
+        .subscribe(res=>{
+
+          let data = res.json();
+          if(data.ok==false){
+            throw new Error(data.msg);
+          }
+          resolve(data.result);
+        }, (err)=>{
+          reject(err);
+        })
+    });
+  }
+
+  noteById(id: string){
+    return new Promise((resolve, reject)=>{
+
+      let headers = new Headers();
+      headers.append('Authorization', this.auth.token);
+
+      let uri = Const.API_URI+'/api/notes/'+id;
+      this.http.get(uri, {headers: headers})
+        .subscribe(res=>{
+
+          let data = res.json();
+          if(data.ok==false){
+            throw new Error(data.msg);
+          }
+          resolve(data.result);
+        },(err)=>{
           reject(err);
         })
     });

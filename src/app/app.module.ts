@@ -6,6 +6,7 @@ import { Storage } from '@ionic/storage';
 //mine
 import { NotesPage } from '../pages/notes/notes';
 import { TagsPage } from '../pages/tags/tags';
+import { NoteDetailsPage } from '../pages/note-details/note-details';
 
 //login
 import { LoginPage } from '../pages/login/login';
@@ -22,6 +23,7 @@ import { Auth } from '../providers/auth';
     MyApp,
     NotesPage,
     TagsPage,
+    NoteDetailsPage,
     LoginPage,
     RegisterPage
   ],
@@ -33,6 +35,7 @@ import { Auth } from '../providers/auth';
     MyApp,
     NotesPage,
     TagsPage,
+    NoteDetailsPage,
     LoginPage,
     RegisterPage
   ],
