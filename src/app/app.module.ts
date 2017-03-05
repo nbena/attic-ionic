@@ -16,6 +16,7 @@ import { AtticNotes } from '../providers/attic-notes';
 import { AtticTags } from '../providers/attic-tags';
 import { Auth } from '../providers/auth';
 
+
 @NgModule({
   declarations: [
     MyApp,

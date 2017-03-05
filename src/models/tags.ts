@@ -1,4 +1,4 @@
-import { Note } from './notes';
+import { NoteFull } from './notes'
 /*
 Defining interfaces for the API.
 Here's the interface for the tags.
@@ -16,5 +16,5 @@ export interface Tag{
   title: string,
   _userId: string,
   _id: string,
-  notes: Note[]
+  notes: NoteFull[]
 }

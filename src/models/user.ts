@@ -1,3 +1,6 @@
+/*
+Very easy class that provides objects to deal with authentication.
+*/
 export class User{
   e_mail: string;
   password: string;

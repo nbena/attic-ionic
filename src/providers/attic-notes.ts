@@ -1,5 +1,10 @@
 import { Injectable } from '@angular/core';
-import { Http } from '@angular/http';
+import { Http, Headers } from '@angular/http';
+/* importing auth because I need the token. */
+import { Auth } from './auth';
+import { Const } from '../public/const';
+import { NoteExtraMin, NoteSmart, NoteFull } from '../models/notes';
+
 import 'rxjs/add/operator/map';
 
 /*
@@ -11,8 +16,60 @@ import 'rxjs/add/operator/map';
 @Injectable()
 export class AtticNotes {
 
-  constructor(public http: Http) {
+  constructor(public http: Http, public auth: Auth) {
     console.log('Hello AtticNotes Provider');
+  }
+
+
+  /**
+  *loading all the notes.
+  */
+  loadFull(){
+    return new Promise((resolve, reject)=>{
+
+      let headers = new Headers();
+      headers.append('Authorization', this.auth.token);
+
+      let uri = Const.API_URI+'/api/notes/all';
+      this.http.post(uri, {}, {headers: headers})
+      .subscribe(res=>{
+
+        let data=res.json();
+        console.log(data);
+        //handle error.
+        if(data.ok==false){
+          throw new Error(data.msg);
+        }
+        resolve(data.result);
+      }, (err)=>{
+        reject(err);
+      })
+    });
+  }
+
+
+  loadNoPopulation(){
+    return new Promise((resolve, reject)=>{
+
+      let headers = new Headers();
+      headers.append('Authorization', this.auth.token);
+
+      let url = Const.API_URI;
+      url = url+'/api/notes/all/unpop';
+      this.http.post(url, {}, {headers: headers})
+        .subscribe(res=>{
+
+          let data=res.json();
+          console.log(data);
+          //handle error.
+          if(data.ok==false){
+            throw new Error(data.msg);
+          }
+          resolve(data.result);
+        }, (err)=>{
+          reject(err);
+        })
+    });
   }
 
 }

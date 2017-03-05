@@ -1,4 +1,4 @@
-import { Tag, TagMin } from './tags';
+import { Tag } from './tags';
 /*
 Defining interface for note API.
 Here's the interface for the note API.
@@ -6,31 +6,37 @@ Here's the interface for the note API.
 
 
 /*the basically-iest API*/
-export interface NoteExtraMin{
-  title: string,
-  _id: string,
+export class NoteExtraMin{
+  private _id: string;
+  title: string;
 }
 
-/*when /unpop just on id for the tags */
-export interface NoteMin{
-  title: string,
-  _id: string,
-  text: string,
-  _userId: string,
-  mainTags: string[],
-  otherTags: string[],
-  isDone: boolean,
-  links: string[]
+export class NoteBarebon extends NoteExtraMin{
+  text: string;
+  private _userId: string;
+  isDone: boolean;
+  links: string[];
+
+  constructor(title: string, text: string){
+    super();
+    this.title=title;
+    this.text=text;
+  }
+
 }
 
-/* complete object. */
-export interface Note{
-  title: string,
-  _id: string,
-  text: string,
-  _userId: string,
-  mainTags: Tag[],
-  otherTags: Tag[],
-  isDone: boolean,
-  links: string[]
+export class NoteSmart extends NoteBarebon{
+  mainTags: any;
+  otherTags: any;
+}
+
+export class NoteMin extends NoteBarebon{
+  mainTags: string[];
+  otherTags: string[];
+
+}
+
+export class NoteFull extends NoteBarebon{
+  mainTags: Tag[];
+  otherTags: Tag[];
 }

@@ -18,4 +18,9 @@
 
 <ion-content padding>
   <h3>Notes!</h3>
+  <ion-list>
+    <ion-item detail-push *ngFor="let note of notes">
+      {{note.title}}
+    </ion-item>
+  </ion-list>
 </ion-content>

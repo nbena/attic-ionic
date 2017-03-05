@@ -36,15 +36,6 @@ export class LoginPage {
 
     this.loader();
 
-    //see if user is authenticated or no...
-    // this.auth.checkAuthentication().then((res)=>{
-    //   console.log("already auth");
-    //   this.loading.dismiss();
-    //   this.navCtrl.setRoot(NotesPage);
-    // }, (err) => {
-    //   console.log("not already auth");
-    //   this.loading.dismiss();
-    // });
     if(this.auth.checkAuthentication()){
       console.log("already auth");
       this.loading.dismiss();
@@ -56,6 +47,7 @@ export class LoginPage {
 
   }
 
+  //shows a kinf of popup while the request is made.
   loader(){
     this.loading = this.loadingCtrl.create({
       content: 'Authenticating'

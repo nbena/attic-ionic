@@ -9,6 +9,7 @@
   <ion-content>
     <ion-list>
       <button ion-item *ngFor="let p of pages" (click)="openPage(p)">
+        <!-- loop through the pages and generate a template.-->
         {{p.title}}
       </button>
     </ion-list>

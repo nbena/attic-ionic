@@ -1,6 +1,11 @@
+/*
+This provider is used to handle authentication. It is possible either
+to create a new account or to login.
+*/
 import { Injectable } from '@angular/core';
 import { Http, Headers } from '@angular/http';
 import { Storage } from '@ionic/storage';
+// import { Storage} from 'ionic-angular';
 import 'rxjs/add/operator/map';
 
 import { tokenNotExpired } from 'angular2-jwt';
@@ -20,29 +25,11 @@ export class Auth {
   public token: any;
 
 
-  constructor(public http: Http, public storage: Storage) {
+  constructor(private http: Http, public storage: Storage) {
     console.log('Hello Auth Provider');
   }
 
-//change
   checkAuthentication(){
-    // return new Promise((resolve, reject) => {
-    //
-    //   //if token exists, load it.
-    //   this.storage.get('token').then((value)=>{
-    //
-    //     this.token=value;
-    //     let headers = new Headers();
-    //     headers.append('Authorization', this.token);
-    //
-    //     this.http.get('${Const.API_URI}/notes/', {headers: headers})
-    //       .subscribe(res=>{
-    //         resolve(res);
-    //       }, (err)=>{
-    //         reject(err);
-    //       });
-    //   });
-    // });
     return tokenNotExpired();
   }
 
@@ -54,7 +41,9 @@ export class Auth {
       let headers = new Headers();
       headers.append('Content-Type', 'application/json');
 
-      this.http.post('${Const.API_URI}/auth/create', JSON.stringify(user), {headers: headers})
+      let uri = Const.API_URI+'/api/users/create';
+
+      this.http.post(uri, JSON.stringify(user), {headers: headers})
         .subscribe(res => {
 
           let data = res.json();
@@ -77,7 +66,7 @@ login(user: User){
       let headers = new Headers();
       headers.append('Content-Type', 'application/json');
 
-      var uri = Const.API_URI+"/auth/login";
+      var uri = Const.API_URI+'/api/auth/login';
       console.log("request: ", JSON.stringify(user));
 
 
@@ -85,11 +74,15 @@ login(user: User){
         .subscribe(res => {
 
           let data = res.json();
+          //one we get the token, save it to local storage.
           this.token = data.token;
           this.storage.set('token', data.token);
-          resolve(data);
 
+
+          //ok now we end up with the promise
+          resolve(data);
           resolve(res.json());
+
         }, (err) => {
           reject(err);
         });
