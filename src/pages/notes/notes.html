@@ -18,10 +18,10 @@
 
 <ion-content padding>
   <h3>Notes!</h3>
-  <ion-list>
-    <ion-item detail-push *ngFor="let note of notes" (click)="displayNoteDetails(note._id)">
+  <!-- <ion-list> -->
+    <ion-card detail-push *ngFor="let note of notes" (click)="displayNoteDetails(note._id, note.title)">
       {{note.title}}
     <!--  {{note._id}}-->
-    </ion-item>
-  </ion-list>
+  </ion-card>
+  <!-- </ion-list> -->
 </ion-content>

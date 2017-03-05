@@ -37,11 +37,11 @@ export class LoginPage {
     this.loader();
 
     if(this.auth.checkAuthentication()){
-      console.log("already auth");
+      // console.log("already auth");
       this.loading.dismiss();
       this.navCtrl.setRoot(NotesPage);
     }else{
-      console.log("not auth");
+      // console.log("not auth");
       this.loading.dismiss();
     }
 
@@ -64,9 +64,9 @@ export class LoginPage {
       this.password
     );
 
+
     this.auth.login(user).then((result)=>{
       this.loading.dismiss();
-      console.log(result);
       this.navCtrl.setRoot(NotesPage);
     }, (err)=>{
       this.loading.dismiss();

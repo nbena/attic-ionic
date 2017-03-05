@@ -17,6 +17,8 @@ import { AtticNotes } from '../providers/attic-notes';
 import { AtticTags } from '../providers/attic-tags';
 import { Auth } from '../providers/auth';
 
+import { ObjNgFor } from '../public/pipes';
+
 
 @NgModule({
   declarations: [
@@ -25,7 +27,8 @@ import { Auth } from '../providers/auth';
     TagsPage,
     NoteDetailsPage,
     LoginPage,
-    RegisterPage
+    RegisterPage,
+    ObjNgFor
   ],
   imports: [
     IonicModule.forRoot(MyApp)

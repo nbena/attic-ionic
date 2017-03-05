@@ -5,6 +5,8 @@ import { NoteExtraMin, NoteFull, NoteMin, NoteSmart } from '../../models/notes';
 
 import { AtticNotes } from '../../providers/attic-notes';
 
+import { TagExtraMin } from '../../models/tags';
+
 /*
   Generated class for the NoteDetails page.
 
@@ -15,9 +17,14 @@ import { AtticNotes } from '../../providers/attic-notes';
   selector: 'page-note-details',
   templateUrl: 'note-details.html'
 })
+
+
 export class NoteDetailsPage {
 
-  note: NoteExtraMin;
+  note: NoteFull;
+  _mainTags: TagExtraMin[];
+  _otherTags: TagExtraMin[];
+  _links: string[];
   _id : string;
   title: string;
 
@@ -32,6 +39,9 @@ export class NoteDetailsPage {
     this.atticNotes.noteById(this._id)
       .then(result=>{
         this.note=<NoteFull>result;
+        this._mainTags=this.note.mainTags;
+        this._otherTags=this.note.otherTags;
+        this._links=this.note.links;
       })
       .catch(err=>{
         console.log(err);

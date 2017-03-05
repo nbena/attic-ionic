@@ -67,8 +67,6 @@ login(user: User){
       headers.append('Content-Type', 'application/json');
 
       var uri = Const.API_URI+'/api/auth/login';
-      console.log("request: ", JSON.stringify(user));
-
 
       this.http.post(uri, JSON.stringify(user), {headers: headers})
         .subscribe(res => {
@@ -78,10 +76,8 @@ login(user: User){
           this.token = data.token;
           this.storage.set('token', data.token);
 
-
-          //ok now we end up with the promise
           resolve(data);
-          resolve(res.json());
+          // resolve(res.json());
 
         }, (err) => {
           reject(err);
