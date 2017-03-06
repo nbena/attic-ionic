@@ -50,7 +50,7 @@
           Other tags
         <!-- </ion-label> -->
         <ion-list>
-          <ion-chip *ngFor="let otherTag of _otherTags">
+          <ion-chip *ngFor="let otherTag of note?.otherTags">
             {{otherTag.title}}
           </ion-chip>
         </ion-list>
@@ -67,7 +67,7 @@
       <ion-item>
         Links
         <ion-list>
-          <ion-chip *ngFor="let link of _links">
+          <ion-chip *ngFor="let link of note?.links">
             {{link}}
           </ion-chip>
         </ion-list>

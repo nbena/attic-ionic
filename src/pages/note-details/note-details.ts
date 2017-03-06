@@ -22,9 +22,9 @@ import { TagExtraMin } from '../../models/tags';
 export class NoteDetailsPage {
 
   note: NoteFull;
-  _mainTags: TagExtraMin[];
-  _otherTags: TagExtraMin[];
-  _links: string[];
+  // _mainTags: TagExtraMin[];
+  // _otherTags: TagExtraMin[];
+  // _links: string[];
   _id : string;
   title: string;
 
@@ -39,9 +39,9 @@ export class NoteDetailsPage {
     this.atticNotes.noteById(this._id)
       .then(result=>{
         this.note=<NoteFull>result;
-        this._mainTags=this.note.mainTags;
-        this._otherTags=this.note.otherTags;
-        this._links=this.note.links;
+        // this._mainTags=this.note.mainTags;
+        // this._otherTags=this.note.otherTags;
+        // this._links=this.note.links;
       })
       .catch(err=>{
         console.log(err);
