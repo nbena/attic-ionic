@@ -52,4 +52,8 @@ export class NoteDetailsPage {
     console.log('ionViewDidLoad NoteDetailsPage');
   }
 
+  displayTagDetails(_id: string, title: string){
+    //this.navCtrl.push(TagDetailsPage, {_id, title})
+  }
+
 }

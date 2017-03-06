@@ -36,7 +36,7 @@
           Main tags
         <!-- </ion-label> -->
         <ion-list>
-          <ion-chip *ngFor="let mainTag of note?.mainTags">
+          <ion-chip *ngFor="let mainTag of note?.mainTags" (click)="displayTagDetails(mainTag._id, mainTag.title)">
             {{mainTag.title}}
           </ion-chip>
         </ion-list>
@@ -50,7 +50,7 @@
           Other tags
         <!-- </ion-label> -->
         <ion-list>
-          <ion-chip *ngFor="let otherTag of note?.otherTags">
+          <ion-chip *ngFor="let otherTag of note?.otherTags" (click)="displayTagDetails(otherTag._id, otherTag.title)">
             {{otherTag.title}}
           </ion-chip>
         </ion-list>
