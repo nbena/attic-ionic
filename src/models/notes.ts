@@ -1,4 +1,4 @@
-import { Tag } from './tags';
+import { TagFull } from './tags';
 /*
 Defining interface for note API.
 Here's the interface for the note API.
@@ -37,6 +37,6 @@ export class NoteMin extends NoteBarebon{
 }
 
 export class NoteFull extends NoteBarebon{
-  mainTags: Tag[];
-  otherTags: Tag[];
+  mainTags: TagFull[];
+  otherTags: TagFull[];
 }

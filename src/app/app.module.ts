@@ -7,6 +7,7 @@ import { Storage } from '@ionic/storage';
 import { NotesPage } from '../pages/notes/notes';
 import { TagsPage } from '../pages/tags/tags';
 import { NoteDetailsPage } from '../pages/note-details/note-details';
+import { TagDetailsPage } from '../pages/tag-details/tag-details';
 
 //login
 import { LoginPage } from '../pages/login/login';
@@ -26,6 +27,7 @@ import { ObjNgFor } from '../public/pipes';
     NotesPage,
     TagsPage,
     NoteDetailsPage,
+    TagDetailsPage,
     LoginPage,
     RegisterPage,
     ObjNgFor
@@ -39,6 +41,7 @@ import { ObjNgFor } from '../public/pipes';
     NotesPage,
     TagsPage,
     NoteDetailsPage,
+    TagDetailsPage,
     LoginPage,
     RegisterPage
   ],

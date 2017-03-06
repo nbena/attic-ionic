@@ -2,8 +2,9 @@ import { Component } from '@angular/core';
 import { NavController, NavParams } from 'ionic-angular';
 
 
-import { TagExtraMin, TagMin, Tag } from '../../models/tags';
+import { TagExtraMin, TagMin, TagFull } from '../../models/tags';
 import { AtticTags } from '../../providers/attic-tags';
+import { TagDetailsPage } from '../tag-details/tag-details';
 /*
   Generated class for the Tags page.
 
@@ -32,7 +33,7 @@ export class TagsPage {
     //basically just a wrapper.
     this.atticTags.loadFull()
       .then(result=>{
-        this.tags=<Tag[]>result;
+        this.tags=<TagFull[]>result;
         // console.log(this.notes);
       })
       .catch(error =>{
@@ -50,8 +51,8 @@ export class TagsPage {
       })
   }
 
-  displayTagDetails(id: string, title: string){
-    //this.navCtrl.push(TagDetaislPage, {_id, title});
+  displayTagDetails(_id: string, title: string){
+    this.navCtrl.push(TagDetailsPage, {_id, title});
   }
 
 

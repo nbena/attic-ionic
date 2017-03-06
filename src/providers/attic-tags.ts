@@ -3,9 +3,9 @@ import { Http, Headers } from '@angular/http';
 import 'rxjs/add/operator/map';
 
 import { Auth } from './auth';
-import { Const } from '../public/const';
-import { NoteExtraMin, NoteSmart, NoteFull } from '../models/notes';
-import { TagExtraMin, TagMin, Tag } from '../models/tags';
+// import { Const } from '../public/const';
+// import { NoteExtraMin, NoteSmart, NoteFull } from '../models/notes';
+// import { TagExtraMin, TagMin, TagFull } from '../models/tags';
 import { Utils } from '../public/utils';
 
 /*

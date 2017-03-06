@@ -6,6 +6,7 @@ import { NoteExtraMin, NoteFull, NoteMin, NoteSmart } from '../../models/notes';
 import { AtticNotes } from '../../providers/attic-notes';
 
 import { TagExtraMin } from '../../models/tags';
+import { TagDetailsPage } from '../tag-details/tag-details';
 
 /*
   Generated class for the NoteDetails page.
@@ -53,7 +54,7 @@ export class NoteDetailsPage {
   }
 
   displayTagDetails(_id: string, title: string){
-    //this.navCtrl.push(TagDetailsPage, {_id, title})
+    this.navCtrl.push(TagDetailsPage, {_id, title})
   }
 
 }

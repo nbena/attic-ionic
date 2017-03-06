@@ -1,12 +1,12 @@
-import { Tag, TagMin } from './tags';
+import { TagFull, TagMin } from './tags';
 /* complete object. */
 export class Note{
   title: string;
   _id: string;
   text: string;
   _userId: string;
-  mainTags: Tag[];
-  otherTags: Tag[];
+  mainTags: TagFull[];
+  otherTags: TagFull[];
   isDone: boolean;
   links: string[];
 
@@ -56,11 +56,11 @@ setTitle(title: string){
   this.title=title;
 }
 
-setMainTags(mainTags: Tag[]){
+setMainTags(mainTags: TagFull[]){
   this.mainTags=mainTags;
 }
 
-setOtherTags(otherTags: Tag[]){
+setOtherTags(otherTags: TagFull[]){
   this.otherTags=otherTags;
 }
 
