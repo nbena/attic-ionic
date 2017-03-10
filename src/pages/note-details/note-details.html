@@ -14,6 +14,15 @@
 
 
 <ion-content padding>
+
+
+
+<ion-refresher (ionRefresh)="refresh($event)">
+  <ion-refresher-content></ion-refresher-content>
+</ion-refresher>
+
+<ion-card>
+
   <ion-list>
 
 
@@ -73,7 +82,29 @@
         </ion-list>
       </ion-item>
 
+      <ion-item>
+        <ion-label>
+          Created:
+        </ion-label>
+        <ion-label>
+          {{note?.creationDate | date:'mediumDate'}}
+        </ion-label>
+      </ion-item>
+
+      <ion-item>
+        <ion-label>
+          Last modification:
+        </ion-label>
+        <ion-label>
+          {{note?.lastModificationDate | date:'mediumDate'}}
+        </ion-label>
+      </ion-item>
+
 
     </ion-list>
+
+  </ion-card>
+  <!-- </ion-refresher-content>
+  </ion-refresher> -->
 
 </ion-content>

@@ -20,6 +20,12 @@ MenuToggle is used for the sidemenu.
 
 
 <ion-content padding>
+
+  <ion-refresher (ionRefresh)="refresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+
   <h3>Tags!</h3>
   <!-- <ion-list> -->
     <ion-card detail-push *ngFor="let tag of tags" (click)="displayTagDetails(tag._id, tag.title)">

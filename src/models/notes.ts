@@ -16,6 +16,8 @@ export class NoteBarebon extends NoteExtraMin{
   private _userId: string;
   isDone: boolean;
   links: string[];
+  creationDate: Date;
+  lastModificationDate: Date;
 
   constructor(title: string, text: string){
     super();

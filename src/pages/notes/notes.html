@@ -17,6 +17,11 @@
 
 
 <ion-content padding>
+
+  <ion-refresher (ionRefresh)="refresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
   <h3>Notes!</h3>
   <!-- <ion-list> -->
     <ion-card detail-push *ngFor="let note of notes" (click)="displayNoteDetails(note._id, note.title)">

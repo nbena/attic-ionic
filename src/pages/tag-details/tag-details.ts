@@ -49,4 +49,11 @@ export class TagDetailsPage {
     this.navCtrl.push(NoteDetailsPage, {_id, title});
   }
 
+  refresh(refresher){
+    this.tagById(this._id);
+    setTimeout(()=>{
+      refresher.complete();
+    },2000);
+  }
+
 }

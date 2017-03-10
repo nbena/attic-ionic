@@ -58,4 +58,11 @@ export class NotesPage {
     console.log('ionViewDidLoad NotesPage');
   }
 
+  refresh(refresher){
+    this.loadMin();
+    setTimeout(()=>{
+      refresher.complete();
+    },2000);
+  }
+
 }

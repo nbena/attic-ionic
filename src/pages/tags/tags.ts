@@ -55,5 +55,12 @@ export class TagsPage {
     this.navCtrl.push(TagDetailsPage, {_id, title});
   }
 
+  refresh(refresher){
+    this.loadFull();
+    setTimeout(()=>{
+      refresher.complete();
+    },2000);
+  }
+
 
 }
