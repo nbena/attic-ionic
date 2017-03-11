@@ -5,6 +5,7 @@ import { AtticNotes } from '../../providers/attic-notes';
 import { NoteExtraMin, NoteSmart, NoteMin, NoteFull } from '../../models/notes';
 
 import { NoteDetailsPage } from '../note-details/note-details';
+import { CreateNotePage } from '../create-note/create-note';
 
 /*
   Generated class for the Notes page.
@@ -63,6 +64,10 @@ export class NotesPage {
     setTimeout(()=>{
       refresher.complete();
     },2000);
+  }
+
+  createNewNote(){
+    this.navCtrl.push(CreateNotePage);
   }
 
 }

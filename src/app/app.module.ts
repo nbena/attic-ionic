@@ -9,6 +9,8 @@ import { TagsPage } from '../pages/tags/tags';
 import { NoteDetailsPage } from '../pages/note-details/note-details';
 import { TagDetailsPage } from '../pages/tag-details/tag-details';
 
+import { CreateNotePage } from '../pages/create-note/create-note';
+
 //login
 import { LoginPage } from '../pages/login/login';
 import { RegisterPage } from '../pages/register/register';
@@ -30,6 +32,7 @@ import { ObjNgFor } from '../public/pipes';
     TagDetailsPage,
     LoginPage,
     RegisterPage,
+    CreateNotePage,
     ObjNgFor
   ],
   imports: [
@@ -43,7 +46,8 @@ import { ObjNgFor } from '../public/pipes';
     NoteDetailsPage,
     TagDetailsPage,
     LoginPage,
-    RegisterPage
+    RegisterPage,
+    CreateNotePage
   ],
   providers: [
     {provide: ErrorHandler, useClass: IonicErrorHandler},
