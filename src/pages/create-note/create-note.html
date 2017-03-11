@@ -15,11 +15,22 @@
 
 <ion-content padding>
 
-  
+  <form (ngSubmit)="createNote()">
+  <ion-list>
+
+    <ion-item>
+      <ion-label stacked>Title</ion-label>
+      <ion-input placeholder="title" name="title"></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label stacked>Text</ion-label>
+      <ion-textarea placeholder="text" name="text"></ion-textarea>
+    </ion-item>
 
   <ion-item>
     <ion-label>Main tags:</ion-label>
-    <ion-select multiple="true" [(ngModel)]="mainTags">
+    <ion-select multiple="true" [(ngModel)]="mainTags" name="main-tags">
       <ion-option *ngFor="let tag of tags" [value]="_id">
         {{tag.title}}
       </ion-option>
@@ -28,11 +39,24 @@
 
   <ion-item>
     <ion-label>Other tags:</ion-label>
-    <ion-select multiple="true" [(ngModel)]="otherTags">
+    <ion-select multiple="true" [(ngModel)]="otherTags" name="other-tags">
       <ion-option *ngFor="let tag of tags" [value]="_id">
         {{tag.title}}
       </ion-option>
     </ion-select>
   </ion-item>
+
+
+  <ion-item>
+    <ion-label>Done:</ion-label>
+    <ion-toggle [(ngModel)]="isDone" name="is-done"></ion-toggle>
+  </ion-item>
+
+  <ion-item>
+    <button ion-button type="submit">Create</button>
+  </ion-item>
+
+  </ion-list>
+  </form>
 
 </ion-content>

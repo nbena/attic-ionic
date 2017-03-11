@@ -22,6 +22,7 @@ export class CreateNotePage {
   tags: TagExtraMin[];
   mainTags: TagExtraMin[];
   otherTags: TagExtraMin[];
+  isDone: boolean;
 
   constructor(public navCtrl: NavController, public navParams: NavParams,
     private atticNotes: AtticNotes,
@@ -43,6 +44,11 @@ export class CreateNotePage {
       .catch(error=>{
         console.log(error);
       })
+  }
+
+
+  createNote(){
+    
   }
 
 
