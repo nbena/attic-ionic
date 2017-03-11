@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams } from 'ionic-angular';
+import { NavController, NavParams, AlertController } from 'ionic-angular';
 
 
 import { TagExtraMin, TagMin, TagFull } from '../../models/tags';
@@ -19,7 +19,9 @@ export class TagsPage {
 
   tags: TagExtraMin[] = null;
 
-  constructor(public navCtrl: NavController, private atticTags: AtticTags) {
+  constructor(public navCtrl: NavController,
+    public alertCtrl: AlertController,
+    private atticTags: AtticTags) {
     if(this.tags==null){
       this.loadMin();
     }
@@ -60,6 +62,51 @@ export class TagsPage {
     setTimeout(()=>{
       refresher.complete();
     },2000);
+  }
+
+
+  createNewTag(){
+    let prompt = this.alertCtrl.create({
+      title: 'New tag',
+      message: 'Enter a name for the new tag',
+      inputs:[
+        {
+        name: 'title',
+        placeholder: 'Title'
+        }
+      ],
+      buttons: [
+        {
+          text: 'Cancel',
+          handler: data => {}
+        },
+        {
+          text: 'Save',
+          handler: data=>{
+            this.createNewTagAPI(<string>data.title);
+          }
+        }
+      ]
+    });
+    prompt.present();
+  }
+
+  createNewTagAPI(title: string){
+
+
+
+
+    this.atticTags.createTag(title)
+      .then(result=>{
+        this.tags.push(<TagFull>result);
+      })
+      .catch(error=>{
+        let alert = this.alertCtrl.create({
+          title: error,
+          buttons: ['OK']
+        });
+        alert.present();
+      })
   }
 
 

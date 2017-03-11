@@ -25,4 +25,31 @@ export class Utils{
         })
     });
   }
+
+static putBasic(uriFinal: string, body: any, http: Http, token: any){
+  return new Promise((resolve, reject)=>{
+
+    let headers = new Headers();
+    headers.append('Authorization', token);
+
+    if(body!=null && body!=""){
+      headers.append('Content-type', 'application/json');
+    }
+
+    let uri = Const.API_URI+uriFinal;
+    http.put(uri, body, {headers: headers})
+      .subscribe(res=>{
+
+        let data = res.json();
+        if(data.ok==false){
+          throw new Error(data.msg);
+        }
+        resolve(data.result);
+      },(err)=>{
+        reject(err);
+      })
+  });
+}
+
+
 }

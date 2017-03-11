@@ -28,8 +28,8 @@ export class NoteDetailsPage {
   // _links: string[];
   _id : string;
   title: string;
-  creationDateString: string;
-  lastModificationDateString: string;
+  // creationDateString: string;
+  // lastModificationDateString: string;
 
   constructor(public navCtrl: NavController, public navParams: NavParams,
     private atticNotes: AtticNotes) {
@@ -42,8 +42,8 @@ export class NoteDetailsPage {
     this.atticNotes.noteById(this._id)
       .then(result=>{
         this.note=<NoteFull>result;
-        this.lastModificationDateString=this.note.lastModificationDate.toDateString();
-        this.creationDateString=this.note.creationDate.toDateString();
+        // this.lastModificationDateString=this.note.lastModificationDate.toDateString();
+        // this.creationDateString=this.note.creationDate.toDateString();
         // this._mainTags=this.note.mainTags;
         // this._otherTags=this.note.otherTags;
         // this._links=this.note.links;

@@ -36,9 +36,6 @@ export class TagDetailsPage {
     this.atticTags.tagById(this._id)
       .then(result=>{
         this.tag=<TagFull>result;
-        // this._mainTags=this.note.mainTags;
-        // this._otherTags=this.note.otherTags;
-        // this._links=this.note.links;
       })
       .catch(err=>{
         console.log(err);

@@ -57,4 +57,11 @@ export class AtticTags {
     return Utils.getBasic('/api/tags/'+id, this.http, this.auth.token);
   }
 
+  /*
+  * create a new tag.
+  */
+  createTag(title: string){
+    return Utils.putBasic('/api/tags/'+title, "", this.http, this.auth.token);
+  }
+
 }
