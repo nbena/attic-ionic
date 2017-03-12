@@ -3,6 +3,8 @@ import { Http, Headers } from '@angular/http';
 /* importing auth because I need the token. */
 // import { Auth } from '../providers/auth';
 import { Const } from '../public/const';
+import { NoteBarebon, NoteFull, NoteMin } from '../models/notes';
+import { TagExtraMin } from '../models/tags';
 
 export class Utils{
   static getBasic(uriFinal: string, http: Http, token: any){
@@ -96,6 +98,33 @@ static deleteBasic(uriFinal: string, http: Http, token: any){
         reject(err);
       })
   });
+}
+
+static logTags(tag: TagExtraMin):string{
+  let result='';
+  result+=(' id: '+tag._id);
+  return result;
+}
+
+static logNote(note: NoteBarebon):string{
+  let result = '';
+  result+=('title '+note.title);
+  result+=(' text '+note.text);
+  result+=(' isDone '+(note.isDone ? "true" : "false"));
+  result+=(' links '+note.links.toString());
+
+  if(note instanceof NoteFull || note instanceof NoteMin){
+    result+='mainTags: ';
+    for(let i=0;i<note.mainTags.length;i++){
+      result+=Utils.logTags(<TagExtraMin>note.mainTags[i]);
+    }
+    result+='otherTags: ';
+    for(let i=0;i<note.otherTags.length;i++){
+      result+=Utils.logTags(<TagExtraMin>note.otherTags[i]);
+    }
+  }
+
+  return result;
 }
 
 

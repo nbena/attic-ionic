@@ -3,7 +3,8 @@ import { NavController, NavParams, AlertController } from 'ionic-angular';
 import { AtticNotes } from '../../providers/attic-notes';
 import { AtticTags } from '../../providers/attic-tags';
 import { NoteFull, NoteSmart, NoteMin, NoteExtraMin } from '../../models/notes';
-import { TagExtraMin } from '../../models/tags';
+import { TagExtraMin, TagFull } from '../../models/tags';
+import { Utils } from '../../public/utils'
 
 /*
   Generated class for the CreateNote page.
@@ -22,7 +23,7 @@ export class CreateNotePage {
   tags: TagExtraMin[];
   mainTags: TagExtraMin[];
   otherTags: TagExtraMin[];
-  isDone: boolean;
+  // isDone: boolean;
   links: string[];
 
   constructor(public navCtrl: NavController, public navParams: NavParams,
@@ -32,6 +33,7 @@ export class CreateNotePage {
       //
       this.loadMinTags();
       this.links = [];
+      this.oldNote =  new NoteFull();
     }
 
   ionViewDidLoad() {
@@ -49,9 +51,22 @@ export class CreateNotePage {
       })
   }
 
+  getNote(){
+    this.newNote = new NoteFull();
+
+    this.newNote.mainTags=<TagFull[]>this.mainTags;
+    this.newNote.otherTags=<TagFull[]>this.otherTags;
+
+    this.newNote.title=this.oldNote.title;
+    this.newNote.text=this.oldNote.text;
+    this.newNote.links=this.links;
+
+    console.log(Utils.logNote(this.newNote));
+  }
+
 
   createNote(){
-
+    this.getNote();
   }
 
   pushLink(){
@@ -72,9 +87,7 @@ export class CreateNotePage {
         {
           text: 'Save',
           handler: data=>{
-            // this.links.push("hello");
             this.links.push(data.link);
-            console.log(this.links);
           }
         }
       ]

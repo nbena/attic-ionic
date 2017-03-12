@@ -1,3 +1,5 @@
 review details.html
 modify package.json
 add a badge to each tag in order to see the referenced note.
+ion-chip for the link in the notes, when pressed, option to delete or modify.
+the select documentation tell me how to have different already selected option.

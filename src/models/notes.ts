@@ -19,11 +19,11 @@ export class NoteBarebon extends NoteExtraMin{
   creationDate: Date;
   lastModificationDate: Date;
 
-  constructor(title: string, text: string){
-    super();
-    this.title=title;
-    this.text=text;
-  }
+  // constructor(title: string, text: string){
+  //   super();
+  //   this.title=title;
+  //   this.text=text;
+  // }
 
 }
 
