@@ -19,7 +19,8 @@ import { Utils } from '../../public/utils'
 export class CreateNotePage {
 
   oldNote: NoteFull;
-  newNote: NoteFull;
+  newNote: NoteMin;
+
   tags: TagExtraMin[];
   mainTags: TagExtraMin[];
   otherTags: TagExtraMin[];
@@ -57,7 +58,7 @@ export class CreateNotePage {
   }
 
   getNote(){
-    this.newNote = new NoteFull();
+    this.newNote = new NoteMin();
 
     this.newNote.title=this.oldNote.title;
     this.newNote.text=this.oldNote.text;
@@ -67,11 +68,11 @@ export class CreateNotePage {
     this.newNote.otherTags = [];
 
     for(let i=0;i<this.mainTagsString.length;i++){
-      this.newNote.mainTags.push(<TagFull>TagExtraMin.fromString(this.mainTagsString[i]));
+      this.newNote.mainTags.push(this.mainTagsString[i]);
     }
 
     for(let i=0;i<this.otherTagsString.length;i++){
-      this.newNote.otherTags.push(<TagFull>TagExtraMin.fromString(this.otherTagsString[i]));
+      this.newNote.otherTags.push(this.otherTagsString[i]);
     }
 
     // console.log(Utils.logNote(this.newNote));
@@ -80,7 +81,20 @@ export class CreateNotePage {
 
   createNote(){
     this.getNote();
+    console.log(JSON.stringify({note:this.newNote}));
+    // this.atticNotes.createNote(this.newNote)
+    //   .then(result=>{
+    //     console.log(result);
+    //     this.navCtrl.pop();
+    //   })
+    //   .catch(error=>{
+    //     console.log(error);
+    //   })
   }
+
+  /*
+  No need to check duplicates on links because it is already done by the server.
+  */
 
   pushLink(){
     let prompt=this.alertCtrl.create({
@@ -107,7 +121,5 @@ export class CreateNotePage {
     });
     prompt.present();
   }
-
-
 
 }

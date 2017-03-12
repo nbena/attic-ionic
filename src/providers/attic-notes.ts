@@ -3,7 +3,7 @@ import { Http, Headers } from '@angular/http';
 /* importing auth because I need the token. */
 import { Auth } from './auth';
 import { Const } from '../public/const';
-import { NoteExtraMin, NoteSmart, NoteFull } from '../models/notes';
+import { /*NoteExtraMin, NoteSmart, NoteFull*/NoteMin } from '../models/notes';
 import { Utils } from '../public/utils';
 
 import 'rxjs/add/operator/map';
@@ -119,8 +119,8 @@ export class AtticNotes {
     return Utils.getBasic('/api/notes/'+id, this.http, this.auth.token);
   }
 
-  createNote(note: NoteFull){
-    return Utils.putBasic('/api/notes/create', JSON.stringify({note:{note}}), this.http, this.auth.token);
+  createNote(note: NoteMin){
+    return Utils.putBasic('/api/notes/create', JSON.stringify({note:note}), this.http, this.auth.token);
   }
 
 }

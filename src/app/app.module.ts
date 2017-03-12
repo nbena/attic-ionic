@@ -20,7 +20,6 @@ import { AtticNotes } from '../providers/attic-notes';
 import { AtticTags } from '../providers/attic-tags';
 import { Auth } from '../providers/auth';
 
-import { ObjNgFor } from '../public/pipes';
 
 
 @NgModule({
@@ -33,7 +32,6 @@ import { ObjNgFor } from '../public/pipes';
     LoginPage,
     RegisterPage,
     CreateNotePage,
-    ObjNgFor
   ],
   imports: [
     IonicModule.forRoot(MyApp)
