@@ -82,14 +82,14 @@ export class CreateNotePage {
   createNote(){
     this.getNote();
     console.log(JSON.stringify({note:this.newNote}));
-    // this.atticNotes.createNote(this.newNote)
-    //   .then(result=>{
-    //     console.log(result);
-    //     this.navCtrl.pop();
-    //   })
-    //   .catch(error=>{
-    //     console.log(error);
-    //   })
+    this.atticNotes.createNote(this.newNote)
+      .then(result=>{
+        console.log(result);
+        this.navCtrl.pop();
+      })
+      .catch(error=>{
+        console.log(error);
+      })
   }
 
   /*
