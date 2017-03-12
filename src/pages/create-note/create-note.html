@@ -30,8 +30,8 @@
 
   <ion-item>
     <ion-label>Main tags:</ion-label>
-    <ion-select multiple="true" [(ngModel)]="mainTags" name="main-tags">
-      <ion-option *ngFor="let tag of tags" [value]="{{tag._id}}">
+    <ion-select multiple="true" [(ngModel)]="mainTagsString" name="main-tags">
+      <ion-option *ngFor="let tag of tags" [value]="tag._id">
         {{tag.title}}
       </ion-option>
     </ion-select>
@@ -39,8 +39,8 @@
 
   <ion-item>
     <ion-label>Other tags:</ion-label>
-    <ion-select multiple="true" [(ngModel)]="otherTags" name="other-tags">
-      <ion-option *ngFor="let tag of tags" [value]="{{tag._id}}">
+    <ion-select multiple="true" [(ngModel)]="otherTagsString" name="other-tags">
+      <ion-option *ngFor="let tag of tags" [value]="tag._id">
         {{tag.title}}
       </ion-option>
     </ion-select>

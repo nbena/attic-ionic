@@ -26,6 +26,9 @@ export class CreateNotePage {
   // isDone: boolean;
   links: string[];
 
+  mainTagsString: string[];
+  otherTagsString: string[];
+
   constructor(public navCtrl: NavController, public navParams: NavParams,
     private alertCtrl: AlertController,
     private atticNotes: AtticNotes,
@@ -34,6 +37,8 @@ export class CreateNotePage {
       this.loadMinTags();
       this.links = [];
       this.oldNote =  new NoteFull();
+      this.mainTagsString = [];
+      this.otherTagsString = [];
     }
 
   ionViewDidLoad() {
@@ -54,14 +59,22 @@ export class CreateNotePage {
   getNote(){
     this.newNote = new NoteFull();
 
-    this.newNote.mainTags=<TagFull[]>this.mainTags;
-    this.newNote.otherTags=<TagFull[]>this.otherTags;
-
     this.newNote.title=this.oldNote.title;
     this.newNote.text=this.oldNote.text;
     this.newNote.links=this.links;
 
-    console.log(Utils.logNote(this.newNote));
+    this.newNote.mainTags = [];
+    this.newNote.otherTags = [];
+
+    for(let i=0;i<this.mainTagsString.length;i++){
+      this.newNote.mainTags.push(<TagFull>TagExtraMin.fromString(this.mainTagsString[i]));
+    }
+
+    for(let i=0;i<this.otherTagsString.length;i++){
+      this.newNote.otherTags.push(<TagFull>TagExtraMin.fromString(this.otherTagsString[i]));
+    }
+
+    // console.log(Utils.logNote(this.newNote));
   }
 
 
