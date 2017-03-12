@@ -93,9 +93,6 @@ export class TagsPage {
 
   createNewTagAPI(title: string){
 
-
-
-
     this.atticTags.createTag(title)
       .then(result=>{
         this.tags.push(<TagFull>result);

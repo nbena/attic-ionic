@@ -48,6 +48,23 @@
 
 
   <ion-item>
+    <ion-label stacked>
+      Links:
+    </ion-label>
+    <button ion-button icon-only item-right (click)="pushLink()">
+      <ion-icon name="add-circle"></ion-icon>
+    </button>
+  </ion-item>
+  <ion-item>
+    <ion-list>
+      <ion-chip *ngFor="let link of links">
+        {{link}}
+      </ion-chip>
+    </ion-list>
+  </ion-item>
+
+
+  <ion-item>
     <ion-label>Done:</ion-label>
     <ion-toggle [(ngModel)]="isDone" name="is-done"></ion-toggle>
   </ion-item>
