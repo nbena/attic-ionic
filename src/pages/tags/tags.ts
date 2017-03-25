@@ -123,6 +123,7 @@ export class TagsPage {
     let tags = [_id];
     let filterType = Filter.Tags;
     console.log("proper event fired");
+    console.log("is array: "+(tags instanceof Array).toString());
     this.navCtrl.push(NotesPage, {filterType: filterType, filterValue: tags});
   }
 

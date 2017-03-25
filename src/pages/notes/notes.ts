@@ -43,6 +43,9 @@ export class NotesPage {
       let filterType = navParams.get('filterType');
       let filterValue = navParams.get('filterValue');
 
+      console.log("the filter type is: "+filterType);
+      console.log("The filter value is "+filterValue);
+
       this.currentFilter = filterType;
       this.currentFilterValue = filterValue;
 
@@ -96,12 +99,12 @@ export class NotesPage {
       case Filter.Tags:
         this.loadByTags(<string[]>this.currentFilterValue);
       break;
-      case Filter.MainTags:
-        this.loadByMainTags(<string[]>this.currentFilterValue);
-      break;
-      case Filter.OtherTags:
-        this.loadByOtherTags(<string[]>this.currentFilterValue);
-      break;
+      // case Filter.MainTags:
+      //   this.loadByMainTags(<string[]>this.currentFilterValue);
+      // break;
+      // case Filter.OtherTags:
+      //   this.loadByOtherTags(<string[]>this.currentFilterValue);
+      // break;
       case Filter.Text:
         this.loadByText(<string>this.currentFilterValue);
       break;
@@ -137,34 +140,36 @@ export class NotesPage {
   }
 
   loadByTags(tags: string[]){
+    console.log("called the load by tags with: "+tags );
     this.atticNotes.notesByTag(tags)
       .then(result=>{
         this.notes=<NoteMin[]>result;
       })
       .catch(error=>{
-        console.log(error);
+        console.log("error");
+        console.log(error.message);
       })
   }
 
-  loadByMainTags(tags: string[]){
-    this.atticNotes.notesByMainTag(tags)
-      .then(result=>{
-        this.notes=<NoteMin[]>result;
-      })
-      .catch(error=>{
-        console.log(error);
-      })
-  }
-
-  loadByOtherTags(tags: string[]){
-    this.atticNotes.notesByOtherTag(tags)
-      .then(result=>{
-        this.notes=<NoteMin[]>result;
-      })
-      .catch(error=>{
-        console.log(error);
-      })
-  }
+  // loadByMainTags(tags: string[]){
+  //   this.atticNotes.notesByMainTag(tags)
+  //     .then(result=>{
+  //       this.notes=<NoteMin[]>result;
+  //     })
+  //     .catch(error=>{
+  //       console.log(error);
+  //     })
+  // }
+  //
+  // loadByOtherTags(tags: string[]){
+  //   this.atticNotes.notesByOtherTag(tags)
+  //     .then(result=>{
+  //       this.notes=<NoteMin[]>result;
+  //     })
+  //     .catch(error=>{
+  //       console.log(error);
+  //     })
+  // }
 
   loadByTitle(title: string){
     this.atticNotes.notesByTitle(title)

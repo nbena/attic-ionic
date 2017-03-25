@@ -124,6 +124,7 @@ export class AtticNotes {
   }
 
   notesByTag(tags: string[]){
+    console.log("the req: "+JSON.stringify({tags: tags}));
     return Utils.postBasic('/api/notes/by-tag/unpop', JSON.stringify({tags: tags}), this.http, this.auth.token);
   }
 
