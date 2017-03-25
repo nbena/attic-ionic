@@ -22,6 +22,9 @@
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
 
+  <ion-searchbar (input)="searchByTitle($event)">
+  </ion-searchbar>
+
   <h3>Notes!</h3>
   <!-- <ion-list> -->
     <ion-card detail-push *ngFor="let note of notes" (click)="displayNoteDetails(note._id, note.title)">

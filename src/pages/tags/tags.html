@@ -32,7 +32,7 @@ MenuToggle is used for the sidemenu.
       {{tag.title}}
     <!--  {{note._id}}-->
     <ion-label>Notes:</ion-label>
-    <ion-badge item-right>{{tag.notes_length}}</ion-badge>
+    <ion-badge item-right (click)="notesByTag($event, tag._id)">{{tag.notes_length}}</ion-badge>
   </ion-card>
   <!-- </ion-list> -->
 

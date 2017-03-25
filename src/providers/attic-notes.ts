@@ -135,4 +135,12 @@ export class AtticNotes {
     return Utils.postBasic('/api/notes/by-tag/unpop', JSON.stringify({otherTags: tags}), this.http, this.auth.token);
   }
 
+  notesByTitle(title: string){
+    return Utils.postBasic('/api/notes/by-title/reg/unpop', JSON.stringify({title: title}), this.http, this.auth.token);
+  }
+
+  notesByText(text: string){
+    return Utils.postBasic('/api/notes/by-text/unpop', JSON.stringify({text: text}), this.http, this.auth.token);
+  }
+
 }

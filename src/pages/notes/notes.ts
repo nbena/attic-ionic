@@ -32,6 +32,7 @@ export class NotesPage {
 
   /*defining the result from the API.*/
   notes: NoteExtraMin[] = null;
+  oldNotes : NoteExtraMin[] = null;
   currentFilter : Filter = Filter.None;
   currentFilterValue: any = null;
 
@@ -53,6 +54,7 @@ export class NotesPage {
           // this.loadMin();
           this.loadByFilter();
         }
+        this.oldNotes=this.notes;
   }
 
 
@@ -77,16 +79,34 @@ export class NotesPage {
     this.navCtrl.push(CreateNotePage);
   }
 
+  searchByTitle(event){
+    let title = event.target.value;
+    if(title.trim() === '' || title.trim().length<3){
+      this.notes=this.oldNotes; /*cache*/
+    }else{
+      this.loadByTitle(title);
+    }
+  }
+
   loadByFilter(){
+    /*
+    Cast is not required by the compiler, but it's better to use it.
+    */
     switch(this.currentFilter){
       case Filter.Tags:
-        this.loadByTags(this.currentFilterValue);
+        this.loadByTags(<string[]>this.currentFilterValue);
       break;
       case Filter.MainTags:
-        this.loadByMainTags(this.currentFilterValue);
+        this.loadByMainTags(<string[]>this.currentFilterValue);
       break;
       case Filter.OtherTags:
-        this.loadByOtherTags(this.currentFilterValue);
+        this.loadByOtherTags(<string[]>this.currentFilterValue);
+      break;
+      case Filter.Text:
+        this.loadByText(<string>this.currentFilterValue);
+      break;
+      case Filter.Title:
+        this.loadByTitle(<string>this.currentFilterValue);
       break;
       default:
         this.loadMin();
@@ -138,6 +158,26 @@ export class NotesPage {
 
   loadByOtherTags(tags: string[]){
     this.atticNotes.notesByOtherTag(tags)
+      .then(result=>{
+        this.notes=<NoteMin[]>result;
+      })
+      .catch(error=>{
+        console.log(error);
+      })
+  }
+
+  loadByTitle(title: string){
+    this.atticNotes.notesByTitle(title)
+      .then(result=>{
+        this.notes=<NoteMin[]>result;
+      })
+      .catch(error=>{
+        console.log(error);
+      })
+  }
+
+  loadByText(text: string){
+    this.atticNotes.notesByText(text)
       .then(result=>{
         this.notes=<NoteMin[]>result;
       })

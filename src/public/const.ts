@@ -2,6 +2,8 @@ export enum Filter{
   Tags,
   MainTags,
   OtherTags,
+  Text,
+  Title,
   None
 }
 

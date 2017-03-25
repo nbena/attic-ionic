@@ -5,6 +5,8 @@ import { NavController, NavParams, AlertController } from 'ionic-angular';
 import { TagExtraMin, TagMin, TagFull, TagAlmostMin } from '../../models/tags';
 import { AtticTags } from '../../providers/attic-tags';
 import { TagDetailsPage } from '../tag-details/tag-details';
+import { NotesPage } from '../notes/notes';
+import { Filter } from '../../public/const';
 /*
   Generated class for the Tags page.
 
@@ -114,6 +116,14 @@ export class TagsPage {
         });
         alert.present();
       })
+  }
+
+  notesByTag(event, _id: string){
+    event.stopPropagation();
+    let tags = [_id];
+    let filterType = Filter.Tags;
+    console.log("proper event fired");
+    this.navCtrl.push(NotesPage, {filterType: filterType, filterValue: tags});
   }
 
 
