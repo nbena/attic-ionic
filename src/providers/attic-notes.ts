@@ -123,4 +123,16 @@ export class AtticNotes {
     return Utils.putBasic('/api/notes/create', JSON.stringify({note:note}), this.http, this.auth.token);
   }
 
+  notesByTag(tags: string[]){
+    return Utils.postBasic('/api/notes/by-tag/unpop', JSON.stringify({tags: tags}), this.http, this.auth.token);
+  }
+
+  notesByMainTag(tags: string[]){
+    return Utils.postBasic('/api/notes/by-tag/unpop', JSON.stringify({mainTags: tags}), this.http, this.auth.token);
+  }
+
+  notesByOtherTag(tags: string[]){
+    return Utils.postBasic('/api/notes/by-tag/unpop', JSON.stringify({otherTags: tags}), this.http, this.auth.token);
+  }
+
 }

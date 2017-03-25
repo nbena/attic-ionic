@@ -8,6 +8,8 @@ import { Auth } from '../../providers/auth';
 import { NotesPage } from '../notes/notes';
 import { RegisterPage } from '../register/register';
 
+import { Filter } from '../../public/const';
+
 /*
   Generated class for the Login page.
 
@@ -39,7 +41,7 @@ export class LoginPage {
     if(this.auth.checkAuthentication()){
       // console.log("already auth");
       this.loading.dismiss();
-      this.navCtrl.setRoot(NotesPage);
+      this.navCtrl.setRoot(NotesPage, this.getParams());
     }else{
       // console.log("not auth");
       this.loading.dismiss();
@@ -67,7 +69,8 @@ export class LoginPage {
 
     this.auth.login(user).then((result)=>{
       this.loading.dismiss();
-      this.navCtrl.setRoot(NotesPage);
+      console.log("ok auth");
+      this.navCtrl.setRoot(NotesPage, this.getParams());
     }, (err)=>{
       this.loading.dismiss();
       console.log(err);
@@ -79,6 +82,10 @@ export class LoginPage {
   //called from the page
   register(){
     this.navCtrl.push(RegisterPage);
+  }
+
+  getParams(){
+    return {filterType: Filter.None, filterValue: null};
   }
 
 }
