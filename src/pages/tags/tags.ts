@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { NavController, NavParams, AlertController } from 'ionic-angular';
 
 
-import { TagExtraMin, TagMin, TagFull } from '../../models/tags';
+import { TagExtraMin, TagMin, TagFull, TagAlmostMin } from '../../models/tags';
 import { AtticTags } from '../../providers/attic-tags';
 import { TagDetailsPage } from '../tag-details/tag-details';
 /*
@@ -23,7 +23,7 @@ export class TagsPage {
     public alertCtrl: AlertController,
     private atticTags: AtticTags) {
     if(this.tags==null){
-      this.loadMin();
+      this.loadAlmostMin();
     }
   }
 
@@ -47,6 +47,16 @@ export class TagsPage {
     this.atticTags.loadTagsMin()
       .then(result=>{
         this.tags=<TagExtraMin[]>result;
+      })
+      .catch(error=>{
+        console.log(error);
+      })
+  }
+
+  loadAlmostMin(){
+    this.atticTags.loadTagsMinWithNotesLength()
+      .then(result=>{
+        this.tags=<TagAlmostMin[]>result;
       })
       .catch(error=>{
         console.log(error);

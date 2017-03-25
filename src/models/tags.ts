@@ -16,7 +16,11 @@ export class TagExtraMin {
 
 }
 
-export class TagMin extends TagExtraMin{
+export class TagAlmostMin extends TagExtraMin{
+  notes_length: number;
+}
+
+export class TagMin extends TagAlmostMin{
   // _userId: string,
   notes: string[];
 
@@ -27,7 +31,7 @@ export class TagMin extends TagExtraMin{
 }
 
 
-export class TagFull extends TagExtraMin{
+export class TagFull extends TagAlmostMin{
 
   notes: NoteFull[];
   // constructor(title: string){

@@ -35,6 +35,10 @@ export class AtticTags {
     return Utils.getBasic('/api/tags/all/min', this.http, this.auth.token);
   }
 
+  loadTagsMinWithNotesLength(){
+    return Utils.getBasic('/api/tags/all/min/notes-length', this.http, this.auth.token);
+  }
+
   tagById(id: string){
     // return new Promise((resolve, reject)=>{
     //
