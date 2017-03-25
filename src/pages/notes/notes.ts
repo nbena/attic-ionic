@@ -8,6 +8,8 @@ import { NoteDetailsPage } from '../note-details/note-details';
 import { CreateNotePage } from '../create-note/create-note';
 
 import { Filter } from '../../public/const';
+import { FormControl } from '@angular/forms';
+import 'rxjs/add/operator/debounceTime';
 
 /*
   Generated class for the Notes page.
@@ -36,15 +38,23 @@ export class NotesPage {
   currentFilter : Filter = Filter.None;
   currentFilterValue: any = null;
 
+  searchCtrl: FormControl;
+  searchTerm: string ='';
+
+  isFull: boolean;
+
   constructor(public navCtrl: NavController,
     private navParams: NavParams,
     private atticNotes: AtticNotes) {
 
       let filterType = navParams.get('filterType');
       let filterValue = navParams.get('filterValue');
+      // let isFull = navParams.get('full');
 
-      console.log("the filter type is: "+filterType);
-      console.log("The filter value is "+filterValue);
+      // console.log("the filter type is: "+filterType);
+      // console.log("The filter value is "+filterValue);
+
+      this.searchCtrl = new FormControl();
 
       this.currentFilter = filterType;
       this.currentFilterValue = filterValue;
@@ -55,9 +65,9 @@ export class NotesPage {
 
         if(this.notes==null){
           // this.loadMin();
-          this.loadByFilter();
+          this.loadByFilter(true);
         }
-        this.oldNotes=this.notes;
+        // this.oldNotes=this.notes;
   }
 
 
@@ -69,6 +79,19 @@ export class NotesPage {
 
   ionViewDidLoad() {
     console.log('ionViewDidLoad NotesPage');
+
+    this.searchCtrl.valueChanges.debounceTime(700).subscribe(event=>{
+      this.currentFilterValue=this.searchTerm;
+      this.currentFilter=Filter.Title;
+      // console.log("'"+this.searchTerm+"'")
+      if(this.searchTerm.trim()===''){
+        // console.log("should trim");
+        this.notes=this.oldNotes;
+        // console.log("old notes: "+this.oldNotes);
+      }else{
+        this.loadByTitle(this.searchTerm);
+      }
+    });
   }
 
   refresh(refresher){
@@ -91,13 +114,13 @@ export class NotesPage {
     }
   }
 
-  loadByFilter(){
+  loadByFilter(firstTime: boolean){
     /*
     Cast is not required by the compiler, but it's better to use it.
     */
     switch(this.currentFilter){
       case Filter.Tags:
-        this.loadByTags(<string[]>this.currentFilterValue);
+        this.loadByTags(<string[]>this.currentFilterValue, firstTime);
       break;
       // case Filter.MainTags:
       //   this.loadByMainTags(<string[]>this.currentFilterValue);
@@ -106,7 +129,7 @@ export class NotesPage {
       //   this.loadByOtherTags(<string[]>this.currentFilterValue);
       // break;
       case Filter.Text:
-        this.loadByText(<string>this.currentFilterValue);
+        this.loadByText(<string>this.currentFilterValue, firstTime);
       break;
       case Filter.Title:
         this.loadByTitle(<string>this.currentFilterValue);
@@ -122,6 +145,9 @@ export class NotesPage {
     this.atticNotes.loadFull()
       .then(result=>{
         this.notes=<NoteFull[]>result;
+
+        this.oldNotes=this.notes;
+
         // console.log(this.notes);
       })
       .catch(error =>{
@@ -133,17 +159,21 @@ export class NotesPage {
     this.atticNotes.loadNotesMin()
       .then(result=>{
         this.notes=<NoteExtraMin[]>result;
+        this.oldNotes=this.notes;
       })
       .catch(error=>{
         console.log(error);
       })
   }
 
-  loadByTags(tags: string[]){
+  loadByTags(tags: string[], firstTime: boolean){
     console.log("called the load by tags with: "+tags );
     this.atticNotes.notesByTag(tags)
       .then(result=>{
         this.notes=<NoteMin[]>result;
+        if(firstTime){
+          this.oldNotes = this.notes;
+        }
       })
       .catch(error=>{
         console.log("error");
@@ -171,20 +201,27 @@ export class NotesPage {
   //     })
   // }
 
+  /*
+  Title searching is always done on what is shown.
+  */
   loadByTitle(title: string){
-    this.atticNotes.notesByTitle(title)
-      .then(result=>{
-        this.notes=<NoteMin[]>result;
-      })
-      .catch(error=>{
-        console.log(error);
-      })
+    // this.atticNotes.notesByTitle(title)
+    //   .then(result=>{
+    //     this.notes=<NoteMin[]>result;
+    //   })
+    //   .catch(error=>{
+    //     console.log(error);
+    //   })
+    this.notes = this.atticNotes.filterNotesByTitle(this.notes, this.searchTerm);
   }
 
-  loadByText(text: string){
+  loadByText(text: string, firstTime: boolean){
     this.atticNotes.notesByText(text)
       .then(result=>{
         this.notes=<NoteMin[]>result;
+        if(firstTime){
+          this.oldNotes = this.notes;
+        }
       })
       .catch(error=>{
         console.log(error);

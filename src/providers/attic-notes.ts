@@ -3,7 +3,7 @@ import { Http, Headers } from '@angular/http';
 /* importing auth because I need the token. */
 import { Auth } from './auth';
 import { Const } from '../public/const';
-import { /*NoteExtraMin, NoteSmart, NoteFull*/NoteMin } from '../models/notes';
+import { NoteExtraMin/*, NoteSmart, NoteFull*/,NoteMin } from '../models/notes';
 import { Utils } from '../public/utils';
 
 import 'rxjs/add/operator/map';
@@ -124,7 +124,7 @@ export class AtticNotes {
   }
 
   notesByTag(tags: string[]){
-    console.log("the req: "+JSON.stringify({tags: tags}));
+    // console.log("the req: "+JSON.stringify({tags: tags}));
     return Utils.postBasic('/api/notes/by-tag/unpop', JSON.stringify({tags: tags}), this.http, this.auth.token);
   }
 
@@ -134,6 +134,16 @@ export class AtticNotes {
 
   notesByOtherTag(tags: string[]){
     return Utils.postBasic('/api/notes/by-tag/unpop', JSON.stringify({otherTags: tags}), this.http, this.auth.token);
+  }
+/*
+return this.items.filter((item) => {
+    return item.title.toLowerCase().indexOf(searchTerm.toLowerCase()) > -1;
+});
+*/
+  filterNotesByTitle(notes: NoteExtraMin[], term: string):NoteExtraMin[]{
+    return notes.filter((note)=>{
+      return note.title.indexOf(term.toLowerCase())>-1;
+    });
   }
 
   notesByTitle(title: string){

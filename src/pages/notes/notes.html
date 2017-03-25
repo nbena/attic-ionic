@@ -6,7 +6,7 @@
 -->
 <ion-header>
 
-  <ion-navbar>
+  <ion-navbar color="primary">
     <button ion-button icon-only menuToggle>
       <ion-icon name="menu"></ion-icon>
     </button>
@@ -22,7 +22,7 @@
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
 
-  <ion-searchbar (input)="searchByTitle($event)">
+  <ion-searchbar [(ngModel)]="searchTerm" [formControl]="searchCtrl">
   </ion-searchbar>
 
   <h3>Notes!</h3>
