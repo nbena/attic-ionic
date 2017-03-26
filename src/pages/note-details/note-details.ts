@@ -34,6 +34,14 @@ export class NoteDetailsPage {
 
   mainTags: TagExtraMin[];
   otherTags: TagExtraMin[];
+  links: string[];
+  submitChangeEnabled: boolean = false;
+  isDone: boolean= false;
+
+  mainTagsChanged: boolean = false;
+  otherTagsChanged: boolean = false;
+  linksChanged: boolean = false;
+  isDoneChanged: boolean = false; /*don't really need this.*/
 
   constructor(public navCtrl: NavController, public navParams: NavParams,
     public popoverCtrl: PopoverController, private atticNotes: AtticNotes) {
@@ -53,6 +61,14 @@ export class NoteDetailsPage {
         // this._links=this.note.links;
         this.mainTags=this.note.mainTags;
         this.otherTags=this.note.otherTags;
+        this.links=this.note.links;
+        this.submitChangeEnabled=false;
+        this.isDone=this.note.isDone;
+
+        this.mainTagsChanged = false;
+        this.otherTagsChanged = false;
+        this.linksChanged = false;
+        this.isDoneChanged = false;
       })
       .catch(err=>{
         console.log(err);
@@ -82,9 +98,34 @@ export class NoteDetailsPage {
     });
   }
 
-  delete(event, chip: Element){
+  deleteMainTags(event, i: number){
     event.stopPropagation();
-    chip.remove();
+     this.mainTags.splice(i, 1);
+     this.submitChangeEnabled = true;
+     this.mainTagsChanged = true;
+  }
+
+  deleteOtherTags(event, i: number){
+    event.stopPropagation();
+    this.otherTags.splice(i, 1);
+    this.submitChangeEnabled = true;
+    this.otherTagsChanged = true;
+  }
+
+  deleteLinks(event, i: number){
+    event.stopPropagation();
+    this.links.splice(i, 1);
+    this. submitChangeEnabled = true;
+    this.linksChanged = true;
+  }
+
+  toggleChanges(){
+    this.submitChangeEnabled = true;
+    this.isDoneChanged = true;
+  }
+
+  submit(){
+
   }
 
 }

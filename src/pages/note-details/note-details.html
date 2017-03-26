@@ -60,12 +60,12 @@
           Main tags
         <!-- </ion-label> -->
         <ion-list>
-          <ion-chip *ngFor="let mainTag of mainTags?" (click)="displayTagDetails(mainTag._id, mainTag.title)" id="mainTag._id">
+          <ion-chip *ngFor="let mainTag of mainTags; let i=index" (click)="displayTagDetails(mainTag._id, mainTag.title)">
             <ion-label>
             {{mainTag.title}}
             </ion-label>
             <!--<ion-icon name="pin" color="primary"></ion-icon>-->
-            <button ion-button (click)="delete($event, mainTag._id)">
+            <button ion-button (click)="deleteMainTags($event, i)">
               <ion-icon name="close"></ion-icon>
             </button>
           </ion-chip>
@@ -80,29 +80,46 @@
           Other tags
         <!-- </ion-label> -->
         <ion-list>
-          <ion-chip *ngFor="let otherTag of otherTags?" (click)="displayTagDetails(otherTag._id, otherTag.title)">
+          <ion-chip *ngFor="let otherTag of otherTags; let i=index" (click)="displayTagDetails(otherTag._id, otherTag.title)">
+            <ion-label>
             {{otherTag.title}}
+          </ion-label>
+          <button ion-button (click)="deleteOtherTags($event, i)">
+            <ion-icon name="close"></ion-icon>
+          </button>
           </ion-chip>
         </ion-list>
     </ion-item>
 
 
-      <ion-item>
+      <!-- <ion-item>
         <ion-label>
           Done: {{note?.isDone}}
         </ion-label>
+      </ion-item> -->
+
+      <ion-item>
+        <ion-label>Done:</ion-label>
+        <ion-toggle [(ngModel)]="isDone" (ionChange)="toggleChanges()"></ion-toggle>
       </ion-item>
 
 
       <ion-item>
         Links
         <ion-list>
-          <ion-chip *ngFor="let link of note?.links">
-            {{link}}
+          <ion-chip *ngFor="let link of links; let i=index" (click)="browse(link)">
+            <ion-label>
+              {{link}}
+            </ion-label>
+            <button ion-button (click)="deleteLinks($event, i)">
+              <ion-icon name="close"></ion-icon>
+            </button>
           </ion-chip>
         </ion-list>
       </ion-item>
 
+
+<!--using angular pipes to display dates. -->
       <ion-item>
         <ion-label>
           Created:
@@ -123,6 +140,8 @@
 
 
     </ion-list>
+
+    <button ion-button full [disabled]="!submitChangeEnabled" (click)="submit()">Submit change</button>
 
   </ion-card>
   <!-- </ion-refresher-content>
