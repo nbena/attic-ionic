@@ -1,8 +1,9 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams } from 'ionic-angular';
+import { NavController, NavParams, ToastController } from 'ionic-angular';
 
 import { NoteFull } from '../../models/notes';
 import { AtticNotes } from '../../providers/attic-notes';
+import { Utils } from '../../public/utils';
 
 /*
   Generated class for the NoteEditText page.
@@ -21,7 +22,7 @@ export class NoteEditTextPage {
 
 
   constructor(public navCtrl: NavController, public navParams: NavParams,
-    private atticNotes: AtticNotes) {
+    public toastCtrl: ToastController, private atticNotes: AtticNotes) {
       this.note=navParams.get('note');
       this.text=this.note.text;
     }
@@ -40,6 +41,13 @@ export class NoteEditTextPage {
       .then(result=>{
         console.log(result);
         //toast controller.
+        // let toast=this.toastCtrl.create({
+        //   message: 'Text updated',
+        //   duration: 2000,
+        //   position: 'bottom'
+        // })
+        // toast.present();
+        Utils.presentToast(this.toastCtrl, 'Text updated');
         this.navCtrl.pop();
       })
       .catch(error=>{

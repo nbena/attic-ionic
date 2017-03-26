@@ -8,13 +8,17 @@
 
   <ion-navbar color="primary">
     <ion-title>{{title}}</ion-title>
-    <button ion-button icon-only (click)="showPopover($event)">
+    <button ion-button icon-only menuToggle>
+      <ion-icon name="menu"></ion-icon>
+    </button>
+    <button ion-button icon-only right (click)="showPopover($event)">
   <ion-icon name="more"></ion-icon>
 </button>
   </ion-navbar>
 
 </ion-header>
 
+<!-- <ion-icon name="refresh"></ion-icon>-->
 
 <ion-content padding>
 
@@ -42,14 +46,28 @@
         </ion-label>
       </ion-item>
 
+<!--
+      <ion-chip #chip2>
+        <ion-icon name="pin" color="primary"></ion-icon>
+        <ion-label>With Icon</ion-label>
+        <button ion-button (click)="delete(chip2)">
+          <ion-icon name="close"></ion-icon>
+        </button>
+      </ion-chip>-->
 
       <ion-item>
         <!-- <ion-label> -->
           Main tags
         <!-- </ion-label> -->
         <ion-list>
-          <ion-chip *ngFor="let mainTag of note?.mainTags" (click)="displayTagDetails(mainTag._id, mainTag.title)">
+          <ion-chip *ngFor="let mainTag of note?.mainTags" (click)="displayTagDetails(mainTag._id, mainTag.title)" id="mainTag._id">
+            <ion-label>
             {{mainTag.title}}
+            <ion-label>
+            <!--<ion-icon name="pin" color="primary"></ion-icon>-->
+            <button ion-button (click)="delete(mainTag._id)">
+              <ion-icon name="close"></ion-icon>
+            </button>
           </ion-chip>
         </ion-list>
       </ion-item>

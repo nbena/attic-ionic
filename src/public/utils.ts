@@ -5,6 +5,7 @@ import { Http, Headers } from '@angular/http';
 import { Const } from '../public/const';
 import { NoteBarebon, NoteFull, NoteMin } from '../models/notes';
 import { TagExtraMin } from '../models/tags';
+import { ToastController } from 'ionic-angular';
 
 export class Utils{
   static getBasic(uriFinal: string, http: Http, token: any){
@@ -125,6 +126,15 @@ static logNote(note: NoteBarebon):string{
   }
 
   return result;
+}
+
+static presentToast(toastCtrl: ToastController, message: string){
+  let toast = toastCtrl.create({
+    message: message,
+    duration: 2000,
+    position: 'bottom'
+  });
+  toast.present();
 }
 
 

@@ -1,8 +1,9 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, ViewController } from 'ionic-angular';
+import { NavController, NavParams, ViewController, ToastController } from 'ionic-angular';
 import { NoteFull } from '../../models/notes';
 import { NoteEditTextPage } from '../note-edit-text/note-edit-text';
-
+import { AtticNotes } from '../../providers/attic-notes';
+import { Utils } from '../../public/utils';
 /*
   Generated class for the NotesPopover page.
 
@@ -19,7 +20,8 @@ export class NotesPopoverPage {
   note: NoteFull;
 
   constructor(public navCtrl: NavController, public navParams: NavParams,
-    public viewCtrl: ViewController) {
+    public viewCtrl: ViewController, public toastCtrl: ToastController,
+    private atticNotes: AtticNotes) {
       this.note=navParams.get('note');
       if(this.note.isDone){
         this.done='Mark as \'undone\'';
@@ -52,7 +54,22 @@ export class NotesPopoverPage {
 
   setDone(){
     this.close();
-    console.log("should dismiss");
+    if(this.note.isDone){
+      this.note.isDone=false;
+    }else{
+      this.note.isDone=true;
+    }
+  }
+
+  changeTitleAPI(title: string){
+    this.atticNotes.updateTitle(this.note._id, title)
+      .then(result=>{
+        this.note.title=title;
+        Utils.presentToast(this.toastCtrl, 'Title updated');
+      })
+      .catch(error=>{
+        console.log(JSON.stringify(error));
+      });
   }
 
   close(){

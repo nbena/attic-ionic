@@ -56,6 +56,7 @@ export class NoteDetailsPage {
 
   ionViewDidLoad() {
     console.log('ionViewDidLoad NoteDetailsPage');
+    // this.refresh()
   }
 
   displayTagDetails(_id: string, title: string){
@@ -74,6 +75,10 @@ export class NoteDetailsPage {
     popover.present({
       ev: event
     });
+  }
+
+  delete(chip: Element){
+    chip.remove();
   }
 
 }
