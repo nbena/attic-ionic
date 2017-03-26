@@ -7,7 +7,7 @@ Here's the interface for the note API.
 
 /*the basically-iest API*/
 export class NoteExtraMin{
-  private _id: string;
+  _id: string;
   title: string;
 }
 

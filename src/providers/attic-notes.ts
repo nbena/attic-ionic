@@ -154,4 +154,40 @@ return this.items.filter((item) => {
     return Utils.postBasic('/api/notes/by-text/unpop', JSON.stringify({text: text}), this.http, this.auth.token);
   }
 
+  updateText(noteId: string, newText: string){
+    return Utils.postBasic('/api/notes/mod/text', JSON.stringify({id: noteId, text: newText}), this.http, this.auth.token);
+  }
+
+  updateTitle(noteId: string, newTitle: string){
+    return Utils.postBasic('/api/notes/mod/title', JSON.stringify({id: noteId, title: newTitle}), this.http, this.auth.token);
+  }
+
+  updateDone(noteId: string, done: boolean){
+    return Utils.postBasic('/api/notes/mod/setdone', JSON.stringify({id: noteId, done: done}), this.http, this.auth.token);
+  }
+
+  addMainTags(noteId: string, tagIds: string[]){
+    return Utils.postBasic('/api/notes/mod/addtags', JSON.stringify({id: noteId, mainTags: tagIds }), this.http, this.auth.token);
+  }
+
+  addOtherTags(noteId: string, tagIds: string[]){
+    return Utils.postBasic('/api/notes/mod/addtags', JSON.stringify({id: noteId, otherTags: tagIds }), this.http, this.auth.token);
+  }
+
+  removeMainTags(noteId: string, tagIds: string[]){
+    return Utils.postBasic('/api/notes/mod/removetags', JSON.stringify({id: noteId, mainTags: tagIds }), this.http, this.auth.token);
+  }
+
+  removeOtherTags(noteId: string, tagIds: string[]){
+    return Utils.postBasic('/api/notes/mod/removetags', JSON.stringify({id: noteId, otherTags: tagIds }), this.http, this.auth.token);
+  }
+
+  addLinks(noteId: string, links: string[]){
+    return Utils.postBasic('/api/notes/mod/addlinks', JSON.stringify({id: noteId, links: links }), this.http, this.auth.token);
+  }
+
+  removeLinks(noteId: string, links: string[]){
+    return Utils.postBasic('/api/notes/mod/removelinks', JSON.stringify({id: noteId, links: links }), this.http, this.auth.token);
+  }
+
 }

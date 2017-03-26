@@ -1,0 +1,29 @@
+<!--
+  Generated template for the NoteEditText page.
+
+  See http://ionicframework.com/docs/v2/components/#navigation for more info on
+  Ionic pages and navigation.
+-->
+<ion-header>
+
+  <ion-navbar color="primary">
+    <button ion-button icon-only menuToggle>
+      <ion-icon name="menu"></ion-icon>
+    </button>
+    <ion-title>{{note?.title}}</ion-title>
+  </ion-navbar>
+
+</ion-header>
+
+
+<ion-content padding>
+  <form (ngSubmit)="changeText()">
+    <ion-item>
+      <ion-label> Enter the new text:</ion-label>
+    </ion-item>
+    <ion-textarea [(ngModel)]="text" name="text"></ion-textarea>
+    <button ion-button full name="confirm" type="submit" color="primary"></button>
+    <button ion-button full name="cancel" type="button" color="primary" (click)="cancel()"></button>
+  </form>
+
+</ion-content>

@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { NavController, NavParams, ViewController } from 'ionic-angular';
 import { NoteFull } from '../../models/notes';
+import { NoteEditTextPage } from '../note-edit-text/note-edit-text';
 
 /*
   Generated class for the NotesPopover page.
@@ -34,6 +35,7 @@ export class NotesPopoverPage {
 
   changeText(){
     this.close();
+    this.navCtrl.push(NoteEditTextPage, {note: this.note});
   }
 
   changeMainTags(){
