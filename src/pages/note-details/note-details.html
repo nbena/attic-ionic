@@ -12,8 +12,8 @@
       <ion-icon name="menu"></ion-icon>
     </button>
     <button ion-button icon-only right (click)="showPopover($event)">
-  <ion-icon name="more"></ion-icon>
-</button>
+      <ion-icon name="more"></ion-icon>
+    </button>
   </ion-navbar>
 
 </ion-header>
@@ -60,12 +60,12 @@
           Main tags
         <!-- </ion-label> -->
         <ion-list>
-          <ion-chip *ngFor="let mainTag of note?.mainTags" (click)="displayTagDetails(mainTag._id, mainTag.title)" id="mainTag._id">
+          <ion-chip *ngFor="let mainTag of mainTags?" (click)="displayTagDetails(mainTag._id, mainTag.title)" id="mainTag._id">
             <ion-label>
             {{mainTag.title}}
-            <ion-label>
+            </ion-label>
             <!--<ion-icon name="pin" color="primary"></ion-icon>-->
-            <button ion-button (click)="delete(mainTag._id)">
+            <button ion-button (click)="delete($event, mainTag._id)">
               <ion-icon name="close"></ion-icon>
             </button>
           </ion-chip>
@@ -80,7 +80,7 @@
           Other tags
         <!-- </ion-label> -->
         <ion-list>
-          <ion-chip *ngFor="let otherTag of note?.otherTags" (click)="displayTagDetails(otherTag._id, otherTag.title)">
+          <ion-chip *ngFor="let otherTag of otherTags?" (click)="displayTagDetails(otherTag._id, otherTag.title)">
             {{otherTag.title}}
           </ion-chip>
         </ion-list>

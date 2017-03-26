@@ -32,6 +32,9 @@ export class NoteDetailsPage {
   // creationDateString: string;
   // lastModificationDateString: string;
 
+  mainTags: TagExtraMin[];
+  otherTags: TagExtraMin[];
+
   constructor(public navCtrl: NavController, public navParams: NavParams,
     public popoverCtrl: PopoverController, private atticNotes: AtticNotes) {
     this._id=navParams.get('_id');
@@ -48,6 +51,8 @@ export class NoteDetailsPage {
         // this._mainTags=this.note.mainTags;
         // this._otherTags=this.note.otherTags;
         // this._links=this.note.links;
+        this.mainTags=this.note.mainTags;
+        this.otherTags=this.note.otherTags;
       })
       .catch(err=>{
         console.log(err);
@@ -77,7 +82,8 @@ export class NoteDetailsPage {
     });
   }
 
-  delete(chip: Element){
+  delete(event, chip: Element){
+    event.stopPropagation();
     chip.remove();
   }
 
