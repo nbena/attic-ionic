@@ -10,6 +10,7 @@ import { NoteDetailsPage } from '../pages/note-details/note-details';
 import { TagDetailsPage } from '../pages/tag-details/tag-details';
 
 import { CreateNotePage } from '../pages/create-note/create-note';
+import { NotesPopoverPage } from '../pages/notes-popover/notes-popover';
 
 //login
 import { LoginPage } from '../pages/login/login';
@@ -32,6 +33,7 @@ import { Auth } from '../providers/auth';
     LoginPage,
     RegisterPage,
     CreateNotePage,
+    NotesPopoverPage
   ],
   imports: [
     IonicModule.forRoot(MyApp)
@@ -45,7 +47,8 @@ import { Auth } from '../providers/auth';
     TagDetailsPage,
     LoginPage,
     RegisterPage,
-    CreateNotePage
+    CreateNotePage,
+    NotesPopoverPage
   ],
   providers: [
     {provide: ErrorHandler, useClass: IonicErrorHandler},

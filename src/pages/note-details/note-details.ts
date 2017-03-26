@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams } from 'ionic-angular';
+import { NavController, NavParams, PopoverController } from 'ionic-angular';
 
 import { NoteExtraMin, NoteFull, NoteMin, NoteSmart } from '../../models/notes';
 
@@ -7,6 +7,7 @@ import { AtticNotes } from '../../providers/attic-notes';
 
 import { TagExtraMin } from '../../models/tags';
 import { TagDetailsPage } from '../tag-details/tag-details';
+import { NotesPopoverPage } from '../notes-popover/notes-popover';
 
 /*
   Generated class for the NoteDetails page.
@@ -32,7 +33,7 @@ export class NoteDetailsPage {
   // lastModificationDateString: string;
 
   constructor(public navCtrl: NavController, public navParams: NavParams,
-    private atticNotes: AtticNotes) {
+    public popoverCtrl: PopoverController, private atticNotes: AtticNotes) {
     this._id=navParams.get('_id');
     this.title=navParams.get('title');
     this.noteById();
@@ -66,6 +67,13 @@ export class NoteDetailsPage {
     setTimeout(()=>{
       refresher.complete();
     },2000);
+  }
+
+  showPopover(event){
+    let popover=this.popoverCtrl.create(NotesPopoverPage, {note: this.note});
+    popover.present({
+      ev: event
+    });
   }
 
 }

@@ -36,9 +36,20 @@ MenuToggle is used for the sidemenu.
   </ion-card>
   <!-- </ion-list> -->
 
-  <button ion-button icon-only (click)="createNewTag()">
+  <!-- <button ion-button icon-only (click)="createNewTag()">
     <ion-icon name="add-circle"></ion-icon>
-  </button>
+  </button> -->
+
 
 
 </ion-content>
+<!--
+<button fab fab-bottom fab-right (click)="createNewTag()">
+    <ion-icon name="add"></ion-icon>
+</button> -->
+
+<ion-fab right bottom>
+  <button ion-fab color="primary" (click)="createNewTag()">
+    <ion-icon name="add"></ion-icon>
+  </button>
+</ion-fab>
