@@ -149,5 +149,43 @@ static arrayDiff(arg0: any[], arg1: any[]){
       })
   }
 
+  static arrayDiff3(arg0: TagExtraMin[], arg1: TagExtraMin[]){
+    let k=0;
+    let array: TagExtraMin[];
+    // for(let i=0;i<arg0.length;i++){
+    //   for(let j=0;j<arg1.length;j++){
+    //     console.log("matching: "+arg0[i]._id+" and "+arg1[j]._id, "? "+arg0[i]._id!=arg1[j]._id);
+    //     if(arg0[i]._id!=arg1[j]._id){
+    //       array.push(arg0[i]);
+    //
+    //     }
+
+console.log("arg0 length is "+arg0.length);
+console.log("arg1 length is "+arg1.length);
+for(let i=0;i<arg0.length;i++){
+  console.log(i);
+  //console.log(j);
+        let obj = arg0[i];
+        let bool = true;
+        for(let j=0;j<arg1.length;j++){
+                if(obj._id==arg1[j]._id){
+                        bool=false;
+                }
+        }
+        if(bool){
+                array.push(obj);
+                bool = false;
+        }
+}
+console.log("the result is: ");
+console.log(array.length.toString());
+return array;
+      }
+    //}
+    // return array;
+
+    // console.log(JSON.stringify(arg0)+"\n"+JSON.stringify(arg1));
+    // return arg0.filter(x => arg1.indexOf(x) == -1);
+  //}
 
 }

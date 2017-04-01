@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, PopoverController } from 'ionic-angular';
+import { NavController, NavParams, PopoverController, AlertController } from 'ionic-angular';
 
 import { NoteExtraMin, NoteFull, NoteMin, NoteSmart } from '../../models/notes';
 
@@ -37,6 +37,7 @@ export class NoteDetailsPage {
 
   mainTags: TagExtraMin[];
   otherTags: TagExtraMin[];
+
   links: string[];
   submitChangeEnabled: boolean = false;
   isDone: boolean= false;
@@ -57,8 +58,8 @@ export class NoteDetailsPage {
 
 
   constructor(public navCtrl: NavController, public navParams: NavParams,
-    public popoverCtrl: PopoverController, private atticNotes: AtticNotes,
-    private atticTags: AtticTags) {
+    public popoverCtrl: PopoverController, public alertCtrl: AlertController,
+    private atticNotes: AtticNotes, private atticTags: AtticTags) {
     this._id=navParams.get('_id');
     this.title=navParams.get('title');
     this.noteById();
@@ -74,8 +75,8 @@ export class NoteDetailsPage {
         // this._mainTags=this.note.mainTags;
         // this._otherTags=this.note.otherTags;
         // this._links=this.note.links;
-        this.mainTags=this.note.mainTags;
-        this.otherTags=this.note.otherTags;
+        this.mainTags=<TagExtraMin[]>this.note.mainTags;
+        this.otherTags=<TagExtraMin[]>this.note.otherTags;
         this.links=this.note.links;
         this.submitChangeEnabled=false;
         this.isDone=this.note.isDone;
@@ -85,9 +86,9 @@ export class NoteDetailsPage {
         this.linksChanged = false;
         this.isDoneChanged = false;
 
-        let a= [1,2,3,4];
-        let b=[3,4];
-        console.log(JSON.stringify(Utils.arrayDiff(a,b)));
+        // let a= [1,2,3,4];
+        // let b=[3,4];
+        // console.log(JSON.stringify(Utils.arrayDiff3(a,b)));
 
       })
       .catch(err=>{
@@ -103,7 +104,7 @@ export class NoteDetailsPage {
         this.areTagsAvailable=true;
         this.makeReallyAvailable();
 
-        console.log(JSON.stringify(this.reallyAvailableTags));
+        // console.log(JSON.stringify(this.reallyAvailableTags));
 
       })
       .catch(error=>{
@@ -112,13 +113,34 @@ export class NoteDetailsPage {
   }
 
   makeFilter(filter: any[]){
-    /*this.reallyAvailableTags=*/Utils.arrayDiff2(this.reallyAvailableTags, filter);
+    // this.reallyAvailableTags=Utils.arrayDiff3(this.reallyAvailableTags, filter);
   }
 
   makeReallyAvailable(){
     this.reallyAvailableTags=this.availableTags;
-    this.makeFilter(this.mainTags);
-    this.makeFilter(this.otherTags);
+    // console.log("the really available tags: \n");
+    // console.log(JSON.stringify(this.reallyAvailableTags));
+    // console.log("the main tags: \n");
+    // console.log(JSON.stringify(<TagExtraMin[]>this.mainTags));
+    // console.log("the other tags: \n");
+    // console.log(JSON.stringify(<TagExtraMin[]>this.otherTags));
+    // console.log("going to call");
+    //
+    //
+    // this.makeFilter(this.mainTags.concat(this.otherTags));
+    // // this.makeFilter(this.otherTags);
+    // console.log("filetring called");
+    // console.log("=========the filtering:=========");
+    // console.log(JSON.stringify(this.reallyAvailableTags));
+
+    console.log("tags length");
+    console.log(this.reallyAvailableTags.length.toString());
+
+    this.reallyAvailableTags = Utils.arrayDiff3(this.reallyAvailableTags, this.mainTags.concat(this.otherTags));
+    console.log("maintags + othertags length: ");
+    console.log((this.mainTags.length+this.otherTags.length).toString());
+    console.log("tags length");
+    console.log(this.reallyAvailableTags.length.toString());
   }
 
   ionViewDidLoad() {
@@ -144,10 +166,54 @@ export class NoteDetailsPage {
     });
   }
   addMainTags(){
+    let alert = this.alertCtrl.create();
+    alert.setTitle("Add main tags");
+
+    for(let i=0;i<this.reallyAvailableTags.length;i++){
+      alert.addInput({
+        type: 'checkbox',
+        label: this.reallyAvailableTags[i].title,
+        value:  this.reallyAvailableTags[i]._id
+      })
+    }
+    alert.addButton('Cancel');
+    alert.addButton({
+      text: 'Ok',
+      handler: data => {
+        console.log(JSON.stringify(data));
+        this.addMainTagsAPI(<TagExtraMin[]>data);
+      }
+    })
+    alert.present();
+  }
+
+  addMainTagsAPI(tags: TagExtraMin[]){
 
   }
 
   addOtherTags(){
+    let alert = this.alertCtrl.create();
+    alert.setTitle("Add main tags");
+
+    for(let i=0;i<this.reallyAvailableTags.length;i++){
+      alert.addInput({
+        type: 'checkbox',
+        label: this.reallyAvailableTags[i].title,
+        value:  this.reallyAvailableTags[i]._id
+      })
+    }
+    alert.addButton('Cancel');
+    alert.addButton({
+      text: 'Ok',
+      handler: data => {
+        console.log(JSON.stringify(data));
+        this.addOtherTagsAPI(<TagExtraMin[]>data);
+      }
+    })
+    alert.present();
+  }
+
+  addOtherTagsAPI(tags: TagExtraMin[]){
 
   }
 
