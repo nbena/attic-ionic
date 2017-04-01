@@ -55,10 +55,18 @@
         </button>
       </ion-chip>-->
 
+
+
+        <ion-item>
+          <ion-label>
+            Main tags
+          </ion-label>
+          <button type="button" ion-button item-right color="primary" (click)="addMainTags()">
+            <ion-icon name="add-circle"></ion-icon>
+          </button>
+        </ion-item>
+
       <ion-item>
-        <!-- <ion-label> -->
-          Main tags
-        <!-- </ion-label> -->
         <ion-list>
           <ion-chip *ngFor="let mainTag of mainTags; let i=index" (click)="displayTagDetails(mainTag._id, mainTag.title)">
             <ion-label>
@@ -76,9 +84,14 @@
 
 
       <ion-item>
-        <!-- <ion-label> -->
+        <ion-label>
           Other tags
-        <!-- </ion-label> -->
+        </ion-label>
+        <button type="button" ion-button item-right color="primary" (click)="addOtherTags()">
+          <ion-icon name="add-circle"></ion-icon>
+        </button>
+      </ion-item>
+      <ion-item>
         <ion-list>
           <ion-chip *ngFor="let otherTag of otherTags; let i=index" (click)="displayTagDetails(otherTag._id, otherTag.title)">
             <ion-label>
@@ -105,7 +118,14 @@
 
 
       <ion-item>
-        Links
+        <ion-label>
+          Links
+        </ion-label>
+        <button type="button" ion-button item-right color="primary" (click)="addLinks()">
+          <ion-icon name="add-circle"></ion-icon>
+        </button>
+      </ion-item>
+        <ion-item>
         <ion-list>
           <ion-chip *ngFor="let link of links; let i=index" (click)="browse(link)">
             <ion-label>

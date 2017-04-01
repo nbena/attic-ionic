@@ -50,7 +50,7 @@ export class NoteDetailsPage {
   availableTags: TagExtraMin[];
   areTagsAvailable: boolean = false;
 
-  
+
 
   constructor(public navCtrl: NavController, public navParams: NavParams,
     public popoverCtrl: PopoverController, private atticNotes: AtticNotes,
@@ -118,6 +118,17 @@ export class NoteDetailsPage {
     popover.present({
       ev: event
     });
+  }
+  addMainTags(){
+
+  }
+
+  addOtherTags(){
+
+  }
+
+  addLinks(){
+    
   }
 
   deleteMainTags(event, i: number){

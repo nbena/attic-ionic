@@ -40,13 +40,6 @@ export class NoteEditTextPage {
     this.atticNotes.updateText(this.note._id, this.text)
       .then(result=>{
         console.log(result);
-        //toast controller.
-        // let toast=this.toastCtrl.create({
-        //   message: 'Text updated',
-        //   duration: 2000,
-        //   position: 'bottom'
-        // })
-        // toast.present();
         Utils.presentToast(this.toastCtrl, 'Text updated');
         this.navCtrl.pop();
       })
