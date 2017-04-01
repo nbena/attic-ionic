@@ -137,5 +137,17 @@ static presentToast(toastCtrl: ToastController, message: string){
   toast.present();
 }
 
+static arrayDiff(arg0: any[], arg1: any[]){
+  return arg0.filter(function(el){
+      return arg1.indexOf(el)<0;
+    })
+  }
+
+  static arrayDiff2(arg0: TagExtraMin[], arg1: TagExtraMin[]){
+    return arg0.filter(function(el){
+        return arg1.indexOf(el)<0;
+      })
+  }
+
 
 }

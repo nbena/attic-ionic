@@ -10,6 +10,8 @@ import { TagExtraMin } from '../../models/tags';
 import { TagDetailsPage } from '../tag-details/tag-details';
 import { NotesPopoverPage } from '../notes-popover/notes-popover';
 
+import { Utils } from '../../public/utils';
+
 /*
   Generated class for the NoteDetails page.
 
@@ -50,6 +52,8 @@ export class NoteDetailsPage {
   availableTags: TagExtraMin[];
   areTagsAvailable: boolean = false;
 
+  reallyAvailableTags: TagExtraMin[];
+
 
 
   constructor(public navCtrl: NavController, public navParams: NavParams,
@@ -58,6 +62,7 @@ export class NoteDetailsPage {
     this._id=navParams.get('_id');
     this.title=navParams.get('title');
     this.noteById();
+    this.loadTags();
   }
 
   noteById(){
@@ -79,6 +84,11 @@ export class NoteDetailsPage {
         this.otherTagsChanged = false;
         this.linksChanged = false;
         this.isDoneChanged = false;
+
+        let a= [1,2,3,4];
+        let b=[3,4];
+        console.log(JSON.stringify(Utils.arrayDiff(a,b)));
+
       })
       .catch(err=>{
         console.log(err);
@@ -91,10 +101,24 @@ export class NoteDetailsPage {
       .then(result=>{
         this.availableTags=<TagExtraMin[]>result;
         this.areTagsAvailable=true;
+        this.makeReallyAvailable();
+
+        console.log(JSON.stringify(this.reallyAvailableTags));
+
       })
       .catch(error=>{
         console.log(JSON.stringify(error));
       })
+  }
+
+  makeFilter(filter: any[]){
+    /*this.reallyAvailableTags=*/Utils.arrayDiff2(this.reallyAvailableTags, filter);
+  }
+
+  makeReallyAvailable(){
+    this.reallyAvailableTags=this.availableTags;
+    this.makeFilter(this.mainTags);
+    this.makeFilter(this.otherTags);
   }
 
   ionViewDidLoad() {
@@ -128,7 +152,7 @@ export class NoteDetailsPage {
   }
 
   addLinks(){
-    
+
   }
 
   deleteMainTags(event, i: number){
