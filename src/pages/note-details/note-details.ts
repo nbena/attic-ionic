@@ -4,6 +4,7 @@ import { NavController, NavParams, PopoverController } from 'ionic-angular';
 import { NoteExtraMin, NoteFull, NoteMin, NoteSmart } from '../../models/notes';
 
 import { AtticNotes } from '../../providers/attic-notes';
+import { AtticTags } from '../../providers/attic-tags';
 
 import { TagExtraMin } from '../../models/tags';
 import { TagDetailsPage } from '../tag-details/tag-details';
@@ -43,8 +44,17 @@ export class NoteDetailsPage {
   linksChanged: boolean = false;
   isDoneChanged: boolean = false; /*don't really need this.*/
 
+  availableOtherTags: TagExtraMin[];
+  availableMainTags: TagExtraMin[];
+
+  availableTags: TagExtraMin[];
+  areTagsAvailable: boolean = false;
+
+  
+
   constructor(public navCtrl: NavController, public navParams: NavParams,
-    public popoverCtrl: PopoverController, private atticNotes: AtticNotes) {
+    public popoverCtrl: PopoverController, private atticNotes: AtticNotes,
+    private atticTags: AtticTags) {
     this._id=navParams.get('_id');
     this.title=navParams.get('title');
     this.noteById();
@@ -72,6 +82,18 @@ export class NoteDetailsPage {
       })
       .catch(err=>{
         console.log(err);
+      })
+  }
+
+
+  loadTags(){
+    this.atticTags.loadTagsMin()
+      .then(result=>{
+        this.availableTags=<TagExtraMin[]>result;
+        this.areTagsAvailable=true;
+      })
+      .catch(error=>{
+        console.log(JSON.stringify(error));
       })
   }
 
@@ -119,7 +141,7 @@ export class NoteDetailsPage {
     this.linksChanged = true;
   }
 
-  toggleChanges(){
+  isDoneChanges(){
     this.submitChangeEnabled = true;
     this.isDoneChanged = true;
   }

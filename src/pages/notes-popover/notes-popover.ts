@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, ViewController, ToastController } from 'ionic-angular';
+import { NavController, NavParams, ViewController, ToastController, AlertController } from 'ionic-angular';
 import { NoteFull } from '../../models/notes';
 import { NoteEditTextPage } from '../note-edit-text/note-edit-text';
 import { AtticNotes } from '../../providers/attic-notes';
@@ -20,8 +20,8 @@ export class NotesPopoverPage {
   note: NoteFull;
 
   constructor(public navCtrl: NavController, public navParams: NavParams,
-    public viewCtrl: ViewController, public toastCtrl: ToastController,
-    private atticNotes: AtticNotes) {
+    public viewCtrl: ViewController, public alertCtrl: AlertController,
+    public toastCtrl: ToastController, private atticNotes: AtticNotes) {
       this.note=navParams.get('note');
       if(this.note.isDone){
         this.done='Mark as \'undone\'';
@@ -30,10 +30,6 @@ export class NotesPopoverPage {
       }
     }
 
-
-  changeTitle(){
-    this.close();
-  }
 
   changeText(){
     this.close();
@@ -60,6 +56,37 @@ export class NotesPopoverPage {
       this.note.isDone=true;
     }
   }
+
+  changeTitle(){
+      let prompt = this.alertCtrl.create({
+        title: 'New title',
+        message: 'Enter a new title',
+        inputs:[
+          {
+          name: 'title',
+          placeholder: 'Title'
+          }
+        ],
+        buttons: [
+          {
+            text: 'Cancel',
+            handler: data => {}
+          },
+          {
+            text: 'Save',
+            handler: data=>{
+              this.changeTitleAPI(<string>data.title);
+            }
+          }
+        ]
+      });
+      prompt.present();
+    this.close();
+  }
+
+  /*
+  Title and text are changed immediately.
+  */
 
   changeTitleAPI(title: string){
     this.atticNotes.updateTitle(this.note._id, title)
