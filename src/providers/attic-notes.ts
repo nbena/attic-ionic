@@ -190,4 +190,8 @@ return this.items.filter((item) => {
     return Utils.postBasic('/api/notes/mod/removelinks', JSON.stringify({id: noteId, links: links }), this.http, this.auth.token);
   }
 
+  setDone(noteId: string, done: boolean){
+    return Utils.postBasic('/api/notes/mod/setdone', JSON.stringify({id: noteId, done: done}), this.http, this.auth.token);
+  }
+
 }

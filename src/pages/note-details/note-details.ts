@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, PopoverController, AlertController } from 'ionic-angular';
+import { NavController, NavParams, PopoverController,
+  AlertController, ToastController } from 'ionic-angular';
 
 import { NoteExtraMin, NoteFull, NoteMin, NoteSmart } from '../../models/notes';
 
@@ -40,10 +41,12 @@ export class NoteDetailsPage {
   mainTags: TagExtraMin[] = [];
   otherTags: TagExtraMin[] = [];
   links: string[] = [];
+  isDone: boolean= false;
 
   shownMainTags: TagExtraMin[]; /*what is really shown depends on what user chooses to do.*/
   shownOtherTags: TagExtraMin[];
   shownLinks: string[];
+  shownIsDone: boolean = false;
 
   mainTagsToAdd: TagExtraMin[] = [];
   otherTagsToAdd: TagExtraMin[] = [];
@@ -55,7 +58,7 @@ export class NoteDetailsPage {
 
 
   submitChangeEnabled: boolean = false;
-  isDone: boolean= false;
+
 
   haveToAddMainTags: boolean = false;
   haveToAddOtherTags: boolean = false;
@@ -77,6 +80,7 @@ export class NoteDetailsPage {
 
   constructor(public navCtrl: NavController, public navParams: NavParams,
     public popoverCtrl: PopoverController, public alertCtrl: AlertController,
+    public toastCtrl: ToastController,
     private atticNotes: AtticNotes, private atticTags: AtticTags) {
     this._id=navParams.get('_id');
     this.title=navParams.get('title');
@@ -118,6 +122,7 @@ export class NoteDetailsPage {
         this.shownMainTags = this.mainTags.slice();
         this.shownOtherTags = this.otherTags.slice();
         this.shownLinks = this.links.slice();
+        this.shownIsDone = this.isDone;
 
         // let a= [1,2,3,4];
         // let b=[3,4];
@@ -340,8 +345,16 @@ export class NoteDetailsPage {
   }
 
   isDoneChanges(){
+    /*
+    keep this enabled even if there aren't chages on isDone,
+    because there can be other changes in other fields.
+    */
     this.submitChangeEnabled = true;
-    this.isDoneChanged = true;
+    if(this.shownIsDone != this.isDone){
+      this.isDoneChanged = true;
+    }else{
+      this.isDoneChanged = false;
+    }
   }
 
   /*
@@ -363,9 +376,107 @@ export class NoteDetailsPage {
     return this.atticNotes.removeOtherTags(this.note._id, Utils.fromTagsToString(this.otherTagsToRemove));
   }
 
+  addLinksAPI(){
+    return this.atticNotes.addLinks(this.note._id, this.linksToAdd);
+  }
+
+  removeLinksAPI(){
+    return this.atticNotes.removeLinks(this.note._id, this.linksToRemove);
+  }
+
+  setDoneAPI(){
+    return this.atticNotes.setDone(this.note._id, this.shownIsDone);
+  }
+
 
   submit(){
+    /*decide which actions must be taken.*/
+    if(this.haveToRemoveMainTags){
+      this.removeMainTagsAPI()
+        .then(result=>{
+          Utils.presentToast(this.toastCtrl, 'tags removed');
+          this.haveToRemoveMainTags = false;
+        })
+        .catch(error=>{
+          console.log(JSON.stringify(error));
+        })
+    }
 
+    if(this.haveToRemoveOtherTags){
+      this.removeOtherTagsAPI()
+        .then(result=>{
+          Utils.presentToast(this.toastCtrl, 'tags removed');
+          this.haveToRemoveOtherTags = false;
+        })
+        .catch(error=>{
+          console.log(JSON.stringify(error));
+        })
+    }
+
+    if(this.haveToAddMainTags){
+      this.addMainTagsAPI()
+        .then(result=>{
+          Utils.presentToast(this.toastCtrl, 'tags added');
+          this.haveToAddMainTags = false;
+        })
+        .catch(error=>{
+          console.log(JSON.stringify(error));
+        })
+    }
+
+    if(this.haveToAddOtherTags){
+      this.addOtherTagsAPI()
+        .then(result=>{
+          Utils.presentToast(this.toastCtrl, 'tags added');
+          this.haveToAddOtherTags = false;
+        })
+        .catch(error=>{
+          console.log(JSON.stringify(error));
+        })
+    }
+
+    if(this.haveToRemoveLinks){
+      this.removeLinksAPI()
+        .then(result=>{
+          Utils.presentToast(this.toastCtrl, 'links removed');
+          this.haveToRemoveLinks = false;
+        })
+        .catch(error=>{
+          console.log(JSON.stringify(error));
+        })
+    }
+
+    if(this.haveToAddLinks){
+      this.addLinksAPI()
+        .then(result=>{
+          Utils.presentToast(this.toastCtrl, 'links added');
+          this.haveToAddLinks = false;
+        })
+        .catch(error=>{
+          console.log(JSON.stringify(error));
+        })
+    }
+
+    if(this.isDoneChanged){
+      this.setDoneAPI()
+        .then(result=>{
+          Utils.presentToast(this.toastCtrl, '\'done\' modified');
+          this.isDoneChanged =  false;
+        })
+        .catch(error=>{
+          console.log(JSON.stringify(error));
+        })
+    }
+    if(this.allFalse()){
+      this.submitChangeEnabled = false;
+    }
+  }
+
+  allFalse():boolean{
+    return this.haveToAddLinks == false && this.haveToAddMainTags == false
+      && this.haveToRemoveLinks == false && this.haveToAddOtherTags == false
+      && this.haveToRemoveMainTags == false && this.haveToRemoveOtherTags &&
+      this.isDoneChanged == false;
   }
 
 }

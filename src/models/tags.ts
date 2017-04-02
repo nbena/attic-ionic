@@ -14,9 +14,9 @@ export class TagExtraMin {
     return tag;
   }
 
-  toStringId(): string{
-    return this._id;
-  }
+  // toStringId(): string{
+  //   return this._id;
+  // }
 
 }
 

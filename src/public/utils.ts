@@ -222,8 +222,8 @@ static myIndexOf(arg0: TagExtraMin[], arg1: TagExtraMin): number{
 
 static fromTagsToString(tags: TagExtraMin[]):string[]{
   let result : string [] = [];
-  for(let tag of tags){
-    result.push(tag.toStringId())
+  for(let i=0;i<tags.length;i++){
+    result.push(tags[i]._id);
   }
   return result;
 }
