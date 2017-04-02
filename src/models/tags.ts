@@ -14,6 +14,10 @@ export class TagExtraMin {
     return tag;
   }
 
+  toStringId(): string{
+    return this._id;
+  }
+
 }
 
 export class TagAlmostMin extends TagExtraMin{

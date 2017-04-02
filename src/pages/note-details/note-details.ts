@@ -271,6 +271,8 @@ export class NoteDetailsPage {
 
   addLinks(){
     Utils.pushLink(this.alertCtrl, (data)=>{this.shownLinks.push(data.link)});
+    this.haveToAddLinks = true;
+    this.submitChangeEnabled = true;
   }
 
   deleteMainTags(event, i: number, id: string){
@@ -341,6 +343,26 @@ export class NoteDetailsPage {
     this.submitChangeEnabled = true;
     this.isDoneChanged = true;
   }
+
+  /*
+  defining real APIs
+  */
+  addMainTagsAPI(){
+    return this.atticNotes.addMainTags(this.note._id, Utils.fromTagsToString(this.mainTagsToAdd));
+  }
+
+  addOtherTagsAPI(){
+    return this.atticNotes.addOtherTags(this.note._id, Utils.fromTagsToString(this.otherTagsToAdd));
+  }
+
+  removeMainTagsAPI(){
+    return this.atticNotes.removeMainTags(this.note._id, Utils.fromTagsToString(this.mainTagsToRemove));
+  }
+
+  removeOtherTagsAPI(){
+    return this.atticNotes.removeOtherTags(this.note._id, Utils.fromTagsToString(this.otherTagsToRemove));
+  }
+
 
   submit(){
 

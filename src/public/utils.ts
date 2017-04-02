@@ -220,6 +220,14 @@ static myIndexOf(arg0: TagExtraMin[], arg1: TagExtraMin): number{
 //   }
 // }
 
+static fromTagsToString(tags: TagExtraMin[]):string[]{
+  let result : string [] = [];
+  for(let tag of tags){
+    result.push(tag.toStringId())
+  }
+  return result;
+}
+
 static pushLink(alertCtrl:AlertController, cb: ((_: any)=>void) ){
     let prompt=alertCtrl.create({
       title: 'New link',
