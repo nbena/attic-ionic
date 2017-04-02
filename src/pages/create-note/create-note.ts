@@ -92,6 +92,11 @@ export class CreateNotePage {
       })
   }
 
+  deleteLinks(event, i:number){
+    event.stopPropagation();
+    this.links.splice(i,1);
+  }
+
   /*
   No need to check duplicates on links because it is already done by the server.
   */

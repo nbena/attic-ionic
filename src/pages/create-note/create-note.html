@@ -60,8 +60,13 @@
   </ion-item>
   <ion-item>
     <ion-list>
-      <ion-chip *ngFor="let link of links">
-        {{link}}
+      <ion-chip *ngFor="let link of links; let i=index">
+        <ion-label>
+          {{link}}
+        </ion-label>
+        <button ion-button (click)="deleteLinks($event, i)">
+          <ion-icon name="close"></ion-icon>
+        </button>
       </ion-chip>
     </ion-list>
   </ion-item>
