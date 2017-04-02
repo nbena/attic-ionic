@@ -173,22 +173,27 @@ export class NoteDetailsPage {
       alert.addInput({
         type: 'checkbox',
         label: this.reallyAvailableTags[i].title,
-        value:  this.reallyAvailableTags[i]._id
+        value:  JSON.stringify(this.reallyAvailableTags[i])
       })
     }
     alert.addButton('Cancel');
     alert.addButton({
       text: 'Ok',
       handler: data => {
-        console.log(JSON.stringify(data));
-        this.addMainTagsAPI(<TagExtraMin[]>data);
+        // console.log(JSON.stringify(data));
+        this.addMainTagsUI(<string[]>data);
       }
     })
     alert.present();
   }
 
-  addMainTagsAPI(tags: TagExtraMin[]){
-
+  /*
+  Using string[] because it is required by the API.
+  */
+  addMainTagsUI(tags: string[]){
+    console.log("maintags: ");
+    console.log(JSON.stringify(tags));
+    Utils.pushAllJSON(this.mainTags,tags);
   }
 
   addOtherTags(){
@@ -199,22 +204,24 @@ export class NoteDetailsPage {
       alert.addInput({
         type: 'checkbox',
         label: this.reallyAvailableTags[i].title,
-        value:  this.reallyAvailableTags[i]._id
+        value: JSON.stringify(this.reallyAvailableTags[i])
       })
     }
     alert.addButton('Cancel');
     alert.addButton({
       text: 'Ok',
       handler: data => {
-        console.log(JSON.stringify(data));
-        this.addOtherTagsAPI(<TagExtraMin[]>data);
+        // console.log(JSON.stringify(data));
+        this.addOtherTagsUI(<string[]>data);
       }
     })
     alert.present();
   }
 
-  addOtherTagsAPI(tags: TagExtraMin[]){
-
+  addOtherTagsUI(tags: string[]){
+    console.log("ohertags: ");
+    console.log(JSON.stringify(tags));
+    Utils.pushAllJSON(this.otherTags, tags);
   }
 
   addLinks(){

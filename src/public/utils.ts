@@ -150,7 +150,7 @@ static arrayDiff(arg0: any[], arg1: any[]){
   }
 
   static arrayDiff3(arg0: TagExtraMin[], arg1: TagExtraMin[]){
-    let k=0;
+    // let k=0;
     let array: TagExtraMin[];
     // for(let i=0;i<arg0.length;i++){
     //   for(let j=0;j<arg1.length;j++){
@@ -187,5 +187,25 @@ return array;
     // console.log(JSON.stringify(arg0)+"\n"+JSON.stringify(arg1));
     // return arg0.filter(x => arg1.indexOf(x) == -1);
   //}
+
+static pushAll(arg0: TagExtraMin[], arg1: TagExtraMin[]){
+  for(let i of arg1){
+    arg0.push(i);
+  }
+
+}
+
+static pushAllJSON(arg0: TagExtraMin[], arg1: string[]){
+  for(let i of arg1){
+    arg0.push(JSON.parse(i));
+  }
+}
+
+// static assign(arg0: TagExtraMin[], arg1: TagExtraMin[]){
+//   for(let tag of arg0){
+//     tag
+//   }
+// }
+
 
 }
