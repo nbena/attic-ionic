@@ -45,7 +45,7 @@ export class NoteDetailsPage {
 
   shownMainTags: TagExtraMin[]; /*what is really shown depends on what user chooses to do.*/
   shownOtherTags: TagExtraMin[];
-  shownLinks: string[];
+  shownLinks: string[] = [];
   shownIsDone: boolean = false;
 
   mainTagsToAdd: TagExtraMin[] = [];
@@ -123,6 +123,7 @@ export class NoteDetailsPage {
         this.shownOtherTags = this.otherTags.slice();
         this.shownLinks = this.links.slice();
         this.shownIsDone = this.isDone;
+
 
         // let a= [1,2,3,4];
         // let b=[3,4];
@@ -274,10 +275,24 @@ export class NoteDetailsPage {
 
   }
 
-  addLinks(){
-    Utils.pushLink(this.alertCtrl, (data)=>{this.shownLinks.push(data.link)});
+  /*
+  callback to pass.
+  */
+  addLinks(data){
+    this.shownLinks.push(data.link);
     this.haveToAddLinks = true;
     this.submitChangeEnabled = true;
+    this.linksToAdd.push(data.link);
+  }
+
+  pushLinks(){
+    // Utils.pushLink(this.alertCtrl, (data)=>{this.shownLinks.push(data.link)});
+    // this.haveToAddLinks = true;
+    // this.submitChangeEnabled = true;
+    // console.log('the length is');
+    // console.log(this.shownLinks.length);
+    // this.linksToAdd.push(this.shownLinks[this.shownLinks.length-1]);
+    Utils.pushLink(this.alertCtrl, (data)=>{this.addLinks(data)});
   }
 
   deleteMainTags(event, i: number, id: string){
@@ -331,7 +346,9 @@ export class NoteDetailsPage {
     this.shownLinks.splice(i, 1);
     /*detect if there is the need to remove from links.*/
     let index = this.links.indexOf(link);
-    if(index=-1){
+    console.log('index to remove:');
+    console.log(index);
+    if(index!=-1){
       this.linksToRemove.push(this.links[index]);
       this.haveToRemoveLinks = true;
       /*

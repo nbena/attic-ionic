@@ -247,6 +247,8 @@ static pushLink(alertCtrl:AlertController, cb: ((_: any)=>void) ){
           text: 'Add',
           handler: data=>{
             cb(data);
+            // console.log('pushed');
+            // console.log(data.link);
           }
         }
       ]

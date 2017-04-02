@@ -121,7 +121,7 @@
         <ion-label>
           Links
         </ion-label>
-        <button type="button" ion-button item-right color="primary" (click)="addLinks()">
+        <button type="button" ion-button item-right color="primary" (click)="pushLinks()">
           <ion-icon name="add-circle"></ion-icon>
         </button>
       </ion-item>
@@ -131,7 +131,7 @@
             <ion-label>
               {{link}}
             </ion-label>
-            <button ion-button (click)="deleteLinks($event, i)">
+            <button ion-button (click)="deleteLinks($event, i, link)">
               <ion-icon name="close"></ion-icon>
             </button>
           </ion-chip>

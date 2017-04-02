@@ -183,6 +183,8 @@ return this.items.filter((item) => {
   }
 
   addLinks(noteId: string, links: string[]){
+    // console.log('going to: ');
+    // console.log(JSON.stringify({id:noteId, links: links}));
     return Utils.postBasic('/api/notes/mod/addlinks', JSON.stringify({id: noteId, links: links }), this.http, this.auth.token);
   }
 

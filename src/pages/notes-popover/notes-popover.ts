@@ -23,11 +23,11 @@ export class NotesPopoverPage {
     public viewCtrl: ViewController, public alertCtrl: AlertController,
     public toastCtrl: ToastController, private atticNotes: AtticNotes) {
       this.note=navParams.get('note');
-      if(this.note.isDone){
-        this.done='Mark as \'undone\'';
-      }else {
-        this.done='Mark as \'done\'';
-      }
+      // if(this.note.isDone){
+      //   this.done='Mark as \'undone\'';
+      // }else {
+      //   this.done='Mark as \'done\'';
+      // }
     }
 
 
@@ -36,26 +36,26 @@ export class NotesPopoverPage {
     this.navCtrl.push(NoteEditTextPage, {note: this.note});
   }
 
-  changeMainTags(){
-    this.close();
-  }
-
-  changeOtherTags(){
-    this.close();
-  }
-
-  changeLinks(){
-    this.close();
-  }
-
-  setDone(){
-    this.close();
-    if(this.note.isDone){
-      this.note.isDone=false;
-    }else{
-      this.note.isDone=true;
-    }
-  }
+  // changeMainTags(){
+  //   this.close();
+  // }
+  //
+  // changeOtherTags(){
+  //   this.close();
+  // }
+  //
+  // changeLinks(){
+  //   this.close();
+  // }
+  //
+  // setDone(){
+  //   this.close();
+  //   if(this.note.isDone){
+  //     this.note.isDone=false;
+  //   }else{
+  //     this.note.isDone=true;
+  //   }
+  // }
 
   changeTitle(){
       let prompt = this.alertCtrl.create({
