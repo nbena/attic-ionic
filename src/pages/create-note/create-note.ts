@@ -97,29 +97,30 @@ export class CreateNotePage {
   */
 
   pushLink(){
-    let prompt=this.alertCtrl.create({
-      title: 'New link',
-      message: 'Insert the new link',
-      inputs:[
-        {
-          name: 'link',
-          placeholder: 'link'
-        }
-      ],
-      buttons:[
-        {
-          text: 'Cancel',
-          handler: data => {}
-        },
-        {
-          text: 'Save',
-          handler: data=>{
-            this.links.push(data.link);
-          }
-        }
-      ]
-    });
-    prompt.present();
+    // let prompt=this.alertCtrl.create({
+    //   title: 'New link',
+    //   message: 'Insert the new link',
+    //   inputs:[
+    //     {
+    //       name: 'link',
+    //       placeholder: 'link'
+    //     }
+    //   ],
+    //   buttons:[
+    //     {
+    //       text: 'Cancel',
+    //       handler: data => {}
+    //     },
+    //     {
+    //       text: 'Save',
+    //       handler: data=>{
+    //         this.links.push(data.link);
+    //       }
+    //     }
+    //   ]
+    // });
+    // prompt.present();
+    Utils.pushLink(this.alertCtrl, (data)=>{this.links.push(data.link)}/*function(data: string){this.links.push(data.link)}*/);
   }
 
 }

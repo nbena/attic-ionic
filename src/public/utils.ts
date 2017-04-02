@@ -5,7 +5,7 @@ import { Http, Headers } from '@angular/http';
 import { Const } from '../public/const';
 import { NoteBarebon, NoteFull, NoteMin } from '../models/notes';
 import { TagExtraMin } from '../models/tags';
-import { ToastController } from 'ionic-angular';
+import { ToastController, AlertController } from 'ionic-angular';
 
 export class Utils{
   static getBasic(uriFinal: string, http: Http, token: any){
@@ -201,11 +201,50 @@ static pushAllJSON(arg0: TagExtraMin[], arg1: string[]){
   }
 }
 
+static myIndexOf(arg0: TagExtraMin[], arg1: TagExtraMin): number{
+  // console.log('the first string is');
+  // console.log(JSON.stringify(arg0));
+  let i = -1;
+  for(let j=0;j<arg0.length;j++){
+    if(arg0[j]._id.localeCompare(arg1._id)==0){
+      i=j;
+      j=arg0.length;
+    }
+  }
+  return i;
+}
+
 // static assign(arg0: TagExtraMin[], arg1: TagExtraMin[]){
 //   for(let tag of arg0){
 //     tag
 //   }
 // }
+
+static pushLink(alertCtrl:AlertController, cb: ((_: any)=>void) ){
+    let prompt=alertCtrl.create({
+      title: 'New link',
+      message: 'Insert the new link',
+      inputs:[
+        {
+          name: 'link',
+          placeholder: 'link'
+        }
+      ],
+      buttons:[
+        {
+          text: 'Cancel',
+          handler: data => {}
+        },
+        {
+          text: 'Add',
+          handler: data=>{
+            cb(data);
+          }
+        }
+      ]
+    });
+    prompt.present();
+  }
 
 
 }

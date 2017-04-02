@@ -35,25 +35,43 @@ export class NoteDetailsPage {
   // creationDateString: string;
   // lastModificationDateString: string;
 
-  mainTags: TagExtraMin[];
-  otherTags: TagExtraMin[];
+  /*note's data.*/
 
-  links: string[];
+  mainTags: TagExtraMin[] = [];
+  otherTags: TagExtraMin[] = [];
+  links: string[] = [];
+
+  shownMainTags: TagExtraMin[]; /*what is really shown depends on what user chooses to do.*/
+  shownOtherTags: TagExtraMin[];
+  shownLinks: string[];
+
+  mainTagsToAdd: TagExtraMin[] = [];
+  otherTagsToAdd: TagExtraMin[] = [];
+  linksToAdd: string[] = [];
+
+  mainTagsToRemove: TagExtraMin[] = [];
+  otherTagsToRemove: TagExtraMin[] = [];
+  linksToRemove: string[] = [];
+
+
   submitChangeEnabled: boolean = false;
   isDone: boolean= false;
 
-  mainTagsChanged: boolean = false;
-  otherTagsChanged: boolean = false;
-  linksChanged: boolean = false;
+  haveToAddMainTags: boolean = false;
+  haveToAddOtherTags: boolean = false;
+  haveToRemoveMainTags: boolean = false;
+  haveToRemoveOtherTags: boolean = false;
+  haveToAddLinks: boolean = false;
+  haveToRemoveLinks: boolean = false;
   isDoneChanged: boolean = false; /*don't really need this.*/
 
-  availableOtherTags: TagExtraMin[];
-  availableMainTags: TagExtraMin[];
+  availableOtherTags: TagExtraMin[] =[];
+  availableMainTags: TagExtraMin[] = [];
 
-  availableTags: TagExtraMin[];
+  availableTags: TagExtraMin[] = [];
   areTagsAvailable: boolean = false;
 
-  reallyAvailableTags: TagExtraMin[];
+  reallyAvailableTags: TagExtraMin[] = [];
 
 
 
@@ -64,6 +82,16 @@ export class NoteDetailsPage {
     this.title=navParams.get('title');
     this.noteById();
     this.loadTags();
+  }
+
+  makeAllFalse(){
+    this.haveToAddMainTags = false;
+    this.haveToAddOtherTags = false;
+    this.haveToAddLinks = false;
+    this.haveToRemoveMainTags = false;
+    this.haveToRemoveOtherTags = false;
+    this.haveToRemoveLinks = false;
+    this.isDoneChanged = false;
   }
 
   noteById(){
@@ -77,14 +105,19 @@ export class NoteDetailsPage {
         // this._links=this.note.links;
         this.mainTags=<TagExtraMin[]>this.note.mainTags;
         this.otherTags=<TagExtraMin[]>this.note.otherTags;
+        //
+        // console.log('the main tags:');
+        // console.log(JSON.stringify(this.mainTags));
+
         this.links=this.note.links;
         this.submitChangeEnabled=false;
         this.isDone=this.note.isDone;
 
-        this.mainTagsChanged = false;
-        this.otherTagsChanged = false;
-        this.linksChanged = false;
-        this.isDoneChanged = false;
+        this.makeAllFalse();
+
+        this.shownMainTags = this.mainTags.slice();
+        this.shownOtherTags = this.otherTags.slice();
+        this.shownLinks = this.links.slice();
 
         // let a= [1,2,3,4];
         // let b=[3,4];
@@ -92,7 +125,7 @@ export class NoteDetailsPage {
 
       })
       .catch(err=>{
-        console.log(err);
+        console.log(JSON.stringify(err));
       })
   }
 
@@ -133,14 +166,14 @@ export class NoteDetailsPage {
     // console.log("=========the filtering:=========");
     // console.log(JSON.stringify(this.reallyAvailableTags));
 
-    console.log("tags length");
-    console.log(this.reallyAvailableTags.length.toString());
-
-    this.reallyAvailableTags = Utils.arrayDiff3(this.reallyAvailableTags, this.mainTags.concat(this.otherTags));
-    console.log("maintags + othertags length: ");
-    console.log((this.mainTags.length+this.otherTags.length).toString());
-    console.log("tags length");
-    console.log(this.reallyAvailableTags.length.toString());
+    // console.log("tags length");
+    // console.log(this.reallyAvailableTags.length.toString());
+    //
+    // this.reallyAvailableTags = Utils.arrayDiff3(this.reallyAvailableTags, this.mainTags.concat(this.otherTags));
+    // console.log("maintags + othertags length: ");
+    // console.log((this.mainTags.length+this.otherTags.length).toString());
+    // console.log("tags length");
+    // console.log(this.reallyAvailableTags.length.toString());
   }
 
   ionViewDidLoad() {
@@ -165,6 +198,11 @@ export class NoteDetailsPage {
       ev: event
     });
   }
+
+  /*
+  Use an alert instead of a select because I can have more control on
+  what it is selected (and removed, with ion-chip).
+  */
   addMainTags(){
     let alert = this.alertCtrl.create();
     alert.setTitle("Add main tags");
@@ -173,7 +211,7 @@ export class NoteDetailsPage {
       alert.addInput({
         type: 'checkbox',
         label: this.reallyAvailableTags[i].title,
-        value:  JSON.stringify(this.reallyAvailableTags[i])
+        value:  JSON.stringify(this.reallyAvailableTags[i]) /*it doesn't accept objects.*/
       })
     }
     alert.addButton('Cancel');
@@ -191,9 +229,12 @@ export class NoteDetailsPage {
   Using string[] because it is required by the API.
   */
   addMainTagsUI(tags: string[]){
-    console.log("maintags: ");
-    console.log(JSON.stringify(tags));
-    Utils.pushAllJSON(this.mainTags,tags);
+    // console.log("maintags: ");
+    // console.log(JSON.stringify(tags));
+    Utils.pushAllJSON(this.shownMainTags,tags);
+    Utils.pushAllJSON(this.mainTagsToAdd, tags);
+    this.haveToAddMainTags = true;
+    this.submitChangeEnabled = true;
   }
 
   addOtherTags(){
@@ -204,7 +245,7 @@ export class NoteDetailsPage {
       alert.addInput({
         type: 'checkbox',
         label: this.reallyAvailableTags[i].title,
-        value: JSON.stringify(this.reallyAvailableTags[i])
+        value: JSON.stringify(this.reallyAvailableTags[i]) /*it doesn't accept objects.*/
       })
     }
     alert.addButton('Cancel');
@@ -219,34 +260,81 @@ export class NoteDetailsPage {
   }
 
   addOtherTagsUI(tags: string[]){
-    console.log("ohertags: ");
-    console.log(JSON.stringify(tags));
-    Utils.pushAllJSON(this.otherTags, tags);
+    // console.log("ohertags: ");
+    // console.log(JSON.stringify(tags));
+    Utils.pushAllJSON(this.shownOtherTags, tags);
+    Utils.pushAllJSON(this.otherTagsToAdd, tags);
+    this.haveToAddOtherTags = true;
+    this.submitChangeEnabled = true;
+
   }
 
   addLinks(){
-
+    Utils.pushLink(this.alertCtrl, (data)=>{this.shownLinks.push(data.link)});
   }
 
-  deleteMainTags(event, i: number){
-    event.stopPropagation();
-     this.mainTags.splice(i, 1);
-     this.submitChangeEnabled = true;
-     this.mainTagsChanged = true;
+  deleteMainTags(event, i: number, id: string){
+     event.stopPropagation();
+     /*remove from the shown.*/
+     this.shownMainTags.splice(i, 1);
+     /*detect if there is the need to remove from mainTags.*/
+     /*(user can remove a links added by him that not really exists)*/
+     let obj = new TagExtraMin();
+     obj._id=id;
+     let index = Utils.myIndexOf(this.mainTags,obj);
+     if(index!=-1){
+       this.mainTagsToRemove.push(this.mainTags[index]);
+       this.haveToRemoveMainTags = true;
+       /*
+       delete from this.mainTags: it will be done when the call to the API will
+       will be done.
+       */
+       /*enable changes.*/
+       this.submitChangeEnabled = true;
+      //  console.log('enable changes');
+     }
+    //  this.haveToRemoveMainTags = true;
   }
 
-  deleteOtherTags(event, i: number){
+  deleteOtherTags(event, i: number, id: string){
     event.stopPropagation();
-    this.otherTags.splice(i, 1);
-    this.submitChangeEnabled = true;
-    this.otherTagsChanged = true;
+    /*remove from the shown.*/
+    this.shownOtherTags.splice(i, 1);
+    /*detect if there is the need to remove from otherTags.*/
+    let obj = new TagExtraMin();
+    obj._id=id;
+    let index = Utils.myIndexOf(this.otherTags,obj);
+    if(index!=-1){
+      this.otherTagsToRemove.push(this.otherTags[index]);
+      this.haveToRemoveOtherTags = true;
+      /*
+      delete from this.otherTags: it will be done when the call to the API will
+      will be done.
+      */
+      /*enable changes.*/
+      this.submitChangeEnabled = true;
+     //  console.log('enable changes');
+    }
+   //  this.haveToRemoveOtherTags = true;
   }
 
-  deleteLinks(event, i: number){
+  deleteLinks(event, i: number, link: string){
     event.stopPropagation();
-    this.links.splice(i, 1);
-    this. submitChangeEnabled = true;
-    this.linksChanged = true;
+    /*remove from the shown.*/
+    this.shownLinks.splice(i, 1);
+    /*detect if there is the need to remove from links.*/
+    let index = this.links.indexOf(link);
+    if(index=-1){
+      this.linksToRemove.push(this.links[index]);
+      this.haveToRemoveLinks = true;
+      /*
+      delete from this.links: it will be done when the call to the API will
+      will be done.
+      */
+      /*enable changes.*/
+      this.submitChangeEnabled = true;
+    }
+    // this.haveToRemoveLinks = true;
   }
 
   isDoneChanges(){

@@ -23,7 +23,7 @@ import { Filter } from '../../public/const';
 export class LoginPage {
 
   user: User;
-  e_mail: string;
+  e_mail: string = 'omni@pollo.com'; /*test user*/
   password: string;
   loading: any;
 
