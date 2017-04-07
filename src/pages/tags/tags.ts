@@ -7,6 +7,7 @@ import { AtticTags } from '../../providers/attic-tags';
 import { TagDetailsPage } from '../tag-details/tag-details';
 import { NotesPage } from '../notes/notes';
 import { Filter } from '../../public/const';
+import { FormControl } from '@angular/forms';
 /*
   Generated class for the Tags page.
 
@@ -19,58 +20,86 @@ import { Filter } from '../../public/const';
 })
 export class TagsPage {
 
-  tags: TagExtraMin[] = null;
+  shownTags: TagExtraMin[] = null;
+  allTags: TagExtraMin[] = null;
+
+
+  searchCtrl: FormControl;
+  searchTerm: string ='';
 
   constructor(public navCtrl: NavController,
     public alertCtrl: AlertController,
     private atticTags: AtticTags) {
-    if(this.tags==null){
+    if(this.allTags==null){
       this.loadAlmostMin();
     }
+    this.searchCtrl = new FormControl();
   }
 
   ionViewDidLoad() {
     console.log('ionViewDidLoad TagsPage');
+
+    this.searchCtrl.valueChanges.debounceTime(700).subscribe(event=>{
+      if(this.searchTerm.trim()===''){
+        this.shownTags = this.allTags.slice();
+      }else{
+        // this.loadByTitle(this.searchTerm);
+        this.searchByTitle(this.searchTerm);
+      }
+    });
   }
 
-  loadFull(){
-    //basically just a wrapper.
-    this.atticTags.loadFull()
-      .then(result=>{
-        this.tags=<TagFull[]>result;
-        // console.log(this.notes);
-      })
-      .catch(error =>{
-        console.log(error);
-      })
-  }
-
-  loadMin(){
-    this.atticTags.loadTagsMin()
-      .then(result=>{
-        this.tags=<TagExtraMin[]>result;
-      })
-      .catch(error=>{
-        console.log(error);
-      })
-  }
+  // loadFull(){
+  //   //basically just a wrapper.
+  //   this.atticTags.loadFull()
+  //     .then(result=>{
+  //       this.allTags=<TagFull[]>result;
+  //       // console.log(this.notes);
+  //     })
+  //     .catch(error =>{
+  //       console.log(error);
+  //     })
+  // }
+  //
+  // loadMin(){
+  //   this.atticTags.loadTagsMin()
+  //     .then(result=>{
+  //       this.allTags=<TagExtraMin[]>result;
+  //     })
+  //     .catch(error=>{
+  //       console.log(error);
+  //     })
+  // }
 
   loadAlmostMin(){
     this.atticTags.loadTagsMinWithNotesLength()
       .then(result=>{
-        this.tags=<TagAlmostMin[]>result;
+        this.allTags=<TagAlmostMin[]>result;
+        this.shownTags=this.allTags.slice();
       })
       .catch(error=>{
-        console.log(error);
+        console.log(JSON.stringify(error));
       })
   }
+
+  searchByTitle(title: string){
+    this.atticTags.tagsByTitle(this.searchTerm)
+      .then(result=>{
+        this.shownTags=<TagAlmostMin[]>result;
+      })
+      .catch(error=>{
+        console.log(JSON.stringify(error));
+      })
+  }
+
 
   displayTagDetails(_id: string, title: string){
     this.navCtrl.push(TagDetailsPage, {_id, title});
   }
 
   refresh(refresher){
-    this.loadFull();
+    this.loadAlmostMin();
+    //before it was this.loadFull();
     setTimeout(()=>{
       refresher.complete();
     },2000);
@@ -107,7 +136,8 @@ export class TagsPage {
 
     this.atticTags.createTag(title)
       .then(result=>{
-        this.tags.push(<TagFull>result);
+        this.allTags.push(<TagFull>result);
+        this.shownTags.push(<TagFull>result);
       })
       .catch(error=>{
         let alert = this.alertCtrl.create({
@@ -122,8 +152,8 @@ export class TagsPage {
     event.stopPropagation();
     let tags = [_id];
     let filterType = Filter.Tags;
-    console.log("proper event fired");
-    console.log("is array: "+(tags instanceof Array).toString());
+    // console.log("proper event fired");
+    // console.log("is array: "+(tags instanceof Array).toString());
     this.navCtrl.push(NotesPage, {filterType: filterType, filterValue: tags});
   }
 

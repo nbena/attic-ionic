@@ -13,3 +13,5 @@ always work on the displayable. When searchbar is empty, refill.
 improve update after something.
 
 ok update text.
+
+change var name on notes.ts, should use shownNotes and allNotes.

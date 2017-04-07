@@ -25,10 +25,13 @@ MenuToggle is used for the sidemenu.
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
 
+  <ion-searchbar [(ngModel)]="searchTerm" [formControl]="searchCtrl">
+  </ion-searchbar>
+
 
   <h3>Tags!</h3>
   <!-- <ion-list> -->
-    <ion-card detail-push *ngFor="let tag of tags" (click)="displayTagDetails(tag._id, tag.title)">
+    <ion-card detail-push *ngFor="let tag of shownTags" (click)="displayTagDetails(tag._id, tag.title)">
       {{tag.title}}
     <!--  {{note._id}}-->
     <ion-label>Notes:</ion-label>

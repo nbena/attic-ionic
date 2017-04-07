@@ -68,4 +68,8 @@ export class AtticTags {
     return Utils.putBasic('/api/tags/'+title, "", this.http, this.auth.token);
   }
 
+  tagsByTitle(title: string){
+    return Utils.postBasic('/api/tags/by-title/reg/unpop', {title: title}, this.http, this.auth.token);
+  }
+
 }
