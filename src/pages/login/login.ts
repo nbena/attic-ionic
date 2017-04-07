@@ -69,11 +69,11 @@ export class LoginPage {
 
     this.auth.login(user).then((result)=>{
       this.loading.dismiss();
-      console.log("ok auth");
+      // console.log("ok auth");
       this.navCtrl.setRoot(NotesPage, this.getParams());
-    }, (err)=>{
+    }, (error)=>{
       this.loading.dismiss();
-      console.log(err);
+      console.log(JSON.stringify(error));
     });
 
   }

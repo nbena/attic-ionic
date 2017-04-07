@@ -37,7 +37,8 @@ export class RegisterPage {
       this.e_mail,
       this.password);
 
-    this.auth.createAccount(user).then((result)=>{
+    this.auth.createAccount(user)
+      .then((result)=>{
       this.loading.dismiss();
       console.log(result);
       this.navCtrl.setRoot(NotesPage);
