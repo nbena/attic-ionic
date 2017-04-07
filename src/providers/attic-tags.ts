@@ -8,6 +8,8 @@ import { Auth } from './auth';
 // import { TagExtraMin, TagMin, TagFull } from '../models/tags';
 import { Utils } from '../public/utils';
 
+import { TagExtraMin } from '../models/tags';
+
 /*
   Generated class for the AtticTags provider.
 
@@ -70,6 +72,12 @@ export class AtticTags {
 
   tagsByTitle(title: string){
     return Utils.postBasic('/api/tags/by-title/reg/unpop', {title: title}, this.http, this.auth.token);
+  }
+
+  filterTagByTitle(tags: TagExtraMin[], title: string):TagExtraMin[]{
+    return tags.filter((tag)=>{
+      return tag.title.indexOf(title.toLowerCase())>-1;
+    });
   }
 
 }

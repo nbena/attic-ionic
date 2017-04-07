@@ -33,8 +33,8 @@ import 'rxjs/add/operator/debounceTime';
 export class NotesPage {
 
   /*defining the result from the API.*/
-  notes: NoteExtraMin[] = null;
-  oldNotes : NoteExtraMin[] = null;
+  shownNotes: NoteExtraMin[] = null;
+  allNotes : NoteExtraMin[] = null;
   currentFilter : Filter = Filter.None;
   currentFilterValue: any = null;
 
@@ -63,7 +63,7 @@ export class NotesPage {
         this.currentFilter=Filter.None;
       }
 
-        if(this.notes==null){
+        if(this.allNotes==null){
           // this.loadMin();
           this.loadByFilter(true);
         }
@@ -83,11 +83,8 @@ export class NotesPage {
     this.searchCtrl.valueChanges.debounceTime(700).subscribe(event=>{
       this.currentFilterValue=this.searchTerm;
       this.currentFilter=Filter.Title;
-      // console.log("'"+this.searchTerm+"'")
       if(this.searchTerm.trim()===''){
-        // console.log("should trim");
-        this.notes=this.oldNotes;
-        // console.log("old notes: "+this.oldNotes);
+        this.shownNotes=this.allNotes;
       }else{
         this.loadByTitle(this.searchTerm);
       }
@@ -105,14 +102,15 @@ export class NotesPage {
     this.navCtrl.push(CreateNotePage);
   }
 
-  searchByTitle(event){
-    let title = event.target.value;
-    if(title.trim() === '' || title.trim().length<3){
-      this.notes=this.oldNotes; /*cache*/
-    }else{
-      this.loadByTitle(title);
-    }
-  }
+  //deprecated
+  // searchByTitle(event){
+  //   let title = event.target.value;
+  //   if(title.trim() === '' || title.trim().length<3){
+  //     this.shownNotes=this.allNotes; /*cache*/
+  //   }else{
+  //     this.loadByTitle(title);
+  //   }
+  // }
 
   loadByFilter(firstTime: boolean){
     /*
@@ -144,40 +142,39 @@ export class NotesPage {
     //basically just a wrapper.
     this.atticNotes.loadFull()
       .then(result=>{
-        this.notes=<NoteFull[]>result;
+        this.allNotes=<NoteFull[]>result;
 
-        this.oldNotes=this.notes;
+        this.shownNotes=this.allNotes;
 
         // console.log(this.notes);
       })
       .catch(error =>{
-        console.log(error);
+        console.log(JSON.stringify(error));
       })
   }
 
   loadMin(){
     this.atticNotes.loadNotesMin()
       .then(result=>{
-        this.notes=<NoteExtraMin[]>result;
-        this.oldNotes=this.notes;
+        this.allNotes=<NoteExtraMin[]>result;
+        this.shownNotes=this.allNotes;
       })
       .catch(error=>{
-        console.log(error);
+        console.log(JSON.stringify(error));
       })
   }
 
   loadByTags(tags: string[], firstTime: boolean){
-    console.log("called the load by tags with: "+tags );
+    // console.log("called the load by tags with: "+tags );
     this.atticNotes.notesByTag(tags)
       .then(result=>{
-        this.notes=<NoteMin[]>result;
+        this.allNotes=<NoteMin[]>result;
         if(firstTime){
-          this.oldNotes = this.notes;
+          this.shownNotes = this.allNotes;
         }
       })
       .catch(error=>{
-        console.log("error");
-        console.log(error.message);
+        console.log(JSON.stringify(error));
       })
   }
 
@@ -187,7 +184,7 @@ export class NotesPage {
   //       this.notes=<NoteMin[]>result;
   //     })
   //     .catch(error=>{
-  //       console.log(error);
+  //       console.log(JSON.stringify(error));
   //     })
   // }
   //
@@ -197,7 +194,7 @@ export class NotesPage {
   //       this.notes=<NoteMin[]>result;
   //     })
   //     .catch(error=>{
-  //       console.log(error);
+  //       console.log(JSON.stringify(error));
   //     })
   // }
 
@@ -210,21 +207,21 @@ export class NotesPage {
     //     this.notes=<NoteMin[]>result;
     //   })
     //   .catch(error=>{
-    //     console.log(error);
+    //     console.log(JSON.stringify(error));
     //   })
-    this.notes = this.atticNotes.filterNotesByTitle(this.notes, this.searchTerm);
+    this.shownNotes = this.atticNotes.filterNotesByTitle(this.allNotes, this.searchTerm);
   }
 
   loadByText(text: string, firstTime: boolean){
     this.atticNotes.notesByText(text)
       .then(result=>{
-        this.notes=<NoteMin[]>result;
+        this.allNotes=<NoteMin[]>result;
         if(firstTime){
-          this.oldNotes = this.notes;
+          this.shownNotes = this.allNotes;
         }
       })
       .catch(error=>{
-        console.log(error);
+        console.log(JSON.stringify(error));
       })
   }
 

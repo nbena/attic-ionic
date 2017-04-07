@@ -27,7 +27,7 @@
 
   <h3>Notes!</h3>
   <!-- <ion-list> -->
-    <ion-card detail-push *ngFor="let note of notes" (click)="displayNoteDetails(note._id, note.title)">
+    <ion-card detail-push *ngFor="let note of shownNotes" (click)="displayNoteDetails(note._id, note.title)">
       {{note.title}}
     <!--  {{note._id}}-->
   </ion-card>

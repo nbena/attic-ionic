@@ -41,10 +41,10 @@ export class TagsPage {
 
     this.searchCtrl.valueChanges.debounceTime(700).subscribe(event=>{
       if(this.searchTerm.trim()===''){
-        this.shownTags = this.allTags.slice();
+        this.shownTags = this.allTags/*.slice()*/;
       }else{
         // this.loadByTitle(this.searchTerm);
-        this.searchByTitle(this.searchTerm);
+        this.loadByTitle(this.searchTerm);
       }
     });
   }
@@ -82,14 +82,15 @@ export class TagsPage {
       })
   }
 
-  searchByTitle(title: string){
-    this.atticTags.tagsByTitle(this.searchTerm)
-      .then(result=>{
-        this.shownTags=<TagAlmostMin[]>result;
-      })
-      .catch(error=>{
-        console.log(JSON.stringify(error));
-      })
+  loadByTitle(title: string){
+    // this.atticTags.tagsByTitle(this.searchTerm)
+    //   .then(result=>{
+    //     this.shownTags=<TagAlmostMin[]>result;
+    //   })
+    //   .catch(error=>{
+    //     console.log(JSON.stringify(error));
+    //   })
+    this.shownTags = this.atticTags.filterTagByTitle(this.shownTags, title);
   }
 
 
