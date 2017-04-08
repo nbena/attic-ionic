@@ -9,6 +9,9 @@ import { CreateNotePage } from '../create-note/create-note';
 
 import { Filter } from '../../public/const';
 import { FormControl } from '@angular/forms';
+
+import { Db } from '../../providers/db';
+
 import 'rxjs/add/operator/debounceTime';
 
 /*
@@ -43,9 +46,8 @@ export class NotesPage {
 
   isFull: boolean;
 
-  constructor(public navCtrl: NavController,
-    private navParams: NavParams,
-    private atticNotes: AtticNotes) {
+  constructor(public navCtrl: NavController, private navParams: NavParams,
+    private atticNotes: AtticNotes, private db: Db) {
 
       let filterType = navParams.get('filterType');
       let filterValue = navParams.get('filterValue');

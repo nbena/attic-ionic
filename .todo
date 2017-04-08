@@ -19,3 +19,17 @@ change var name on notes.ts, should use shownNotes and allNotes.
 done.
 
 test the new tags page.
+
+db:
+notes, tags
+all operations are directly send to the DB:
+on update cascade? no, because the _id is untouchable,
+but what about the creation?
+
+notes and tags newly created will be saved with an autoincrement
+and a boolean field that tell if they are saved or not.
+when saving mongo should return us the new ID,
+then the db will be updated.
+
+a middleware level will need to check which operations will be done
+and in which order.

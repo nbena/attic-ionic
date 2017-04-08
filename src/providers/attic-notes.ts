@@ -22,6 +22,11 @@ export class AtticNotes {
   }
 
 
+  /*
+  only one instance for all the pages.
+  */
+
+
   /**
   *loading all the notes.
   */
