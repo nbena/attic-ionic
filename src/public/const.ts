@@ -7,6 +7,13 @@ export enum Filter{
   None
 }
 
+export enum Table{
+  Notes,
+  Tags,
+  NotesToSave,
+  TagsToSave
+}
+
 export class Const{
   public static readonly API_URI = 'https://nb-attic.herokuapp.com';
 //   /*public static */static enum NoteFilter {

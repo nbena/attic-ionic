@@ -3,6 +3,7 @@ import { Http } from '@angular/http';
 import { SQLite } from 'ionic-native';
 import { Platform } from 'ionic-angular';
 import { Query } from '../public/query';
+import { Table } from '../public/const';
 import 'rxjs/add/operator/map';
 
 /*
@@ -75,6 +76,65 @@ export class Db {
   }
 
 }
+
+//examples
+
+public count(table: Table){
+  let sql = Query.getQueryTable(table, Query.COUNT)
+  return this.db.executeSql(sql, {})
+    .then((result)=>{
+      let res = 0;
+      if(result.rows.length > 0){
+        res = result.rows.item(0).count;
+      }
+      return res;
+    })
+}
+
+// public notesCount(){
+//   return this.db.executeSql(Query.NOTES_COUNT,{})
+//     .then((result)=>{
+//       let res = 0;
+//       if(result.rows.length > 0){
+//         res = result.rows.item(0).count;
+//       }
+//       return res;
+//     })
+// }
+//
+//
+// public notesToPushCount(){
+//   return this.db.executeSql(Query.NOTES_COUNT,{})
+//     .then((result)=>{
+//       let res = 0;
+//       if(result.rows.length > 0){
+//         res = result.rows.item(0).count;
+//       }
+//       return res;
+//     })
+// }
+//
+// public notesCount(){
+//   return this.db.executeSql(Query.NOTES_COUNT,{})
+//     .then((result)=>{
+//       let res = 0;
+//       if(result.rows.length > 0){
+//         res = result.rows.item(0).count;
+//       }
+//       return res;
+//     })
+// }
+//
+// public notesCount(){
+//   return this.db.executeSql(Query.NOTES_COUNT,{})
+//     .then((result)=>{
+//       let res = 0;
+//       if(result.rows.length > 0){
+//         res = result.rows.item(0).count;
+//       }
+//       return res;
+//     })
+//}
 
 // public getPokemon(): Promise<any> {
 // return new Promise((resolve, reject) => {

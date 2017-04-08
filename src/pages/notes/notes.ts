@@ -7,7 +7,7 @@ import { NoteExtraMin, NoteSmart, NoteMin, NoteFull } from '../../models/notes';
 import { NoteDetailsPage } from '../note-details/note-details';
 import { CreateNotePage } from '../create-note/create-note';
 
-import { Filter } from '../../public/const';
+import { Filter, Table } from '../../public/const';
 import { FormControl } from '@angular/forms';
 
 import { Db } from '../../providers/db';
@@ -70,6 +70,17 @@ export class NotesPage {
           this.loadByFilter(true);
         }
         // this.oldNotes=this.notes;
+
+
+        //insert if needed.
+        //just a test.
+        this.db.count(Table.Notes)
+        .then(count=>{
+          console.log(count);
+        })
+        .catch(error=>{
+          console.log(JSON.stringify(error));
+        })
   }
 
 
