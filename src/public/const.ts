@@ -20,5 +20,9 @@ export class Const{
 //   TAGS, MAIN_TAGS, OTHER_TAGS
 // }
 
+  public static readonly ERR_NOTE_NOT_FOUND = 'Note not found';
+  public static readonly ERR_TAG_NOT_FOUND = 'Tag not found';
+  public static readonly ERR_MISMATCH = 'terrible error';
+
 
 }
