@@ -25,7 +25,7 @@ export class Db {
     console.log('Hello Db Provider');
 
     if(!this.open) {
-      this.platform.ready().then((ready) => {
+
         this.db = new SQLite();
         this.db.openDatabase(
           {name: "attic.db", location: "default"})
@@ -50,7 +50,7 @@ export class Db {
               console.log('error in creating tables.');
               console.log(JSON.stringify(error));
             })
-        });
+
     //});
   }
 
