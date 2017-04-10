@@ -23,6 +23,7 @@ import { RegisterPage } from '../pages/register/register';
 import { AtticNotes } from '../providers/attic-notes';
 import { AtticTags } from '../providers/attic-tags';
 import { Db } from '../providers/db';
+import { Synch } from '../providers/synch';
 import { Auth } from '../providers/auth';
 
 
@@ -66,7 +67,8 @@ import { Auth } from '../providers/auth';
     AtticNotes,
     AtticTags,
     Auth,
-    Db
+    Db,
+    Synch
     ]
 })
 export class AppModule {}

@@ -3,11 +3,57 @@ import { Http } from '@angular/http';
 import { SQLite } from 'ionic-native';
 import { Platform } from 'ionic-angular';
 import { Query } from '../public/query';
-import { Table, Const } from '../public/const';
+import { Table, Const, Action } from '../public/const';
 import { Utils } from '../public/utils';
 import { NoteExtraMin, NoteFull, NoteSQLite } from '../models/notes';
 import { TagExtraMin, TagFull, TagMin, TagAlmostMin, TagSQLite } from '../models/tags';
 import 'rxjs/add/operator/map';
+
+class SQLiteLogObject{
+  _id: number;
+  action: string;
+  refNote: string;
+  refTag: string;
+  refNoteToSave: string;
+  refTagToSave: string;
+  done: boolean;
+}
+
+
+export class LogObject{
+  _id: number;
+  action: Action;
+  refNote: string;
+  refTag: string;
+  refNoteToSave: string;
+  refTagToSave: string;
+  done: boolean;
+
+  public static LogObjectParse(row: any):LogObject{
+    let obj = new LogObject();
+    obj._id=row._id;
+    obj.action=Action[<string>row.action];
+    obj.refNote=row.refNote;
+    obj.refTag=row.refTag;
+    obj.refNoteToSave=row.refNoteToSave;
+    obj.refTagToSave=row.refTagToSave;
+    obj.done=row.done;
+    return obj;
+  }
+
+  public toSQLiteObject():SQLiteLogObject{
+    let obj = new SQLiteLogObject();
+    obj._id=this._id;
+    obj.action=Action[this.action];
+    obj.refNote=this.refNote;
+    obj.refTag=this.refTag;
+    obj.refNoteToSave=this.refNoteToSave;
+    obj.refTagToSave=this.refTagToSave;
+    obj.done=this.done;
+    return obj;
+  }
+
+}
 
 /*
   Generated class for the Db provider.
@@ -40,6 +86,9 @@ export class Db {
             })
             .then(()=>{
               return this.db.executeSql(Query.CREATE_TAGS_TO_SAVE_TABLE, {})
+            })
+            .then(()=>{
+              return this.db.executeSql(Query.CREATE_LOG, {})
             })
             .then(()=>{
               this.open = true;
@@ -527,6 +576,30 @@ public getFullTagById(_id: string):Promise<any>{
     })
     .catch(error=>{
       console.log(JSON.stringify(error));
+    })
+}
+
+public getNotesToPublish():Promise<NoteFull[]>{
+  return this.db.executeSql(Query.SELECT_NOTES_TO_PUBLISH, {})
+    .then(result=>{
+      if(result.rows.length >0){
+        let note = Db.noteFullParse(result.rows);
+        return note;
+      }else{
+        throw new Error(Const.ERR_NO_NOTE_TO_PUBLISH);
+      }
+    })
+}
+
+public getTagsToPublish():Promise<TagFull>{
+  return this.db.executeSql(Query.SELECT_TAGS_TO_PUBLISH, {})
+    .then(result=>{
+      if(result.rows.length >0){
+        let tag = Db.tagFullParse(result.rows);
+        return tag;
+      }else{
+        throw new Error(Const.ERR_NO_NOTE_TO_PUBLISH);
+      }
     })
 }
 
