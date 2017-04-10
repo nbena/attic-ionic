@@ -36,3 +36,5 @@ UserInterfaceState.xcuserstate
 
 .tarr
 .todo
+
+src/providers/db.old.ts

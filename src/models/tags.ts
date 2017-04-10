@@ -43,3 +43,8 @@ export class TagFull extends TagAlmostMin{
   //   this.title=title;
   // }
 }
+
+export class TagSQLite extends TagFull {
+  addedNotes: NoteFull[];
+  removedNotes: NoteFull[];
+}

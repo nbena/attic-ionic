@@ -3,8 +3,8 @@ import { Http, Headers } from '@angular/http';
 /* importing auth because I need the token. */
 // import { Auth } from '../providers/auth';
 import { Const } from '../public/const';
-import { NoteBarebon, NoteFull, NoteMin } from '../models/notes';
-import { TagExtraMin } from '../models/tags';
+import { NoteBarebon, NoteFull, NoteMin, NoteSQLite } from '../models/notes';
+import { TagExtraMin, TagFull, TagSQLite } from '../models/tags';
 import { ToastController, AlertController } from 'ionic-angular';
 
 export class Utils{
@@ -256,5 +256,32 @@ static pushLink(alertCtrl:AlertController, cb: ((_: any)=>void) ){
     prompt.present();
   }
 
+  static getEffectiveTagsFromNotes(note: NoteFull):TagFull[]{
+    let array: TagFull[];
+    if(typeof note== 'NoteFull'){
+      array = note.mainTags.concat(note.otherTags);
+    }else if(typeof note == 'NoteSQLite'){
+      let noteRes = <NoteSQLite>note;
+      array = noteRes.mainTags.concat(noteRes.otherTags, noteRes.mainTagsToAdd, noteRes.otherTagsToAdd);
+      array = Utils.arrayDiff(array, noteRes.mainTagsToRemove.concat(noteRes.otherTagsToRemove));
+    // }
+    // array = note.mainTags.concat(note.otherTags, note.mainTagsToAdd, note.otherTagsToAdd);
+    // array = Utils.arrayDiff(array, note.mainTagsToRemove.concat(note.otherTagsToRemove));
+    // return array;
+  }
+  return array;
+}
+
+ static getEffectiveNotesFromTags(tag: TagFull):NoteFull[]{
+   let array: NoteFull[];
+   if(typeof tag == 'TagFull'){
+     array = tag.notes;
+   }else if(typeof tag == 'TagSQLite'){
+     let tagRes = <TagSQLite>tag;
+     array = tagRes.notes.concat(tagRes.addedNotes);
+     array = Utils.arrayDiff(array, tagRes.removedNotes);
+   }
+   return array;
+ }
 
 }

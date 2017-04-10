@@ -42,3 +42,9 @@ export class NoteFull extends NoteBarebon{
   mainTags: TagFull[];
   otherTags: TagFull[];
 }
+export class NoteSQLite extends NoteFull{
+  mainTagsToAdd: TagFull[];
+  otherTagsToAdd: TagFull[];
+  mainTagsToRemove: TagFull[];
+  otherTagsToRemove: TagFull[];
+}
