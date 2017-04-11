@@ -82,6 +82,7 @@ export class Db {
 
     if(!this.open) {
 
+      this.platform.ready().then(ready=>{
         this.db = new SQLite();
         this.db.openDatabase(
           {name: "attic.db", location: "default"})
@@ -109,7 +110,7 @@ export class Db {
               console.log('error in creating tables.');
               console.log(JSON.stringify(error));
             })
-
+      });
     //});
   }
 
@@ -752,6 +753,7 @@ public getThinsToDo():Promise<Queue<LogObject>>{
         }
         return queue;
       }else{
+        console.log('no data');
         throw new Error(Const.ERR_NO_LOG); /*even if it's not an error*/
       }
     })

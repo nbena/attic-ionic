@@ -10,6 +10,7 @@ import { TagExtraMin, TagFull, TagSQLite, TagMin } from '../models/tags';
 import { Queue } from 'typescript-collections';
 import { Action } from '../public/const';
 import { Network } from '@ionic-native/network';
+import { Platform } from 'ionic-angular';
 
 /*
   Generated class for the Synch provider.
@@ -42,6 +43,7 @@ export class Synch {
   private currentCursor : number = -1; /*the _id of the last consumed object.*/
 
   private lock: boolean = true; /*default lock is true, so nothing can be done.*/
+  private secondLock: boolean = false; /*default can be enabled.*/
 
   private recordsToDo: Queue<LogObject>;
 
@@ -51,20 +53,34 @@ export class Synch {
 
   constructor(private network: Network, private db: Db,
     private atticNotes: AtticNotes,
-    private atticTags: AtticTags) {
+    private atticTags: AtticTags,
+    private platform: Platform
+    ) {
+
+    console.log('Hello Synch Provider');
     this.recordsToDo = new Queue<LogObject>();
 
     //platform ready.
+    this.platform.ready().then((ready)=>{
+      this.disconnectedSubscription = this.network.onDisconnect().subscribe(()=>{
+        this.lock = true;
+        console.log('no network');
+      });
 
-    this.disconnectedSubscription = this.network.onDisconnect().subscribe(()=>{
-      this.lock = true;
-      console.log('no network');
+      this.connectedSubscription = this.network.onConnect().subscribe(()=>{
+        this.lock = false;
+        console.log('ok netowrk, lock disabled, starting consuming');
+        //this.secondLock = false;
+        this.consumeLog();
+      })
     });
 
-    this.connectedSubscription = this.network.onConnect().subscribe(()=>{
-      this.lock = false;
-      console.log('ok netowrk, lock disabled');
-    })
+    console.log(JSON.stringify(network.type));
+
+    if(network.type!="none" && network.type!="NONE" &&  network.type!="None" ){
+      console.log('ok starting');
+      this.consumeLog();
+    }
 
   }
 
@@ -127,61 +143,64 @@ export class Synch {
 
 
   public consumeLog(){
-    this.db.getThinsToDo().then(result=>{
-      this.recordsToDo = result;
-      let canDo: boolean = true;
-      while(!this.recordsToDo.isEmpty && canDo && !this.lock){
-        let obj = this.recordsToDo.peek();
-        switch(obj.action){
-          case Action.CreateNote:
-            canDo = false;
-            this.processCreateNote(obj)
-            .then(result=>{
-              console.log('done processed note');
-              canDo = true;
-              this.recordsToDo.dequeue();
-              return;
-            })
-          case Action.CreateTag:
-            canDo = false;
-            this.processCreateTag(obj)
+    if(this.secondLock==false){  /*so no problem on two that are doing the same things.*/
+      this.secondLock = true;
+      this.db.getThinsToDo().then(result=>{
+        this.recordsToDo = result;
+        let canDo: boolean = true;
+        while(!this.recordsToDo.isEmpty && canDo && !this.lock){
+          let obj = this.recordsToDo.peek();
+          switch(obj.action){
+            case Action.CreateNote:
+              canDo = false;
+              this.processCreateNote(obj)
               .then(result=>{
-                console.log('done processed tag');
+                console.log('done processed note');
                 canDo = true;
                 this.recordsToDo.dequeue();
                 return;
               })
-          case Action.ChangeNoteTitle:
-            canDo = false;
-          case Action.ChangeText:
-            canDo = false;
-          case Action.AddMainTags:
-            canDo = false;
-          case Action.AddOtherTags:
-            canDo = false;
-          case Action.RemoveMainTags:
-            canDo = false;
-          case Action.RemoveOtherTags:
-            canDo = false;
-          case Action.ChangeTagTitle:
-            canDo = false;
-          case Action.AddLinks:
-            canDo = false;
-          case Action.RemoveLinks:
-            canDo = false;
-          case Action.SetDone:
-            canDo = false;
-          case Action.DeleteNote:
-            canDo = false;
-          case Action.DeleteTag:
-            canDo = false;
+            case Action.CreateTag:
+              canDo = false;
+              this.processCreateTag(obj)
+                .then(result=>{
+                  console.log('done processed tag');
+                  canDo = true;
+                  this.recordsToDo.dequeue();
+                  return;
+                })
+            case Action.ChangeNoteTitle:
+              canDo = false;
+            case Action.ChangeText:
+              canDo = false;
+            case Action.AddMainTags:
+              canDo = false;
+            case Action.AddOtherTags:
+              canDo = false;
+            case Action.RemoveMainTags:
+              canDo = false;
+            case Action.RemoveOtherTags:
+              canDo = false;
+            case Action.ChangeTagTitle:
+              canDo = false;
+            case Action.AddLinks:
+              canDo = false;
+            case Action.RemoveLinks:
+              canDo = false;
+            case Action.SetDone:
+              canDo = false;
+            case Action.DeleteNote:
+              canDo = false;
+            case Action.DeleteTag:
+              canDo = false;
+          }
         }
-      }
-    })
-    .catch(error=>{
-      console.log('error while getting data to consume: ');
-      console.log(JSON.stringify(error));
-    })
+      })
+      .catch(error=>{
+        console.log('error while getting data to consume: ');
+        console.log(JSON.stringify(error));
+      })
+    }
   }
 
   private processCreateNote(obj: LogObject):Promise<any>{
