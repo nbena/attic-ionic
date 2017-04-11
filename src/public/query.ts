@@ -1,15 +1,13 @@
 import { Table } from './const';
 export class Query{
   /*even if ugly use this.*/
-  static readonly CREATE_NOTES_TABLE = 'create table if not exists notes(_id char(12) primary key,text text,title varchar(64) unique,isDone boolean,links text,creationDate char(24),lastModificationDate char(24),mainTags text,otherTags text, mainTagsToAdd text, otherTagsToAdd text, mainTagsToRemove text, otherTagsToRemove text, mustBeDeleted boolean default false)';
-  /*there won't be the need to push the addedNotes to the server because it is done automatically when we add a tag to the notes, same for removed. notes_length must be kept synchronized.*/
+  static readonly CREATE_NOTES_TABLE = 'create table if not exists notes(_id char(12) primary key,text text,title varchar(64) unique,isDone boolean,links text,creationDate char(24),lastModificationDate char(24),mainTags text,otherTags text, mainTagsToAdd text default null, otherTagsToAdd text default null, mainTagsToRemove text default null, otherTagsToRemove text default null, mustBeDeleted boolean default false)';
   static readonly CREATE_TAGS_TABLE = 'create table if not exists tags(_id char(12) primary key,title varchar(64) unique,notes text, notes_length integer, addedNotes text, removedNotes text, mustBeDeleted boolean default false)';
   static readonly CREATE_NOTES_TO_SAVE_TABLE = 'create table if not exists notes_to_save(_id integer primary key autoincrement, title varchar(64) unique, text text, isDone boolean,links text,creationDate char(24),lastModificationDate char(24),mainTags text,otherTags text, mustBeDeleted boolean default false)';
   static readonly CREATE_TAGS_TO_SAVE_TABLE='create table if not exists tags_to_save( _id integer primary key autoincrement,  title varchar(64) unique, notes text, notes_length integer, mustBeDeleted boolean default false)';
   //static readonly CREATE_NOTES_TAGS_TABLE = 'create table if not exists notes_tags(id integer autoincrement primary key, _id_note char(12),_id_tag char(12), _id_note_to_save integer, _id_tag_to_save integer, foreign key(_id_note) references notes(_id), foreign key(_id_tag) references tags(_id))';
-
   //the key-table
-  static readonly CREATE_LOG ='create table log(_id integer primary key autoincrement,refNotes varchar(12),refTags varchar(12),refNotesToSave integer, refTagsToSave integer, done boolean default false, action varchar(50), data text, foreign key(refNotes) references notes(_id), foreign key(refTags) references tags(_id), foreign key(refNotesToSave) references notes_to_save(_id) foreign key(refTagsToSave) references tags_to_save(_id))';
+  static readonly CREATE_LOG ='create table if not exists log(_id integer primary key autoincrement,refNotes varchar(12),refTags varchar(12),refNotesToSave integer, refTagsToSave integer, done boolean default false, action varchar(50), data text, foreign key(refNotes) references notes(_id), foreign key(refTags) references tags(_id), foreign key(refNotesToSave) references notes_to_save(_id) foreign key(refTagsToSave) references tags_to_save(_id))';
 
   static readonly COUNT ='select count(*) as count from ?';
   static readonly SELECT_ALL = 'select * from ? where mustBeDeleted=false';
@@ -37,6 +35,16 @@ export class Query{
   static readonly INSERT_INTO_LOGS_TAGS  = 'insert into log(refTags, data, action) values(?,?,?)';
   static readonly INSERT_INTO_LOGS_TAGS_TO_SAVE = 'insert into log(refTagsToSave, data, action) values (?,?,?)';
 
+  static readonly SET_LOG_DONE = 'update log set done=\'true\' where _id=?';
+
+  static readonly INSERT_INTO_NOTES = 'insert into notes(_id, text, title, isDone, links, creationDate, lastModificationDate, mainTags, otherTags)values(?,?,?,?,?,?,?,?,?)';
+  static readonly DELETE_FROM_NOTES_TO_SAVE = 'delete from notes_to_save where _id=?';
+
+  static readonly INSERT_INTO_TAGS = 'insert into tags(_id, title, notes_length, notes) values (?,?,?,?)';
+  static readonly DELETE_FROM_TAGS_TO_SAVE = 'delete from tags_to_save where _id=?';
+
+  static readonly INSERT_INTO_NOTES_TO_SAVE = 'insert into notes_to_save(text,title, isDone, links, creationDate, lastModificationDate, mainTags, otherTags) values (?,?,?,?,?,?,?,?)';
+  static readonly INSERT_INTO_TAGS_TO_SAVE = 'insert into tags_to_save(title, notes, notes_length) values (?,?,?)';
 
 
   /*

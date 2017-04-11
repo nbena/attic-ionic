@@ -27,6 +27,8 @@ import { Synch } from '../providers/synch';
 import { Auth } from '../providers/auth';
 import { NetManager } from '../providers/net-manager';
 
+import { Network } from '@ionic-native/network';
+
 
 
 @NgModule({
@@ -65,6 +67,7 @@ import { NetManager } from '../providers/net-manager';
   providers: [
     {provide: ErrorHandler, useClass: IonicErrorHandler},
     Storage,
+    Network,
     AtticNotes,
     AtticTags,
     Auth,

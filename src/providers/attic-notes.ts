@@ -124,7 +124,7 @@ export class AtticNotes {
     return Utils.getBasic('/api/notes/'+id, this.http, this.auth.token);
   }
 
-  createNote(note: NoteMin){
+  createNote(note: NoteMin):Promise<any>{
     return Utils.putBasic('/api/notes/create', JSON.stringify({note:note}), this.http, this.auth.token);
   }
 

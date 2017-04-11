@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 // import 'rxjs/add/operator/map';
 //import { Network } from '@ionic-native/network';
 import { Network } from '@ionic-native/network';
+// import { Synch } from './synch';
 
 /*
   Generated class for the NetManager provider.
@@ -17,7 +18,7 @@ export class NetManager {
   disconnectedSubscription : any;
   connectedSubscription : any;
 
-  constructor(private network: Network) {
+  constructor(private network: Network/*, private synch: Synch*/) {
 
     this.disconnectedSubscription = this.network.onDisconnect().subscribe(()=>{
       console.log('network disconnected');

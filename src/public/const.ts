@@ -55,6 +55,7 @@ export class Const{
   public static readonly ERR_MISMATCH = 'terrible error';
   public static readonly ERR_NO_NOTE_TO_PUBLISH = 'no note to publish';
   public static readonly ERR_NO_TAG_TO_PUBLISH = 'no tag to publish';
+  public static readonly ERR_NO_LOG = 'no things to do';
 
   public static isNote(act: Action):boolean{
     return act!=Action.CreateTag &&

@@ -14,6 +14,9 @@ import { Db } from '../../providers/db';
 
 import 'rxjs/add/operator/debounceTime';
 
+
+import { Synch } from '../../providers/synch';
+
 /*
   Generated class for the Notes page.
 
@@ -47,7 +50,8 @@ export class NotesPage {
   isFull: boolean;
 
   constructor(public navCtrl: NavController, private navParams: NavParams,
-    private atticNotes: AtticNotes, private db: Db) {
+    private atticNotes: AtticNotes, private db: Db,
+    private synch: Synch) {
 
       let filterType = navParams.get('filterType');
       let filterValue = navParams.get('filterValue');
@@ -74,6 +78,7 @@ export class NotesPage {
 
         //insert if needed.
         //just a test.
+        console.log('counting notes: ');
         this.db.count(Table.Notes)
         .then(count=>{
           console.log(count);
@@ -81,6 +86,7 @@ export class NotesPage {
         .catch(error=>{
           console.log(JSON.stringify(error));
         })
+
   }
 
 
@@ -171,6 +177,7 @@ export class NotesPage {
       .then(result=>{
         this.allNotes=<NoteExtraMin[]>result;
         this.shownNotes=this.allNotes;
+
       })
       .catch(error=>{
         console.log(JSON.stringify(error));

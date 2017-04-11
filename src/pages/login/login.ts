@@ -10,6 +10,8 @@ import { RegisterPage } from '../register/register';
 
 import { Filter } from '../../public/const';
 
+import { Db } from '../../providers/db'
+
 /*
   Generated class for the Login page.
 
@@ -28,8 +30,8 @@ export class LoginPage {
   loading: any;
 
   // constructor(public navCtrl: NavController, public navParams: NavParams) {}
-  constructor(public navCtrl: NavController, public auth: Auth,
-    public loadingCtrl: LoadingController){}
+  constructor(public navCtrl: NavController, private auth: Auth,
+    public loadingCtrl: LoadingController, private db: Db){}
 
 
 

@@ -5,17 +5,18 @@ import { Platform } from 'ionic-angular';
 import { Query } from '../public/query';
 import { Table, Const, Action, WhichField } from '../public/const';
 import { Utils } from '../public/utils';
-import { NoteExtraMin, NoteFull, NoteSQLite } from '../models/notes';
+import { NoteExtraMin, NoteFull, NoteSQLite,NoteMin } from '../models/notes';
 import { TagExtraMin, TagFull, TagMin, TagAlmostMin, TagSQLite } from '../models/tags';
-import 'rxjs/add/operator/map';
+import { Queue } from 'typescript-collections';
+// import 'rxjs/add/operator/map';
 
 class SQLiteLogObject{
   _id: number;
   action: string;
   refNotes: string;
   refTags: string;
-  refNotesToSave: string;
-  refTagsToSave: string;
+  refNotesToSave: number;
+  refTagsToSave: number;
   done: boolean;
   data: string;
 }
@@ -26,10 +27,10 @@ export class LogObject{
   action: Action;
   refNotes: string;
   refTags: string;
-  refNotesToSave: string;
-  refTagsToSave: string;
+  refNotesToSave: number;
+  refTagsToSave: number;
   done: boolean;
-  data: {};
+  data: any;
 
   public static LogObjectParse(row: any):LogObject{
     let obj = new LogObject();
@@ -84,7 +85,7 @@ export class Db {
         this.db = new SQLite();
         this.db.openDatabase(
           {name: "attic.db", location: "default"})
-            .then(()=>{
+            .then((db)=>{
               return this.db.executeSql(Query.CREATE_NOTES_TABLE,{})
             })
             .then(()=>{
@@ -738,6 +739,95 @@ public setModification(obj:LogObject){
   let dbUtils = Db.setArrayObjInsertIntoLogs(obj);
   return this.db.executeSql(dbUtils.query, dbUtils.data);
 }
+
+
+public getThinsToDo():Promise<Queue<LogObject>>{
+  return this.db.executeSql(Query.SELECT_LOGS, {})
+    .then((result)=>{
+      if(result.rows.length>0){
+        let queue = new Queue<LogObject>();
+        for(let i =0;i<result.rows.length;i++){
+          let obj = LogObject.LogObjectParse(result.rows[i]);
+          queue.enqueue(obj);
+        }
+        return queue;
+      }else{
+        throw new Error(Const.ERR_NO_LOG); /*even if it's not an error*/
+      }
+    })
+}
+
+private static prepareArrayCreateNoteInNotes(note: NoteMin):any[]{
+  let array: any[] = [9];
+  array[0]=note._id;
+  array[1]=note.text;
+  array[2]=note.title;
+  array[3]=note.isDone;
+  array[4]=JSON.stringify(note.links);
+  array[5]=JSON.stringify(note.creationDate);
+  array[6]=JSON.stringify(note.lastModificationDate);
+  array[7]=JSON.stringify(note.mainTags);
+  array[8]=JSON.stringify(note.otherTags);
+  return array;
+}
+
+private static prepareArrayCreateNoteInNotesToSave(note: NoteMin):any[]{
+  let array: any[] = [8];
+  array[0]=note.text;
+  array[1]=note.title;
+  array[2]=note.isDone;
+  array[3]=JSON.stringify(note.links);
+  array[4]=JSON.stringify(note.creationDate);
+  array[5]=JSON.stringify(note.lastModificationDate);
+  array[6]=JSON.stringify(note.mainTags);
+  array[7]=JSON.stringify(note.otherTags);
+  return array;
+}
+
+/*
+@param oldId: the old _id into notes_to_save
+@param logId: the _id of the log record.
+@param note: the new note object to insert into notes
+*/
+public transactionProcessNote(oldId: number, logId: number, note: NoteMin):Promise<any>{
+  return this.db.transaction((tx)=>{
+    tx.executeSql(Query.INSERT_INTO_NOTES, Db.prepareArrayCreateNoteInNotes(note));
+    tx.executeSql(Query.DELETE_FROM_NOTES_TO_SAVE, [oldId]);
+    tx.executeSql(Query.SET_LOG_DONE, [logId])
+  })
+}
+
+
+private static prepareArrayCreateTagInTags(tag: TagMin):any[]{
+  let array: any[] = [4];
+  array[0]=tag._id;
+  array[1]=tag.title;
+  array[2]=tag.notes_length;
+  array[3]=JSON.stringify(tag.notes);
+  return array;
+}
+
+private static prepareArrayCreateTagInTagsToSave(tag: TagMin):any[]{
+  let array: any[] = [3];
+  array[0]=tag.title;
+  array[1]=tag.notes_length;
+  array[2]=JSON.stringify(tag.notes);
+  return array;
+}
+
+public transactionProcessTag(oldId: number, logId: number, tag: TagMin):Promise<any>{
+  return this.db.transaction((tx)=>{
+    tx.executeSql(Query.INSERT_INTO_TAGS, Db.prepareArrayCreateTagInTags(tag));
+    tx.executeSql(Query.DELETE_FROM_TAGS_TO_SAVE, [oldId]);
+    tx.executeSql(Query.SET_LOG_DONE, [logId]);
+  })
+}
+
+// public eot(tx: any){
+//
+// }
+
+
 
 
 

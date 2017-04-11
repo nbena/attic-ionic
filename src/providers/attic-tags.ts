@@ -66,7 +66,7 @@ export class AtticTags {
   /*
   * create a new tag.
   */
-  createTag(title: string){
+  createTag(title: string):Promise<any>{
     return Utils.putBasic('/api/tags/'+title, "", this.http, this.auth.token);
   }
 
