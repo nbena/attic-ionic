@@ -25,9 +25,23 @@ export enum Action{
   AddOtherTags,
   RemoveMainTags,
   RemoveOtherTags,
+  AddLinks,
+  RemoveLinks,
+  SetDone,
+
+  DeleteNote,
+  DeleteTag,
 
   ChangeTagTitle
 
+
+}
+
+export enum WhichField{
+  Notes,
+  NotesToSave,
+  Tags,
+  TagsToSave
 }
 
 export class Const{
@@ -42,5 +56,14 @@ export class Const{
   public static readonly ERR_NO_NOTE_TO_PUBLISH = 'no note to publish';
   public static readonly ERR_NO_TAG_TO_PUBLISH = 'no tag to publish';
 
+  public static isNote(act: Action):boolean{
+    return act!=Action.CreateTag &&
+            act!=Action.DeleteTag &&
+            act!=Action.ChangeTagTitle
+  }
+
+  public static isTag(act: Action):boolean{
+    return !Const.isNote(act);
+  }
 
 }

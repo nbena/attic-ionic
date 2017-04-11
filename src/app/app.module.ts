@@ -25,6 +25,7 @@ import { AtticTags } from '../providers/attic-tags';
 import { Db } from '../providers/db';
 import { Synch } from '../providers/synch';
 import { Auth } from '../providers/auth';
+import { NetManager } from '../providers/net-manager';
 
 
 
@@ -59,7 +60,7 @@ import { Auth } from '../providers/auth';
     NotesPopoverPage,
     NoteEditTextPage,
     NoteEditTagsPage,
-    NoteEditTagsPage
+    //NoteEditTagsPage
   ],
   providers: [
     {provide: ErrorHandler, useClass: IonicErrorHandler},
@@ -68,7 +69,8 @@ import { Auth } from '../providers/auth';
     AtticTags,
     Auth,
     Db,
-    Synch
+    Synch,
+    NetManager
     ]
 })
 export class AppModule {}

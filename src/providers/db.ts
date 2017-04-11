@@ -3,7 +3,7 @@ import { Http } from '@angular/http';
 import { SQLite } from 'ionic-native';
 import { Platform } from 'ionic-angular';
 import { Query } from '../public/query';
-import { Table, Const, Action } from '../public/const';
+import { Table, Const, Action, WhichField } from '../public/const';
 import { Utils } from '../public/utils';
 import { NoteExtraMin, NoteFull, NoteSQLite } from '../models/notes';
 import { TagExtraMin, TagFull, TagMin, TagAlmostMin, TagSQLite } from '../models/tags';
@@ -12,32 +12,35 @@ import 'rxjs/add/operator/map';
 class SQLiteLogObject{
   _id: number;
   action: string;
-  refNote: string;
-  refTag: string;
-  refNoteToSave: string;
-  refTagToSave: string;
+  refNotes: string;
+  refTags: string;
+  refNotesToSave: string;
+  refTagsToSave: string;
   done: boolean;
+  data: string;
 }
 
 
 export class LogObject{
   _id: number;
   action: Action;
-  refNote: string;
-  refTag: string;
-  refNoteToSave: string;
-  refTagToSave: string;
+  refNotes: string;
+  refTags: string;
+  refNotesToSave: string;
+  refTagsToSave: string;
   done: boolean;
+  data: {};
 
   public static LogObjectParse(row: any):LogObject{
     let obj = new LogObject();
     obj._id=row._id;
     obj.action=Action[<string>row.action];
-    obj.refNote=row.refNote;
-    obj.refTag=row.refTag;
-    obj.refNoteToSave=row.refNoteToSave;
-    obj.refTagToSave=row.refTagToSave;
+    obj.refNotes=row.refNote;
+    obj.refTags=row.refTag;
+    obj.refNotesToSave=row.refNoteToSave;
+    obj.refTagsToSave=row.refTagToSave;
     obj.done=row.done;
+    obj.data = JSON.parse(row.data);
     return obj;
   }
 
@@ -45,14 +48,20 @@ export class LogObject{
     let obj = new SQLiteLogObject();
     obj._id=this._id;
     obj.action=Action[this.action];
-    obj.refNote=this.refNote;
-    obj.refTag=this.refTag;
-    obj.refNoteToSave=this.refNoteToSave;
-    obj.refTagToSave=this.refTagToSave;
+    obj.refNotes=this.refNotes;
+    obj.refTags=this.refTags;
+    obj.refNotesToSave=this.refNotesToSave;
+    obj.refTagsToSave=this.refTagsToSave;
     obj.done=this.done;
+    obj.data = JSON.stringify(this.data);
     return obj;
   }
 
+}
+
+class DbUtils{
+  query: string;
+  data: any[];
 }
 
 /*
@@ -602,5 +611,134 @@ public getTagsToPublish():Promise<TagFull>{
       }
     })
 }
+
+/*
+union type can cause too many errors.
+*/
+// private static prepareStringInsertIntoLogs(obj:LogObject):string{
+//   let res: string;
+//   if(obj.refNotes!=null){
+//     res = Query.INSERT_INTO_LOGS_NOTES;
+//   }else if(obj.refTags!=null){
+//     res = Query.INSERT_INTO_LOGS_TAGS;
+//   }else if(obj.refNotesToSave!=null){
+//     res = Query.INSERT_INTO_LOGS_NOTES_TO_SAVE;
+//   }else{
+//     res = Query.INSERT_INTO_LOGS_TAGS_TO_SAVE;
+//   }
+//   return res;
+// }
+private static which(obj:LogObject):WhichField{
+  let res;
+  if(obj.refNotes!=null){
+    res = WhichField.Notes;
+  }else if(obj.refTags!=null){
+    res = WhichField.Tags;
+  }else if(obj.refNotesToSave!=null){
+    res = WhichField.NotesToSave
+  }else{
+    res = WhichField.TagsToSave;
+  }
+  return res;
+}
+
+private static prepareStringInsertIntoLogs(which: WhichField):string{
+  let res: string;
+  switch(which){
+    case WhichField.Notes:
+      res = Query.INSERT_INTO_LOGS_NOTES;
+    case WhichField.Tags:
+      res = Query.INSERT_INTO_LOGS_TAGS;
+    case WhichField.NotesToSave:
+      res = Query.INSERT_INTO_LOGS_NOTES_TO_SAVE;
+    case WhichField.TagsToSave:
+      res = Query.INSERT_INTO_LOGS_TAGS_TO_SAVE;
+  }
+  return res;
+}
+
+private static getRef(which: WhichField, obj:LogObject):any{
+  let res : any;
+  switch(which){
+    case WhichField.Notes:
+      res = obj.refNotes;
+    case WhichField.Tags:
+      res = obj.refTags;
+    case WhichField.NotesToSave:
+      res = obj.refNotesToSave;
+    case WhichField.TagsToSave:
+      res = obj.refTagsToSave;
+  }
+  return res;
+}
+
+// private static prepareObjectInsertIntoLOgs(obj: LogObject):any[]{
+//   // let res: any[];
+//   // if(obj.refNotes!=null){
+//   //   res
+//   // }else if(obj.refTags!=null){
+//   //   res = Query.INSERT_INTO_LOGS_TAGS;
+//   // }else if(obj.refNotesToSave!=null){
+//   //   res = Query.INSERT_INTO_LOGS_NOTES_TO_SAVE;
+//   // }else{
+//   //   res = Query.INSERT_INTO_LOGS_TAGS_TO_SAVE;
+//   // }
+//   // return res;
+//
+// }
+/*
+array[0]=ref,
+array[1]=data,
+array[2]=action
+*/
+
+
+
+private static setArrayObjInsertIntoLogs(obj:LogObject):DbUtils{
+
+  let res: any[]=[3];
+
+  let dbUtils = new DbUtils();
+
+  let which = Db.which(obj);
+  let query = Db.prepareStringInsertIntoLogs(which);
+
+  res[2]=Action[obj.action];
+  res[1]=JSON.stringify(obj.data);
+  res[0]=Db.getRef(which, obj);
+
+  dbUtils.data=res;
+  dbUtils.query=query;
+
+  console.log('the ref is:');
+  console.log(res);
+
+  return dbUtils;
+
+  // switch(obj.action){
+  //   case Action.CreateNote:
+  //   case Action.CreateTag:
+  //   case Action.ChangeNoteTitle:
+  //   case Action.ChangeText:
+  //   case Action.AddMainTags:
+  //   case Action.AddOtherTags:
+  //   case Action.RemoveMainTags:
+  //   case Action.RemoveOtherTags:
+  //   case Action.ChangeTagTitle:
+  //   case Action.AddLinks:
+  //   case Action.RemoveLinks:
+  //   case Action.SetDone:
+  //   case Action.DeleteNote:
+  //   case Action.DeleteTag:
+  // }
+}
+
+
+public setModification(obj:LogObject){
+  let dbUtils = Db.setArrayObjInsertIntoLogs(obj);
+  return this.db.executeSql(dbUtils.query, dbUtils.data);
+}
+
+
 
 }
