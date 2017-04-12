@@ -2,9 +2,10 @@ import { Injectable } from '@angular/core';
 import { Http, Headers } from '@angular/http';
 /* importing auth because I need the token. */
 import { Auth } from './auth';
-import { Const } from '../public/const';
+import { Action, Const } from '../public/const';
 import { NoteExtraMin/*, NoteSmart, NoteFull*/,NoteMin } from '../models/notes';
 import { Utils } from '../public/utils';
+import { Db, LogObject } from './db';
 
 import 'rxjs/add/operator/map';
 
@@ -17,7 +18,7 @@ import 'rxjs/add/operator/map';
 @Injectable()
 export class AtticNotes {
 
-  constructor(public http: Http, public auth: Auth) {
+  constructor(public http: Http, public auth: Auth, private db: Db) {
     console.log('Hello AtticNotes Provider');
   }
 
@@ -199,6 +200,18 @@ return this.items.filter((item) => {
 
   setDone(noteId: string, done: boolean){
     return Utils.postBasic('/api/notes/mod/setdone', JSON.stringify({id: noteId, done: done}), this.http, this.auth.token);
+  }
+
+  deleteNote(_id: any):Promise<any>{
+    // if(_id instanceof Number){
+    //   // let obj = new LogObject();
+    //   // obj.action = Action.DeleteNote;
+    //   // obj.refNotesToSave = <number>_id;
+    //   return this.db.transactionDeleteNoteFromNotesToSave(<number>_id);
+    // }else{
+    //   return this.db.transactionDeleteNoteFromNotes(<string>_id);
+    // }
+    return null;
   }
 
 }

@@ -2,7 +2,8 @@ import { Table } from './const';
 export class Query{
   /*even if ugly use this.*/
   static readonly CREATE_NOTES_TABLE = 'create table if not exists notes(_id char(12) primary key,text text,title varchar(64) unique,isDone boolean,links text,creationDate char(24),lastModificationDate char(24),mainTags text,otherTags text, mainTagsToAdd text default null, otherTagsToAdd text default null, mainTagsToRemove text default null, otherTagsToRemove text default null, mustBeDeleted boolean default false)';
-  static readonly CREATE_TAGS_TABLE = 'create table if not exists tags(_id char(12) primary key,title varchar(64) unique,notes text, notes_length integer, addedNotes text, removedNotes text, mustBeDeleted boolean default false)';
+    static readonly CREATE_TAGS_TABLE = 'create table if not exists tags(_id char(12) primary key,title varchar(64) unique,notes text, notes_length integer, mustBeDeleted boolean default false)';
+  // static readonly CREATE_TAGS_TABLE = 'create table if not exists tags(_id char(12) primary key,title varchar(64) unique,notes text, notes_length integer, addedNotes text, removedNotes text, mustBeDeleted boolean default false)';
   static readonly CREATE_NOTES_TO_SAVE_TABLE = 'create table if not exists notes_to_save(_id integer primary key autoincrement, title varchar(64) unique, text text, isDone boolean,links text,creationDate char(24),lastModificationDate char(24),mainTags text,otherTags text, mustBeDeleted boolean default false)';
   static readonly CREATE_TAGS_TO_SAVE_TABLE='create table if not exists tags_to_save( _id integer primary key autoincrement,  title varchar(64) unique, notes text, notes_length integer, mustBeDeleted boolean default false)';
   //static readonly CREATE_NOTES_TAGS_TABLE = 'create table if not exists notes_tags(id integer autoincrement primary key, _id_note char(12),_id_tag char(12), _id_note_to_save integer, _id_tag_to_save integer, foreign key(_id_note) references notes(_id), foreign key(_id_tag) references tags(_id))';
@@ -47,7 +48,20 @@ export class Query{
   static readonly INSERT_INTO_TAGS_TO_SAVE = 'insert into tags_to_save(title, notes, notes_length) values (?,?,?)';
 
   static readonly DELETE_FROM_NOTES = 'delete from notes where _id=?';
-  static readonly DELETE_FROM_TAGS = 'delete from tags where _oid=?';
+  static readonly DELETE_FROM_TAGS = 'delete from tags where _id=?';
+
+  static readonly SET_NOTE_TO_DELETE_NOTES_TO_SAVE = 'update notes_to_save set mustBeDeleted=\'true\' where _id=?';
+  static readonly SET_NOTE_TO_DELETE_NOTES = 'update notes set mustBeDeleted=\'true\' where _id=?';
+
+  static readonly SET_NOTE_TO_DELETE_TAGS_TO_SAVE = 'update tags_to_save set mustBeDeleted=\'true\' where _id=?';
+  static readonly SET_NOTE_TO_DELETE_TAGS = 'update tags set mustBeDeleted=\'true\' where _id=?';
+
+  static readonly SELECT_TAGS_FROM_NOTE_PART_1 = 'select * from tags where _id=';
+  static readonly SELECT_TAGS_FROM_NOTE_PART_2 = 'union select * from tags_to_save where _id=';
+
+
+  static readonly UPDATE_TAG_SET_DATA_NOTES_LENGTH = 'update tags set notes=?, notes_length=notes_length-1 where _id=?';
+  static readonly UPDATE_TAG_TO_SAVE_SET_DATA_NOTES_LENGTH = 'update tags_to_save set notes=?, notes_length=notes_length-1 where _id=?';
 
 
   /*

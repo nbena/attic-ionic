@@ -137,6 +137,31 @@ static presentToast(toastCtrl: ToastController, message: string){
   toast.present();
 }
 
+static askConfirm(alertCtrl: AlertController, message: string, cb: ((_ :boolean)=>void)){
+  let alert = alertCtrl.create({
+    title: 'Confirm delete',
+    message: message,
+    buttons: [
+      {
+        text: 'Cancel',
+        role: 'cancel',
+        handler: () => {
+          console.log('nothing to do');
+          cb(false);
+        }
+      },
+      {
+        text: 'Ok',
+        handler: () => {
+          console.log('cancellation confirmed');
+          cb(true);
+        }
+      }
+    ]
+  });
+  alert.present();
+}
+
 static arrayDiff(arg0: any[], arg1: any[]){
   return arg0.filter(function(el){
       return arg1.indexOf(el)<0;

@@ -802,7 +802,11 @@ private static prepareArrayCreateNoteInNotesToSave(note: NoteMin):any[]{
   return array;
 }
 
+
 /*
+this function is called when the current note from notes_to_save has been sent
+to the server, we have obtained a valid _id, we will use it to insert into notes
+and to delete this note from notes_to_save and from the log.
 @param oldId: the old _id into notes_to_save
 @param logId: the _id of the log record.
 @param note: the new note object to insert into notes
@@ -812,6 +816,70 @@ public transactionProcessNote(oldId: number, logId: number, note: NoteMin):Promi
     tx.executeSql(Query.INSERT_INTO_NOTES, Db.prepareArrayCreateNoteInNotes(note));
     tx.executeSql(Query.DELETE_FROM_NOTES_TO_SAVE, [oldId]);
     tx.executeSql(Query.SET_LOG_DONE, [logId])
+  })
+}
+
+/*
+when deleting a note, immediately delete it from tags, no need to log.
+*/
+
+/*
+note: sqlite support union on string and integer.
+*/
+private static prepareStringSelectTags(tags: any[]):string{
+  let array = tags;
+  let query = Query.SELECT_TAGS_FROM_NOTE_PART_1;
+  query = query.concat(array[0]);
+  for(let i=1;i<array.length;i++){
+    // if(i==array.length-1){
+      query = query.concat('or _id='+array[i]);
+    // }else{
+    //   query = query.concat()
+    // }
+  }
+  query = query.concat(Query.SELECT_TAGS_FROM_NOTE_PART_2);
+  query = query.concat(array[0]);
+  for(let i=1;i<array.length;i++){
+      query = query.concat('or _id='+array[i]);
+  }
+  return query;
+}
+
+/*
+fortunately JS supports array of different types.
+SQLite does not throw error if _id is not found in the update.
+*/
+public transactionDeleteNoteFromNotesToSave(_id: number, tags: any[]):Promise<any>{
+  return this.db.transaction(tx=>{
+    tx.executeSql(Db.prepareStringSelectTags(tags), {})
+    .then(result=>{
+      if(result.rows.length>0){
+        console.log('tags to update');
+        console.log(JSON.stringify(result.rows));
+        for(let i=0;i<result.rows.length;i++){
+          let tagId = result.rows[i]._id;
+          let data = <any[]>JSON.parse(result.rows[i].notes);
+          console.log('the casted data');
+          console.log(JSON.stringify(data));
+          data.splice(data.indexOf(_id), 1);
+          console.log('the after splice data');
+          console.log(JSON.stringify(data));
+          //let notes_length = result.rows[i].notes_length;
+          tx.executeSql(Query.UPDATE_TAG_SET_DATA_NOTES_LENGTH, [tagId, JSON.stringify(data)]);
+          tx.executeSql(Query.UPDATE_TAG_TO_SAVE_SET_DATA_NOTES_LENGTH, [tagId, JSON.stringify(data)]);
+        }
+      }
+    })
+    tx.executeSql(Query.INSERT_INTO_LOGS_NOTES_TO_SAVE,[_id, null, Action[Action.DeleteNote]]);
+    tx.executeSql(Query.SET_NOTE_TO_DELETE_NOTES_TO_SAVE, [_id]);
+  })
+}
+
+
+public transactionDeleteNoteFromNotes(_id: string, tags: any[]):Promise<any>{
+  return this.db.transaction(tx=>{
+    tx.executeSql(Query.INSERT_INTO_LOGS_NOTES,[_id, null, Action[Action.DeleteNote]]);
+    tx.executeSql(Query.SET_NOTE_TO_DELETE_NOTES, [_id]);
   })
 }
 

@@ -107,4 +107,18 @@ export class NotesPopoverPage {
     console.log('ionViewDidLoad NotesPopoverPage');
   }
 
+  deleteNote(){
+    Utils.askConfirm(this.alertCtrl, 'Are you sure to delete note \''+this.note.title+'\'',(_ : boolean)=>{
+      if(_){
+        this.deleteNoteApi(this.note._id);
+      }/*else{
+        nothing to do.
+      }*/
+    });
+  }
+
+  deleteNoteApi(_id: any){
+    
+  }
+
 }
