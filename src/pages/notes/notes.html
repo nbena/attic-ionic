@@ -26,24 +26,27 @@
   </ion-searchbar>
 
   <h3>Notes!</h3>
-  <!-- <ion-list> -->
-    <ion-card detail-push *ngFor="let note of shownNotes" (click)="displayNoteDetails(note._id, note.title)">
+    <!-- <ion-card detail-push *ngFor="let note of shownNotes" (click)="displayNoteDetails(note._id, note.title)">
       {{note.title}}
-    <!--  {{note._id}}-->
-  </ion-card>
-  <!-- </ion-list> -->
+    </ion-card> -->
+    <ion-item-sliding *ngFor="let note of shownNotes" (click)="displayNoteDetails(note._id, note.title)">
+      <ion-item>
+        {{note.title}}
+      </ion-item>
 
-  <!-- <button ion-button icon-only (click)="createNewNote()">
-    <ion-icon name="add-circle"></ion-icon>
-  </button> -->
+      <ion-item-options>
+        <button ion-button icon-only (click)="deleteNote(note._id, note.title)" danger>
+          <ion-icon name="trash"></ion-icon>
+        </button>
+      </ion-item-options>
+
+    </ion-item-sliding>
+
+
 
 
 </ion-content>
 
-
-    <!-- <button fab fab-bottom fab-right fab-fixed (click)="createNewNote()">
-      <ion-icon name="add"></ion-icon>
-    </button> -->
 
   <ion-fab right bottom>
     <button ion-fab color="primary" (click)="createNewNote()">

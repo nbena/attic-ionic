@@ -92,7 +92,7 @@ export class NotesPage {
 
 
   //calling the new page, passing the _id.
-  displayNoteDetails(_id: string, title: string){
+  displayNoteDetails(_id: any, title: string){
     this.navCtrl.push(NoteDetailsPage, {_id, title});
   }
 
@@ -243,6 +243,10 @@ export class NotesPage {
       .catch(error=>{
         console.log(JSON.stringify(error));
       })
+  }
+
+  deleteNote(_id: any, title: string){
+    console.log('deleting note: '+title);
   }
 
 }

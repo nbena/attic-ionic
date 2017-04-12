@@ -46,6 +46,9 @@ export class Query{
   static readonly INSERT_INTO_NOTES_TO_SAVE = 'insert into notes_to_save(text,title, isDone, links, creationDate, lastModificationDate, mainTags, otherTags) values (?,?,?,?,?,?,?,?)';
   static readonly INSERT_INTO_TAGS_TO_SAVE = 'insert into tags_to_save(title, notes, notes_length) values (?,?,?)';
 
+  static readonly DELETE_FROM_NOTES = 'delete from notes where _id=?';
+  static readonly DELETE_FROM_TAGS = 'delete from tags where _oid=?';
+
 
   /*
   tag and notes in the db just memorize an array of ids.

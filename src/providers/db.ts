@@ -694,6 +694,22 @@ array[1]=data,
 array[2]=action
 */
 
+public deleteNoteFromNotesToSave(_id: number):Promise<any>{
+  return this.db.executeSql(Query.DELETE_FROM_NOTES_TO_SAVE, {_id});
+}
+
+public deleteNotesFromNotes(_id: string):Promise<any>{
+  return this.db.executeSql(Query.DELETE_FROM_NOTES, {_id});
+}
+
+public deleteFromTagsToSave(_id: number):Promise<any>{
+  return this.db.executeSql(Query.DELETE_FROM_TAGS_TO_SAVE, {_id});
+}
+
+public deleteFromTags(_id: string):Promise<any>{
+  return this.db.executeSql(Query.DELETE_FROM_TAGS, {_id});
+}
+
 
 
 private static setArrayObjInsertIntoLogs(obj:LogObject):DbUtils{
