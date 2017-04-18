@@ -64,15 +64,15 @@ export class CreateNotePage {
     this.newNote.text=this.oldNote.text;
     this.newNote.links=this.links;
 
-    this.newNote.mainTags = [];
-    this.newNote.otherTags = [];
+    this.newNote.maintags = [];
+    this.newNote.othertags = [];
 
     for(let i=0;i<this.mainTagsString.length;i++){
-      this.newNote.mainTags.push(this.mainTagsString[i]);
+      this.newNote.maintags.push(this.mainTagsString[i]);
     }
 
     for(let i=0;i<this.otherTagsString.length;i++){
-      this.newNote.otherTags.push(this.otherTagsString[i]);
+      this.newNote.othertags.push(this.otherTagsString[i]);
     }
 
     // console.log(Utils.logNote(this.newNote));

@@ -12,11 +12,11 @@ export class NoteExtraMin{
 
 export class NoteBarebon extends NoteExtraMin{
   text: string;
-  private userId: string;
-  isDone: boolean;
+  private userid: string;
+  isdone: boolean;
   links: string[];
-  creationDate: Date;
-  lastModificationDate: Date;
+  creationdate: Date;
+  lastmodificationdate: Date;
 
   // constructor(title: string, text: string){
   //   super();
@@ -32,8 +32,8 @@ export class NoteSmart extends NoteBarebon{
 }
 
 export class NoteMin extends NoteBarebon{
-  mainTags: string[];
-  otherTags: string[];
+  maintags: string[];
+  othertags: string[];
 
 }
 
@@ -42,8 +42,8 @@ export class NoteMin extends NoteBarebon{
 //   otherTags: TagFull[];
 // }
 export class NoteFull extends NoteBarebon{
-  mainTags: TagExtraMin[];
-  otherTags: TagExtraMin[];
+  maintags: TagExtraMin[];
+  othertags: TagExtraMin[];
 }
 export class NoteSQLite extends NoteFull{
   mainTagsToAdd: TagFull[];

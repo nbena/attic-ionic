@@ -33,7 +33,7 @@
       <ion-item>
         Notes
         <ion-list>
-          <ion-chip *ngFor="let note of tag?.notes" (click)="displayNoteDetails(note.title)">
+          <ion-chip *ngFor="let note of tag?.notes" (click)="displayNoteDetails(note)">
             {{note}}
           </ion-chip>
         </ion-list>

@@ -105,15 +105,15 @@ export class NoteDetailsPage {
         // this._mainTags=this.note.mainTags;
         // this._otherTags=this.note.otherTags;
         // this._links=this.note.links;
-        this.mainTags=<TagExtraMin[]>this.note.mainTags;
-        this.otherTags=<TagExtraMin[]>this.note.otherTags;
+        this.mainTags=<TagExtraMin[]>this.note.maintags;
+        this.otherTags=<TagExtraMin[]>this.note.othertags;
         //
         // console.log('the main tags:');
         // console.log(JSON.stringify(this.mainTags));
 
         this.links=this.note.links;
         this.submitChangeEnabled=false;
-        this.isDone=this.note.isDone;
+        this.isDone=this.note.isdone;
 
         this.makeAllFalse();
 

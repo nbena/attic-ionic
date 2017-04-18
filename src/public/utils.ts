@@ -114,17 +114,17 @@ static logNote(note: NoteBarebon):string{
   let result = '';
   result+=('title '+note.title);
   result+=(' text '+note.text);
-  result+=(' isDone '+(note.isDone ? "true" : "false"));
+  result+=(' isDone '+(note.isdone ? "true" : "false"));
   result+=(' links '+note.links.toString());
 
   if(note instanceof NoteFull || note instanceof NoteMin){
     result+='mainTags: ';
-    for(let i=0;i<note.mainTags.length;i++){
-      result+=Utils.logTags(<TagExtraMin>note.mainTags[i]);
+    for(let i=0;i<note.maintags.length;i++){
+      result+=Utils.logTags(<TagExtraMin>note.maintags[i]);
     }
     result+='otherTags: ';
-    for(let i=0;i<note.otherTags.length;i++){
-      result+=Utils.logTags(<TagExtraMin>note.otherTags[i]);
+    for(let i=0;i<note.othertags.length;i++){
+      result+=Utils.logTags(<TagExtraMin>note.othertags[i]);
     }
   }
 
@@ -292,10 +292,10 @@ static pushLink(alertCtrl:AlertController, cb: ((_: any)=>void) ){
   static getEffectiveTagsFromNotes(note: NoteFull):TagFull[]{
     let array: TagFull[];
     if(typeof note== 'NoteFull'){
-      array =<TagFull[]> note.mainTags.concat(note.otherTags);
+      array =<TagFull[]> note.maintags.concat(note.othertags);
     }else if(typeof note == 'NoteSQLite'){
       let noteRes = <NoteSQLite>note;
-      array = <TagFull[]>noteRes.mainTags.concat(noteRes.otherTags, noteRes.mainTagsToAdd, noteRes.otherTagsToAdd);
+      array = <TagFull[]>noteRes.maintags.concat(noteRes.othertags, noteRes.mainTagsToAdd, noteRes.otherTagsToAdd);
       array = Utils.arrayDiff(array, noteRes.mainTagsToRemove.concat(noteRes.otherTagsToRemove));
     // }
     // array = note.mainTags.concat(note.otherTags, note.mainTagsToAdd, note.otherTagsToAdd);
