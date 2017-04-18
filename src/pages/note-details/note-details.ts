@@ -31,7 +31,6 @@ export class NoteDetailsPage {
   // _mainTags: TagExtraMin[];
   // _otherTags: TagExtraMin[];
   // _links: string[];
-  _id : string;
   title: string;
   // creationDateString: string;
   // lastModificationDateString: string;
@@ -82,9 +81,8 @@ export class NoteDetailsPage {
     public popoverCtrl: PopoverController, public alertCtrl: AlertController,
     public toastCtrl: ToastController,
     private atticNotes: AtticNotes, private atticTags: AtticTags) {
-    this._id=navParams.get('_id');
     this.title=navParams.get('title');
-    this.noteById();
+    this.noteByTitle();
     this.loadTags();
   }
 
@@ -98,8 +96,8 @@ export class NoteDetailsPage {
     this.isDoneChanged = false;
   }
 
-  noteById(){
-    this.atticNotes.noteById(this._id)
+  noteByTitle(){
+    this.atticNotes.noteByTitle(this.title)
       .then(result=>{
         this.note=<NoteFull>result;
         // this.lastModificationDateString=this.note.lastModificationDate.toDateString();
@@ -192,7 +190,7 @@ export class NoteDetailsPage {
   }
 
   refresh(refresher){
-    this.noteById();
+    this.noteByTitle();
     setTimeout(()=>{
       refresher.complete();
     },2000);
@@ -295,14 +293,14 @@ export class NoteDetailsPage {
     Utils.pushLink(this.alertCtrl, (data)=>{this.addLinks(data)});
   }
 
-  deleteMainTags(event, i: number, id: string){
+  deleteMainTags(event, i: number, title: string){
      event.stopPropagation();
      /*remove from the shown.*/
      this.shownMainTags.splice(i, 1);
      /*detect if there is the need to remove from mainTags.*/
      /*(user can remove a links added by him that not really exists)*/
      let obj = new TagExtraMin();
-     obj._id=id;
+     obj.title=title;
      let index = Utils.myIndexOf(this.mainTags,obj);
      if(index!=-1){
        this.mainTagsToRemove.push(this.mainTags[index]);
@@ -318,13 +316,13 @@ export class NoteDetailsPage {
     //  this.haveToRemoveMainTags = true;
   }
 
-  deleteOtherTags(event, i: number, id: string){
+  deleteOtherTags(event, i: number,title: string){
     event.stopPropagation();
     /*remove from the shown.*/
     this.shownOtherTags.splice(i, 1);
     /*detect if there is the need to remove from otherTags.*/
     let obj = new TagExtraMin();
-    obj._id=id;
+    obj.title=title;
     let index = Utils.myIndexOf(this.otherTags,obj);
     if(index!=-1){
       this.otherTagsToRemove.push(this.otherTags[index]);
@@ -378,31 +376,31 @@ export class NoteDetailsPage {
   defining real APIs
   */
   addMainTagsAPI(){
-    return this.atticNotes.addMainTags(this.note._id, Utils.fromTagsToString(this.mainTagsToAdd));
+    return this.atticNotes.addMainTags(this.note.title, Utils.fromTagsToString(this.mainTagsToAdd));
   }
 
   addOtherTagsAPI(){
-    return this.atticNotes.addOtherTags(this.note._id, Utils.fromTagsToString(this.otherTagsToAdd));
+    return this.atticNotes.addOtherTags(this.note.title, Utils.fromTagsToString(this.otherTagsToAdd));
   }
 
   removeMainTagsAPI(){
-    return this.atticNotes.removeMainTags(this.note._id, Utils.fromTagsToString(this.mainTagsToRemove));
+    return this.atticNotes.removeMainTags(this.note.title, Utils.fromTagsToString(this.mainTagsToRemove));
   }
 
   removeOtherTagsAPI(){
-    return this.atticNotes.removeOtherTags(this.note._id, Utils.fromTagsToString(this.otherTagsToRemove));
+    return this.atticNotes.removeOtherTags(this.note.title, Utils.fromTagsToString(this.otherTagsToRemove));
   }
 
   addLinksAPI(){
-    return this.atticNotes.addLinks(this.note._id, this.linksToAdd);
+    return this.atticNotes.addLinks(this.note.title, this.linksToAdd);
   }
 
   removeLinksAPI(){
-    return this.atticNotes.removeLinks(this.note._id, this.linksToRemove);
+    return this.atticNotes.removeLinks(this.note.title, this.linksToRemove);
   }
 
   setDoneAPI(){
-    return this.atticNotes.setDone(this.note._id, this.shownIsDone);
+    return this.atticNotes.setDone(this.note.title, this.shownIsDone);
   }
 
 

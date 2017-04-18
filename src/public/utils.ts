@@ -106,7 +106,7 @@ static deleteBasic(uriFinal: string, http: Http, token: any){
 
 static logTags(tag: TagExtraMin):string{
   let result='';
-  result+=(' id: '+tag._id);
+  result+=(' title: '+tag.title);
   return result;
 }
 
@@ -201,7 +201,7 @@ for(let i=0;i<arg0.length;i++){
         let obj = arg0[i];
         let bool = true;
         for(let j=0;j<arg1.length;j++){
-                if(obj._id==arg1[j]._id){
+                if(obj.title==arg1[j].title){
                         bool=false;
                 }
         }
@@ -239,7 +239,7 @@ static myIndexOf(arg0: TagExtraMin[], arg1: TagExtraMin): number{
   // console.log(JSON.stringify(arg0));
   let i = -1;
   for(let j=0;j<arg0.length;j++){
-    if(arg0[j]._id.localeCompare(arg1._id)==0){
+    if(arg0[j].title.localeCompare(arg1.title)==0){
       i=j;
       j=arg0.length;
     }
@@ -256,7 +256,7 @@ static myIndexOf(arg0: TagExtraMin[], arg1: TagExtraMin): number{
 static fromTagsToString(tags: TagExtraMin[]):string[]{
   let result : string [] = [];
   for(let i=0;i<tags.length;i++){
-    result.push(tags[i]._id);
+    result.push(tags[i].title);
   }
   return result;
 }
@@ -292,10 +292,10 @@ static pushLink(alertCtrl:AlertController, cb: ((_: any)=>void) ){
   static getEffectiveTagsFromNotes(note: NoteFull):TagFull[]{
     let array: TagFull[];
     if(typeof note== 'NoteFull'){
-      array = note.mainTags.concat(note.otherTags);
+      array =<TagFull[]> note.mainTags.concat(note.otherTags);
     }else if(typeof note == 'NoteSQLite'){
       let noteRes = <NoteSQLite>note;
-      array = noteRes.mainTags.concat(noteRes.otherTags, noteRes.mainTagsToAdd, noteRes.otherTagsToAdd);
+      array = <TagFull[]>noteRes.mainTags.concat(noteRes.otherTags, noteRes.mainTagsToAdd, noteRes.otherTagsToAdd);
       array = Utils.arrayDiff(array, noteRes.mainTagsToRemove.concat(noteRes.otherTagsToRemove));
     // }
     // array = note.mainTags.concat(note.otherTags, note.mainTagsToAdd, note.otherTagsToAdd);

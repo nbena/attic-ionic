@@ -1,4 +1,4 @@
-import { TagFull } from './tags';
+import { TagFull, TagExtraMin } from './tags';
 /*
 Defining interface for note API.
 Here's the interface for the note API.
@@ -7,13 +7,12 @@ Here's the interface for the note API.
 
 /*the basically-iest API*/
 export class NoteExtraMin{
-  _id: string;
   title: string;
 }
 
 export class NoteBarebon extends NoteExtraMin{
   text: string;
-  private _userId: string;
+  private userId: string;
   isDone: boolean;
   links: string[];
   creationDate: Date;
@@ -38,9 +37,13 @@ export class NoteMin extends NoteBarebon{
 
 }
 
+// export class NoteFull extends NoteBarebon{
+//   mainTags: TagFull[];
+//   otherTags: TagFull[];
+// }
 export class NoteFull extends NoteBarebon{
-  mainTags: TagFull[];
-  otherTags: TagFull[];
+  mainTags: TagExtraMin[];
+  otherTags: TagExtraMin[];
 }
 export class NoteSQLite extends NoteFull{
   mainTagsToAdd: TagFull[];

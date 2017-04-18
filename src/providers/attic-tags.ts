@@ -24,24 +24,24 @@ export class AtticTags {
   }
 
 
-  loadFull(){
-    return Utils.getBasic('/api/tags/all', this.http, this.auth.token);
-  }
-
-  loadNoPopulation(){
-    return Utils.getBasic('/api/tags/all/unpop', this.http, this.auth.token);
-
-  }
+  // loadFull(){
+  //   return Utils.getBasic('/api/tags/all', this.http, this.auth.token);
+  // }
+  //
+  // loadNoPopulation(){
+  //   return Utils.getBasic('/api/tags/all/unpop', this.http, this.auth.token);
+  //
+  // }
 
   loadTagsMin(){
     return Utils.getBasic('/api/tags/all/min', this.http, this.auth.token);
   }
 
-  loadTagsMinWithNotesLength(){
-    return Utils.getBasic('/api/tags/all/min/notes-length', this.http, this.auth.token);
-  }
+  // loadTagsMinWithNotesLength(){
+  //   return Utils.getBasic('/api/tags/all/min/notes-length', this.http, this.auth.token);
+  // }
 
-  tagById(id: string){
+  tagByTitle(title: string):Promise<any>{
     // return new Promise((resolve, reject)=>{
     //
     //   let headers = new Headers();
@@ -60,7 +60,7 @@ export class AtticTags {
     //       reject(err);
     //     })
     // });
-    return Utils.getBasic('/api/tags/'+id, this.http, this.auth.token);
+    return Utils.getBasic('/api/tags/'+title, this.http, this.auth.token);
   }
 
   /*
@@ -70,9 +70,9 @@ export class AtticTags {
     return Utils.putBasic('/api/tags/'+title, "", this.http, this.auth.token);
   }
 
-  tagsByTitle(title: string){
-    return Utils.postBasic('/api/tags/by-title/reg/unpop', {title: title}, this.http, this.auth.token);
-  }
+  // tagsByTitle(title: string){
+  //   return Utils.postBasic('/api/tags/by-title/reg/unpop', {title: title}, this.http, this.auth.token);
+  // }
 
   filterTagByTitle(tags: TagExtraMin[], title: string):TagExtraMin[]{
     return tags.filter((tag)=>{

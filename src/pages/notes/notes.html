@@ -29,13 +29,13 @@
     <!-- <ion-card detail-push *ngFor="let note of shownNotes" (click)="displayNoteDetails(note._id, note.title)">
       {{note.title}}
     </ion-card> -->
-    <ion-item-sliding *ngFor="let note of shownNotes" (click)="displayNoteDetails(note._id, note.title)">
+    <ion-item-sliding *ngFor="let note of shownNotes" (click)="displayNoteDetails(note.title)">
       <ion-item>
         {{note.title}}
       </ion-item>
 
       <ion-item-options>
-        <button ion-button icon-only (click)="deleteNote(note._id, note.title)" danger>
+        <button ion-button icon-only (click)="deleteNote(note.title)" danger>
           <ion-icon name="trash"></ion-icon>
         </button>
       </ion-item-options>

@@ -58,29 +58,29 @@ export class Synch {
     ) {
 
     console.log('Hello Synch Provider');
-    this.recordsToDo = new Queue<LogObject>();
-
-    //platform ready.
-    this.platform.ready().then((ready)=>{
-      this.disconnectedSubscription = this.network.onDisconnect().subscribe(()=>{
-        this.lock = true;
-        console.log('no network');
-      });
-
-      this.connectedSubscription = this.network.onConnect().subscribe(()=>{
-        this.lock = false;
-        console.log('ok netowrk, lock disabled, starting consuming');
-        //this.secondLock = false;
-        this.consumeLog();
-      })
-    });
-
-    console.log(JSON.stringify(network.type));
-
-    if(network.type!="none" && network.type!="NONE" &&  network.type!="None" ){
-      console.log('ok starting');
-      this.consumeLog();
-    }
+    // this.recordsToDo = new Queue<LogObject>();
+    //
+    // //platform ready.
+    // this.platform.ready().then((ready)=>{
+    //   this.disconnectedSubscription = this.network.onDisconnect().subscribe(()=>{
+    //     this.lock = true;
+    //     console.log('no network');
+    //   });
+    // 
+    //   this.connectedSubscription = this.network.onConnect().subscribe(()=>{
+    //     this.lock = false;
+    //     console.log('ok netowrk, lock disabled, starting consuming');
+    //     //this.secondLock = false;
+    //     this.consumeLog();
+    //   })
+    // });
+    //
+    // console.log(JSON.stringify(network.type));
+    //
+    // if(network.type!="none" && network.type!="NONE" &&  network.type!="None" ){
+    //   console.log('ok starting');
+    //   this.consumeLog();
+    // }
 
   }
 
@@ -142,112 +142,117 @@ export class Synch {
   // }
 
 
-  public consumeLog(){
-    if(this.secondLock==false){  /*so no problem on two that are doing the same things.*/
-      this.secondLock = true;
-      this.db.getThinsToDo().then(result=>{
-        this.recordsToDo = result;
-        let canDo: boolean = true;
-        while(!this.recordsToDo.isEmpty && canDo && !this.lock){
-          let obj = this.recordsToDo.peek();
-          switch(obj.action){
-            case Action.CreateNote:
-              canDo = false;
-              this.processCreateNote(obj)
-              .then(result=>{
-                console.log('done processed note');
-                canDo = true;
-                this.recordsToDo.dequeue();
-                return;
-              })
-            case Action.CreateTag:
-              canDo = false;
-              this.processCreateTag(obj)
-                .then(result=>{
-                  console.log('done processed tag');
-                  canDo = true;
-                  this.recordsToDo.dequeue();
-                  return;
-                })
-            case Action.ChangeNoteTitle:
-              canDo = false;
-            case Action.ChangeText:
-              canDo = false;
-            case Action.AddMainTags:
-              canDo = false;
-            case Action.AddOtherTags:
-              canDo = false;
-            case Action.RemoveMainTags:
-              canDo = false;
-            case Action.RemoveOtherTags:
-              canDo = false;
-            case Action.ChangeTagTitle:
-              canDo = false;
-            case Action.AddLinks:
-              canDo = false;
-            case Action.RemoveLinks:
-              canDo = false;
-            case Action.SetDone:
-              canDo = false;
-            case Action.DeleteNote:
-              canDo = false;
-            case Action.DeleteTag:
-              canDo = false;
-          }
-        }
-      })
-      .catch(error=>{
-        console.log('error while getting data to consume: ');
-        console.log(JSON.stringify(error));
-      })
-    }
-  }
-
-  private processCreateNote(obj: LogObject):Promise<any>{
-    /*casted as NoteMin*/
-    let note = <NoteMin>JSON.parse(obj.data);
-    console.log('the note is');
-    console.log(JSON.stringify(note));
-    return this.atticNotes.createNote(note)
-      .then(result=>{
-        let noteMongoId = result._id;
-        note._id = noteMongoId;
-        return this.db.transactionProcessNote(obj.refNotesToSave, obj._id, note);
-      })
-      .then(transactionResult=>{
-        console.log('ok, transaction:');
-        console.log(JSON.stringify(transactionResult));
-      })
-      /*if an error happens also in the connection is ok, no transaction will start.*/
-      .catch(error=>{
-        console.log(JSON.stringify(error));
-      })
-  }
 
 
-  private processCreateTag(obj: LogObject):Promise<any>{
-    /*casted as NoteMin*/
-    let tag = <TagMin>JSON.parse(obj.data);
-    console.log('the tag is');
-    console.log(JSON.stringify(tag));
-    return this.atticTags.createTag(tag.title)
-      .then(result=>{
-        let noteMongoId = result._id;
-        tag._id = noteMongoId;
-        return this.db.transactionProcessTag(obj.refTagsToSave, obj._id, tag);
-      })
-      .then(transactionResult=>{
-        console.log('ok, transaction:');
-        console.log(JSON.stringify(transactionResult));
-      })
-      .catch(error=>{
-        console.log(JSON.stringify(error));
-      })
-  }
 
-  public stop(){
+//this were the ones I was working on.
 
-  }
+  // public consumeLog(){
+  //   if(this.secondLock==false){  /*so no problem on two that are doing the same things.*/
+  //     this.secondLock = true;
+  //     this.db.getThinsToDo().then(result=>{
+  //       this.recordsToDo = result;
+  //       let canDo: boolean = true;
+  //       while(!this.recordsToDo.isEmpty && canDo && !this.lock){
+  //         let obj = this.recordsToDo.peek();
+  //         switch(obj.action){
+  //           case Action.CreateNote:
+  //             canDo = false;
+  //             this.processCreateNote(obj)
+  //             .then(result=>{
+  //               console.log('done processed note');
+  //               canDo = true;
+  //               this.recordsToDo.dequeue();
+  //               return;
+  //             })
+  //           case Action.CreateTag:
+  //             canDo = false;
+  //             this.processCreateTag(obj)
+  //               .then(result=>{
+  //                 console.log('done processed tag');
+  //                 canDo = true;
+  //                 this.recordsToDo.dequeue();
+  //                 return;
+  //               })
+  //           case Action.ChangeNoteTitle:
+  //             canDo = false;
+  //           case Action.ChangeText:
+  //             canDo = false;
+  //           case Action.AddMainTags:
+  //             canDo = false;
+  //           case Action.AddOtherTags:
+  //             canDo = false;
+  //           case Action.RemoveMainTags:
+  //             canDo = false;
+  //           case Action.RemoveOtherTags:
+  //             canDo = false;
+  //           case Action.ChangeTagTitle:
+  //             canDo = false;
+  //           case Action.AddLinks:
+  //             canDo = false;
+  //           case Action.RemoveLinks:
+  //             canDo = false;
+  //           case Action.SetDone:
+  //             canDo = false;
+  //           case Action.DeleteNote:
+  //             canDo = false;
+  //           case Action.DeleteTag:
+  //             canDo = false;
+  //         }
+  //       }
+  //     })
+  //     .catch(error=>{
+  //       console.log('error while getting data to consume: ');
+  //       console.log(JSON.stringify(error));
+  //     })
+  //   }
+  // }
+  //
+  // private processCreateNote(obj: LogObject):Promise<any>{
+  //   /*casted as NoteMin*/
+  //   let note = <NoteMin>JSON.parse(obj.data);
+  //   console.log('the note is');
+  //   console.log(JSON.stringify(note));
+  //   return this.atticNotes.createNote(note)
+  //     .then(result=>{
+  //       let noteMongoId = result._id;
+  //       note._id = noteMongoId;
+  //       return this.db.transactionProcessNote(obj.refNotesToSave, obj._id, note);
+  //     })
+  //     .then(transactionResult=>{
+  //       console.log('ok, transaction:');
+  //       console.log(JSON.stringify(transactionResult));
+  //     })
+  //     /*if an error happens also in the connection is ok, no transaction will start.*/
+  //     .catch(error=>{
+  //       console.log(JSON.stringify(error));
+  //     })
+  // }
+  //
+  //
+  // private processCreateTag(obj: LogObject):Promise<any>{
+  //   /*casted as NoteMin*/
+  //   let tag = <TagMin>JSON.parse(obj.data);
+  //   console.log('the tag is');
+  //   console.log(JSON.stringify(tag));
+  //   return this.atticTags.createTag(tag.title)
+  //     .then(result=>{
+  //       let noteMongoId = result._id;
+  //       tag._id = noteMongoId;
+  //       return this.db.transactionProcessTag(obj.refTagsToSave, obj._id, tag);
+  //     })
+  //     .then(transactionResult=>{
+  //       console.log('ok, transaction:');
+  //       console.log(JSON.stringify(transactionResult));
+  //     })
+  //     .catch(error=>{
+  //       console.log(JSON.stringify(error));
+  //     })
+  // }
+  //
+  // public stop(){
+  //
+  // }
 
 
 

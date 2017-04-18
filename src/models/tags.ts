@@ -6,13 +6,12 @@ Here's the interface for the tags.
 
 export class TagExtraMin {
   title: string;
-  _id: string;
 
-  static fromString(id: string):TagExtraMin{
-    let tag = new TagExtraMin();
-    tag._id=id;
-    return tag;
-  }
+  // static fromString(id: string):TagExtraMin{
+  //   let tag = new TagExtraMin();
+  //   tag._id=id;
+  //   return tag;
+  // }
 
   // toStringId(): string{
   //   return this._id;
@@ -21,7 +20,7 @@ export class TagExtraMin {
 }
 
 export class TagAlmostMin extends TagExtraMin{
-  notes_length: number;
+  noteslength: number;
 }
 
 export class TagMin extends TagAlmostMin{
@@ -32,6 +31,10 @@ export class TagMin extends TagAlmostMin{
   //   super();
   //   this.title=title;
   // }
+  constructor(){
+    super();
+    this.notes =[];
+  }
 }
 
 

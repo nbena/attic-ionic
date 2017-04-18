@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { NavController, NavParams } from 'ionic-angular';
 
-import { TagFull, TagExtraMin, TagMin } from '../../models/tags';
+import { /*TagFull, TagExtraMin, */TagMin } from '../../models/tags';
 import { AtticTags } from '../../providers/attic-tags';
 import { NoteDetailsPage } from '../note-details/note-details';
 
@@ -17,37 +17,41 @@ import { NoteDetailsPage } from '../note-details/note-details';
 })
 export class TagDetailsPage {
 
-  tag: TagFull;
-  _id: string;
+  tag: TagMin;
   title: string;
 
   constructor(public navCtrl: NavController, public navParams: NavParams,
     private atticTags: AtticTags) {
-      this._id=navParams.get('_id');
       this.title=navParams.get('title');
-      this.tagById(this._id);
+      this.tagByTitle(this.title);
   }
 
   ionViewDidLoad() {
     console.log('ionViewDidLoad TagDetailsPage');
   }
 
-  tagById(_id: string){
-    this.atticTags.tagById(this._id)
+  tagByTitle(title: string){
+    this.atticTags.tagByTitle(this.title)
       .then(result=>{
-        this.tag=<TagFull>result;
+
+        this.tag = new TagMin();
+        this.tag.title = result.tag.title;
+        this.tag.noteslength=result.tag.noteslength;
+        for(let i=0;i<result.tag.notes.length;i++){
+          this.tag.notes.push(result.tag.notes[i].notetitle);
+        }
       })
       .catch(err=>{
         console.log(err);
       })
   }
 
-  displayNoteDetails(_id: string, title: string){
-    this.navCtrl.push(NoteDetailsPage, {_id, title});
+  displayNoteDetails(title: string){
+    this.navCtrl.push(NoteDetailsPage, {title});
   }
 
   refresh(refresher){
-    this.tagById(this._id);
+    this.tagByTitle(this.title);
     setTimeout(()=>{
       refresher.complete();
     },2000);

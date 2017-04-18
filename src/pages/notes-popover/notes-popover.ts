@@ -89,7 +89,7 @@ export class NotesPopoverPage {
   */
 
   changeTitleAPI(title: string){
-    this.atticNotes.updateTitle(this.note._id, title)
+    this.atticNotes.updateTitle(this.note.title, title)
       .then(result=>{
         this.note.title=title;
         Utils.presentToast(this.toastCtrl, 'Title updated');
@@ -110,15 +110,15 @@ export class NotesPopoverPage {
   deleteNote(){
     Utils.askConfirm(this.alertCtrl, 'Are you sure to delete note \''+this.note.title+'\'',(_ : boolean)=>{
       if(_){
-        this.deleteNoteApi(this.note._id);
+        this.deleteNoteApi(this.note.title);
       }/*else{
         nothing to do.
       }*/
     });
   }
 
-  deleteNoteApi(_id: any){
-    
+  deleteNoteApi(title:string){
+
   }
 
 }

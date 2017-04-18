@@ -68,12 +68,12 @@
 
       <ion-item>
         <ion-list>
-          <ion-chip *ngFor="let mainTag of shownMainTags; let i=index" (click)="displayTagDetails(mainTag._id, mainTag.title)">
+          <ion-chip *ngFor="let mainTag of shownMainTags; let i=index" (click)="displayTagDetails(mainTag.title)">
             <ion-label>
             {{mainTag.title}}
             </ion-label>
             <!--<ion-icon name="pin" color="primary"></ion-icon>-->
-            <button ion-button (click)="deleteMainTags($event, i, mainTag._id)">
+            <button ion-button (click)="deleteMainTags($event, i, mainTag.title)">
               <ion-icon name="close"></ion-icon>
             </button>
           </ion-chip>
@@ -93,11 +93,11 @@
       </ion-item>
       <ion-item>
         <ion-list>
-          <ion-chip *ngFor="let otherTag of shownOtherTags; let i=index" (click)="displayTagDetails(otherTag._id, otherTag.title)">
+          <ion-chip *ngFor="let otherTag of shownOtherTags; let i=index" (click)="displayTagDetails(otherTag.title)">
             <ion-label>
             {{otherTag.title}}
           </ion-label>
-          <button ion-button (click)="deleteOtherTags($event, i, otherTag._id)">
+          <button ion-button (click)="deleteOtherTags($event, i, otherTag.title)">
             <ion-icon name="close"></ion-icon>
           </button>
           </ion-chip>

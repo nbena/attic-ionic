@@ -72,9 +72,10 @@ export class TagsPage {
   // }
 
   loadAlmostMin(){
-    this.atticTags.loadTagsMinWithNotesLength()
+    this.atticTags.loadTagsMin()
       .then(result=>{
-        this.allTags=<TagAlmostMin[]>result;
+        console.log(JSON.stringify(result));
+        this.allTags=result as TagAlmostMin[];
         this.shownTags=this.allTags.slice();
       })
       .catch(error=>{
@@ -94,8 +95,8 @@ export class TagsPage {
   }
 
 
-  displayTagDetails(_id: string, title: string){
-    this.navCtrl.push(TagDetailsPage, {_id, title});
+  displayTagDetails(title: string){
+    this.navCtrl.push(TagDetailsPage, {title});
   }
 
   refresh(refresher){
@@ -149,9 +150,9 @@ export class TagsPage {
       })
   }
 
-  notesByTag(event, _id: string){
+  notesByTag(event, title: string){
     event.stopPropagation();
-    let tags = [_id];
+    let tags = [title];
     let filterType = Filter.Tags;
     // console.log("proper event fired");
     // console.log("is array: "+(tags instanceof Array).toString());

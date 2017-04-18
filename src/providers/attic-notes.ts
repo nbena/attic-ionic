@@ -103,7 +103,7 @@ export class AtticNotes {
     return Utils.getBasic('/api/notes/all/min', this.http, this.auth.token);
   }
 
-  noteById(id: string){
+  noteByTitle(title: string){
     // return new Promise((resolve, reject)=>{
     //
     //   let headers = new Headers();
@@ -122,7 +122,7 @@ export class AtticNotes {
     //       reject(err);
     //     })
     // });
-    return Utils.getBasic('/api/notes/'+id, this.http, this.auth.token);
+    return Utils.getBasic('/api/notes/'+title, this.http, this.auth.token);
   }
 
   createNote(note: NoteMin):Promise<any>{
@@ -152,9 +152,9 @@ return this.items.filter((item) => {
     });
   }
 
-  notesByTitle(title: string){
-    return Utils.postBasic('/api/notes/by-title/reg/unpop', JSON.stringify({title: title}), this.http, this.auth.token);
-  }
+  // notesByTitle(title: string){
+  //   return Utils.postBasic('/api/notes/by-title/reg/unpop', JSON.stringify({title: title}), this.http, this.auth.token);
+  // }
 
   notesByText(text: string){
     return Utils.postBasic('/api/notes/by-text/unpop', JSON.stringify({text: text}), this.http, this.auth.token);

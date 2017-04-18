@@ -78,22 +78,22 @@ export class NotesPage {
 
         //insert if needed.
         //just a test.
-        console.log('counting notes: ');
-        this.db.count(Table.Notes)
-        .then(count=>{
-          console.log(count);
-        })
-        .catch(error=>{
-          console.log(JSON.stringify(error));
-        })
+        // console.log('counting notes: ');
+        // this.db.count(Table.Notes)
+        // .then(count=>{
+        //   console.log(count);
+        // })
+        // .catch(error=>{
+        //   console.log(JSON.stringify(error));
+        // })
 
   }
 
 
 
   //calling the new page, passing the _id.
-  displayNoteDetails(_id: any, title: string){
-    this.navCtrl.push(NoteDetailsPage, {_id, title});
+  displayNoteDetails(title: string){
+    this.navCtrl.push(NoteDetailsPage, {title});
   }
 
   ionViewDidLoad() {
@@ -157,20 +157,20 @@ export class NotesPage {
     }
   }
 
-  loadFull(){
-    //basically just a wrapper.
-    this.atticNotes.loadFull()
-      .then(result=>{
-        this.allNotes=<NoteFull[]>result;
-
-        this.shownNotes=this.allNotes;
-
-        // console.log(this.notes);
-      })
-      .catch(error =>{
-        console.log(JSON.stringify(error));
-      })
-  }
+  // loadFull(){
+  //   //basically just a wrapper.
+  //   this.atticNotes.loadFull()
+  //     .then(result=>{
+  //       this.allNotes=<NoteFull[]>result;
+  //
+  //       this.shownNotes=this.allNotes;
+  //
+  //       // console.log(this.notes);
+  //     })
+  //     .catch(error =>{
+  //       console.log(JSON.stringify(error));
+  //     })
+  // }
 
   loadMin(){
     this.atticNotes.loadNotesMin()
@@ -245,7 +245,7 @@ export class NotesPage {
       })
   }
 
-  deleteNote(_id: any, title: string){
+  deleteNote(title: string){
     console.log('deleting note: '+title);
   }
 
