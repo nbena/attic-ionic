@@ -18,6 +18,9 @@ export class Utils{
       http.get(uri, {headers: headers})
         .subscribe(res=>{
 
+          if(res.status!=200){
+            throw new Error(res.statusText);
+          }
           let data = res.json();
           if(data.ok==false){
             throw new Error(data.msg);
@@ -128,12 +131,17 @@ static logNote(note: NoteBarebon):string{
   return result;
 }
 
-static presentToast(toastCtrl: ToastController, message: string){
+static presentToast(toastCtrl: ToastController, message: string, error?: boolean){
   let toast = toastCtrl.create({
     message: message,
     duration: 2000,
-    position: 'bottom'
+    position: 'bottom',
+    showCloseButton: true,
+    closeButtonText: 'Ok',
   });
+  // if(error){
+  //     toast._cssClass = 'toast-error-css';
+  // }
   toast.present();
 }
 

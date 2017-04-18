@@ -71,9 +71,13 @@ login(user: User){
       this.http.post(uri, JSON.stringify(user), {headers: headers})
         .subscribe(res => {
 
+          if(res.status!=200){
+            reject(new Error(res.statusText));
+          }
+
           let data = res.json();
           //one we get the token, save it to local storage.
-          this.token = data.token;
+          this.token = data.result;
           this.storage.set('token', data.token);
 
           resolve(data);

@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { NavController, NavParams } from 'ionic-angular';
 
-import { LoadingController } from 'ionic-angular';
+import { LoadingController, ToastController } from 'ionic-angular';
 
 import { User } from '../../models/user';
 import { Auth } from '../../providers/auth';
@@ -9,6 +9,7 @@ import { NotesPage } from '../notes/notes';
 import { RegisterPage } from '../register/register';
 
 import { Filter } from '../../public/const';
+import { Utils } from '../../public/utils';
 
 import { Db } from '../../providers/db'
 
@@ -25,12 +26,13 @@ import { Db } from '../../providers/db'
 export class LoginPage {
 
   user: User;
-  e_mail: string = 'omni@pollo.com'; /*test user*/
+  userId: string = 'omni@pollo.com'; /*test user*/
   password: string;
   loading: any;
 
   // constructor(public navCtrl: NavController, public navParams: NavParams) {}
-  constructor(public navCtrl: NavController, private auth: Auth,
+  constructor(public navCtrl: NavController, private toastCtrl: ToastController,
+    private auth: Auth,
     public loadingCtrl: LoadingController, private db: Db){}
 
 
@@ -64,18 +66,22 @@ export class LoginPage {
     this.loader();
 
     var user = new User(
-      this.e_mail,
+      this.userId,
       this.password
     );
 
 
-    this.auth.login(user).then((result)=>{
+    this.auth.login(user)
+    .then(result=>{
       this.loading.dismiss();
       // console.log("ok auth");
       this.navCtrl.setRoot(NotesPage, this.getParams());
-    }, (error)=>{
-      this.loading.dismiss();
+    })
+    .catch(error=>{
+      console.log('auth error');
       console.log(JSON.stringify(error));
+      Utils.presentToast(this.toastCtrl, 'error during the authentication', true);
+      this.loading.dismiss();
     });
 
   }
