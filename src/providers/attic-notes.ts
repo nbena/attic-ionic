@@ -90,12 +90,14 @@ return this.items.filter((item) => {
       {title: noteTitle, newTitle: newTitle}}), this.http, this.auth.token);
   }
 
-  addMainTags(noteId: string, tagIds: string[]){
-    return Utils.postBasic('/api/notes/mod/addtags', JSON.stringify({id: noteId, mainTags: tagIds }), this.http, this.auth.token);
+  addMainTags(noteTitle: string, tagIds: string[]){
+    return Utils.postBasic('/api/notes/mod/addtags', JSON.stringify({note:
+      {title: noteTitle, mainTags: tagIds }}), this.http, this.auth.token);
   }
 
-  addOtherTags(noteId: string, tagIds: string[]){
-    return Utils.postBasic('/api/notes/mod/addtags', JSON.stringify({id: noteId, otherTags: tagIds }), this.http, this.auth.token);
+  addOtherTags(noteTitle: string, tagIds: string[]){
+    return Utils.postBasic('/api/notes/mod/addtags', JSON.stringify({note:
+      {title: noteTitle, othertags: tagIds }}), this.http, this.auth.token);
   }
 
   // removeMainTags(noteId: string, tagIds: string[]){
