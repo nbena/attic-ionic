@@ -89,14 +89,14 @@ export class NotesPopoverPage {
   */
 
   changeTitleAPI(title: string){
-    this.atticNotes.updateTitle(this.note.title, title)
-      .then(result=>{
-        this.note.title=title;
-        Utils.presentToast(this.toastCtrl, 'Title updated');
-      })
-      .catch(error=>{
-        console.log(JSON.stringify(error));
-      });
+    // this.atticNotes.updateTitle(this.note.title, title)
+    //   .then(result=>{
+    //     this.note.title=title;
+    //     Utils.presentToast(this.toastCtrl, 'Title updated');
+    //   })
+    //   .catch(error=>{
+    //     console.log(JSON.stringify(error));
+    //   });
   }
 
   close(){

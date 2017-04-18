@@ -40,9 +40,9 @@ export class AtticNotes {
   //   return Utils.getBasic('/api/notes/all/unpop', this.http, this.auth.token);
   // }
 
-  // loadNotesMin(){
-  //   return Utils.getBasic('/api/notes/all/min', this.http, this.auth.token);
-  // }
+  loadNotesMin(){
+    return Utils.getBasic('/api/notes/all/min', this.http, this.auth.token);
+  }
 
   noteByTitle(title: string):Promise<any>{
     return Utils.getBasic('/api/notes/'+title, this.http, this.auth.token);
@@ -52,10 +52,10 @@ export class AtticNotes {
     return Utils.putBasic('/api/notes/create', JSON.stringify({note:note}), this.http, this.auth.token);
   }
 
-  // notesByTag(tags: string[]){
-  //   // console.log("the req: "+JSON.stringify({tags: tags}));
-  //   return Utils.postBasic('/api/notes/by-tag/unpop', JSON.stringify({tags: tags}), this.http, this.auth.token);
-  // }
+  notesByTag(tags: string[]){
+    // console.log("the req: "+JSON.stringify({tags: tags}));
+    return Utils.postBasic('/api/notes/by-tag/unpop', JSON.stringify({tags: tags}), this.http, this.auth.token);
+  }
   //
   // notesByMainTag(tags: string[]){
   //   return Utils.postBasic('/api/notes/by-tag/unpop', JSON.stringify({mainTags: tags}), this.http, this.auth.token);

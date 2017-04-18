@@ -386,23 +386,23 @@ export class NoteDetailsPage {
   }
 
   removeMainTagsAPI(){
-    return this.atticNotes.removeMainTags(this.note.title, Utils.fromTagsToString(this.mainTagsToRemove));
+    // return this.atticNotes.removeMainTags(this.note.title, Utils.fromTagsToString(this.mainTagsToRemove));
   }
 
   removeOtherTagsAPI(){
-    return this.atticNotes.removeOtherTags(this.note.title, Utils.fromTagsToString(this.otherTagsToRemove));
+    // return this.atticNotes.removeOtherTags(this.note.title, Utils.fromTagsToString(this.otherTagsToRemove));
   }
 
   addLinksAPI(){
-    return this.atticNotes.addLinks(this.note.title, this.linksToAdd);
+    // return this.atticNotes.addLinks(this.note.title, this.linksToAdd);
   }
 
   removeLinksAPI(){
-    return this.atticNotes.removeLinks(this.note.title, this.linksToRemove);
+    // return this.atticNotes.removeLinks(this.note.title, this.linksToRemove);
   }
 
   setDoneAPI(){
-    return this.atticNotes.setDone(this.note.title, this.shownIsDone);
+    // return this.atticNotes.setDone(this.note.title, this.shownIsDone);
   }
 
 
@@ -410,24 +410,24 @@ export class NoteDetailsPage {
     /*decide which actions must be taken.*/
     if(this.haveToRemoveMainTags){
       this.removeMainTagsAPI()
-        .then(result=>{
-          Utils.presentToast(this.toastCtrl, 'tags removed');
-          this.haveToRemoveMainTags = false;
-        })
-        .catch(error=>{
-          console.log(JSON.stringify(error));
-        })
+        // .then(result=>{
+        //   Utils.presentToast(this.toastCtrl, 'tags removed');
+        //   this.haveToRemoveMainTags = false;
+        // })
+        // .catch(error=>{
+        //   console.log(JSON.stringify(error));
+        // })
     }
 
     if(this.haveToRemoveOtherTags){
       this.removeOtherTagsAPI()
-        .then(result=>{
-          Utils.presentToast(this.toastCtrl, 'tags removed');
-          this.haveToRemoveOtherTags = false;
-        })
-        .catch(error=>{
-          console.log(JSON.stringify(error));
-        })
+        // .then(result=>{
+        //   Utils.presentToast(this.toastCtrl, 'tags removed');
+        //   this.haveToRemoveOtherTags = false;
+        // })
+        // .catch(error=>{
+        //   console.log(JSON.stringify(error));
+        // })
     }
 
     if(this.haveToAddMainTags){
@@ -454,35 +454,35 @@ export class NoteDetailsPage {
 
     if(this.haveToRemoveLinks){
       this.removeLinksAPI()
-        .then(result=>{
-          Utils.presentToast(this.toastCtrl, 'links removed');
-          this.haveToRemoveLinks = false;
-        })
-        .catch(error=>{
-          console.log(JSON.stringify(error));
-        })
+        // .then(result=>{
+        //   Utils.presentToast(this.toastCtrl, 'links removed');
+        //   this.haveToRemoveLinks = false;
+        // })
+        // .catch(error=>{
+        //   console.log(JSON.stringify(error));
+        // })
     }
 
     if(this.haveToAddLinks){
       this.addLinksAPI()
-        .then(result=>{
-          Utils.presentToast(this.toastCtrl, 'links added');
-          this.haveToAddLinks = false;
-        })
-        .catch(error=>{
-          console.log(JSON.stringify(error));
-        })
+        // .then(result=>{
+        //   Utils.presentToast(this.toastCtrl, 'links added');
+        //   this.haveToAddLinks = false;
+        // })
+        // .catch(error=>{
+        //   console.log(JSON.stringify(error));
+        // })
     }
 
     if(this.isDoneChanged){
       this.setDoneAPI()
-        .then(result=>{
-          Utils.presentToast(this.toastCtrl, '\'done\' modified');
-          this.isDoneChanged =  false;
-        })
-        .catch(error=>{
-          console.log(JSON.stringify(error));
-        })
+        // .then(result=>{
+        //   Utils.presentToast(this.toastCtrl, '\'done\' modified');
+        //   this.isDoneChanged =  false;
+        // })
+        // .catch(error=>{
+        //   console.log(JSON.stringify(error));
+        // })
     }
     if(this.allFalse()){
       this.submitChangeEnabled = false;

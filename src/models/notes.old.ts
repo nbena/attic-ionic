@@ -5,8 +5,8 @@ export class Note{
   _id: string;
   text: string;
   _userId: string;
-  mainTags: TagFull[];
-  otherTags: TagFull[];
+  maintags: TagFull[];
+  othertags: TagFull[];
   isDone: boolean;
   links: string[];
 
@@ -33,11 +33,11 @@ getText(){
 }
 
 getMainTags(){
-  return this.mainTags;
+  return this.maintags;
 }
 
 getOtherTags(){
-  return this.otherTags;
+  return this.othertags;
 }
 
 getLinks(){
@@ -57,11 +57,11 @@ setTitle(title: string){
 }
 
 setMainTags(mainTags: TagFull[]){
-  this.mainTags=mainTags;
+  this.maintags=mainTags;
 }
 
 setOtherTags(otherTags: TagFull[]){
-  this.otherTags=otherTags;
+  this.othertags=otherTags;
 }
 
 setDone(done: boolean){
@@ -82,8 +82,8 @@ export class NoteMin{
   private _id: string;
   private text: string;
   private _userId: string;
-  private mainTags: string[];
-  private otherTags: string[];
+  private maintags: string[];
+  private othertags: string[];
   private isDone: boolean;
   private links: string[];
 
@@ -107,12 +107,12 @@ export class NoteMin{
     return this.text;
   }
 
-  getMainTags(){
-    return this.mainTags;
+  getMaintags(){
+    return this.maintags;
   }
 
   getOtherTags(){
-    return this.otherTags;
+    return this.othertags;
   }
 
   getLinks(){
@@ -132,11 +132,11 @@ export class NoteMin{
   }
 
   setMainTags(mainTags: string[]){
-    this.mainTags=mainTags;
+    this.maintags=mainTags;
   }
 
   setOtherTags(otherTags: string[]){
-    this.otherTags=otherTags;
+    this.othertags=otherTags;
   }
 
   setDone(done: boolean){
