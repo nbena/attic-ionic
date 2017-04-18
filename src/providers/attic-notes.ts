@@ -31,97 +31,20 @@ export class AtticNotes {
   /**
   *loading all the notes.
   */
-  loadFull(){
-    // return new Promise((resolve, reject)=>{
-    //
-    //   let headers = new Headers();
-    //   headers.append('Authorization', this.auth.token);
-    //
-    //   let uri = Const.API_URI+'/api/notes/all';
-    //   this.http.post(uri, {}, {headers: headers})
-    //   .subscribe(res=>{
-    //
-    //     let data=res.json();
-    //     console.log(data);
-    //     //handle error.
-    //     if(data.ok==false){
-    //       throw new Error(data.msg);
-    //     }
-    //     resolve(data.result);
-    //   }, (err)=>{
-    //     reject(err);
-    //   })
-    // });
-    return Utils.getBasic('/api/notes/all', this.http, this.auth.token);
-  }
+  // loadFull(){
+  //   return Utils.getBasic('/api/notes/all', this.http, this.auth.token);
+  // }
 
 
-  loadNoPopulation(){
-    // return new Promise((resolve, reject)=>{
-    //
-    //   let headers = new Headers();
-    //   headers.append('Authorization', this.auth.token);
-    //
-    //   let url = Const.API_URI;
-    //   url = url+'/api/notes/all/unpop';
-    //   this.http.get(url,{headers: headers})
-    //     .subscribe(res=>{
-    //
-    //       let data=res.json();
-    //       // console.log(data);
-    //       //handle error.
-    //       if(data.ok==false){
-    //         throw new Error(data.msg);
-    //       }
-    //       resolve(data.result);
-    //     }, (err)=>{
-    //       reject(err);
-    //     })
-    // });
-    return Utils.getBasic('/api/notes/all/unpop', this.http, this.auth.token);
-  }
+  // loadNoPopulation(){
+  //   return Utils.getBasic('/api/notes/all/unpop', this.http, this.auth.token);
+  // }
 
-  loadNotesMin(){
-    // return new Promise((resolve, reject)=>{
-    //
-    //   let headers = new Headers();
-    //   headers.append('Authorization', this.auth.token);
-    //
-    //   let uri = Const.API_URI+'/api/notes/all/min';
-    //   this.http.get(uri, {headers: headers})
-    //     .subscribe(res=>{
-    //
-    //       let data = res.json();
-    //       if(data.ok==false){
-    //         throw new Error(data.msg);
-    //       }
-    //       resolve(data.result);
-    //     }, (err)=>{
-    //       reject(err);
-    //     })
-    // });
-    return Utils.getBasic('/api/notes/all/min', this.http, this.auth.token);
-  }
+  // loadNotesMin(){
+  //   return Utils.getBasic('/api/notes/all/min', this.http, this.auth.token);
+  // }
 
-  noteByTitle(title: string){
-    // return new Promise((resolve, reject)=>{
-    //
-    //   let headers = new Headers();
-    //   headers.append('Authorization', this.auth.token);
-    //
-    //   let uri = Const.API_URI+'/api/notes/'+id;
-    //   this.http.get(uri, {headers: headers})
-    //     .subscribe(res=>{
-    //
-    //       let data = res.json();
-    //       if(data.ok==false){
-    //         throw new Error(data.msg);
-    //       }
-    //       resolve(data.result);
-    //     },(err)=>{
-    //       reject(err);
-    //     })
-    // });
+  noteByTitle(title: string):Promise<any>{
     return Utils.getBasic('/api/notes/'+title, this.http, this.auth.token);
   }
 
@@ -129,18 +52,18 @@ export class AtticNotes {
     return Utils.putBasic('/api/notes/create', JSON.stringify({note:note}), this.http, this.auth.token);
   }
 
-  notesByTag(tags: string[]){
-    // console.log("the req: "+JSON.stringify({tags: tags}));
-    return Utils.postBasic('/api/notes/by-tag/unpop', JSON.stringify({tags: tags}), this.http, this.auth.token);
-  }
-
-  notesByMainTag(tags: string[]){
-    return Utils.postBasic('/api/notes/by-tag/unpop', JSON.stringify({mainTags: tags}), this.http, this.auth.token);
-  }
-
-  notesByOtherTag(tags: string[]){
-    return Utils.postBasic('/api/notes/by-tag/unpop', JSON.stringify({otherTags: tags}), this.http, this.auth.token);
-  }
+  // notesByTag(tags: string[]){
+  //   // console.log("the req: "+JSON.stringify({tags: tags}));
+  //   return Utils.postBasic('/api/notes/by-tag/unpop', JSON.stringify({tags: tags}), this.http, this.auth.token);
+  // }
+  //
+  // notesByMainTag(tags: string[]){
+  //   return Utils.postBasic('/api/notes/by-tag/unpop', JSON.stringify({mainTags: tags}), this.http, this.auth.token);
+  // }
+  //
+  // notesByOtherTag(tags: string[]){
+  //   return Utils.postBasic('/api/notes/by-tag/unpop', JSON.stringify({otherTags: tags}), this.http, this.auth.token);
+  // }
 /*
 return this.items.filter((item) => {
     return item.title.toLowerCase().indexOf(searchTerm.toLowerCase()) > -1;
@@ -157,19 +80,14 @@ return this.items.filter((item) => {
   // }
 
   notesByText(text: string){
-    return Utils.postBasic('/api/notes/by-text/unpop', JSON.stringify({text: text}), this.http, this.auth.token);
+    return Utils.postBasic('/api/notes/by-text', JSON.stringify({note:
+      {text: text}}), this.http, this.auth.token);
   }
 
-  updateText(noteId: string, newText: string){
-    return Utils.postBasic('/api/notes/mod/text', JSON.stringify({id: noteId, text: newText}), this.http, this.auth.token);
-  }
 
-  updateTitle(noteId: string, newTitle: string){
-    return Utils.postBasic('/api/notes/mod/title', JSON.stringify({id: noteId, title: newTitle}), this.http, this.auth.token);
-  }
-
-  updateDone(noteId: string, done: boolean){
-    return Utils.postBasic('/api/notes/mod/setdone', JSON.stringify({id: noteId, done: done}), this.http, this.auth.token);
+  changeTitle(noteTitle: string, newTitle: string){
+    return Utils.postBasic('/api/notes/mod/title', JSON.stringify({note:
+      {title: noteTitle, newTitle: newTitle}}), this.http, this.auth.token);
   }
 
   addMainTags(noteId: string, tagIds: string[]){
@@ -180,26 +98,40 @@ return this.items.filter((item) => {
     return Utils.postBasic('/api/notes/mod/addtags', JSON.stringify({id: noteId, otherTags: tagIds }), this.http, this.auth.token);
   }
 
-  removeMainTags(noteId: string, tagIds: string[]){
-    return Utils.postBasic('/api/notes/mod/removetags', JSON.stringify({id: noteId, mainTags: tagIds }), this.http, this.auth.token);
+  // removeMainTags(noteId: string, tagIds: string[]){
+  //   return Utils.postBasic('/api/notes/mod/removetags', JSON.stringify({id: noteId, mainTags: tagIds }), this.http, this.auth.token);
+  // }
+  //
+  // removeOtherTags(noteId: string, tagIds: string[]){
+  //   return Utils.postBasic('/api/notes/mod/removetags', JSON.stringify({id: noteId, otherTags: tagIds }), this.http, this.auth.token);
+  // }
+  removeTags(noteTitle: string, tags: string[]){
+    return Utils.postBasic('/api/notes/mod/removetags',JSON.stringify({note:
+      {title:noteTitle, tags:tags}}), this.http, this.auth.token );
   }
 
-  removeOtherTags(noteId: string, tagIds: string[]){
-    return Utils.postBasic('/api/notes/mod/removetags', JSON.stringify({id: noteId, otherTags: tagIds }), this.http, this.auth.token);
+  // addLinks(noteId: string, links: string[]){
+  //   // console.log('going to: ');
+  //   // console.log(JSON.stringify({id:noteId, links: links}));
+  //   return Utils.postBasic('/api/notes/mod/addlinks', JSON.stringify({id: noteId, links: links }), this.http, this.auth.token);
+  // }
+  //
+  // removeLinks(noteId: string, links: string[]){
+  //   return Utils.postBasic('/api/notes/mod/removelinks', JSON.stringify({id: noteId, links: links }), this.http, this.auth.token);
+  // }
+  changeLinks(noteTitle: string, links:string[]){
+    return Utils.postBasic('/api/notes/mod/links', JSON.stringify({note:
+      {title: noteTitle, links:links}}), this.http, this.auth.token);
   }
 
-  addLinks(noteId: string, links: string[]){
-    // console.log('going to: ');
-    // console.log(JSON.stringify({id:noteId, links: links}));
-    return Utils.postBasic('/api/notes/mod/addlinks', JSON.stringify({id: noteId, links: links }), this.http, this.auth.token);
+  changeText(noteTitle: string, text:string){
+    return Utils.postBasic('/api/notes/mod/text', JSON.stringify({note:
+      {title:noteTitle, text:text}}), this.http, this.auth.token);
   }
 
-  removeLinks(noteId: string, links: string[]){
-    return Utils.postBasic('/api/notes/mod/removelinks', JSON.stringify({id: noteId, links: links }), this.http, this.auth.token);
-  }
-
-  setDone(noteId: string, done: boolean){
-    return Utils.postBasic('/api/notes/mod/setdone', JSON.stringify({id: noteId, done: done}), this.http, this.auth.token);
+  changeDone(noteTitle: string, done: boolean){
+    return Utils.postBasic('/api/notes/mod/setdone', JSON.stringify({note:
+      {title:noteTitle, isDone:done}}), this.http, this.auth.token);
   }
 
   deleteNote(_id: any):Promise<any>{

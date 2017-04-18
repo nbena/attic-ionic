@@ -99,7 +99,9 @@ export class NoteDetailsPage {
   noteByTitle(){
     this.atticNotes.noteByTitle(this.title)
       .then(result=>{
-        this.note=<NoteFull>result;
+        this.note=<NoteFull>result.note;
+        console.log('the note is:');
+        console.log(JSON.stringify(this.note));
         // this.lastModificationDateString=this.note.lastModificationDate.toDateString();
         // this.creationDateString=this.note.creationDate.toDateString();
         // this._mainTags=this.note.mainTags;
@@ -185,8 +187,8 @@ export class NoteDetailsPage {
     // this.refresh()
   }
 
-  displayTagDetails(_id: string, title: string){
-    this.navCtrl.push(TagDetailsPage, {_id, title})
+  displayTagDetails(title: string){
+    this.navCtrl.push(TagDetailsPage, {title})
   }
 
   refresh(refresher){

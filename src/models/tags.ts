@@ -45,6 +45,10 @@ export class TagFull extends TagAlmostMin{
   //   super();
   //   this.title=title;
   // }
+  constructor(){
+    super();
+    this.notes =[];
+  }
 }
 
 export class TagSQLite extends TagFull {

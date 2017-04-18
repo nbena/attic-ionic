@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { NavController, NavParams } from 'ionic-angular';
 
-import { /*TagFull, TagExtraMin, */TagMin } from '../../models/tags';
+import { /*TagFull, TagExtraMin, *//*TagMin*/TagFull } from '../../models/tags';
 import { AtticTags } from '../../providers/attic-tags';
 import { NoteDetailsPage } from '../note-details/note-details';
 
@@ -17,7 +17,7 @@ import { NoteDetailsPage } from '../note-details/note-details';
 })
 export class TagDetailsPage {
 
-  tag: TagMin;
+  tag: TagFull;
   title: string;
 
   constructor(public navCtrl: NavController, public navParams: NavParams,
@@ -34,12 +34,15 @@ export class TagDetailsPage {
     this.atticTags.tagByTitle(this.title)
       .then(result=>{
 
-        this.tag = new TagMin();
-        this.tag.title = result.tag.title;
-        this.tag.noteslength=result.tag.noteslength;
-        for(let i=0;i<result.tag.notes.length;i++){
-          this.tag.notes.push(result.tag.notes[i].notetitle);
-        }
+        // this.tag = new TagFull();
+        // this.tag.title = result.tag.title;
+        // this.tag.noteslength=result.tag.noteslength;
+        // for(let i=0;i<result.tag.notes.length;i++){
+        //   this.tag.notes.push(result.tag.notes[i].notetitle);
+        // }
+        this.tag=result.tag as TagFull;
+        console.log('the tag is:');
+        console.log(JSON.stringify(this.tag));
       })
       .catch(err=>{
         console.log(err);
