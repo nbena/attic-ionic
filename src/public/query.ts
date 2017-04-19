@@ -65,10 +65,29 @@ export class Query{
 
   //opt: a json field for each object.
 
-  static readonly CREATE_NOTES_TABLE ='create table if not exists notes(title varchar(64),userid varchar(64),text text, links text, isdone boolean default false,creationdate date,lastmodificationdate date,mustbedeleted boolean default false json_obj text,primary key(title))';
-  static readonly CREATE_TAGS_TABLE = 'create table if not exists tags(title varchar(64),userid varchar(64), json_object text,primary key(title));';
-  static readonly CREATE_NOTES_TAGS_TABLE ='create table if not exists notes_tags(notetitle varchar(64),tagtitle varchar(64),role varchar(9),primary key(noteTitle, tagTitle),foreign key(noteTitle) references notes(title) on update cascade on delete cascade,foreign key(tagTitle) references tags(title) on update cascade on delete cascade,constraint role_check check (role = \'mainTags\' or role = \'otherTags\'))';
-  static readonly CREATE_LOGS_TABLE = 'create table if not exists logs(id integer primary key autoincrement,notetitle varchar(64),tagtitle varchar(64),role varchar(9),action varchar(64) not null,foreign key(noteTitle) references notes(title) on update cascade on delete cascade,foreign key(tagTitle) references tags(title) on update cascade on delete cascade,constraint action_check check(action=\'create\' or action=\'delete\' or action=\'change-title\' or action=\'change-text\' or action=\'add-tag\' or action=\'remove-tag\' or action =\'set-done\' or action=\'set-link\'),constraint role_check check (role =\'mainTags\' or role = \'otherTags\' or role is null),constraint if_all check ((role is not null and noteTitle is not null and tagTitle is not null) or (noteTitle is not null) or (tagTitle is not null)));'
+  static readonly CREATE_NOTES_TABLE ='create table if not exists notes(title varchar(64),userid varchar(64),text text, links text, isdone boolean default false,creationdate date default (datetime(\'now\',\'localtime\')),local_lastmodificationdate date default (datetime(\'now\',\'localtime\')), remote_lastmodificationdate date default (datetime(\'now\',\'localtime\')),mustbedeleted boolean default false, json_obj text,primary key(title))';
+  static readonly CREATE_TAGS_TABLE = 'create table if not exists tags(title varchar(64),userid varchar(64), mustbedeleted boolean default false, json_object text,primary key(title));';
+  static readonly CREATE_NOTES_TAGS_TABLE ='create table if not exists notes_tags(notetitle varchar(64),tagtitle varchar(64),role varchar(9),mustbedeleted boolean default false,primary key(noteTitle, tagTitle),foreign key(noteTitle) references notes(title) on update cascade on delete cascade,foreign key(tagTitle) references tags(title) on update cascade on delete cascade,constraint role_check check (role = \'mainTags\' or role = \'otherTags\'))';
+  static readonly CREATE_LOGS_TABLE = 'create table if not exists logs(id integer primary key autoincrement,notetitle varchar(64),tagtitle varchar(64),role varchar(9),action varchar(64) not null, creationdate date default(datetime(\'now\',\'localtime\')), foreign key(notetitle) references notes(title) on update cascade on delete cascade,foreign key(tagtitle) references tags(title) on update cascade on delete cascade,constraint action_check check(action=\'create\' or action=\'delete\' or action=\'change-title\' or action=\'change-text\' or action=\'add-tag\' or action=\'remove-tag\' or action =\'set-done\' or action=\'set-link\'),constraint role_check check (role =\'mainTags\' or role = \'otherTags\' or role is null),constraint if_all check ((role is not null and noteTitle is not null and tagTitle is not null) or (noteTitle is not null) or (tagTitle is not null)));'
+
+  static readonly GET_LOGS_COUNT = 'select count(*) as count from logs';
+  static readonly GET_NOTES_COUNT = 'select count(*) as count from notes where mustbedeleted=\'false\'';
+  static readonly GET_NOTES_COUNT_TOTAL = 'select count(*) as count from notes';
+  static readonly GET_TAGS_COUNT = 'select count(*) as count from tags where mustbedeleted=\'false\'';
+  static readonly GET_TAGS_COUNT_TOTAL = 'select count(*) as count from tags';
+
+  static readonly GET_NOTES_MIN = 'select title from notes where mustbedeleted=\'false\'';
+  /*postgres:select title, count(tagTitle)::integer as notesLength
+  from attic.tags as t left join attic.notes_tags on title=tagTitle
+  where t.userId=$1
+  group by title, t.userId
+  order by notesLength desc, title asc;*/
+  /*this query has been tested and it works.*/
+  static readonly GET_TAGS_MIN = 'select title, count(tagtitle) as noteslength from tags left join notes_tags on title=tagtitle where mustbedeleted=\'false\' group by title order by noteslength desc, title asc;'
+  /*here we use the json_obj.*/
+  static readonly GET_NOTE_FULL_JSON ='select json_obj from notes where title=?';
+  /*here we use the json_obj.*/
+  static readonly GET_TAG_FULL_JSON = 'select json_obj from tags where title=?';
 
   /*
   tag and notes in the db just memorize an array of ids.

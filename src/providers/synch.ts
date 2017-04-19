@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Http } from '@angular/http';
 import 'rxjs/add/operator/map';
-import { Db, LogObject } from './db';
+import { Db/*, LogObject */} from './db';
 import { AtticTags } from './attic-tags';
 import { AtticNotes } from './attic-notes';
 import { NoteExtraMin, NoteFull, NoteSQLite, NoteMin } from '../models/notes';
@@ -45,7 +45,7 @@ export class Synch {
   private lock: boolean = true; /*default lock is true, so nothing can be done.*/
   private secondLock: boolean = false; /*default can be enabled.*/
 
-  private recordsToDo: Queue<LogObject>;
+  /*private recordsToDo: Queue<LogObject>;*/
 
   private isConnected: boolean = false;
   private disconnectedSubscription : any;
@@ -66,7 +66,7 @@ export class Synch {
     //     this.lock = true;
     //     console.log('no network');
     //   });
-    // 
+    //
     //   this.connectedSubscription = this.network.onConnect().subscribe(()=>{
     //     this.lock = false;
     //     console.log('ok netowrk, lock disabled, starting consuming');
@@ -253,6 +253,23 @@ export class Synch {
   // public stop(){
   //
   // }
+
+  /**
+  how synch works:
+  the server maintains, for notes and tags, a field called 'previous_title'
+  the client push all the notes-title with the timestamp.
+  Note:
+  if local_timestamp and remote_timestamp are the same
+
+
+
+  OR:
+  push all the logs to the server, once is done,
+  re-download everything.
+  ----we  can optimize this part---- (of what we re-download)
+  If an error occurs when pushing logs,
+  the db is flushed and everything is re-downloaded from the server.
+  */
 
 
 

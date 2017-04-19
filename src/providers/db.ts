@@ -77,6 +77,11 @@ export class Db {
   open : boolean = false; /*to be sure everything is ok.*/
   private db : SQLite;
 
+  logsCount: number;
+  notesCount: number;
+  tagsCount: number;
+
+
   constructor(private platform: Platform) {
     console.log('Hello Db Provider');
 
@@ -103,6 +108,7 @@ export class Db {
             })
             .then(()=>{
               this.open = true;
+              this.count();
               // return;
             })
             .catch(error=>{
@@ -114,6 +120,36 @@ export class Db {
     //});
   }
 
+}
+
+getLogCount =():Promise<any>=>{
+  return this.db.executeSql(Query.GET_LOGS_COUNT,[]);
+}
+
+getNotesCount=():Promise<any>=>{
+  return this.db.executeSql(Query.GET_NOTES_COUNT,[]);
+}
+
+getTagsCount=():Promise<any>=>{
+  return this.db.executeSql(Query.GET_TAGS_COUNT,[]);
+}
+
+private count(){
+  this.getLogCount()
+  .then(result=>{
+    this.logsCount = result.rows.item(0).count;
+    return this.getNotesCount();
+  })
+  .then(result=>{
+    this.notesCount = result.rows.item(0).count;
+    return this.getTagsCount();
+  })
+  .then(result=>{
+    this.tagsCount = result.rows.item(0).count;
+  })
+  .catch(error=>{
+    console.log(JSON.stringify(error));
+  })
 }
 //
 // private static noteMinParse(row: any):NoteExtraMin{
@@ -917,4 +953,9 @@ export class Db {
 //
 //
 //
+
+
+
+
+
 }

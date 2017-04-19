@@ -5,7 +5,7 @@ import { Auth } from './auth';
 import { Action, Const } from '../public/const';
 import { NoteExtraMin/*, NoteSmart, NoteFull*/,NoteMin } from '../models/notes';
 import { Utils } from '../public/utils';
-import { Db, LogObject } from './db';
+import { Db/*, LogObject*/ } from './db';
 
 import 'rxjs/add/operator/map';
 
