@@ -67,7 +67,7 @@ export class AtticTags {
   * create a new tag.
   */
   createTag(title: string):Promise<any>{
-    return Utils.putBasic('/api/tags/'+title, "", this.http, this.auth.token);
+    return Utils.putBasic('/api/tags/'+title, '', this.http, this.auth.token);
   }
 
   // tagsByTitle(title: string){
@@ -78,6 +78,15 @@ export class AtticTags {
     return tags.filter((tag)=>{
       return tag.title.indexOf(title.toLowerCase())>-1;
     });
+  }
+
+  changeTitle(tag: TagExtraMin, newTitle: string):Promise<any>{
+    return Utils.postBasic('/api/tags/mod/changetitle', JSON.stringify({tag:
+      {title: tag.title, newtitle: newTitle}}),this.http, this.auth.token);
+  }
+
+  deleteTag(tag: TagExtraMin):Promise<any>{
+    return Utils.deleteBasic('/api/tags/'+tag.title, this.http, this.auth.token);
   }
 
 }

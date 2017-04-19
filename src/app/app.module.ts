@@ -11,6 +11,7 @@ import { TagDetailsPage } from '../pages/tag-details/tag-details';
 
 import { CreateNotePage } from '../pages/create-note/create-note';
 import { NotesPopoverPage } from '../pages/notes-popover/notes-popover';
+import { TagsPopoverPage } from '../pages/tags-popover/tags-popover';
 import { NoteEditTextPage } from '../pages/note-edit-text/note-edit-text';
 
 //login
@@ -41,7 +42,7 @@ import { Network } from '@ionic-native/network';
     CreateNotePage,
     NotesPopoverPage,
     NoteEditTextPage,
-
+    TagsPopoverPage
   ],
   imports: [
     IonicModule.forRoot(MyApp)
@@ -58,6 +59,7 @@ import { Network } from '@ionic-native/network';
     CreateNotePage,
     NotesPopoverPage,
     NoteEditTextPage,
+    TagsPopoverPage
     //NoteEditTagsPage
   ],
   providers: [

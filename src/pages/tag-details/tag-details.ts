@@ -1,9 +1,10 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams } from 'ionic-angular';
+import { NavController, NavParams, PopoverController } from 'ionic-angular';
 
 import { /*TagFull, TagExtraMin, *//*TagMin*/TagFull } from '../../models/tags';
 import { AtticTags } from '../../providers/attic-tags';
 import { NoteDetailsPage } from '../note-details/note-details';
+import { TagsPopoverPage } from '../tags-popover/tags-popover';
 
 /*
   Generated class for the TagDetails page.
@@ -21,6 +22,7 @@ export class TagDetailsPage {
   title: string;
 
   constructor(public navCtrl: NavController, public navParams: NavParams,
+    private popoverCtrl: PopoverController,
     private atticTags: AtticTags) {
       this.title=navParams.get('title');
       this.tagByTitle(this.title);
@@ -58,6 +60,13 @@ export class TagDetailsPage {
     setTimeout(()=>{
       refresher.complete();
     },2000);
+  }
+
+  showPopover(event){
+    let popover=this.popoverCtrl.create(TagsPopoverPage, {tag: this.tag});
+    popover.present({
+      ev:event
+    });
   }
 
 }

@@ -89,14 +89,14 @@ export class NotesPopoverPage {
   */
 
   changeTitleAPI(title: string){
-    // this.atticNotes.updateTitle(this.note.title, title)
-    //   .then(result=>{
-    //     this.note.title=title;
-    //     Utils.presentToast(this.toastCtrl, 'Title updated');
-    //   })
-    //   .catch(error=>{
-    //     console.log(JSON.stringify(error));
-    //   });
+    this.atticNotes.changeTitle(this.note.title, title)
+      .then(result=>{
+        // this.note.title=title;
+        Utils.presentToast(this.toastCtrl, 'Title updated');
+      })
+      .catch(error=>{
+        console.log(JSON.stringify(error));
+      });
   }
 
   close(){
@@ -110,15 +110,21 @@ export class NotesPopoverPage {
   deleteNote(){
     Utils.askConfirm(this.alertCtrl, 'Are you sure to delete note \''+this.note.title+'\'',(_ : boolean)=>{
       if(_){
-        this.deleteNoteApi(this.note.title);
+        this.deleteNoteAPI();
       }/*else{
         nothing to do.
       }*/
     });
   }
 
-  deleteNoteApi(title:string){
-
+  deleteNoteAPI(){
+    this.atticNotes.deleteNote(this.note)
+    .then(result=>{
+      Utils.presentToast(this.toastCtrl, 'Note deleted');
+    })
+    .catch(error=>{
+      console.log(JSON.stringify(error));
+    })
   }
 
 }
