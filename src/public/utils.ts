@@ -254,10 +254,9 @@ static myIndexOf(arg0: TagExtraMin[], arg1: TagExtraMin): number{
 // }
 
 static fromTagsToString(tags: TagExtraMin[]):string[]{
-  let result : string [] = [];
-  for(let i=0;i<tags.length;i++){
-    result.push(tags[i].title);
-  }
+  let result:string[]=tags.map((currentValue: TagExtraMin):string=>{
+    return currentValue.title;
+  })
   return result;
 }
 

@@ -44,16 +44,23 @@ export class NoteDetailsPage {
 
   shownMainTags: TagExtraMin[]; /*what is really shown depends on what user chooses to do.*/
   shownOtherTags: TagExtraMin[];
-  shownLinks: string[] = [];
+  shownLinks: string[] = []; /*this is also used to track the links that will be (eventually) sent to the server */
   shownIsDone: boolean = false;
 
   mainTagsToAdd: TagExtraMin[] = [];
   otherTagsToAdd: TagExtraMin[] = [];
-  linksToAdd: string[] = [];
 
-  mainTagsToRemove: TagExtraMin[] = [];
-  otherTagsToRemove: TagExtraMin[] = [];
-  linksToRemove: string[] = [];
+
+
+  // mainTagsToRemove: TagExtraMin[] = [];
+  // otherTagsToRemove: TagExtraMin[] = [];
+
+  // newLinks: string[]=[];
+  /*
+  initially is blank, everytime a user delete a tag, if the tag is a part of the
+  note, that tag is pushed here.
+  */
+  tagsToRemove: TagExtraMin[]=[];
 
 
   submitChangeEnabled: boolean = false;
@@ -61,11 +68,11 @@ export class NoteDetailsPage {
 
   haveToAddMainTags: boolean = false;
   haveToAddOtherTags: boolean = false;
-  haveToRemoveMainTags: boolean = false;
-  haveToRemoveOtherTags: boolean = false;
-  haveToAddLinks: boolean = false;
-  haveToRemoveLinks: boolean = false;
+  // haveToRemoveMainTags: boolean = false;
+  // haveToRemoveOtherTags: boolean = false;
+  haveToRemoveTags: boolean = false;
   isDoneChanged: boolean = false; /*don't really need this.*/
+  haveToChangeLinks: boolean = false;
 
   availableOtherTags: TagExtraMin[] =[];
   availableMainTags: TagExtraMin[] = [];
@@ -89,10 +96,10 @@ export class NoteDetailsPage {
   makeAllFalse(){
     this.haveToAddMainTags = false;
     this.haveToAddOtherTags = false;
-    this.haveToAddLinks = false;
-    this.haveToRemoveMainTags = false;
-    this.haveToRemoveOtherTags = false;
-    this.haveToRemoveLinks = false;
+    this.haveToChangeLinks = false;
+    // this.haveToRemoveMainTags = false;
+    // this.haveToRemoveOtherTags = false;
+    this.haveToRemoveTags = false;
     this.isDoneChanged = false;
   }
 
@@ -124,10 +131,6 @@ export class NoteDetailsPage {
         this.shownLinks = this.links.slice();
         this.shownIsDone = this.isDone;
 
-
-        // let a= [1,2,3,4];
-        // let b=[3,4];
-        // console.log(JSON.stringify(Utils.arrayDiff3(a,b)));
 
       })
       .catch(err=>{
@@ -278,20 +281,15 @@ export class NoteDetailsPage {
   /*
   callback to pass.
   */
-  addLinks(data){
+  addLinks(data: any){
     this.shownLinks.push(data.link);
-    this.haveToAddLinks = true;
+    this.haveToChangeLinks = true;
     this.submitChangeEnabled = true;
-    this.linksToAdd.push(data.link);
+    // this.newLinks.push(data.link);
   }
 
   pushLinks(){
-    // Utils.pushLink(this.alertCtrl, (data)=>{this.shownLinks.push(data.link)});
-    // this.haveToAddLinks = true;
-    // this.submitChangeEnabled = true;
-    // console.log('the length is');
-    // console.log(this.shownLinks.length);
-    // this.linksToAdd.push(this.shownLinks[this.shownLinks.length-1]);
+
     Utils.pushLink(this.alertCtrl, (data)=>{this.addLinks(data)});
   }
 
@@ -305,8 +303,8 @@ export class NoteDetailsPage {
      obj.title=title;
      let index = Utils.myIndexOf(this.mainTags,obj);
      if(index!=-1){
-       this.mainTagsToRemove.push(this.mainTags[index]);
-       this.haveToRemoveMainTags = true;
+       this.tagsToRemove.push(this.mainTags[index]);
+       this.haveToRemoveTags = true;
        /*
        delete from this.mainTags: it will be done when the call to the API will
        will be done.
@@ -327,8 +325,8 @@ export class NoteDetailsPage {
     obj.title=title;
     let index = Utils.myIndexOf(this.otherTags,obj);
     if(index!=-1){
-      this.otherTagsToRemove.push(this.otherTags[index]);
-      this.haveToRemoveOtherTags = true;
+      this.tagsToRemove.push(this.otherTags[index]);
+      this.haveToRemoveTags = true;
       /*
       delete from this.otherTags: it will be done when the call to the API will
       will be done.
@@ -346,16 +344,18 @@ export class NoteDetailsPage {
     this.shownLinks.splice(i, 1);
     /*detect if there is the need to remove from links.*/
     let index = this.links.indexOf(link);
-    console.log('index to remove:');
-    console.log(index);
+    // console.log('index to remove:');
+    // console.log(index);
+
     if(index!=-1){
-      this.linksToRemove.push(this.links[index]);
-      this.haveToRemoveLinks = true;
+
+      /*if the link to be removed is in the note's links we'll remove it.*/
       /*
       delete from this.links: it will be done when the call to the API will
       will be done.
       */
       /*enable changes.*/
+      this.haveToChangeLinks = true;
       this.submitChangeEnabled = true;
     }
     // this.haveToRemoveLinks = true;
@@ -372,6 +372,10 @@ export class NoteDetailsPage {
     }else{
       this.isDoneChanged = false;
     }
+  }
+
+  addTagsAPI(){
+    return this.atticNotes.addTags(this.note.title, Utils.fromTagsToString(this.mainTagsToAdd), Utils.fromTagsToString(this.otherTagsToAdd));
   }
 
   /*
@@ -393,44 +397,46 @@ export class NoteDetailsPage {
     // return this.atticNotes.removeOtherTags(this.note.title, Utils.fromTagsToString(this.otherTagsToRemove));
   }
 
-  addLinksAPI(){
-    // return this.atticNotes.addLinks(this.note.title, this.linksToAdd);
+  changeLinksAPI(){
+    return this.atticNotes.changeLinks(this.note.title, this.shownLinks);
   }
 
-  removeLinksAPI(){
-    // return this.atticNotes.removeLinks(this.note.title, this.linksToRemove);
+  changeDoneAPI(){
+     return this.atticNotes.changeDone(this.note.title, this.shownIsDone);
   }
 
-  setDoneAPI(){
-    // return this.atticNotes.setDone(this.note.title, this.shownIsDone);
+  removeTagsAPI(){
+    return this.atticNotes.removeTags(this.note.title, Utils.fromTagsToString(this.tagsToRemove));
   }
 
 
   submit(){
     /*decide which actions must be taken.*/
-    if(this.haveToRemoveMainTags){
-      this.removeMainTagsAPI()
-        // .then(result=>{
-        //   Utils.presentToast(this.toastCtrl, 'tags removed');
-        //   this.haveToRemoveMainTags = false;
-        // })
-        // .catch(error=>{
-        //   console.log(JSON.stringify(error));
-        // })
+    if(this.haveToRemoveTags){
+      this.removeTagsAPI()
+      .then(result=>{
+        Utils.presentToast(this.toastCtrl, 'tags removed');
+        this.haveToRemoveTags = false;
+      })
+      .catch(error=>{
+        console.log(JSON.stringify(error));
+      })
     }
 
-    if(this.haveToRemoveOtherTags){
-      this.removeOtherTagsAPI()
-        // .then(result=>{
-        //   Utils.presentToast(this.toastCtrl, 'tags removed');
-        //   this.haveToRemoveOtherTags = false;
-        // })
-        // .catch(error=>{
-        //   console.log(JSON.stringify(error));
-        // })
+    if(this.haveToAddMainTags && this.haveToAddOtherTags){
+      /*if both, resolve with one call.*/
+      this.addTagsAPI()
+      .then(result=>{
+        Utils.presentToast(this.toastCtrl, 'tags added');
+        this.haveToAddMainTags = false;
+        this.haveToAddOtherTags = false;
+      })
+      .catch(error=>{
+        console.log(JSON.stringify(error));
+      })
     }
 
-    if(this.haveToAddMainTags){
+    else if(this.haveToAddMainTags){
       this.addMainTagsAPI()
         .then(result=>{
           Utils.presentToast(this.toastCtrl, 'tags added');
@@ -441,7 +447,7 @@ export class NoteDetailsPage {
         })
     }
 
-    if(this.haveToAddOtherTags){
+    else if(this.haveToAddOtherTags){
       this.addOtherTagsAPI()
         .then(result=>{
           Utils.presentToast(this.toastCtrl, 'tags added');
@@ -452,37 +458,26 @@ export class NoteDetailsPage {
         })
     }
 
-    if(this.haveToRemoveLinks){
-      this.removeLinksAPI()
-        // .then(result=>{
-        //   Utils.presentToast(this.toastCtrl, 'links removed');
-        //   this.haveToRemoveLinks = false;
-        // })
-        // .catch(error=>{
-        //   console.log(JSON.stringify(error));
-        // })
-    }
-
-    if(this.haveToAddLinks){
-      this.addLinksAPI()
-        // .then(result=>{
-        //   Utils.presentToast(this.toastCtrl, 'links added');
-        //   this.haveToAddLinks = false;
-        // })
-        // .catch(error=>{
-        //   console.log(JSON.stringify(error));
-        // })
-    }
+  if(this.haveToChangeLinks){
+    this.changeLinksAPI()
+    .then(result=>{
+      Utils.presentToast(this.toastCtrl, 'links changed');
+      this.haveToChangeLinks = false;
+    })
+    .catch(error=>{
+      console.log(JSON.stringify(error));
+    })
+  }
 
     if(this.isDoneChanged){
-      this.setDoneAPI()
-        // .then(result=>{
-        //   Utils.presentToast(this.toastCtrl, '\'done\' modified');
-        //   this.isDoneChanged =  false;
-        // })
-        // .catch(error=>{
-        //   console.log(JSON.stringify(error));
-        // })
+      this.changeDoneAPI()
+        .then(result=>{
+          Utils.presentToast(this.toastCtrl, '\'done\' modified');
+          this.isDoneChanged =  false;
+        })
+        .catch(error=>{
+          console.log(JSON.stringify(error));
+        })
     }
     if(this.allFalse()){
       this.submitChangeEnabled = false;
@@ -490,9 +485,8 @@ export class NoteDetailsPage {
   }
 
   allFalse():boolean{
-    return this.haveToAddLinks == false && this.haveToAddMainTags == false
-      && this.haveToRemoveLinks == false && this.haveToAddOtherTags == false
-      && this.haveToRemoveMainTags == false && this.haveToRemoveOtherTags &&
+    return this.haveToChangeLinks == false && this.haveToAddMainTags == false
+      && this.haveToAddOtherTags == false && this.haveToRemoveTags &&
       this.isDoneChanged == false;
   }
 
