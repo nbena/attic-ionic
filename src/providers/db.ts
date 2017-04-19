@@ -10,60 +10,60 @@ import { TagExtraMin, TagFull, TagMin, TagAlmostMin, TagSQLite } from '../models
 import { Queue } from 'typescript-collections';
 // import 'rxjs/add/operator/map';
 
-class SQLiteLogObject{
-  _id: number;
-  action: string;
-  refNotes: string;
-  refTags: string;
-  refNotesToSave: number;
-  refTagsToSave: number;
-  done: boolean;
-  data: string;
-}
-
-
-export class LogObject{
-  _id: number;
-  action: Action;
-  refNotes: string;
-  refTags: string;
-  refNotesToSave: number;
-  refTagsToSave: number;
-  done: boolean;
-  data: any;
-
-  public static LogObjectParse(row: any):LogObject{
-    let obj = new LogObject();
-    obj._id=row._id;
-    obj.action=Action[<string>row.action];
-    obj.refNotes=row.refNote;
-    obj.refTags=row.refTag;
-    obj.refNotesToSave=row.refNoteToSave;
-    obj.refTagsToSave=row.refTagToSave;
-    obj.done=row.done;
-    obj.data = JSON.parse(row.data);
-    return obj;
-  }
-
-  public toSQLiteObject():SQLiteLogObject{
-    let obj = new SQLiteLogObject();
-    obj._id=this._id;
-    obj.action=Action[this.action];
-    obj.refNotes=this.refNotes;
-    obj.refTags=this.refTags;
-    obj.refNotesToSave=this.refNotesToSave;
-    obj.refTagsToSave=this.refTagsToSave;
-    obj.done=this.done;
-    obj.data = JSON.stringify(this.data);
-    return obj;
-  }
-
-}
-
-class DbUtils{
-  query: string;
-  data: any[];
-}
+// class SQLiteLogObject{
+//   _id: number;
+//   action: string;
+//   refNotes: string;
+//   refTags: string;
+//   refNotesToSave: number;
+//   refTagsToSave: number;
+//   done: boolean;
+//   data: string;
+// }
+//
+//
+// export class LogObject{
+//   _id: number;
+//   action: Action;
+//   refNotes: string;
+//   refTags: string;
+//   refNotesToSave: number;
+//   refTagsToSave: number;
+//   done: boolean;
+//   data: any;
+//
+//   public static LogObjectParse(row: any):LogObject{
+//     let obj = new LogObject();
+//     obj._id=row._id;
+//     obj.action=Action[<string>row.action];
+//     obj.refNotes=row.refNote;
+//     obj.refTags=row.refTag;
+//     obj.refNotesToSave=row.refNoteToSave;
+//     obj.refTagsToSave=row.refTagToSave;
+//     obj.done=row.done;
+//     obj.data = JSON.parse(row.data);
+//     return obj;
+//   }
+//
+//   public toSQLiteObject():SQLiteLogObject{
+//     let obj = new SQLiteLogObject();
+//     obj._id=this._id;
+//     obj.action=Action[this.action];
+//     obj.refNotes=this.refNotes;
+//     obj.refTags=this.refTags;
+//     obj.refNotesToSave=this.refNotesToSave;
+//     obj.refTagsToSave=this.refTagsToSave;
+//     obj.done=this.done;
+//     obj.data = JSON.stringify(this.data);
+//     return obj;
+//   }
+//
+// }
+//
+// class DbUtils{
+//   query: string;
+//   data: any[];
+// }
 
 /*
   Generated class for the Db provider.
@@ -92,14 +92,14 @@ export class Db {
             .then(()=>{
               return this.db.executeSql(Query.CREATE_TAGS_TABLE, {})
             })
+            // .then(()=>{
+            //   return this.db.executeSql(Query.CREATE_NOTES_TO_SAVE_TABLE, {})
+            // })
+            // .then(()=>{
+            //   return this.db.executeSql(Query.CREATE_TAGS_TO_SAVE_TABLE, {})
+            // })
             .then(()=>{
-              return this.db.executeSql(Query.CREATE_NOTES_TO_SAVE_TABLE, {})
-            })
-            .then(()=>{
-              return this.db.executeSql(Query.CREATE_TAGS_TO_SAVE_TABLE, {})
-            })
-            .then(()=>{
-              return this.db.executeSql(Query.CREATE_LOG, {})
+              return this.db.executeSql(Query.CREATE_LOGS_TABLE, {})
             })
             .then(()=>{
               this.open = true;
