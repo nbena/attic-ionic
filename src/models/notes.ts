@@ -12,7 +12,7 @@ export class NoteExtraMin{
 
 export class NoteBarebon extends NoteExtraMin{
   text: string;
-  private userid: string;
+  userid: string;
   isdone: boolean;
   links: string[];
   creationdate: Date;

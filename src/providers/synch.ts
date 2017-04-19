@@ -267,6 +267,8 @@ export class Synch {
   push all the logs to the server, once is done,
   re-download everything.
   ----we  can optimize this part---- (of what we re-download)
+  first download notes, because we can add also the newly created tags along with them.
+  Then, download tags (in a minified version).
   If an error occurs when pushing logs,
   the db is flushed and everything is re-downloaded from the server.
   */

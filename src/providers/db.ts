@@ -151,6 +151,61 @@ private count(){
     console.log(JSON.stringify(error));
   })
 }
+
+/*
+static readonly INSERT_NOTE = 'insert into notes(title, userid, text, creationdate, remote_lastmodificationdate, isdone, links, json_obj) values(?,?,?,?,?,?,?,?,?)';
+title obviously here doesn't change, title either.
+static readonly UPDATE_NOTE = 'update notes set text=?, remote_lastmodificationdate=?, isdone=?, links=?, json_obj=? where title=?';
+
+static readonly UPDATE_TAG = 'update tags set title=?, userid=?, json_obj=? where title=?';
+
+static readonly UPDATE_TAG_2 = 'update tags set json_obj=? where title=?';
+static readonly UPDATE_NOTES_TAGS = 'update notes_tags set notetitle=?, tagtitle=?, role=?, userid=?, where notetitle=?, tagtitle=?';
+
+static readonly INSERT_NOTES_TAGS = 'insert into notes_tags(notetitle,tagtitle, role, userid) values(?,?,?,?)';
+
+*/
+private insertOrUpdateNote(note:NoteFull, updateTags: boolean){
+  return this.db.transaction(t=>{
+    t.executeSql(Query.NOTE_EXISTS, [note.title])
+    .then(result=>{
+      if(result.rows.length<0){
+        t.executeSql(Query.INSERT_NOTE, [note.title, note.userid, note.text, note.creationdate, note.lastmodificationdate, note.isdone, note.links, JSON.stringify(note)]);
+      }else{
+        t.executeSql(Query.UPDATE_NOTE_2, [note.text, note.lastmodificationdate, note.isdone, note.links, JSON.stringify(note), note.title]);
+      }
+      if(updateTags){
+        for(let i=0;i<note.maintags.length;i++){
+          t.executeSql(Query.TAG_EXISTS, [note.maintags[i].title])
+          .then(result=>{
+            if(result.rows.length<0){
+              t.executeSql(Query.INSERT_TAG, [note.maintags[i].title, note.userid]);
+              /*if new we can push it also to notes_tags*/
+              t.executeSql(Query.INSERT_NOTES_TAGS, [note.title, note.maintags[i].title, 'mainTags', note.userid]);
+            }else{
+              /*just update, the on update cascade will update into notes_tags*/
+              t.executeSql(Query.UPDATE_TAG_2, [JSON.stringify(note.maintags[i]), note.maintags[i].title]);
+            }
+          })
+        } /*end of maintags*/
+        for(let i=0;i<note.othertags.length;i++){
+          t.executeSql(Query.TAG_EXISTS, [note.othertags[i].title])
+          .then(result=>{
+            if(result.rows.length<0){
+              t.executeSql(Query.INSERT_TAG, [note.othertags[i].title, note.userid]);
+              /*if new we can push it also to notes_tags*/
+              t.executeSql(Query.INSERT_NOTES_TAGS, [note.title, note.othertags[i].title, 'otherTags', note.userid]);
+            }else{
+              /*just update, the on update cascade will update into notes_tags*/
+              t.executeSql(Query.UPDATE_TAG_2, [JSON.stringify(note.othertags[i]), note.othertags[i].title]);
+            }
+          })
+        }
+      }
+    })
+  })
+}
+
 //
 // private static noteMinParse(row: any):NoteExtraMin{
 //   let note = new NoteExtraMin();
