@@ -9,6 +9,8 @@ import { Auth } from './auth';
 import { Utils } from '../public/utils';
 
 import { TagExtraMin } from '../models/tags';
+import { Db } from './db';
+import { NetManager } from './net-manager';
 
 /*
   Generated class for the AtticTags provider.
@@ -19,7 +21,8 @@ import { TagExtraMin } from '../models/tags';
 @Injectable()
 export class AtticTags {
 
-  constructor(public http: Http, public auth: Auth) {
+  constructor(public http: Http, public auth: Auth,
+    private db: Db, private netManager: NetManager) {
     console.log('Hello AtticTags Provider');
   }
 
@@ -33,9 +36,43 @@ export class AtticTags {
   //
   // }
 
-  loadTagsMin(){
-    return Utils.getBasic('/api/tags/all/min', this.http, this.auth.token);
-  }
+  loadTagsMin(force: boolean){
+      return new Promise<any>((resolve, reject)=>{
+        let useForce: boolean = force;
+        let isNteworkAvailable: boolean = this.netManager.isConnected;
+        let areThereNotesInTheDb: boolean = (this.db.tagsCount == 0)? false : true;
+        let tags:TagExtraMin[]=[];
+        if(!isNteworkAvailable || !areThereNotesInTheDb || !force){
+          /*network is not available, so MUST use the db, force or not force.*/
+          console.log('getting the tags from the db.');
+          this.db.getNotesMin()
+          .then(result=>{
+            tags = result;
+            resolve(tags);
+          })
+          .catch(error=>{
+            reject(error);
+          })
+        }
+        else{
+          console.log('no tags in the db, need to call the network');
+          //nothing to do, download data and send them to the DB.
+          Utils.getBasic('/api/tags/all/min', this.http, this.auth.token)
+          .then(result=>{
+            console.log('inserting data');
+            tags=result as TagExtraMin[];
+            for(let i=0;i<tags.length;i++){
+              this.db.insertTagMinQuietly(tags[i]);
+            }
+            resolve(tags);
+          })
+          .catch(error=>{
+            reject(error);
+          })
+        }
+      })
+    }
+
 
   // loadTagsMinWithNotesLength(){
   //   return Utils.getBasic('/api/tags/all/min/notes-length', this.http, this.auth.token);

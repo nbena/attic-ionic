@@ -140,7 +140,7 @@ export class NoteDetailsPage {
 
 
   loadTags(){
-    this.atticTags.loadTagsMin()
+    this.atticTags.loadTagsMin(true)
       .then(result=>{
         this.availableTags=<TagExtraMin[]>result;
         this.areTagsAvailable=true;

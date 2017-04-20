@@ -31,7 +31,7 @@ export class TagsPage {
     public alertCtrl: AlertController,
     private atticTags: AtticTags) {
     if(this.allTags==null){
-      this.loadAlmostMin();
+      this.loadAlmostMin(false);
     }
     this.searchCtrl = new FormControl();
   }
@@ -71,8 +71,8 @@ export class TagsPage {
   //     })
   // }
 
-  loadAlmostMin(){
-    this.atticTags.loadTagsMin()
+  loadAlmostMin(force: boolean){
+    this.atticTags.loadTagsMin(force)
       .then(result=>{
         console.log(JSON.stringify(result));
         this.allTags=result as TagAlmostMin[];
@@ -100,7 +100,7 @@ export class TagsPage {
   }
 
   refresh(refresher){
-    this.loadAlmostMin();
+    this.loadAlmostMin(true);
     //before it was this.loadFull();
     setTimeout(()=>{
       refresher.complete();

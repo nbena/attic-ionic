@@ -21,22 +21,24 @@ export class NetManager {
   constructor(private network: Network/*, private synch: Synch*/) {
 
     this.disconnectedSubscription = this.network.onDisconnect().subscribe(()=>{
+      this.isConnected = false;
       console.log('network disconnected');
     })
 
     this.connectedSubscription = this.network.onConnect().subscribe(()=>{
+      this.isConnected = true;
       console.log('network connected');
     })
 
   }
 
-  unwatchDisconnection(){
-    this.disconnectedSubscription.unsubscribe();
-  }
-
-  unwatchConnection(){
-    this.connectedSubscription.unsubscribe();
-  }
+  // unwatchDisconnection(){
+  //   this.disconnectedSubscription.unsubscribe();
+  // }
+  //
+  // unwatchConnection(){
+  //   this.connectedSubscription.unsubscribe();
+  // }
 
 
 

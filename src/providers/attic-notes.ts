@@ -6,6 +6,7 @@ import { Action, Const } from '../public/const';
 import { NoteExtraMin/*, NoteSmart, NoteFull*/,NoteMin } from '../models/notes';
 import { Utils } from '../public/utils';
 import { Db/*, LogObject*/ } from './db';
+import { NetManager } from './net-manager';
 
 import 'rxjs/add/operator/map';
 
@@ -18,7 +19,8 @@ import 'rxjs/add/operator/map';
 @Injectable()
 export class AtticNotes {
 
-  constructor(public http: Http, public auth: Auth, private db: Db) {
+  constructor(public http: Http, public auth: Auth,
+    private db: Db, private netManager: NetManager) {
     console.log('Hello AtticNotes Provider');
   }
 
@@ -45,24 +47,16 @@ export class AtticNotes {
   */
   loadNotesMin(force: boolean):Promise<any>{
     return new Promise<any>((resolve, reject)=>{
-      if(this.db.notesCount==0 || force){
-        console.log('no notes in the db, need to call the network');
-        //nothing to do, download data and send them to the DB.
-        Utils.getBasic('/api/notes/all/min', this.http, this.auth.token)
-        .then(result=>{
-          console.log('inserting data');
-          let notes:NoteExtraMin[]=<NoteExtraMin[]> result;
-          for(let i=0;i<notes.length;i++){
-            this.db.insertNoteMinQuietly(notes[i]);
-          }
-          resolve(notes);
-        })
-        .catch(error=>{
-          reject(error);
-        })
-      }else{
+      let useForce: boolean = force;
+      let isNteworkAvailable: boolean = this.netManager.isConnected;
+      let areThereNotesInTheDb: boolean = (this.db.notesCount == 0)? false : true;
+      let notes:NoteExtraMin[]=[];
+      let useDb = !isNteworkAvailable || !areThereNotesInTheDb || !force;
+      console.log('usedb: ');
+      console.log(JSON.stringify(useDb));
+      if(useDb){
+        /*network is not available, so MUST use the db, force or not force.*/
         console.log('getting the notes from the db.');
-        let notes:NoteExtraMin[];
         this.db.getNotesMin()
         .then(result=>{
           notes = result;
@@ -72,11 +66,51 @@ export class AtticNotes {
           reject(error);
         })
       }
+      else{
+        console.log('no notes in the db, need to call the network');
+        //nothing to do, download data and send them to the DB.
+        Utils.getBasic('/api/notes/all/min', this.http, this.auth.token)
+        .then(result=>{
+          console.log('inserting data');
+          notes=<NoteExtraMin[]> result;
+          for(let i=0;i<notes.length;i++){
+            this.db.insertNoteMinQuietly(notes[i]);
+          }
+          resolve(notes);
+        })
+        .catch(error=>{
+          reject(error);
+        })
+      }
+      /*==============old version=======*/
+      // if(this.db.notesCount==0 || force){
+      //   console.log('no notes in the db, need to call the network');
+      //   //nothing to do, download data and send them to the DB.
+      //   Utils.getBasic('/api/notes/all/min', this.http, this.auth.token)
+      //   .then(result=>{
+      //     console.log('inserting data');
+      //     let notes:NoteExtraMin[]=<NoteExtraMin[]> result;
+      //     for(let i=0;i<notes.length;i++){
+      //       this.db.insertNoteMinQuietly(notes[i]);
+      //     }
+      //     resolve(notes);
+      //   })
+      //   .catch(error=>{
+      //     reject(error);
+      //   })
+      // }else{
+      //   console.log('getting the notes from the db.');
+      //   let notes:NoteExtraMin[];
+      //   this.db.getNotesMin()
+      //   .then(result=>{
+      //     notes = result;
+      //     resolve(notes);
+      //   })
+      //   .catch(error=>{
+      //     reject(error);
+      //   })
+      // }
     });
-
-
-
-
     // return Utils.getBasic('/api/notes/all/min', this.http, this.auth.token);
   }
 

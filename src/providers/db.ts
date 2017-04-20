@@ -77,9 +77,9 @@ export class Db {
   open : boolean = false; /*to be sure everything is ok.*/
   private db : SQLite;
 
-  logsCount: number;
-  notesCount: number;
-  tagsCount: number;
+  logsCount: number = 0;
+  notesCount: number = 0;
+  tagsCount: number = 0;
 
 
   constructor(private platform: Platform) {
@@ -158,6 +158,7 @@ private count(){
   })
   .then(result=>{
     this.tagsCount = result.rows.item(0).count;
+    console.log(JSON.stringify([this.logsCount, this.notesCount, this.tagsCount]));
   })
   .catch(error=>{
     console.log(JSON.stringify(error));
@@ -250,36 +251,66 @@ private isTagFull(title: string):Promise<boolean>{
   });
 }
 
+// public insertTagMin(tag: TagExtraMin):Promise<any>{
+//
+// }
+
 /*
 static readonly INSERT_NOTE_MIN = 'insert into notes(itle, json_obj) values (?,?)';
 */
-public insertNoteMin(note: NoteExtraMin):Promise<any>{
-  return this.isNoteFull(note.title)
+// public insertNoteMin(note: NoteExtraMin):Promise<any>{
+//   return this.isNoteFull(note.title)
+//     .then(result=>{
+//       if(result==false){
+//         console.log('note isn\'t full');
+//         return this.db.executeSql(Query.INSERT_NOTE_MIN, [note.title, JSON.stringify(note)]);
+//       }else{
+//         /*do nothing*/
+//         console.log('note is full');
+//       }
+//     })
+//     // .catch(error=>{
+//     //   console.log(JSON.stringify(error));
+//     // })
+// }
+
+/*
+this differ form notesMin because when we download a tag from the server, the title can be same
+but the notesLength (and so the json_object) can be changed, so try to update it if it's different.
+Notes has not this problem because their json_object is made of the title and nothing more.
+*/
+public insertTagMinQuietly(tag: TagExtraMin):Promise<any>{
+  return new Promise<any>((resolve, reject)=>{
+    this.db.executeSql(Query.INSERT_TAG_MIN,[tag.title, JSON.stringify(tag)])
     .then(result=>{
-      if(result==false){
-        console.log('note isn\'t full');
-        return this.db.executeSql(Query.INSERT_NOTE_MIN, [note.title, JSON.stringify(note)]);
+      /*nothing to do.*/
+      resolve(true);
+    })
+    .catch(error=>{
+      if(error.code===19){
+        console.log('already there.');
+        /*ok, constraint violation, the note is already there.*/
+        /*maybe the json_object is changed, trying to update.*/
+        this.db.executeSql(Query.UPDATE_JSON_OBJ_IF_NECESSARY_TAG, [JSON.stringify(tag), tag.title, JSON.stringify(tag)])
+        .then(result=>{
+          console.log('ok');
+          resolve(true);
+        })
+        .catch(error=>{
+          /*don't know if this catch is necessary...*/
+          reject(error);
+        })
+
       }else{
-        /*do nothing*/
-        console.log('note is full');
+        reject(error);
       }
     })
-    // .catch(error=>{
-    //   console.log(JSON.stringify(error));
-    // })
+  })
 }
 
 public insertNoteMinQuietly(note: NoteExtraMin):Promise<any>{
   return new Promise<any>((resolve, reject)=>{
-    // this.db.executeSql(Query.NOTE_EXISTS, [note.title])
-    // .then(result=>{
-    //   if(result.rows.length>0){
-    //     resolve(true);
-    //   }else{
-    //
-    //   }
-    // })
-    this.db.executeSql(Query.INSERT_NOTE_MIN,[note.title])
+    this.db.executeSql(Query.INSERT_NOTE_MIN,[note.title, JSON.stringify(note)])
     .then(result=>{
       /*nothing to do.*/
       resolve(true);
@@ -302,6 +333,28 @@ public getNotesMin():Promise<NoteExtraMin[]>{
       let array:NoteExtraMin[] = [];
       for(let i=0;i<result.rows.length;i++){
         let obj:NoteExtraMin = <NoteExtraMin> result.rows.item(i);
+        console.log('object returned: ');
+        console.log(JSON.stringify(obj));
+        array.push(obj);
+      }
+      console.log('the array is:');
+      console.log(JSON.stringify(array));
+      resolve(array);
+    })
+    .catch(error=>{
+      reject(error);
+    })
+  });
+}
+
+
+public getTagsMin():Promise<TagExtraMin[]>{
+  return new Promise<TagExtraMin[]>((resolve, reject)=>{
+    this.db.executeSql(Query.SELECT_NOTES_MIN, [])
+    .then(result=>{
+      let array:TagExtraMin[] = [];
+      for(let i=0;i<result.rows.length;i++){
+        let obj:TagExtraMin = <TagExtraMin> result.rows.item(i);
         console.log('object returned: ');
         console.log(JSON.stringify(obj));
         array.push(obj);

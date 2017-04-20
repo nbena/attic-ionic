@@ -48,7 +48,7 @@ export class CreateNotePage {
 
 
   loadMinTags(){
-    this.atticTags.loadTagsMin()
+    this.atticTags.loadTagsMin(true)
       .then(result=>{
         this.tags=<TagExtraMin[]>result;
       })
