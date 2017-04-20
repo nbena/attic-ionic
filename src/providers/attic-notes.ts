@@ -40,8 +40,44 @@ export class AtticNotes {
   //   return Utils.getBasic('/api/notes/all/unpop', this.http, this.auth.token);
   // }
 
-  loadNotesMin():Promise<any>{
-    return Utils.getBasic('/api/notes/all/min', this.http, this.auth.token);
+  /*
+  force: force the download from the network.
+  */
+  loadNotesMin(force: boolean):Promise<any>{
+    return new Promise<any>((resolve, reject)=>{
+      if(this.db.notesCount==0 || force){
+        console.log('no notes in the db, need to call the network');
+        //nothing to do, download data and send them to the DB.
+        Utils.getBasic('/api/notes/all/min', this.http, this.auth.token)
+        .then(result=>{
+          console.log('inserting data');
+          let notes:NoteExtraMin[]=<NoteExtraMin[]> result;
+          for(let i=0;i<notes.length;i++){
+            this.db.insertNoteMinQuietly(notes[i]);
+          }
+          resolve(notes);
+        })
+        .catch(error=>{
+          reject(error);
+        })
+      }else{
+        console.log('getting the notes from the db.');
+        let notes:NoteExtraMin[];
+        this.db.getNotesMin()
+        .then(result=>{
+          notes = result;
+          resolve(notes);
+        })
+        .catch(error=>{
+          reject(error);
+        })
+      }
+    });
+
+
+
+
+    // return Utils.getBasic('/api/notes/all/min', this.http, this.auth.token);
   }
 
   noteByTitle(title: string):Promise<any>{

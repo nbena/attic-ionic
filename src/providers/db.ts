@@ -253,7 +253,7 @@ private isTagFull(title: string):Promise<boolean>{
 /*
 static readonly INSERT_NOTE_MIN = 'insert into notes(itle, json_obj) values (?,?)';
 */
-private insertNoteMin(note: NoteExtraMin):Promise<any>{
+public insertNoteMin(note: NoteExtraMin):Promise<any>{
   return this.isNoteFull(note.title)
     .then(result=>{
       if(result==false){
@@ -269,7 +269,33 @@ private insertNoteMin(note: NoteExtraMin):Promise<any>{
     // })
 }
 
-private getNotesMin():Promise<NoteExtraMin[]>{
+public insertNoteMinQuietly(note: NoteExtraMin):Promise<any>{
+  return new Promise<any>((resolve, reject)=>{
+    // this.db.executeSql(Query.NOTE_EXISTS, [note.title])
+    // .then(result=>{
+    //   if(result.rows.length>0){
+    //     resolve(true);
+    //   }else{
+    //
+    //   }
+    // })
+    this.db.executeSql(Query.INSERT_NOTE_MIN,[note.title])
+    .then(result=>{
+      /*nothing to do.*/
+      resolve(true);
+    })
+    .catch(error=>{
+      if(error.code===19){
+        /*ok, constraint violation, the note is already there.*/
+        console.log('already there.');
+      }else{
+        reject(error);
+      }
+    })
+  })
+}
+
+public getNotesMin():Promise<NoteExtraMin[]>{
   return new Promise<NoteExtraMin[]>((resolve, reject)=>{
     this.db.executeSql(Query.SELECT_NOTES_MIN, [])
     .then(result=>{

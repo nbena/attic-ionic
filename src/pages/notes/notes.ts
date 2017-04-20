@@ -71,7 +71,7 @@ export class NotesPage {
 
         if(this.allNotes==null){
           // this.loadMin();
-          this.loadByFilter(true);
+          this.loadByFilter(/*true,*/false);
         }
         // this.oldNotes=this.notes;
 
@@ -111,7 +111,7 @@ export class NotesPage {
   }
 
   refresh(refresher){
-    this.loadMin();
+    this.loadMin(true);
     setTimeout(()=>{
       refresher.complete();
     },2000);
@@ -131,13 +131,13 @@ export class NotesPage {
   //   }
   // }
 
-  loadByFilter(firstTime: boolean){
+  loadByFilter(/*firstTime: boolean, */force: boolean){
     /*
     Cast is not required by the compiler, but it's better to use it.
     */
     switch(this.currentFilter){
       case Filter.Tags:
-        this.loadByTags(<string[]>this.currentFilterValue, firstTime);
+        this.loadByTags(<string[]>this.currentFilterValue/*, firstTime*/);
       break;
       // case Filter.MainTags:
       //   this.loadByMainTags(<string[]>this.currentFilterValue);
@@ -146,13 +146,13 @@ export class NotesPage {
       //   this.loadByOtherTags(<string[]>this.currentFilterValue);
       // break;
       case Filter.Text:
-        this.loadByText(<string>this.currentFilterValue, firstTime);
+        this.loadByText(<string>this.currentFilterValue/*, firstTime*/);
       break;
       case Filter.Title:
         this.loadByTitle(<string>this.currentFilterValue);
       break;
       default:
-        this.loadMin();
+        this.loadMin(force);
       break;
     }
   }
@@ -172,8 +172,8 @@ export class NotesPage {
   //     })
   // }
 
-  loadMin(){
-    this.atticNotes.loadNotesMin()
+  loadMin(force: boolean){
+    this.atticNotes.loadNotesMin(force)
       .then(result=>{
         this.allNotes=<NoteExtraMin[]>result;
         this.shownNotes=this.allNotes;
@@ -184,14 +184,14 @@ export class NotesPage {
       })
   }
 
-  loadByTags(tags: string[], firstTime: boolean){
+  loadByTags(tags: string[]/*, firstTime: boolean*/){
     // console.log("called the load by tags with: "+tags );
     this.atticNotes.notesByTag(tags)
       .then(result=>{
         this.allNotes=<NoteMin[]>result;
-        if(firstTime){
+        //if(firstTime){
           this.shownNotes = this.allNotes;
-        }
+        //}
       })
       .catch(error=>{
         console.log(JSON.stringify(error));
@@ -232,13 +232,13 @@ export class NotesPage {
     this.shownNotes = this.atticNotes.filterNotesByTitle(this.allNotes, this.searchTerm);
   }
 
-  loadByText(text: string, firstTime: boolean){
+  loadByText(text: string/*, firstTime: boolean*/){
     this.atticNotes.notesByText(text)
       .then(result=>{
         this.allNotes=<NoteMin[]>result;
-        if(firstTime){
+        //if(firstTime){
           this.shownNotes = this.allNotes;
-        }
+        //}
       })
       .catch(error=>{
         console.log(JSON.stringify(error));
