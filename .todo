@@ -33,3 +33,7 @@ then the db will be updated.
 
 a middleware level will need to check which operations will be done
 and in which order.
+
+warning:
+when parsing a note from JSON which is a notefull, just get only what is needed.
+Maybe I should add explicit cast?
