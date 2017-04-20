@@ -90,7 +90,7 @@ export class NoteDetailsPage {
     private atticNotes: AtticNotes, private atticTags: AtticTags) {
     this.title=navParams.get('title');
     this.noteByTitle();
-    this.loadTags();
+    this.loadTags(false);
   }
 
   makeAllFalse(){
@@ -139,8 +139,8 @@ export class NoteDetailsPage {
   }
 
 
-  loadTags(){
-    this.atticTags.loadTagsMin(true)
+  loadTags(force: boolean){
+    this.atticTags.loadTagsMin(force)
       .then(result=>{
         this.availableTags=<TagExtraMin[]>result;
         this.areTagsAvailable=true;
@@ -196,6 +196,7 @@ export class NoteDetailsPage {
 
   refresh(refresher){
     this.noteByTitle();
+    this.loadTags(true);
     setTimeout(()=>{
       refresher.complete();
     },2000);

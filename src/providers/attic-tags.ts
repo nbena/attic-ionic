@@ -40,12 +40,15 @@ export class AtticTags {
       return new Promise<any>((resolve, reject)=>{
         let useForce: boolean = force;
         let isNteworkAvailable: boolean = this.netManager.isConnected;
-        let areThereNotesInTheDb: boolean = (this.db.tagsCount == 0)? false : true;
+        let areThereTagsInTheDb: boolean = (this.db.tagsCount != 0)? true : false;
         let tags:TagExtraMin[]=[];
-        if(!isNteworkAvailable || !areThereNotesInTheDb || !force){
+        let useDb: boolean = Utils.shouldUseDb(isNteworkAvailable, areThereTagsInTheDb, force);
+        console.log('usedb tag: ');
+        console.log(JSON.stringify(useDb));
+        if(useDb){
           /*network is not available, so MUST use the db, force or not force.*/
           console.log('getting the tags from the db.');
-          this.db.getNotesMin()
+          this.db.getTagsMin()
           .then(result=>{
             tags = result;
             resolve(tags);
@@ -59,7 +62,7 @@ export class AtticTags {
           //nothing to do, download data and send them to the DB.
           Utils.getBasic('/api/tags/all/min', this.http, this.auth.token)
           .then(result=>{
-            console.log('inserting data');
+            console.log('inserting data tags');
             tags=result as TagExtraMin[];
             for(let i=0;i<tags.length;i++){
               this.db.insertTagMinQuietly(tags[i]);

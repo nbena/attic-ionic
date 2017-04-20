@@ -49,10 +49,11 @@ export class AtticNotes {
     return new Promise<any>((resolve, reject)=>{
       let useForce: boolean = force;
       let isNteworkAvailable: boolean = this.netManager.isConnected;
-      let areThereNotesInTheDb: boolean = (this.db.notesCount == 0)? false : true;
+      let areThereNotesInTheDb: boolean = (this.db.notesCount != 0)? true : false;
       let notes:NoteExtraMin[]=[];
-      let useDb = !isNteworkAvailable || !areThereNotesInTheDb || !force;
-      console.log('usedb: ');
+      // let useDb = !isNteworkAvailable || areThereNotesInTheDb || !force;
+      let useDb: boolean = Utils.shouldUseDb(isNteworkAvailable, areThereNotesInTheDb, force);
+      console.log('usedb note: ');
       console.log(JSON.stringify(useDb));
       if(useDb){
         /*network is not available, so MUST use the db, force or not force.*/
@@ -71,7 +72,7 @@ export class AtticNotes {
         //nothing to do, download data and send them to the DB.
         Utils.getBasic('/api/notes/all/min', this.http, this.auth.token)
         .then(result=>{
-          console.log('inserting data');
+          console.log('inserting notes:');
           notes=<NoteExtraMin[]> result;
           for(let i=0;i<notes.length;i++){
             this.db.insertNoteMinQuietly(notes[i]);

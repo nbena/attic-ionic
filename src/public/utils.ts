@@ -7,6 +7,8 @@ import { NoteBarebon, NoteFull, NoteMin, NoteSQLite } from '../models/notes';
 import { TagExtraMin, TagFull, TagSQLite } from '../models/tags';
 import { ToastController, AlertController } from 'ionic-angular';
 
+
+
 export class Utils{
   static getBasic(uriFinal: string, http: Http, token: any){
     return new Promise((resolve, reject)=>{
@@ -102,6 +104,26 @@ static deleteBasic(uriFinal: string, http: Http, token: any){
         reject(err);
       })
   });
+}
+
+static shouldUseDb(newtorkAvailable:boolean, itemAvailable:boolean, force:boolean):boolean{
+  let res:boolean = true;
+  if(force){
+    /*if I'm forced to use the network not use DB*/
+    res = false;
+  }
+  /*else is not needed.*/
+  if (!itemAvailable){
+    /*if there aren't item in the DB, I'm not going to use it.*/
+    res = false;
+  }else{
+    res = true;
+  }
+  if (!newtorkAvailable){
+    /*but if there is no network I'm force to use the DB.*/
+    res = true;
+  }
+  return res;
 }
 
 static logTags(tag: TagExtraMin):string{

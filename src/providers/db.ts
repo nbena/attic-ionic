@@ -133,21 +133,79 @@ export class Db {
   }
 
 }
-
-getLogCount =():Promise<any>=>{
+private getLogsCount():Promise<any>{
   return this.db.executeSql(Query.GET_LOGS_COUNT,[]);
 }
 
-getNotesCount=():Promise<any>=>{
+private getNotesCount():Promise<any>{
   return this.db.executeSql(Query.GET_NOTES_COUNT,[]);
 }
 
-getTagsCount=():Promise<any>=>{
+private getTagsCount():Promise<any>{
   return this.db.executeSql(Query.GET_TAGS_COUNT,[]);
 }
 
+private getLogsCountWrapper(){
+  return new Promise<any>((resolve, reject)=>{
+    this.getLogsCount()
+    .then(result=>{
+      this.logsCount = result.rows.item(0).count;
+      resolve();
+    })
+    .catch(error=>{
+      // console.log(JSON.stringify(error));
+      reject(error);
+    })
+  })
+}
+
+private getNotesCountWrapper(){
+  return new Promise<any>((resolve, reject)=>{
+    this.getNotesCount()
+    .then(result=>{
+      this.notesCount = result.rows.item(0).count;
+      resolve();
+    })
+    .catch(error=>{
+      // console.log(JSON.stringify(error));
+      reject(error);
+    })
+  })
+}
+
+private getTagsCountWrapper(){
+  return new Promise<any>((resolve, reject)=>{
+    this.getTagsCount()
+    .then(result=>{
+      this.tagsCount = result.rows.item(0).count;
+      resolve();
+    })
+    .catch(error=>{
+      // console.log(JSON.stringify(error));
+      reject(error);
+    })
+  })
+}
+
+private getNotesAndTagsCountWrapper(){
+  return new Promise<any>((resolve, reject)=>{
+    this.getNotesCount()
+    .then(()=>{
+      return this.getTagsCount()
+    })
+    .then(()=>{
+      resolve();
+    })
+    .catch(error=>{
+      reject(error);
+    })
+  })
+}
+
+
+
 private count(){
-  this.getLogCount()
+  this.getLogsCount()
   .then(result=>{
     this.logsCount = result.rows.item(0).count;
     return this.getNotesCount();
@@ -179,49 +237,60 @@ static readonly INSERT_NOTES_TAGS = 'insert into notes_tags(notetitle,tagtitle, 
 
 */
 private insertOrUpdateNote(note:NoteFull, updateTags: boolean){
-  return this.db.transaction(t=>{
-    t.executeSql(Query.NOTE_EXISTS, [note.title])
-    .then(result=>{
-      if(result.rows.length<0){
-        t.executeSql(Query.INSERT_NOTE, [note.title, note.userid, note.text, note.creationdate, note.lastmodificationdate, note.isdone, note.links, JSON.stringify(note)]);
-      }else{
-        t.executeSql(Query.UPDATE_NOTE_2, [note.text, note.lastmodificationdate, note.isdone, note.links, JSON.stringify(note), note.title]);
-      }
-      if(updateTags){
-        for(let i=0;i<note.maintags.length;i++){
-          t.executeSql(Query.TAG_EXISTS, [note.maintags[i].title])
-          .then(result=>{
-            if(result.rows.length<0){
-              t.executeSql(Query.INSERT_TAG, [note.maintags[i].title, note.userid]);
-              /*if new we can push it also to notes_tags*/
-              t.executeSql(Query.INSERT_NOTES_TAGS, [note.title, note.maintags[i].title, 'mainTags', note.userid]);
-            }else{
-              /*just update, the on update cascade will update into notes_tags*/
-              t.executeSql(Query.UPDATE_TAG_2, [JSON.stringify(note.maintags[i]), note.maintags[i].title]);
-            }
-          })
-        } /*end of maintags*/
-        for(let i=0;i<note.othertags.length;i++){
-          t.executeSql(Query.TAG_EXISTS, [note.othertags[i].title])
-          .then(result=>{
-            if(result.rows.length<0){
-              t.executeSql(Query.INSERT_TAG, [note.othertags[i].title, note.userid]);
-              /*if new we can push it also to notes_tags*/
-              t.executeSql(Query.INSERT_NOTES_TAGS, [note.title, note.othertags[i].title, 'otherTags', note.userid]);
-            }else{
-              /*just update, the on update cascade will update into notes_tags*/
-              t.executeSql(Query.UPDATE_TAG_2, [JSON.stringify(note.othertags[i]), note.othertags[i].title]);
-            }
-          })
+  return new Promise<any>((resolve, reject)=>{
+    this.db.transaction(t=>{
+      t.executeSql(Query.NOTE_EXISTS, [note.title])
+      .then(result=>{
+        if(result.rows.length<0){
+          t.executeSql(Query.INSERT_NOTE, [note.title, note.userid, note.text, note.creationdate, note.lastmodificationdate, note.isdone, note.links, JSON.stringify(note)]);
+        }else{
+          t.executeSql(Query.UPDATE_NOTE_2, [note.text, note.lastmodificationdate, note.isdone, note.links, JSON.stringify(note), note.title]);
         }
-      }
+        if(updateTags){
+          for(let i=0;i<note.maintags.length;i++){
+            t.executeSql(Query.TAG_EXISTS, [note.maintags[i].title])
+            .then(result=>{
+              if(result.rows.length<0){
+                t.executeSql(Query.INSERT_TAG, [note.maintags[i].title, note.userid]);
+                /*if new we can push it also to notes_tags*/
+                t.executeSql(Query.INSERT_NOTES_TAGS, [note.title, note.maintags[i].title, 'mainTags', note.userid]);
+              }else{
+                /*just update, the on update cascade will update into notes_tags*/
+                t.executeSql(Query.UPDATE_TAG_2, [JSON.stringify(note.maintags[i]), note.maintags[i].title]);
+              }
+            })
+          } /*end of maintags*/
+          for(let i=0;i<note.othertags.length;i++){
+            t.executeSql(Query.TAG_EXISTS, [note.othertags[i].title])
+            .then(result=>{
+              if(result.rows.length<0){
+                t.executeSql(Query.INSERT_TAG, [note.othertags[i].title, note.userid]);
+                /*if new we can push it also to notes_tags*/
+                t.executeSql(Query.INSERT_NOTES_TAGS, [note.title, note.othertags[i].title, 'otherTags', note.userid]);
+              }else{
+                /*just update, the on update cascade will update into notes_tags*/
+                t.executeSql(Query.UPDATE_TAG_2, [JSON.stringify(note.othertags[i]), note.othertags[i].title]);
+              }
+            })
+          }
+        }
+      })
     })
+    .then(txResult=>{
+      return this.getNotesAndTagsCountWrapper();
+    })
+    .then(()=>{
+      resolve(true);
+    })
+    .catch(error=>{
+      reject(error);
+    });
   })
 }
 
 private isNoteFull(title: string):Promise<boolean>{
   return new Promise<boolean>((resolve, reject)=>{
-    return this.db.executeSql(Query.NOTE_EXISTS_AND_IS_FULL,[title])
+    /*return */this.db.executeSql(Query.NOTE_EXISTS_AND_IS_FULL,[title])
     .then(result=>{
       if(result.rows.items(0).text == null){
         resolve(false);
@@ -284,9 +353,15 @@ public insertTagMinQuietly(tag: TagExtraMin):Promise<any>{
     this.db.executeSql(Query.INSERT_TAG_MIN,[tag.title, JSON.stringify(tag)])
     .then(result=>{
       /*nothing to do.*/
+      return this.getTagsCount();
+    })
+    .then(()=>{
       resolve(true);
     })
     .catch(error=>{
+      console.log('error in inserting tags: ');
+      console.log(JSON.stringify(error));
+      console.log(JSON.stringify(error.stack));
       if(error.code===19){
         console.log('already there.');
         /*ok, constraint violation, the note is already there.*/
@@ -313,9 +388,15 @@ public insertNoteMinQuietly(note: NoteExtraMin):Promise<any>{
     this.db.executeSql(Query.INSERT_NOTE_MIN,[note.title, JSON.stringify(note)])
     .then(result=>{
       /*nothing to do.*/
+      return this.getNotesCount();
+    })
+    .then(()=>{
       resolve(true);
     })
     .catch(error=>{
+      // console.log('error in inserting note min:'),
+      // console.log(JSON.stringify(error));
+      // console.log(JSON.stringify(error.stack));
       if(error.code===19){
         /*ok, constraint violation, the note is already there.*/
         console.log('already there.');
@@ -332,13 +413,14 @@ public getNotesMin():Promise<NoteExtraMin[]>{
     .then(result=>{
       let array:NoteExtraMin[] = [];
       for(let i=0;i<result.rows.length;i++){
-        let obj:NoteExtraMin = <NoteExtraMin> result.rows.item(i);
-        console.log('object returned: ');
-        console.log(JSON.stringify(obj));
+        let rawResult:any=result.rows.item(i).json_object;
+        let obj:NoteExtraMin = JSON.parse(rawResult);
+        // console.log('object returned notes: ');
+        // console.log(JSON.stringify(obj));
         array.push(obj);
       }
-      console.log('the array is:');
-      console.log(JSON.stringify(array));
+      // console.log('the array is:');
+      // console.log(JSON.stringify(array));
       resolve(array);
     })
     .catch(error=>{
@@ -350,17 +432,18 @@ public getNotesMin():Promise<NoteExtraMin[]>{
 
 public getTagsMin():Promise<TagExtraMin[]>{
   return new Promise<TagExtraMin[]>((resolve, reject)=>{
-    this.db.executeSql(Query.SELECT_NOTES_MIN, [])
+    this.db.executeSql(Query.SELECT_TAGS_MIN, [])
     .then(result=>{
       let array:TagExtraMin[] = [];
       for(let i=0;i<result.rows.length;i++){
-        let obj:TagExtraMin = <TagExtraMin> result.rows.item(i);
-        console.log('object returned: ');
-        console.log(JSON.stringify(obj));
+        let rawResult:any = result.rows.item(i).json_object;
+        let obj:TagExtraMin = JSON.parse(rawResult);
+        // console.log('object returned tags: ');
+        // console.log(JSON.stringify(obj));
         array.push(obj);
       }
-      console.log('the array is:');
-      console.log(JSON.stringify(array));
+      // console.log('the array is:');
+      // console.log(JSON.stringify(array));
       resolve(array);
     })
     .catch(error=>{

@@ -14,7 +14,7 @@ import { Network } from '@ionic-native/network';
 @Injectable()
 export class NetManager {
 
-  isConnected: boolean = false;
+  isConnected: boolean = true;
   disconnectedSubscription : any;
   connectedSubscription : any;
 
