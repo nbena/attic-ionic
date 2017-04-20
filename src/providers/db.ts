@@ -91,25 +91,37 @@ export class Db {
         this.db = new SQLite();
         this.db.openDatabase(
           {name: "attic.db", location: "default"})
-            .then((db)=>{
-              return this.db.executeSql(Query.CREATE_NOTES_TABLE,{})
-            })
-            .then(()=>{
-              return this.db.executeSql(Query.CREATE_TAGS_TABLE, {})
-            })
-            // .then(()=>{
-            //   return this.db.executeSql(Query.CREATE_NOTES_TO_SAVE_TABLE, {})
+            // .then((db)=>{
+            //   return this.db.executeSql('pragma foreign_keys=ON;', []);
             // })
             // .then(()=>{
-            //   return this.db.executeSql(Query.CREATE_TAGS_TO_SAVE_TABLE, {})
+            //   return this.db.executeSql(Query.CREATE_NOTES_TABLE,{})
             // })
-            .then(()=>{
-              return this.db.executeSql(Query.CREATE_LOGS_TABLE, {})
+            // .then(()=>{
+            //   return this.db.executeSql(Query.CREATE_TAGS_TABLE, {})
+            // })
+            // .then(()=>{
+            //   return this.db.executeSql(Query.CREATE_NOTES_TAGS_TABLE, {});
+            // })
+            // .then(()=>{
+            //   return this.db.executeSql(Query.CREATE_LOGS_TABLE, {})
+            // })
+            // .then(()=>{
+            //   this.open = true;
+            //   this.count();
+            // })
+            .then(db=>{
+              return this.db.transaction(tx=>{
+                tx.executeSql('pragma foreign_keys = ON',[]);
+                tx.executeSql(Query.CREATE_NOTES_TABLE,[]);
+                tx.executeSql(Query.CREATE_TAGS_TABLE,[]);
+                tx.executeSql(Query.CREATE_NOTES_TAGS_TABLE,[]);
+                tx.executeSql(Query.CREATE_LOGS_TABLE,[]);
+              });
             })
-            .then(()=>{
+            .then(transactionResult=>{
               this.open = true;
               this.count();
-              // return;
             })
             .catch(error=>{
               this.open=false;
@@ -205,6 +217,79 @@ private insertOrUpdateNote(note:NoteFull, updateTags: boolean){
     })
   })
 }
+
+private isNoteFull(title: string):Promise<boolean>{
+  return new Promise<boolean>((resolve, reject)=>{
+    return this.db.executeSql(Query.NOTE_EXISTS_AND_IS_FULL,[title])
+    .then(result=>{
+      if(result.rows.items(0).text == null){
+        resolve(false);
+      }else{
+        resolve(true);
+      }
+    })
+    .catch(error=>{
+      reject(error);
+    })
+  });
+}
+
+private isTagFull(title: string):Promise<boolean>{
+  return new Promise<boolean>((resolve, reject)=>{
+    /*return */this.db.executeSql(Query.TAG_EXISTS_AND_IS_FULL,[title])
+    .then(result=>{
+      if(result.rows.item(0).json_obj == null){
+        resolve(false);
+      }else{
+        resolve(true);
+      }
+    })
+    .catch(error=>{
+      reject(error);
+    })
+  });
+}
+
+/*
+static readonly INSERT_NOTE_MIN = 'insert into notes(itle, json_obj) values (?,?)';
+*/
+private insertNoteMin(note: NoteExtraMin):Promise<any>{
+  return this.isNoteFull(note.title)
+    .then(result=>{
+      if(result==false){
+        console.log('note isn\'t full');
+        return this.db.executeSql(Query.INSERT_NOTE_MIN, [note.title, JSON.stringify(note)]);
+      }else{
+        /*do nothing*/
+        console.log('note is full');
+      }
+    })
+    // .catch(error=>{
+    //   console.log(JSON.stringify(error));
+    // })
+}
+
+private getNotesMin():Promise<NoteExtraMin[]>{
+  return new Promise<NoteExtraMin[]>((resolve, reject)=>{
+    this.db.executeSql(Query.SELECT_NOTES_MIN, [])
+    .then(result=>{
+      let array:NoteExtraMin[] = [];
+      for(let i=0;i<result.rows.length;i++){
+        let obj:NoteExtraMin = <NoteExtraMin> result.rows.item(i);
+        console.log('object returned: ');
+        console.log(JSON.stringify(obj));
+        array.push(obj);
+      }
+      console.log('the array is:');
+      console.log(JSON.stringify(array));
+      resolve(array);
+    })
+    .catch(error=>{
+      reject(error);
+    })
+  });
+}
+
 
 //
 // private static noteMinParse(row: any):NoteExtraMin{

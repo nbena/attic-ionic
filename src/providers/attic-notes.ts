@@ -40,7 +40,7 @@ export class AtticNotes {
   //   return Utils.getBasic('/api/notes/all/unpop', this.http, this.auth.token);
   // }
 
-  loadNotesMin(){
+  loadNotesMin():Promise<any>{
     return Utils.getBasic('/api/notes/all/min', this.http, this.auth.token);
   }
 

@@ -65,8 +65,8 @@ export class Query{
 
   //opt: a json field for each object.
 
-  static readonly CREATE_NOTES_TABLE ='create table if not exists notes(title varchar(64),userid varchar(64),text text, links text, isdone boolean default false,creationdate date default (datetime(\'now\',\'localtime\')),local_lastmodificationdate date default (datetime(\'now\',\'localtime\')), remote_lastmodificationdate date default (datetime(\'now\',\'localtime\')),mustbedeleted boolean default false, json_obj text,primary key(title))';
-  static readonly CREATE_TAGS_TABLE = 'create table if not exists tags(title varchar(64),userid varchar(64), mustbedeleted boolean default false, json_object text,primary key(title));';
+  static readonly CREATE_NOTES_TABLE ='create table if not exists notes(title varchar(64),userid varchar(64) default null,text text default null, links text default null, isdone boolean default false,creationdate date default (datetime(\'now\',\'localtime\')),local_lastmodificationdate date default (datetime(\'now\',\'localtime\')), remote_lastmodificationdate date default (datetime(\'now\',\'localtime\')),mustbedeleted boolean default false, json_obj text default null,primary key(title))';
+  static readonly CREATE_TAGS_TABLE = 'create table if not exists tags(title varchar(64),userid varchar(64) default null, mustbedeleted boolean default false, json_object text default null,primary key(title));';
   static readonly CREATE_NOTES_TAGS_TABLE ='create table if not exists notes_tags(notetitle varchar(64),tagtitle varchar(64),role varchar(9),mustbedeleted boolean default false,primary key(noteTitle, tagTitle),foreign key(noteTitle) references notes(title) on update cascade on delete cascade,foreign key(tagTitle) references tags(title) on update cascade on delete cascade,constraint role_check check (role = \'mainTags\' or role = \'otherTags\'))';
   static readonly CREATE_LOGS_TABLE = 'create table if not exists logs(id integer primary key autoincrement,notetitle varchar(64),tagtitle varchar(64),role varchar(9),action varchar(64) not null, creationdate date default(datetime(\'now\',\'localtime\')), foreign key(notetitle) references notes(title) on update cascade on delete cascade,foreign key(tagtitle) references tags(title) on update cascade on delete cascade,constraint action_check check(action=\'create\' or action=\'delete\' or action=\'change-title\' or action=\'change-text\' or action=\'add-tag\' or action=\'remove-tag\' or action =\'set-done\' or action=\'set-link\'),constraint role_check check (role =\'mainTags\' or role = \'otherTags\' or role is null),constraint if_all check ((role is not null and noteTitle is not null and tagTitle is not null) or (noteTitle is not null) or (tagTitle is not null)));'
 
@@ -104,6 +104,14 @@ export class Query{
   static readonly UPDATE_TAG = 'update tags set title=?, userid=?, json_obj=? where title=?';
   static readonly UPDATE_TAG_2 = 'update tags set json_obj=? where title=?';
   static readonly UPDATE_NOTES_TAGS = 'update notes_tags set notetitle=?, tagtitle=?, role=?, userid=?, where notetitle=?, tagtitle=?';
+
+  static readonly NOTE_EXISTS_AND_IS_FULL = 'select text from notes where mustbedeleted=\'false\' and title=?';
+  static readonly TAG_EXISTS_AND_IS_FULL = 'select json_obj from tags where mustbedeleted=\'false\' and title=?';
+
+  static readonly INSERT_NOTE_MIN = 'insert into notes(title, json_obj) values (?,?)';
+
+  static readonly SELECT_NOTES_MIN = 'select json_obj from notes where mustbedeleted=\'false\';';
+
 
   /*
   tag and notes in the db just memorize an array of ids.
