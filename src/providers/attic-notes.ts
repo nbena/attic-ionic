@@ -118,7 +118,62 @@ export class AtticNotes {
     // return Utils.getBasic('/api/notes/all/min', this.http, this.auth.token);
   }
 
-  noteByTitle(title: string, force: boolean):Promise<any>{
+  // private noteByTitle_loadFromNetworkAndInsert(title: string):Promise<any>{
+  //   return new Promise<any>((resolve, reject)=>{
+  //     let note:NoteFull;
+  //     Utils.getBasic('/api/notes/'+title, this.http, this.auth.token)
+  //     .then(result=>{
+  //       console.log('the resul from network is: ');
+  //       console.log(JSON.stringify(result.note));
+  //       note = result.note as NoteFull;
+  //       /*inserting in the DB.*/
+  //       return this.db.insertOrUpdateNote(note, true);
+  //     })
+  //     .then(insertResult=>{
+  //       resolve(note);
+  //     })
+  //     .catch(error=>{
+  //       console.log('errror while fetching and inserting.');
+  //       console.log(JSON.stringify(error));
+  //       reject(error);
+  //     })
+  //   })
+  // }
+  //new-v
+  private noteByTitle_loadFromNetworkAndInsert(title: string):Promise<any>{
+    return new Promise<any>((resolve, reject)=>{
+      let note:NoteFull;
+      Utils.getBasic('/api/notes/'+title, this.http, this.auth.token)
+      .then(result=>{
+        console.log('the resul from network is: ');
+        console.log(JSON.stringify(result.note));
+        note = result.note as NoteFull;
+        /*inserting in the DB.*/
+        this.db.insertOrUpdateNote(note); /*this will be done asynchronously?*/
+        resolve(note);
+      // .catch(error=>{
+      //   console.log('errror while fetching and inserting.');
+      //   console.log(JSON.stringify(error));
+      //   reject(error);
+      // })
+    })
+    .catch(error=>{
+      reject(error);
+    })
+
+  })
+}
+
+  /*
+  get a full note object:
+  -if request, it will search the note on the server,
+    then it will download it, insert in the DB,
+    then return via promise.
+  -if not requested, it will initially search in the DB, if
+    not present it will download it, then insert in the DB,
+    then return via promise.
+  */
+  noteByTitle(title: string, force: boolean):Promise<NoteFull>{
     /*first check in the DB.*/
     return new Promise<NoteFull>((resolve, reject)=>{
       let areThereNotesInTheDb: boolean = (this.db.notesCount!=0) ? true : false;
@@ -135,7 +190,15 @@ export class AtticNotes {
           /*if any error, call the network.*/
           console.log(JSON.stringify(error));
           /*call-net*/
-          Utils.getBasic('/api/notes/'+title, this.http, this.auth.token)
+          // Utils.getBasic('/api/notes/'+title, this.http, this.auth.token)
+          // .then(result=>{
+          //   resolve(result);
+          // })
+          // .catch(error=>{
+          //   reject(error);
+          // })
+          console.log('loading from the network and saving');
+          this.noteByTitle_loadFromNetworkAndInsert(title)
           .then(result=>{
             resolve(result);
           })
@@ -144,7 +207,15 @@ export class AtticNotes {
           })
         })
       }else{
-        Utils.getBasic('/api/notes/'+title, this.http, this.auth.token)
+        // Utils.getBasic('/api/notes/'+title, this.http, this.auth.token)
+        // .then(result=>{
+        //   resolve(result);
+        // })
+        // .catch(error=>{
+        //   reject(error);
+        // })
+        console.log('loading from the network and saving, no db use.');
+        this.noteByTitle_loadFromNetworkAndInsert(title)
         .then(result=>{
           resolve(result);
         })

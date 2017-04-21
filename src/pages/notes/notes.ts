@@ -175,7 +175,7 @@ export class NotesPage {
   loadMin(force: boolean){
     this.atticNotes.loadNotesMin(force)
       .then(result=>{
-        this.allNotes=<NoteExtraMin[]>result;
+        this.allNotes=result as NoteExtraMin[];
         this.shownNotes=this.allNotes;
 
       })

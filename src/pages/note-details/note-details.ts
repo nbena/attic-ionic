@@ -106,7 +106,7 @@ export class NoteDetailsPage {
   noteByTitle(force: boolean){
     this.atticNotes.noteByTitle(this.title, force)
       .then(result=>{
-        this.note=<NoteFull>result.note;
+        this.note=<NoteFull>result;
         console.log('the note is:');
         console.log(JSON.stringify(this.note));
         // this.lastModificationDateString=this.note.lastModificationDate.toDateString();
