@@ -90,8 +90,8 @@ export class Query{
   static readonly GET_TAG_FULL_JSON = 'select json_object from tags where title=?';
 
   static readonly INSERT_NOTE = 'insert into notes(title, userid, text, creationdate, remote_lastmodificationdate, isdone, links, json_object) values(?,?,?,?,?,?,?,?,?)';
-  static readonly INSERT_TAG = 'insert into tags(title, userid, json_object)  values(?,?,?)';
-  static readonly INSERT_NOTES_TAGS = 'insert into notes_tags(notetitle,tagtitle, role, userid) values(?,?,?,?)';
+  static readonly INSERT_TAG = 'insert into tags(title, userid, json_object)  values(?,?,?);';
+  static readonly INSERT_NOTES_TAGS = 'insert into notes_tags(notetitle,tagtitle, role, userid) values(?,?,?,?);';
 
   static readonly NOTE_EXISTS = 'select title from notes where title=?';
   static readonly TAG_EXISTS = 'select title from tags where title=?';
@@ -104,7 +104,7 @@ export class Query{
   */
 
   static readonly UPDATE_NOTE = 'update notes set title=?, userid=?, text=?, remote_lastmodificationdate=?, isdone=?, links=?, json_object=? where title=? and json_object <> ?';
-  static readonly UPDATE_NOTE_2 = 'update notes set text=?, remote_lastmodificationdate=?, creationdate?, isdone=?, links=?, json_object=? where title=? and json_object <> ?';
+  static readonly UPDATE_NOTE_2 = 'update notes set text=?, remote_lastmodificationdate=?, creationdate=?, isdone=?, links=?, json_object=? where title=? and json_object <> ?';
   static readonly UPDATE_TAG = 'update tags set title=?, userid=?, json_obectj=? where title=?';
   static readonly UPDATE_TAG_2 = 'update tags set json_object=? where title=? and json_object <> ?';
   static readonly UPDATE_NOTES_TAGS = 'update notes_tags set notetitle=?, tagtitle=?, role=?, userid=?, where notetitle=?, tagtitle=?';

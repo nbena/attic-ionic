@@ -188,6 +188,7 @@ export class AtticNotes {
         })
         .catch(error=>{
           /*if any error, call the network.*/
+          console.log('error from getNoteFull');
           console.log(JSON.stringify(error));
           /*call-net*/
           // Utils.getBasic('/api/notes/'+title, this.http, this.auth.token)

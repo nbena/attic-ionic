@@ -261,13 +261,17 @@ public insertOrUpdateNote(note: NoteFull):Promise<any>{
     .then(postInsert=>{
       return Promise.all([
         note.maintags.map((tag)=>{
+          console.log('currently I\'m working on main');
+          console.log(JSON.stringify(tag));
           return this.db.executeSql(Query.TAG_EXISTS, [tag.title])
           .then(result=>{
             if(result.rows.length==0){
-              return this.db.executeSql(Query.INSERT_TAG_MIN, [JSON.stringify(tag), tag.title]);
+              /*static readonly INSERT_TAG_MIN = 'insert into tags(title, json_object) values (?,?)';*/
+              return this.db.executeSql(Query.INSERT_TAG_MIN, [tag.title, JSON.stringify(tag)]);
             }
           })
           .then(secondResult=>{
+            /*  static readonly INSERT_NOTES_TAGS = 'insert into notes_tags(notetitle,tagtitle, role, userid) values(?,?,?,?);';*/
             return  this.db.executeSql(Query.INSERT_NOTES_TAGS, [note.title, tag.title, 'mainTags', note.userid]);
           })
         })
@@ -279,10 +283,12 @@ public insertOrUpdateNote(note: NoteFull):Promise<any>{
         console.log('done with mnaintags');
         return Promise.all([
           note.othertags.map((tag)=>{
+            console.log('currently I\'m working on other');
+            console.log(JSON.stringify(tag));
             return this.db.executeSql(Query.TAG_EXISTS, [tag.title])
             .then(result=>{
               if(result.rows.length==0){
-                return this.db.executeSql(Query.INSERT_TAG_MIN, [JSON.stringify(tag), tag.title]);
+                return this.db.executeSql(Query.INSERT_TAG_MIN, [tag.title, JSON.stringify(tag)]);
               }
             })
             .then(secondResult=>{
@@ -480,7 +486,7 @@ public isNoteFull(title: string):Promise<boolean>{
   return new Promise<boolean>((resolve, reject)=>{
     /*return */this.db.executeSql(Query.NOTE_EXISTS_AND_IS_FULL,[title])
     .then(result=>{
-      if(result.rows.items(0).text == null){
+      if(result.rows.items(0).text == null || result.rows.length == 0){
         resolve(false);
       }else{
         resolve(true);
@@ -529,10 +535,11 @@ public getNoteFull(title: string):Promise<NoteFull>{
           console.log('throw the error, note is not full!');
           /*can't do the check on maintags because THEY CAN BE NULL, same for other tags.*/
           reject(new Error(Const.ERR_NOTE_NOT_FULL));
+        }else{
+          /*if here the note is ok.*/
+          resolve(note);
         }
       }
-      /*if here the note is ok.*/
-      resolve(note);
     })
     .catch(error=>{
       reject(error);
