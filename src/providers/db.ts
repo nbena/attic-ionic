@@ -236,6 +236,10 @@ static readonly UPDATE_NOTES_TAGS = 'update notes_tags set notetitle=?, tagtitle
 static readonly INSERT_NOTES_TAGS = 'insert into notes_tags(notetitle,tagtitle, role, userid) values(?,?,?,?)';
 
 */
+
+/*
+here a different approach, test if present, then insert or update. I will check wich approach has the performance.
+*/
 private insertOrUpdateNote(note:NoteFull, updateTags: boolean){
   return new Promise<any>((resolve, reject)=>{
     this.db.transaction(t=>{
@@ -244,7 +248,7 @@ private insertOrUpdateNote(note:NoteFull, updateTags: boolean){
         if(result.rows.length<0){
           t.executeSql(Query.INSERT_NOTE, [note.title, note.userid, note.text, note.creationdate, note.lastmodificationdate, note.isdone, note.links, JSON.stringify(note)]);
         }else{
-          t.executeSql(Query.UPDATE_NOTE_2, [note.text, note.lastmodificationdate, note.isdone, note.links, JSON.stringify(note), note.title]);
+          t.executeSql(Query.UPDATE_NOTE_2, [note.text, note.lastmodificationdate, note.isdone, note.links, JSON.stringify(note), note.title, JSON.stringify(note)]);
         }
         if(updateTags){
           for(let i=0;i<note.maintags.length;i++){
@@ -256,7 +260,8 @@ private insertOrUpdateNote(note:NoteFull, updateTags: boolean){
                 t.executeSql(Query.INSERT_NOTES_TAGS, [note.title, note.maintags[i].title, 'mainTags', note.userid]);
               }else{
                 /*just update, the on update cascade will update into notes_tags*/
-                t.executeSql(Query.UPDATE_TAG_2, [JSON.stringify(note.maintags[i]), note.maintags[i].title]);
+                //no, because what I get from the DBis just the title of the note, so there's no chanche to update it properly.
+                // t.executeSql(Query.UPDATE_TAG_2, [JSON.stringify(note.maintags[i]), note.maintags[i].title, JSON.stringify(note.maintags[i])]);
               }
             })
           } /*end of maintags*/
@@ -269,7 +274,8 @@ private insertOrUpdateNote(note:NoteFull, updateTags: boolean){
                 t.executeSql(Query.INSERT_NOTES_TAGS, [note.title, note.othertags[i].title, 'otherTags', note.userid]);
               }else{
                 /*just update, the on update cascade will update into notes_tags*/
-                t.executeSql(Query.UPDATE_TAG_2, [JSON.stringify(note.othertags[i]), note.othertags[i].title]);
+                //no, because what I get from the DBis just the title of the note, so there's no chanche to update it properly.
+                // t.executeSql(Query.UPDATE_TAG_2, [JSON.stringify(note.othertags[i]), note.othertags[i].title, JSON.stringify(note.othertags[i])]);
               }
             })
           }
@@ -288,7 +294,7 @@ private insertOrUpdateNote(note:NoteFull, updateTags: boolean){
   })
 }
 
-private isNoteFull(title: string):Promise<boolean>{
+public isNoteFull(title: string):Promise<boolean>{
   return new Promise<boolean>((resolve, reject)=>{
     /*return */this.db.executeSql(Query.NOTE_EXISTS_AND_IS_FULL,[title])
     .then(result=>{
@@ -304,7 +310,7 @@ private isNoteFull(title: string):Promise<boolean>{
   });
 }
 
-private isTagFull(title: string):Promise<boolean>{
+public isTagFull(title: string):Promise<boolean>{
   return new Promise<boolean>((resolve, reject)=>{
     /*return */this.db.executeSql(Query.TAG_EXISTS_AND_IS_FULL,[title])
     .then(result=>{
@@ -313,6 +319,38 @@ private isTagFull(title: string):Promise<boolean>{
       }else{
         resolve(true);
       }
+    })
+    .catch(error=>{
+      reject(error);
+    })
+  });
+}
+
+/*
+if not full, an error will be thrown.
+*/
+public getNoteFull(title: string):Promise<NoteFull>{
+  return new Promise<NoteFull>((resolve, reject)=>{
+    this.db.executeSql(Query.GET_NOTE_FULL_JSON, [title])
+    .then(result=>{
+      let note:NoteFull;
+      if(result.rows.length<0){
+        reject(new Error(Const.ERR_NOTE_NOT_FOUND));
+      }else{
+        /*try the parsing.*/
+        let rawResult:any = result.rows.item(0);
+        note = JSON.parse(rawResult.json_object) as NoteFull;
+        console.log('the note is');
+        console.log(JSON.stringify(note));
+        /*now a couple of checks to see if it's full.*/
+        if(note.text == null || !note.text || note.text == undefined){
+          console.log('throw the error!');
+          /*can't do the check on maintags because THEY CAN BE NULL, same for other tags.*/
+          reject(new Error(Const.ERR_NOTE_NOT_FULL));
+        }
+      }
+      /*if here the note is ok.*/
+      resolve(note);
     })
     .catch(error=>{
       reject(error);
@@ -366,7 +404,7 @@ public insertTagMinQuietly(tag: TagExtraMin):Promise<any>{
         console.log('already there.');
         /*ok, constraint violation, the note is already there.*/
         /*maybe the json_object is changed, trying to update.*/
-        this.db.executeSql(Query.UPDATE_JSON_OBJ_IF_NECESSARY_TAG, [JSON.stringify(tag), tag.title, JSON.stringify(tag)])
+        this.db.executeSql(Query.UPDATE_TAG_2, [JSON.stringify(tag), tag.title, JSON.stringify(tag)])
         .then(result=>{
           console.log('ok');
           resolve(true);

@@ -89,7 +89,7 @@ export class NoteDetailsPage {
     public toastCtrl: ToastController,
     private atticNotes: AtticNotes, private atticTags: AtticTags) {
     this.title=navParams.get('title');
-    this.noteByTitle();
+    this.noteByTitle(false);
     this.loadTags(false);
   }
 
@@ -103,8 +103,8 @@ export class NoteDetailsPage {
     this.isDoneChanged = false;
   }
 
-  noteByTitle(){
-    this.atticNotes.noteByTitle(this.title)
+  noteByTitle(force: boolean){
+    this.atticNotes.noteByTitle(this.title, force)
       .then(result=>{
         this.note=<NoteFull>result.note;
         console.log('the note is:');
@@ -195,7 +195,7 @@ export class NoteDetailsPage {
   }
 
   refresh(refresher){
-    this.noteByTitle();
+    this.noteByTitle(true);
     this.loadTags(true);
     setTimeout(()=>{
       refresher.complete();

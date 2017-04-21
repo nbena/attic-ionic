@@ -85,9 +85,9 @@ export class Query{
   /*this query has been tested and it works.*/
   static readonly GET_TAGS_MIN = 'select title, count(tagtitle) as noteslength from tags left join notes_tags on title=tagtitle where mustbedeleted=\'false\' group by title order by noteslength desc, title asc;'
   /*here we use the json_obj.*/
-  static readonly GET_NOTE_FULL_JSON ='select json_obj from notes where title=?';
+  static readonly GET_NOTE_FULL_JSON ='select json_object from notes where title=? and mustbedeleted=\'false\'';
   /*here we use the json_obj.*/
-  static readonly GET_TAG_FULL_JSON = 'select json_obj from tags where title=?';
+  static readonly GET_TAG_FULL_JSON = 'select json_object from tags where title=?';
 
   static readonly INSERT_NOTE = 'insert into notes(title, userid, text, creationdate, remote_lastmodificationdate, isdone, links, json_obj) values(?,?,?,?,?,?,?,?,?)';
   static readonly INSERT_TAG = 'insert into tags(title, userid, json_obj)  values(?,?,?)';
@@ -98,15 +98,19 @@ export class Query{
   static readonly NOTES_TAGS_EXISTS_NO_ROLE = 'select notetitle from notes_tags where notetitle=? and tagtitle=?';
   static readonly NOTES_TAGS_EXISTS_WITH_ROLE = 'select notetitle from notes_tags where notetitle=? and tagtitle=? and role=?';
 
+  /*
+  The update functions on notes and tags will update the object only if there is some differences,
+  how do I do this? By checking that the json_object saved is different from the right-now-calculated.
+  */
 
-  static readonly UPDATE_NOTE = 'update notes set title=?, userid=?, text=?, remote_lastmodificationdate=?, isdone=?, links=?, json_obj=? where title=?';
-  static readonly UPDATE_NOTE_2 = 'update notes set text=?, remote_lastmodificationdate=?, isdone=?, links=?, json_obj=? where title=?';
-  static readonly UPDATE_TAG = 'update tags set title=?, userid=?, json_obj=? where title=?';
-  static readonly UPDATE_TAG_2 = 'update tags set json_obj=? where title=?';
+  static readonly UPDATE_NOTE = 'update notes set title=?, userid=?, text=?, remote_lastmodificationdate=?, isdone=?, links=?, json_object=? where title=? and json_object <> ?';
+  static readonly UPDATE_NOTE_2 = 'update notes set text=?, remote_lastmodificationdate=?, isdone=?, links=?, json_object=? where title=?';
+  static readonly UPDATE_TAG = 'update tags set title=?, userid=?, json_obectj=? where title=?';
+  static readonly UPDATE_TAG_2 = 'update tags set json_object=? where title=? and json_object <> ?';
   static readonly UPDATE_NOTES_TAGS = 'update notes_tags set notetitle=?, tagtitle=?, role=?, userid=?, where notetitle=?, tagtitle=?';
 
   static readonly NOTE_EXISTS_AND_IS_FULL = 'select text from notes where mustbedeleted=\'false\' and title=?';
-  static readonly TAG_EXISTS_AND_IS_FULL = 'select json_obj from tags where mustbedeleted=\'false\' and title=?';
+  static readonly TAG_EXISTS_AND_IS_FULL = 'select json_object from tags where mustbedeleted=\'false\' and title=?';
 
   static readonly INSERT_NOTE_MIN = 'insert into notes(title, json_object) values (?,?)';
   static readonly INSERT_TAG_MIN = 'insert into tags(title, json_object) values (?,?)';
@@ -114,7 +118,7 @@ export class Query{
   static readonly SELECT_NOTES_MIN = 'select json_object from notes where mustbedeleted=\'false\';';
   static readonly SELECT_TAGS_MIN = 'select json_object from tags where mustbedeleted=\'false\'';
 
-  static readonly UPDATE_JSON_OBJ_IF_NECESSARY_TAG = 'update tags set json_object=? where title=? and json_object <> ?';
+  // static readonly UPDATE_JSON_OBJ_IF_NECESSARY_TAG = 'update tags set json_object=? where title=? and json_object <> ?';
 
 
   /*

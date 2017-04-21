@@ -10,7 +10,7 @@ import { ToastController, AlertController } from 'ionic-angular';
 
 
 export class Utils{
-  static getBasic(uriFinal: string, http: Http, token: any){
+  static getBasic(uriFinal: string, http: Http, token: any):Promise<any>{
     return new Promise((resolve, reject)=>{
 
       let headers = new Headers();

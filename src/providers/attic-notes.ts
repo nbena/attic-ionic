@@ -3,7 +3,7 @@ import { Http, Headers } from '@angular/http';
 /* importing auth because I need the token. */
 import { Auth } from './auth';
 import { Action, Const } from '../public/const';
-import { NoteExtraMin/*, NoteSmart, NoteFull*/,NoteMin } from '../models/notes';
+import { NoteExtraMin/*, NoteSmart,*/, NoteFull,NoteMin, NoteBarebon } from '../models/notes';
 import { Utils } from '../public/utils';
 import { Db/*, LogObject*/ } from './db';
 import { NetManager } from './net-manager';
@@ -44,6 +44,9 @@ export class AtticNotes {
 
   /*
   force: force the download from the network.
+  */
+  /*
+  can be rewritten: an error will force a call to the network.
   */
   loadNotesMin(force: boolean):Promise<any>{
     return new Promise<any>((resolve, reject)=>{
@@ -115,8 +118,44 @@ export class AtticNotes {
     // return Utils.getBasic('/api/notes/all/min', this.http, this.auth.token);
   }
 
-  noteByTitle(title: string):Promise<any>{
-    return Utils.getBasic('/api/notes/'+title, this.http, this.auth.token);
+  noteByTitle(title: string, force: boolean):Promise<any>{
+    /*first check in the DB.*/
+    return new Promise<NoteFull>((resolve, reject)=>{
+      let areThereNotesInTheDb: boolean = (this.db.notesCount!=0) ? true : false;
+      let useDb:boolean = Utils.shouldUseDb(this.netManager.isConnected, areThereNotesInTheDb, force);
+      let callNet: boolean = !useDb;
+      if(useDb){
+        /*check if the note is full.*/
+        this.db.getNoteFull(title)
+        .then(result=>{
+          /*we are not in the catch only if the note is there and it's full.*/
+          resolve(result);
+        })
+        .catch(error=>{
+          /*if any error, call the network.*/
+          console.log(JSON.stringify(error));
+          /*call-net*/
+          Utils.getBasic('/api/notes/'+title, this.http, this.auth.token)
+          .then(result=>{
+            resolve(result);
+          })
+          .catch(error=>{
+            reject(error);
+          })
+        })
+      }else{
+        Utils.getBasic('/api/notes/'+title, this.http, this.auth.token)
+        .then(result=>{
+          resolve(result);
+        })
+        .catch(error=>{
+          reject(error);
+        })
+      }
+    });
+
+
+    //return Utils.getBasic('/api/notes/'+title, this.http, this.auth.token);
   }
 
   createNote(note: NoteMin):Promise<any>{
@@ -124,8 +163,13 @@ export class AtticNotes {
   }
 
   notesByTag(tags: string[]){
-    // console.log("the req: "+JSON.stringify({tags: tags}));
-    return Utils.postBasic('/api/notes/by-tag/unpop', JSON.stringify({tags: tags}), this.http, this.auth.token);
+    // return new Promise<NoteBarebon[]>((resolve, reject)=>{
+    //   Utils.postBasic('/api/notes/by-tags-no-role', JSON.stringify({tags: tags}), this.http, this.auth.token)
+    //   .then(result=>{
+    //
+    //   })
+    //  });
+    return Utils.postBasic('/api/notes/by-tags-no-role', JSON.stringify({tags: tags}), this.http, this.auth.token);
   }
   //
   // notesByMainTag(tags: string[]){
@@ -145,6 +189,12 @@ return this.items.filter((item) => {
       return note.title.indexOf(term.toLowerCase())>-1;
     });
   }
+
+  // filterNotesByTags(notes: NoteExtraMin[], tags: TagExtraMin):NoteExtraMin[]{
+  //   return notes.filter((note)=>{
+  //
+  //   })
+  // }
 
   // notesByTitle(title: string){
   //   return Utils.postBasic('/api/notes/by-title/reg/unpop', JSON.stringify({title: title}), this.http, this.auth.token);

@@ -184,18 +184,33 @@ export class NotesPage {
       })
   }
 
-  loadByTags(tags: string[]/*, firstTime: boolean*/){
-    // console.log("called the load by tags with: "+tags );
+  // loadByTags(tags: string[]/*, firstTime: boolean*/){
+  //   // console.log("called the load by tags with: "+tags );
+  //   this.atticNotes.notesByTag(tags)
+  //     .then(result=>{
+  //       this.allNotes=<NoteMin[]>result;
+  //       //if(firstTime){
+  //         this.shownNotes = this.allNotes;
+  //       //}
+  //     })
+  //     .catch(error=>{
+  //       console.log(JSON.stringify(error));
+  //     })
+  // }
+
+  loadByTags(tags: string[]){
+  //  if(this.allNotes!=null){
+      /*doing the filter on the note that I have.*/
+  //  }
     this.atticNotes.notesByTag(tags)
-      .then(result=>{
-        this.allNotes=<NoteMin[]>result;
-        //if(firstTime){
-          this.shownNotes = this.allNotes;
-        //}
-      })
-      .catch(error=>{
-        console.log(JSON.stringify(error));
-      })
+    .then(result=>{
+      if(this.allNotes==null){
+        this.allNotes = result as NoteExtraMin[];
+        this.shownNotes = this.allNotes.slice();
+      }else{
+        this.shownNotes = result as NoteExtraMin[];
+      }
+    })
   }
 
   // loadByMainTags(tags: string[]){
