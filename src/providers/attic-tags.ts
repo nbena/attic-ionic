@@ -53,7 +53,7 @@ export class AtticTags {
           console.log('usedb note: ');
           console.log(JSON.stringify(useDb));
           if(useDb){
-            return this.db.getNotesMin();
+            return this.db.getTagsMin();
           }else{
             console.log('no notes, using the network');
             return Utils.getBasic('/api/tags/all/min', this.http, this.auth.token);
