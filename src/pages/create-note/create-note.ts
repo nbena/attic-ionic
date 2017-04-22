@@ -18,7 +18,7 @@ import { Utils } from '../../public/utils'
 })
 export class CreateNotePage {
 
-  oldNote: NoteFull;
+//  oldNote: NoteFull;
   newNote: NoteFull;
 
   tags: TagExtraMin[];
@@ -34,10 +34,14 @@ export class CreateNotePage {
     private alertCtrl: AlertController,
     private atticNotes: AtticNotes,
     private atticTags: AtticTags) {
+
+      this.newNote = new NoteFull();
+      this.newNote.isdone = false;
       //
       this.loadMinTags();
       this.links = [];
-      this.oldNote =  new NoteFull();
+      //this.oldNote =  new NoteFull();
+      //this.oldNote.isdone = false;
       this.mainTagsString = [];
       this.otherTagsString = [];
     }
@@ -58,10 +62,10 @@ export class CreateNotePage {
   }
 
   getNote(){
-    this.newNote = new NoteFull();
 
-    this.newNote.title=this.oldNote.title;
-    this.newNote.text=this.oldNote.text;
+
+    // this.newNote.title=this.oldNote.title;
+    // this.newNote.text=this.oldNote.text;
     this.newNote.links=this.links;
 
     this.newNote.maintags = [];
@@ -78,13 +82,20 @@ export class CreateNotePage {
       let tag = new TagExtraMin();
       tag.title=tagTitle;
       return tag;
-    })
+    });
 
     this.newNote.othertags = this.otherTagsString.map((tagTitle):TagExtraMin=>{
       let tag = new TagExtraMin();
       tag.title=tagTitle;
       return tag;
-    })
+    });
+
+    this.newNote.creationdate = new Date();
+    this.newNote.lastmodificationdate = this.newNote.creationdate;
+
+    // this.newNote.isdone = this.oldNote.isdone;
+
+    this.newNote.links = this.links;
 
     // console.log(Utils.logNote(this.newNote));
     console.log('the new note is:');

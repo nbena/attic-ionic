@@ -23,12 +23,12 @@
 
     <ion-item>
       <ion-label stacked>Title</ion-label>
-      <ion-input placeholder="title" name="title" [(ngModel)]="oldNote.title"></ion-input>
+      <ion-input placeholder="title" name="title" [(ngModel)]="newNote.title"></ion-input>
     </ion-item>
 
     <ion-item>
       <ion-label stacked>Text</ion-label>
-      <ion-textarea placeholder="text" name="text" [(ngModel)]="oldNote.text"></ion-textarea>
+      <ion-textarea placeholder="text" name="text" [(ngModel)]="newNote.text"></ion-textarea>
     </ion-item>
 
   <ion-item>
@@ -74,7 +74,7 @@
 
   <ion-item>
     <ion-label>Done:</ion-label>
-    <ion-toggle [(ngModel)]="oldNote.isDone" name="is-done"></ion-toggle>
+    <ion-toggle [(ngModel)]="newNote.isdone" name="is-done"></ion-toggle>
   </ion-item>
 
   <ion-item>

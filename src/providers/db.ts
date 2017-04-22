@@ -331,8 +331,8 @@ public insertOrUpdateNote(note: NoteFull):Promise<any>{
       }else{
         isPresent=false;
         console.log('no');
-        /*  static readonly INSERT_NOTE = 'insert into notes(title, userid, text, creationdate, remote_lastmodificationdate, isdone, links, json_object) values(?,?,?,?,?,?,?,?,?)';*/
-        p=this.db.executeSql(Query.INSERT_NOTE, [note.title, note.userid, note.text, note.creationdate, note.lastmodificationdate, note.isdone, note.links, JSON.stringify(note)]);
+        /*  static readonly INSERT_NOTE = 'insert into notes(title, userid, text, creationdate, remote_lastmodificationdate, isdone, links, json_object) values(?,?,?,?,?,?,?,?)';*/
+        p=this.db.executeSql(Query.INSERT_NOTE, [note.title, note.userid, note.text, note.creationdate, note.lastmodificationdate, note.isdone, JSON.stringify(note.links), JSON.stringify(note)]);
       }
       return p;
     })
@@ -409,24 +409,67 @@ public insertOrUpdateNote(note: NoteFull):Promise<any>{
 
 
 public createNewNote(note:NoteFull):Promise<any>{
-  /*just temporary:*/
-  note.userid = 'omni@pollo.com';
   return new Promise<any>((resolve, reject)=>{
     this.db.transaction(tx=>{
-      /*  static readonly INSERT_NOTE = 'insert into notes(title, userid, text, creationdate, remote_lastmodificationdate, isdone, links, json_object) values(?,?,?,?,?,?,?,?,?)';*/
+      /*p=this.db.executeSql(Query.INSERT_NOTE, [note.title, note.userid, note.text, note.creationdate, note.lastmodificationdate, note.isdone, note.links, JSON.stringify(note)]);*/
+      /* insert into notes(title, userid, text, creationdate, remote_lastmodificationdate, isdone, links, json_object) values(?,?,?,?,?,?,?,?,?)';*/
+      tx.executeSql(Query.INSERT_NOTE, [note.title, note.userid, note.text, note.creationdate, note.lastmodificationdate, note.isdone, JSON.stringify(note.links), JSON.stringify(note)],
+      (tx:any, res:any)=>{
+        if(res){
+          console.log('res note is');
+          console.log(JSON.stringify(res));
+        }
+      }, (tx:any, err: any)=>{
+        if(err){
+          console.log('error in insert note');
+          console.log(JSON.stringify(err));
+        }
+      });
 
-      tx.executeSql(Query.INSERT_NOTE, [note.title, note.userid, note.text, note.creationdate, note.lastmodificationdate, note.isdone, note.links, JSON.stringify(note)]);
-      /*  static readonly INSERT_NOTE_INTO_LOGS = 'insert into logs (notetitle, action) values (?,?)';*/
-      tx.executeSql(Query.INSERT_NOTE_INTO_LOGS, [note.title, 'create']);
+      /*'insert into logs (notetitle, action) values (?,?)';*/
+      tx.executeSql(Query.INSERT_NOTE_INTO_LOGS, [note.title, 'create'],
+      (tx:any, res:any)=>{
+        if(res){
+          console.log('res logs is');
+          console.log(JSON.stringify(res));
+        }
+      }, (tx:any, err: any)=>{
+        if(err){
+          console.log('error in insert log');
+          console.log(JSON.stringify(err));
+        }
+      });
 
       note.maintags.map((tag)=>{
-        /*  static readonly INSERT_NOTES_TAGS = 'insert into notes_tags(notetitle,tagtitle, role) values(?,?,?);';*/
-        tx.executeSql(Query.INSERT_NOTES_TAGS, [note.title, tag.title, 'mainTags']);
+/*   = 'insert into notes_tags(notetitle,tagtitle, role) values(?,?,?);';*/
+        tx.executeSql(Query.INSERT_NOTES_TAGS, [note.title, tag.title, 'mainTags'],
+        (tx:any, res:any)=>{
+          if(res){
+            console.log('res maintags is');
+            console.log(JSON.stringify(res));
+          }
+        }, (tx:any, err: any)=>{
+          if(err){
+            console.log('error in insert maintag');
+            console.log(JSON.stringify(err));
+          }
+        });
       });
 
       note.othertags.map((tag)=>{
-        tx.executeSql(Query.INSERT_NOTES_TAGS, [note.title, tag.title, 'otherTags']);
-      })
+        tx.executeSql(Query.INSERT_NOTES_TAGS, [note.title, tag.title, 'otherTags'],
+        (tx:any, res:any)=>{
+          if(res){
+            console.log('res other is');
+            console.log(JSON.stringify(res));
+          }
+        }, (tx:any, err: any)=>{
+                if(err){
+                  console.log('error in insert othertag');
+                  console.log(JSON.stringify(err));
+                }
+              });
+      });
       resolve(true);
   })
   .catch(error=>{
@@ -703,7 +746,8 @@ public getNoteFull(title: string):Promise<NoteFull>{
         if(note.text == null || !note.text || note.text == undefined){
           console.log('throw the error, note is not full!');
           /*can't do the check on maintags because THEY CAN BE NULL, same for other tags.*/
-          reject(new Error(Const.ERR_NOTE_NOT_FULL));
+          // reject(new Error(Const.ERR_NOTE_NOT_FULL));
+          resolve(null);
         }else{
           /*if here the note is ok.*/
           resolve(note);

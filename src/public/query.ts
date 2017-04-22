@@ -90,9 +90,13 @@ export class Query{
   /*here we use the json_obj.*/
   static readonly GET_TAG_FULL_JSON = 'select json_object from tags where title=?';
 
-  static readonly INSERT_NOTE = 'insert into notes(title, userid, text, creationdate, remote_lastmodificationdate, isdone, links, json_object) values(?,?,?,?,?,?,?,?,?)';
+  static readonly INSERT_NOTE = 'insert into notes(title, userid, text, creationdate, remote_lastmodificationdate, isdone, links, json_object) values (?,?,?,?,?,?,?,?)';
+  //static readonly INSERT_NOTE_LOCAL = 'insert into notes(title, userid, text, creationdate, remote_lastmodificationdate, isdone, links, json_object) values (?,?,?,?,?,?,?,?,?)';
+
+  //static readonly INSERT_CLIENT_CREATED_NOTE = 'insert into notes(title, text, links, isdone)';
+
   static readonly INSERT_TAG = 'insert into tags(title, userid, json_object)  values(?,?,?);';
-  static readonly INSERT_NOTES_TAGS = 'insert into notes_tags(notetitle,tagtitle, role) values(?,?,?);';
+  static readonly INSERT_NOTES_TAGS = 'insert into notes_tags(notetitle,tagtitle, role) values (?,?,?)';
 
   static readonly NOTE_EXISTS = 'select title from notes where title=?';
   static readonly TAG_EXISTS = 'select title from tags where title=?';
@@ -126,7 +130,7 @@ export class Query{
   static readonly EMPLTY_NOTES = 'delete from notes';
   static readonly EMPTY_TAGS = 'delete from tags';
 
-  static readonly INSERT_NOTE_INTO_LOGS = 'insert into logs (notetitle, action) values (?,?)';
+  static readonly INSERT_NOTE_INTO_LOGS = 'insert into logs (notetitle, action) values(?,?)';
 
   static readonly INSERT_TOKEN = 'insert into auth (token, userid) values(?,?)';
 

@@ -216,7 +216,7 @@ export class AtticNotes {
         useDb = Utils.shouldUseDb(this.netManager.isConnected, areThereNotesInTheDb, force);
         callNet = !useDb;
         if(useDb){
-          return this.db.getNoteFull(title);
+          return this.db.getNoteFull(title)
         }else{
           return this.noteByTitle_loadFromNetworkAndInsert(title);
         }
@@ -224,11 +224,19 @@ export class AtticNotes {
       .then(noteFull=>{
         if(useDb){
           /*we have the note and nothing more should have done.*/
-          resolve(noteFull);
+          if(noteFull==null){
+            return this.noteByTitle_loadFromNetworkAndInsert(title);
+          }else{
+            resolve(noteFull);
+          }
         }else{
           /*we have the note and it has been inserted into the DB*/
           resolve(noteFull);
         }
+      })
+      .then(fromNet=>{
+        /*if here the note is not in the DB.*/
+        resolve(fromNet);
       })
       .catch(error=>{
         console.log('error in getting full note');
