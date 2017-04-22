@@ -130,7 +130,7 @@ export class Query{
 
   static readonly INSERT_TOKEN = 'insert into auth (token, userid) values(?,?)';
 
-  static readonly GET_TOKEN = 'select * from auth where token is not null;';
+  static readonly GET_TOKEN = 'select * from auth where token is not null';
 
   /*
   tag and notes in the db just memorize an array of ids.

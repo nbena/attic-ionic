@@ -52,40 +52,71 @@ export class AtticNotes {
     return new Promise<any>((resolve, reject)=>{
       let useForce: boolean = force;
       let isNteworkAvailable: boolean = this.netManager.isConnected;
-      let areThereNotesInTheDb: boolean = (this.db.notesCount != 0)? true : false;
+      let areThereNotesInTheDb: boolean;
       let notes:NoteExtraMin[]=[];
-      // let useDb = !isNteworkAvailable || areThereNotesInTheDb || !force;
-      let useDb: boolean = Utils.shouldUseDb(isNteworkAvailable, areThereNotesInTheDb, force);
-      console.log('usedb note: ');
-      console.log(JSON.stringify(useDb));
-      if(useDb){
-        /*network is not available, so MUST use the db, force or not force.*/
-        console.log('getting the notes from the db.');
-        this.db.getNotesMin()
-        .then(result=>{
-          notes = result;
-          resolve(notes);
-        })
-        .catch(error=>{
-          reject(error);
-        })
-      }
-      else{
-        console.log('no notes in the db, need to call the network');
-        //nothing to do, download data and send them to the DB.
-        Utils.getBasic('/api/notes/all/min', this.http, this.auth.token)
-        .then(result=>{
-          console.log('inserting notes:');
-          notes=<NoteExtraMin[]> result;
+      let useDb: boolean;
+      this.db.getNumberOfNotes()
+      .then(number=>{
+        areThereNotesInTheDb = (number > 0) ? true : false;
+        console.log('the numberof notes is');
+        console.log(number);
+        // let useDb = !isNteworkAvailable || areThereNotesInTheDb || !force;
+        useDb = Utils.shouldUseDb(isNteworkAvailable, areThereNotesInTheDb, force);
+        console.log('usedb note: ');
+        console.log(JSON.stringify(useDb));
+        if(useDb){
+          return this.db.getNotesMin();
+        }else{
+          console.log('no notes, using the network');
+          return Utils.getBasic('/api/notes/all/min', this.http, this.auth.token);
+        }
+      })
+      .then(fetchingResult=>{
+        if(useDb){
+          /*fetchingResult = NoteMin[] from the DB.*/
+          resolve(fetchingResult);
+        }else{
+          /*fetchingResult = NoteMin[] from the network, need to insert.*/
+          notes = fetchingResult as NoteExtraMin[];
           for(let i=0;i<notes.length;i++){
             this.db.insertNoteMinQuietly(notes[i]);
           }
           resolve(notes);
-        })
-        .catch(error=>{
-          reject(error);
-        })
-      }
+        }
+      })
+      .catch(error=>{
+        console.log('error notes:');
+        console.log(JSON.stringify(error));
+      })
+
+      // if(useDb){
+      //   //network is not available, so MUST use the db, force or not force.
+      //   console.log('getting the notes from the db.');
+      //   this.db.getNotesMin()
+      //   .then(result=>{
+      //     notes = result;
+      //     resolve(notes);
+      //   })
+      //   .catch(error=>{
+      //     reject(error);
+      //   })
+      // }
+      // else{
+      //   console.log('no notes in the db, need to call the network');
+      //   //nothing to do, download data and send them to the DB.
+      //   Utils.getBasic('/api/notes/all/min', this.http, this.auth.token)
+      //   .then(result=>{
+      //     console.log('inserting notes:');
+      //     notes=<NoteExtraMin[]> result;
+      //     for(let i=0;i<notes.length;i++){
+      //       this.db.insertNoteMinQuietly(notes[i]);
+      //     }
+      //     resolve(notes);
+      //   })
+      //   .catch(error=>{
+      //     reject(error);
+      //   })
+      // }
       /*==============old version=======*/
       // if(this.db.notesCount==0 || force){
       //   console.log('no notes in the db, need to call the network');
@@ -176,59 +207,70 @@ export class AtticNotes {
   noteByTitle(title: string, force: boolean):Promise<NoteFull>{
     /*first check in the DB.*/
     return new Promise<NoteFull>((resolve, reject)=>{
-      let areThereNotesInTheDb: boolean = (this.db.notesCount!=0) ? true : false;
-      let useDb:boolean = Utils.shouldUseDb(this.netManager.isConnected, areThereNotesInTheDb, force);
-      let callNet: boolean = !useDb;
-      if(useDb){
-        /*check if the note is full.*/
-        this.db.getNoteFull(title)
-        .then(result=>{
-          /*we are not in the catch only if the note is there and it's full.*/
-          console.log('the note is full');
-          resolve(result);
-        })
-        .catch(error=>{
-          /*if any error, call the network.*/
-          console.log('error from getNoteFull');
-          console.log(JSON.stringify(error));
-          /*call-net*/
-          // Utils.getBasic('/api/notes/'+title, this.http, this.auth.token)
-          // .then(result=>{
-          //   resolve(result);
-          // })
-          // .catch(error=>{
-          //   reject(error);
-          // })
-          console.log('loading from the network and saving');
-          this.noteByTitle_loadFromNetworkAndInsert(title)
-          .then(result=>{
-            resolve(result);
-          })
-          .catch(error=>{
-            reject(error);
-          })
-        })
-      }else{
-        // Utils.getBasic('/api/notes/'+title, this.http, this.auth.token)
-        // .then(result=>{
-        //   resolve(result);
-        // })
-        // .catch(error=>{
-        //   reject(error);
-        // })
-        console.log('loading from the network and saving, no db use.');
-        this.noteByTitle_loadFromNetworkAndInsert(title)
-        .then(result=>{
-          resolve(result);
-        })
-        .catch(error=>{
-          reject(error);
-        })
-      }
-    });
-
-
-    //return Utils.getBasic('/api/notes/'+title, this.http, this.auth.token);
+      let areThereNotesInTheDb: boolean;
+      let useDb: boolean;
+      let callNet: boolean;
+      this.db.getNumberOfNotes()
+      .then(number=>{
+        areThereNotesInTheDb = (number > 0) ? true : false;
+        useDb = Utils.shouldUseDb(this.netManager.isConnected, areThereNotesInTheDb, force);
+        callNet = !useDb;
+        if(useDb){
+          return this.db.getNoteFull(title);
+        }else{
+          return this.noteByTitle_loadFromNetworkAndInsert(title);
+        }
+      })
+      .then(noteFull=>{
+        if(useDb){
+          /*we have the note and nothing more should have done.*/
+          resolve(noteFull);
+        }else{
+          /*we have the note and it has been inserted into the DB*/
+          resolve(noteFull);
+        }
+      })
+      .catch(error=>{
+        console.log('error in getting full note');
+        console.log(JSON.stringify(error));
+        reject(error);
+      })
+    })
+    //   if(useDb){
+    //     /*check if the note is full.
+    //     this.db.getNoteFull(title)
+    //     .then(result=>{
+    //       /*we are not in the catch only if the note is there and it's full.
+    //       console.log('the note is full');
+    //       resolve(result);
+    //     })
+    //     .catch(error=>{
+    //       /*if any error, call the network.
+    //       console.log('error from getNoteFull');
+    //       console.log(JSON.stringify(error));
+    //       console.log('loading from the network and saving');
+    //       this.noteByTitle_loadFromNetworkAndInsert(title)
+    //       .then(result=>{
+    //         resolve(result);
+    //       })
+    //       .catch(error=>{
+    //         reject(error);
+    //       })
+    //     })
+    //   }else{
+    //     console.log('loading from the network and saving, no db use.');
+    //     this.noteByTitle_loadFromNetworkAndInsert(title)
+    //     .then(result=>{
+    //       resolve(result);
+    //     })
+    //     .catch(error=>{
+    //       reject(error);
+    //     })
+    //   }
+    // });
+    //
+    //
+    // //return Utils.getBasic('/api/notes/'+title, this.http, this.auth.token);
   }
 
   /*

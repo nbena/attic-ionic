@@ -79,39 +79,22 @@ export class Db {
   open : boolean = false; /*to be sure everything is ok.*/
   private db : SQLite;
 
-  logsCount: number = 0;
-  notesCount: number = 0;
-  tagsCount: number = 0;
+  private logsCount: number = 0;
+  private notesCount: number = 0;
+  private tagsCount: number = 0;
+
+  private promise: Promise<SQLite>;
 
 
   constructor(private platform: Platform) {
     console.log('Hello Db Provider');
 
-    if(!this.open) {
-
+    //if(!this.open) {
+    this.promise = new Promise<SQLite>((resolve, reject)=>{
       this.platform.ready().then(ready=>{
         this.db = new SQLite();
         this.db.openDatabase(
           {name: "attic.db", location: "default"})
-            // .then((db)=>{
-            //   return this.db.executeSql('pragma foreign_keys=ON;', []);
-            // })
-            // .then(()=>{
-            //   return this.db.executeSql(Query.CREATE_NOTES_TABLE,{})
-            // })
-            // .then(()=>{
-            //   return this.db.executeSql(Query.CREATE_TAGS_TABLE, {})
-            // })
-            // .then(()=>{
-            //   return this.db.executeSql(Query.CREATE_NOTES_TAGS_TABLE, {});
-            // })
-            // .then(()=>{
-            //   return this.db.executeSql(Query.CREATE_LOGS_TABLE, {})
-            // })
-            // .then(()=>{
-            //   this.open = true;
-            //   this.count();
-            // })
             .then(db=>{
               return this.db.transaction(tx=>{
                 tx.executeSql('pragma foreign_keys = ON;',[]);
@@ -124,16 +107,21 @@ export class Db {
             })
             .then(transactionResult=>{
               this.open = true;
-              this.count();
+              return this.count();
+            })
+            .then(count=>{
+              resolve(this.db);
             })
             .catch(error=>{
               this.open=false;
               console.log('error in creating tables.');
               console.log(JSON.stringify(error));
+              reject(error);
             })
       });
+    })
     //});
-  }
+//  }
 
 }
 private getLogsCount():Promise<any>{
@@ -207,48 +195,112 @@ private getNotesAndTagsCountWrapper(){
 
 
 
-private count(){
-  this.getLogsCount()
-  .then(result=>{
-    this.logsCount = result.rows.item(0).count;
-    return this.getNotesCount();
-  })
-  .then(result=>{
-    this.notesCount = result.rows.item(0).count;
-    return this.getTagsCount();
-  })
-  .then(result=>{
-    this.tagsCount = result.rows.item(0).count;
-    console.log(JSON.stringify([this.logsCount, this.notesCount, this.tagsCount]));
-  })
-  .catch(error=>{
-    console.log(JSON.stringify(error));
-  })
+// private count(){
+//   this.getLogsCount()
+//   .then(result=>{
+//     this.logsCount = result.rows.item(0).count;
+//     return this.getNotesCount();
+//   })
+//   .then(result=>{
+//     this.notesCount = result.rows.item(0).count;
+//     return this.getTagsCount();
+//   })
+//   .then(result=>{
+//     this.tagsCount = result.rows.item(0).count;
+//     console.log(JSON.stringify([this.logsCount, this.notesCount, this.tagsCount]));
+//   })
+//   .catch(error=>{
+//     console.log(JSON.stringify(error));
+//   })
+// }
+private count():Promise<any>{
+  return this.getLogsCount()
+    .then(count=>{
+      this.logsCount = count.rows.item(0).count;
+      return this.getNotesCount();
+    })
+    .then(count=>{
+      this.notesCount = count.rows.item(0).count;
+      return this.getTagsCount();
+    })
+    .then(count=>{
+      this.tagsCount = count.rows.item(0).count;
+      console.log('counts:');
+      console.log(JSON.stringify([this.logsCount, this.notesCount, this.tagsCount]));
+    });
+}
+
+public getNumberOfNotes(){
+  return this.promise.then(db=>{
+    return this.notesCount;
+  });
+}
+
+public getNumberOfTags(){
+  return this.promise.then(db=>{
+    return this.tagsCount;
+  });
+}
+
+public getNumberOfLogs(){
+  return this.promise.then(db=>{
+    return this.logsCount;
+  });
+}
+
+// public setToken(token: any, userid: string):Promise<any>{
+//   return this.db.executeSql(Query.INSERT_TOKEN, [token, userid]);
+// }
+
+// public getToken():Promise<any>{
+//   return new Promise<any>((resolve, reject)=>{
+//     this.db.executeSql(Query.GET_TOKEN, [])
+//     .then(result=>{
+//       console.log('the result is: ');
+//       console.log(JSON.stringify(result));
+//       if(result.rows.length <= 0){
+//         reject(new Error(Const.ERR_TOKEN_NOT_FOUND));
+//       }else{
+//         resolve(result.rows.item(0));
+//       }
+//     })
+//     .catch(error=>{
+//       console.log('error in getting token');
+//       console.log(JSON.stringify(error));
+//       reject(error);
+//     })
+//   })
+//
+// }
+/*use this because they are 'promise-safe'*/
+public getToken():Promise<any>{
+  return new Promise<any>((resolve, reject)=>{
+    try{
+      this.promise.then(db=>{
+        db.executeSql(Query.GET_TOKEN, [])
+        .then(result=>{
+          resolve(result);
+        })
+      })
+    }catch(e){
+      reject(e);
+    }
+  });
 }
 
 public setToken(token: any, userid: string):Promise<any>{
-  return this.db.executeSql(Query.INSERT_TOKEN, [token, userid]);
-}
-
-public getToken():Promise<any>{
   return new Promise<any>((resolve, reject)=>{
-    this.db.executeSql(Query.GET_TOKEN, [])
-    .then(result=>{
-      console.log('the result is: ');
-      console.log(JSON.stringify(result));
-      if(result.rows.length <= 0){
-        reject(new Error(Const.ERR_TOKEN_NOT_FOUND));
-      }else{
-        resolve(result.rows.item(0));
-      }
-    })
-    .catch(error=>{
-      console.log('error in getting token');
-      console.log(JSON.stringify(error));
-      reject(error);
-    })
+    try{
+      this.promise.then(db=>{
+        db.executeSql(Query.INSERT_TOKEN,[token, userid])
+        .then(result=>{
+          resolve(true);
+        })
+      })
+    }catch(e){
+      reject(e);
+    }
   })
-
 }
 
 /*
@@ -640,7 +692,7 @@ public getNoteFull(title: string):Promise<NoteFull>{
     .then(result=>{
       let note:NoteFull;
       if(result.rows.length<=0){
-        reject(new Error(Const.ERR_NOTE_NOT_FOUND));
+        resolve(null);
       }else{
         /*try the parsing.*/
         let rawResult:any = result.rows.item(0);
@@ -768,6 +820,8 @@ public getNotesMin():Promise<NoteExtraMin[]>{
       resolve(array);
     })
     .catch(error=>{
+      console.log('select notes min:');
+      console.log(JSON.stringify(error));
       reject(error);
     })
   });

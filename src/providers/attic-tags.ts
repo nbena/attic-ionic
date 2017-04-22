@@ -37,42 +37,45 @@ export class AtticTags {
   // }
 
   loadTagsMin(force: boolean){
-      return new Promise<any>((resolve, reject)=>{
+    return new Promise<TagExtraMin[]>((resolve, reject)=>{
         let useForce: boolean = force;
         let isNteworkAvailable: boolean = this.netManager.isConnected;
-        let areThereTagsInTheDb: boolean = (this.db.tagsCount != 0)? true : false;
+        let areThereTagsInTheDb: boolean;
         let tags:TagExtraMin[]=[];
-        let useDb: boolean = Utils.shouldUseDb(isNteworkAvailable, areThereTagsInTheDb, force);
-        console.log('usedb tag: ');
-        console.log(JSON.stringify(useDb));
-        if(useDb){
-          /*network is not available, so MUST use the db, force or not force.*/
-          console.log('getting the tags from the db.');
-          this.db.getTagsMin()
-          .then(result=>{
-            tags = result;
-            resolve(tags);
-          })
-          .catch(error=>{
-            reject(error);
-          })
-        }
-        else{
-          console.log('no tags in the db, need to call the network');
-          //nothing to do, download data and send them to the DB.
-          Utils.getBasic('/api/tags/all/min', this.http, this.auth.token)
-          .then(result=>{
-            console.log('inserting data tags');
-            tags=result as TagExtraMin[];
+        let useDb: boolean;
+        this.db.getNumberOfTags()
+        .then(number=>{
+          areThereTagsInTheDb = (number > 0) ? true : false;
+          console.log('the number of tags is');
+          console.log(number);
+          // let useDb = !isNteworkAvailable || areThereNotesInTheDb || !force;
+          useDb = Utils.shouldUseDb(isNteworkAvailable, areThereTagsInTheDb, force);
+          console.log('usedb note: ');
+          console.log(JSON.stringify(useDb));
+          if(useDb){
+            return this.db.getNotesMin();
+          }else{
+            console.log('no notes, using the network');
+            return Utils.getBasic('/api/tags/all/min', this.http, this.auth.token);
+          }
+        })
+        .then(fetchingResult=>{
+          if(useDb){
+            /*fetchingResult = NoteMin[] from the DB.*/
+            resolve(fetchingResult);
+          }else{
+            /*fetchingResult = NoteMin[] from the network, need to insert.*/
+            tags = fetchingResult as TagExtraMin[];
             for(let i=0;i<tags.length;i++){
-              this.db.insertTagMinQuietly(tags[i]);
+              this.db.insertNoteMinQuietly(tags[i]);
             }
             resolve(tags);
-          })
-          .catch(error=>{
-            reject(error);
-          })
-        }
+          }
+        })
+        .catch(error=>{
+          console.log('error tags:');
+          console.log(JSON.stringify(error));
+        })
       })
     }
 

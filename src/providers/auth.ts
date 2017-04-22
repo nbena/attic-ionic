@@ -13,6 +13,7 @@ import { tokenNotExpired } from 'angular2-jwt';
 import { Const } from '../public/const';
 import { User } from '../models/user';
 import { Db } from './db';
+import { Platform } from 'ionic-angular';
 
 /*
   Generated class for the Auth provider.
@@ -27,24 +28,42 @@ export class Auth {
   public userid: string;
 
 
-  constructor(private http: Http, public storage: Storage, private db: Db) {
+  constructor(private http: Http, private platform: Platform,
+    public storage: Storage, private db: Db) {
     console.log('Hello Auth Provider');
   }
 
   checkAuthentication(){
-    return this.db.getToken()
-    .then(result=>{
-      this.userid = result.userid;
-      if(tokenNotExpired(result.token)){
-        this.token = result.token;
-        return true;
-      }else{
+
+    //return this.platform.ready().then(ready=>{
+      console.log('checking auth');
+      return this.db.getToken()
+      .then(result=>{
+        // console.log('db result in checkauth is');
+        // console.log(JSON.stringify(result));
+        // this.userid = result.userid;
+        // if(tokenNotExpired(result.token)){
+        //   this.token = result.token;
+        //   return true;
+        // }else{
+        //   return false;
+        // }
+        console.log('raw result is:');
+        console.log(JSON.stringify(result));
+        if(result.rows.length <= 0){
+          return false;
+        }else{
+          this.token = result.rows.item(0).token;
+          this.userid = result.rows.item(0).userid;
+          return true;
+        }
+      })
+      .catch(error=>{
+        console.log('error while trying to get token');
+        console.log(JSON.stringify(error));
         return false;
-      }
-    })
-    .catch(error=>{
-      return false;
-    })
+      })
+    //})
   }
 
 
