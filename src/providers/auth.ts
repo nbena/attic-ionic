@@ -12,6 +12,7 @@ import { tokenNotExpired } from 'angular2-jwt';
 
 import { Const } from '../public/const';
 import { User } from '../models/user';
+import { Db } from './db';
 
 /*
   Generated class for the Auth provider.
@@ -23,14 +24,27 @@ import { User } from '../models/user';
 export class Auth {
 
   public token: any;
+  public userid: string;
 
 
-  constructor(private http: Http, public storage: Storage) {
+  constructor(private http: Http, public storage: Storage, private db: Db) {
     console.log('Hello Auth Provider');
   }
 
   checkAuthentication(){
-    return tokenNotExpired();
+    return this.db.getToken()
+    .then(result=>{
+      this.userid = result.userid;
+      if(tokenNotExpired(result.token)){
+        this.token = result.token;
+        return true;
+      }else{
+        return false;
+      }
+    })
+    .catch(error=>{
+      return false;
+    })
   }
 
 
@@ -78,7 +92,8 @@ login(user: User){
           let data = res.json();
           //one we get the token, save it to local storage.
           this.token = data.result;
-          this.storage.set('token', data.token);
+          this.userid = user.userid;
+          this.db.setToken(data.result, user.userid);
 
           resolve(data);
           // resolve(res.json());

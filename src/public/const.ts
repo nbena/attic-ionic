@@ -57,6 +57,7 @@ export class Const{
   public static readonly ERR_NO_TAG_TO_PUBLISH = 'no tag to publish';
   public static readonly ERR_NO_LOG = 'no things to do';
   public static readonly ERR_NOTE_NOT_FULL ='The note is not full';
+  public static readonly ERR_TOKEN_NOT_FOUND = 'token not found';
 
   public static isNote(act: Action):boolean{
     return act!=Action.CreateTag &&

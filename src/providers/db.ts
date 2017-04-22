@@ -114,11 +114,12 @@ export class Db {
             // })
             .then(db=>{
               return this.db.transaction(tx=>{
-                tx.executeSql('pragma foreign_keys = ON',[]);
+                tx.executeSql('pragma foreign_keys = ON;',[]);
                 tx.executeSql(Query.CREATE_NOTES_TABLE,[]);
                 tx.executeSql(Query.CREATE_TAGS_TABLE,[]);
                 tx.executeSql(Query.CREATE_NOTES_TAGS_TABLE,[]);
                 tx.executeSql(Query.CREATE_LOGS_TABLE,[]);
+                tx.executeSql(Query.CREATE_AUTH_TABLE,[]);
               });
             })
             .then(transactionResult=>{
@@ -225,6 +226,31 @@ private count(){
   })
 }
 
+public setToken(token: any, userid: string):Promise<any>{
+  return this.db.executeSql(Query.INSERT_TOKEN, [token, userid]);
+}
+
+public getToken():Promise<any>{
+  return new Promise<any>((resolve, reject)=>{
+    this.db.executeSql(Query.GET_TOKEN, [])
+    .then(result=>{
+      console.log('the result is: ');
+      console.log(JSON.stringify(result));
+      if(result.rows.length <= 0){
+        reject(new Error(Const.ERR_TOKEN_NOT_FOUND));
+      }else{
+        resolve(result.rows.item(0));
+      }
+    })
+    .catch(error=>{
+      console.log('error in getting token');
+      console.log(JSON.stringify(error));
+      reject(error);
+    })
+  })
+
+}
+
 /*
 static readonly INSERT_NOTE = 'insert into notes(title, userid, text, creationdate, remote_lastmodificationdate, isdone, links, json_obj) values(?,?,?,?,?,?,?,?,?)';
 title obviously here doesn't change, title either.
@@ -327,6 +353,97 @@ public insertOrUpdateNote(note: NoteFull):Promise<any>{
           //     })
           //  }
     })
+}
+
+
+public createNewNote(note:NoteFull):Promise<any>{
+  /*just temporary:*/
+  note.userid = 'omni@pollo.com';
+  return new Promise<any>((resolve, reject)=>{
+    this.db.transaction(tx=>{
+      /*  static readonly INSERT_NOTE = 'insert into notes(title, userid, text, creationdate, remote_lastmodificationdate, isdone, links, json_object) values(?,?,?,?,?,?,?,?,?)';*/
+
+      tx.executeSql(Query.INSERT_NOTE, [note.title, note.userid, note.text, note.creationdate, note.lastmodificationdate, note.isdone, note.links, JSON.stringify(note)]);
+      /*  static readonly INSERT_NOTE_INTO_LOGS = 'insert into logs (notetitle, action) values (?,?)';*/
+      tx.executeSql(Query.INSERT_NOTE_INTO_LOGS, [note.title, 'create']);
+
+      note.maintags.map((tag)=>{
+        /*  static readonly INSERT_NOTES_TAGS = 'insert into notes_tags(notetitle,tagtitle, role) values(?,?,?);';*/
+        tx.executeSql(Query.INSERT_NOTES_TAGS, [note.title, tag.title, 'mainTags']);
+      });
+
+      note.othertags.map((tag)=>{
+        tx.executeSql(Query.INSERT_NOTES_TAGS, [note.title, tag.title, 'otherTags']);
+      })
+      resolve(true);
+  })
+  .catch(error=>{
+    console.log('transaction error:');
+    console.log(JSON.stringify(error));
+    reject(error);
+  })
+})
+
+/*out of-transaction*/
+/*
+tx.executeSql(Query.INSERT_NOTE, [note.title, note.userid, note.text, note.creationdate, note.lastmodificationdate, note.isdone, note.links, JSON.stringify(note)])
+.then(postInsert=>{
+return Promise.all([
+note.maintags.map((tag)=>{
+  console.log('currently I\'m working on main');
+  console.log(JSON.stringify(tag));
+  this.db.executeSql(Query.INSERT_TAG_MIN, [tag.title, JSON.stringify(tag)])
+  .then(secondResult=>{
+    return  this.db.executeSql(Query.INSERT_NOTES_TAGS, [note.title, tag.title, 'mainTags', note.userid]);
+  })
+})
+]);
+})
+.then((postMainTags)=>{
+return Promise.all([
+note.othertags.map((tag)=>{
+  console.log('currently I\'m working on other');
+  console.log(JSON.stringify(tag));
+  this.db.executeSql(Query.INSERT_TAG_MIN, [tag.title, JSON.stringify(tag)])
+  .then(secondResult=>{
+    return  this.db.executeSql(Query.INSERT_NOTES_TAGS, [note.title, tag.title, 'otherTags', note.userid]);
+  })
+})
+]);
+})
+.then(postOtherTags=>{
+console.log('done with other tags');
+resolve(true);
+})
+.catch(error=>{
+console.log('error:');
+console.log(JSON.stringify(error));
+})
+*/
+/**/
+
+
+          //   for(let i=0;i<note.maintags.length;i++){
+          //     this.db.executeSql(Query.TAG_EXISTS, [note.maintags[i].title])
+          //     .then(resultSet=>{
+          //       if(resultSet.rows==0){
+          //         /*try-update*/
+          //         this.db.executeSql(Query.INSERT_TAG_MIN, [JSON.stringify(note.maintags[i]), note.maintags[i].title]);
+          //         this.db.executeSql(Query.INSERT_NOTES_TAGS, [note.title, note.maintags[i].title, 'mainTags', note.userid]);
+          //       }
+          //     })
+          //   }
+          //   for(let i=0;i<note.othertags.length;i++){
+          //     this.db.executeSql(Query.INSERT_TAG_MIN, [note.othertags[i].title, JSON.stringify(note.othertags[i])])
+          //     .then(resultSet=>{
+          //       if(resultSet.rows==0){
+          //         /*try-update*/
+          //         this.db.executeSql(Query.INSERT_TAG_MIN, [JSON.stringify(note.othertags[i]), note.othertags[i].title]);
+          //         this.db.executeSql(Query.INSERT_NOTES_TAGS, [note.title, note.othertags[i].title, 'otherTags', note.userid]);
+          //       }
+          //     })
+          //  }
+  //  })
 }
 
 // public insertOrUpdateNote(note:NoteFull):Promise<any>{

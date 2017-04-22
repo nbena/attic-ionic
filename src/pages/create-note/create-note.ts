@@ -19,7 +19,7 @@ import { Utils } from '../../public/utils'
 export class CreateNotePage {
 
   oldNote: NoteFull;
-  newNote: NoteMin;
+  newNote: NoteFull;
 
   tags: TagExtraMin[];
   mainTags: TagExtraMin[];
@@ -58,7 +58,7 @@ export class CreateNotePage {
   }
 
   getNote(){
-    this.newNote = new NoteMin();
+    this.newNote = new NoteFull();
 
     this.newNote.title=this.oldNote.title;
     this.newNote.text=this.oldNote.text;
@@ -67,21 +67,34 @@ export class CreateNotePage {
     this.newNote.maintags = [];
     this.newNote.othertags = [];
 
-    for(let i=0;i<this.mainTagsString.length;i++){
-      this.newNote.maintags.push(this.mainTagsString[i]);
-    }
+    // for(let i=0;i<this.mainTagsString.length;i++){
+    //   this.newNote.maintags.push(this.mainTagsString[i]);
+    // }
+    //
+    // for(let i=0;i<this.otherTagsString.length;i++){
+    //   this.newNote.othertags.push(this.otherTagsString[i]);
+    // }
+    this.newNote.maintags = this.mainTagsString.map((tagTitle):TagExtraMin=>{
+      let tag = new TagExtraMin();
+      tag.title=tagTitle;
+      return tag;
+    })
 
-    for(let i=0;i<this.otherTagsString.length;i++){
-      this.newNote.othertags.push(this.otherTagsString[i]);
-    }
+    this.newNote.othertags = this.otherTagsString.map((tagTitle):TagExtraMin=>{
+      let tag = new TagExtraMin();
+      tag.title=tagTitle;
+      return tag;
+    })
 
     // console.log(Utils.logNote(this.newNote));
+    console.log('the new note is:');
+    console.log(JSON.stringify(this.newNote));
   }
 
 
   createNote(){
     this.getNote();
-    console.log(JSON.stringify({note:this.newNote}));
+    // console.log(JSON.stringify({note:this.newNote}));
     this.atticNotes.createNote(this.newNote)
       .then(result=>{
         console.log(result);

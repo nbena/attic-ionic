@@ -184,6 +184,7 @@ export class AtticNotes {
         this.db.getNoteFull(title)
         .then(result=>{
           /*we are not in the catch only if the note is there and it's full.*/
+          console.log('the note is full');
           resolve(result);
         })
         .catch(error=>{
@@ -230,8 +231,17 @@ export class AtticNotes {
     //return Utils.getBasic('/api/notes/'+title, this.http, this.auth.token);
   }
 
-  createNote(note: NoteMin):Promise<any>{
-    return Utils.putBasic('/api/notes/create', JSON.stringify({note:note}), this.http, this.auth.token);
+  /*
+  force can't be used because we need to respect the log order, so the note is put into the db,
+  then the log will be consumed.
+  THE CONTROL ON THE NOTE WITH ANOTHER SAME TITLE MUST BE ALREADY DONE.
+  */
+  createNote(note: NoteFull):Promise<any>{
+    return new Promise<any>((resolve, reject)=>{
+      this.db.createNewNote(note);
+      resolve(true);
+    });
+    //return Utils.putBasic('/api/notes/create', JSON.stringify({note:note}), this.http, this.auth.token);
   }
 
   notesByTag(tags: string[]){

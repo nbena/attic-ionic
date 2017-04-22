@@ -41,15 +41,29 @@ export class LoginPage {
     console.log('ionViewDidLoad LoginPage');
 
     this.loader();
+    console.log('is auth?');
+    // console.log(this.auth.checkAuthentication());
 
-    if(this.auth.checkAuthentication()){
-      // console.log("already auth");
-      this.loading.dismiss();
-      this.navCtrl.setRoot(NotesPage, this.getParams());
-    }else{
-      // console.log("not auth");
-      this.loading.dismiss();
-    }
+    this.auth.checkAuthentication()
+    .then(isAuth=>{
+      if(isAuth){
+        console.log('true');
+        this.loading.dismiss();
+        this.navCtrl.setRoot(NotesPage, this.getParams());
+      }else{
+        console.log('false');
+        this.loading.dismiss();
+      }
+    });
+
+    // if(this.auth.checkAuthentication()){
+    //   // console.log("already auth");
+    //   this.loading.dismiss();
+    //   this.navCtrl.setRoot(NotesPage, this.getParams());
+    // }else{
+    //   // console.log("not auth");
+    //   this.loading.dismiss();
+    // }
 
   }
 
