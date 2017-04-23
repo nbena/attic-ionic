@@ -1049,4 +1049,28 @@ public setTitle(note :NoteFull, newTitle: string):Promise<any>{
     })
   }
 
+  getNotesByText(text: string):Promise<NoteExtraMin[]>{
+    return new Promise<NoteExtraMin[]>((resolve, reject)=>{
+      this.db.executeSql(Query.SELECT_NOTES_MIN_BY_TEXT, [text])
+      .then(result=>{
+        let notes:NoteExtraMin[]=[];
+        if(result.rows.length <= 0){
+          resolve(notes);
+        }else{
+          for(let i=0;i<result.rows.length;i++){
+            let note:NoteExtraMin = new NoteExtraMin();
+            note.title=result.rows.item(i).title;
+            notes.push(note);
+          }
+          resolve(notes);
+        }
+      })
+      .catch(error=>{
+        console.log('error in notes by text');
+        console.log(JSON.stringify(error));
+        reject(error);
+      })
+    });
+  }
+
 }

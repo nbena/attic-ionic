@@ -148,7 +148,7 @@ export class NotesPage {
       //   this.loadByOtherTags(<string[]>this.currentFilterValue);
       // break;
       case Filter.Text:
-        this.loadByText(<string>this.currentFilterValue/*, firstTime*/);
+        this.loadByText(<string>this.currentFilterValue/*, firstTime*/, force);
       break;
       case Filter.Title:
         this.loadByTitle(<string>this.currentFilterValue);
@@ -251,8 +251,8 @@ export class NotesPage {
     this.shownNotes = this.atticNotes.filterNotesByTitle(this.allNotes, this.searchTerm);
   }
 
-  loadByText(text: string/*, firstTime: boolean*/){
-    this.atticNotes.notesByText(text)
+  loadByText(text: string/*, firstTime: boolean*/, force: boolean){
+    this.atticNotes.notesByText(text, force)
       .then(result=>{
         this.allNotes=<NoteMin[]>result;
         //if(firstTime){

@@ -231,6 +231,13 @@ export class AtticNotes {
   //   return this.db.getNotesByTags(tags);
   // }
 
+  /*================================================================================*/
+  /*policy used here:
+  if requested, go to the db and check the result.length, if it is the same
+  of sum(tags.length) ok, if not, calling the network, and to the try-insert.
+  The downloaded notes will be kept (TODO) and then fully downloaded.
+  */
+
   notesByTags_loadFromNetworkAndInsert(tags: TagAlmostMin[]):Promise<NoteExtraMin[]>{
     return new Promise<NoteExtraMin[]>((resolve, reject)=>{
       Utils.postBasic('/api/notes/by-tags-no-role', JSON.stringify({tags: tags.map((tag)=>{return tag.title})}), this.http, this.auth.token)
@@ -353,9 +360,41 @@ return this.items.filter((item) => {
   //   return Utils.postBasic('/api/notes/by-title/reg/unpop', JSON.stringify({title: title}), this.http, this.auth.token);
   // }
 
-  notesByText(text: string){
-    return Utils.postBasic('/api/notes/by-text', JSON.stringify({note:
-      {text: text}}), this.http, this.auth.token);
+  notesByText(text: string, force: boolean){
+
+    // return Utils.postBasic('/api/notes/by-text', JSON.stringify({note:
+    //   {text: text}}), this.http, this.auth.token);
+    return new Promise<NoteExtraMin[]>((resolve,reject)=>{
+      let useForce: boolean = force;
+      let isNteworkAvailable: boolean = this.netManager.isConnected;
+      let areThereNotesInTheDb: boolean;
+      let notes:NoteExtraMin[]=[];
+      let useDb: boolean;
+      this.db.getNumberOfNotes()
+      .then(number=>{
+        areThereNotesInTheDb = (number > 0) ? true : false;
+        console.log('the numberof notes is');
+        console.log(number);
+        // let useDb = !isNteworkAvailable || areThereNotesInTheDb || !force;
+        useDb = Utils.shouldUseDb(isNteworkAvailable, areThereNotesInTheDb, force);
+        console.log('usedb note: ');
+        console.log(JSON.stringify(useDb));
+        if(useDb){
+          return this.db.getNotesByText(text);
+        }else{
+          console.log('no notes, using the network');
+          return Utils.postBasic('/api/notes/by-text', JSON.stringify({note:{text:text}}),this.http, this.auth.token);
+        }
+      })
+      .then(fetchingResult=>{
+        resolve(fetchingResult);
+      })
+      .catch(error=>{
+        console.log('error in getting text');
+        console.log(JSON.stringify(error));
+        reject(error);
+      })
+    })
   }
 
 
