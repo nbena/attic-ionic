@@ -9,7 +9,7 @@ import { AtticTags } from '../../providers/attic-tags';
 
 import { TagExtraMin } from '../../models/tags';
 import { TagDetailsPage } from '../tag-details/tag-details';
-import { NotesPopoverPage } from '../notes-popover/notes-popover';
+import { NoteDetailsPopoverPage } from '../note-details-popover/note-details-popover';
 
 import { Utils } from '../../public/utils';
 
@@ -207,7 +207,7 @@ export class NoteDetailsPage {
   }
 
   showPopover(event){
-    let popover=this.popoverCtrl.create(NotesPopoverPage, {note: this.note});
+    let popover=this.popoverCtrl.create(NoteDetailsPopoverPage, {note: this.note});
     popover.present({
       ev: event
     });

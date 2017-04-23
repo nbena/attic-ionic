@@ -10,8 +10,9 @@ import { NoteDetailsPage } from '../pages/note-details/note-details';
 import { TagDetailsPage } from '../pages/tag-details/tag-details';
 
 import { CreateNotePage } from '../pages/create-note/create-note';
-import { NotesPopoverPage } from '../pages/notes-popover/notes-popover';
+import { NoteDetailsPopoverPage } from '../pages/note-details-popover/note-details-popover';
 import { TagsPopoverPage } from '../pages/tags-popover/tags-popover';
+import { NotesPopoverPage } from '../pages/notes-popover/notes-popover';
 import { NoteEditTextPage } from '../pages/note-edit-text/note-edit-text';
 
 //login
@@ -40,9 +41,10 @@ import { Network } from '@ionic-native/network';
     LoginPage,
     RegisterPage,
     CreateNotePage,
-    NotesPopoverPage,
+    NoteDetailsPopoverPage,
     NoteEditTextPage,
-    TagsPopoverPage
+    TagsPopoverPage,
+    NotesPopoverPage
   ],
   imports: [
     IonicModule.forRoot(MyApp)
@@ -57,9 +59,10 @@ import { Network } from '@ionic-native/network';
     LoginPage,
     RegisterPage,
     CreateNotePage,
-    NotesPopoverPage,
+    NoteDetailsPopoverPage,
     NoteEditTextPage,
-    TagsPopoverPage
+    TagsPopoverPage,
+    NotesPopoverPage
     //NoteEditTagsPage
   ],
   providers: [

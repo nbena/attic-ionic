@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams } from 'ionic-angular';
+import { NavController, NavParams, PopoverController } from 'ionic-angular';
 
 import { AtticNotes } from '../../providers/attic-notes';
 import { NoteExtraMin, NoteSmart, NoteMin, NoteFull } from '../../models/notes';
@@ -18,6 +18,8 @@ import 'rxjs/add/operator/debounceTime';
 import { Synch } from '../../providers/synch';
 
 import { TagAlmostMin } from '../../models/tags';
+
+import { NotesPopoverPage } from '../notes-popover/notes-popover';
 
 /*
   Generated class for the Notes page.
@@ -52,6 +54,7 @@ export class NotesPage {
   isFull: boolean;
 
   constructor(public navCtrl: NavController, private navParams: NavParams,
+    private popoverCtrl: PopoverController,
     private atticNotes: AtticNotes, private db: Db,
     private synch: Synch) {
 
@@ -91,6 +94,13 @@ export class NotesPage {
 
   }
 
+
+  showPopover(event){
+    let popover=this.popoverCtrl.create(NotesPopoverPage);
+    popover.present({
+      ev: event
+    });
+  }
 
 
   //calling the new page, passing the _id.

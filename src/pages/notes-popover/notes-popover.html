@@ -21,11 +21,7 @@
   <ion-list-header color="lightblue">
     Modify
   </ion-list-header>
-  <button ion-item (click)="changeTitle()">Change title</button>
-  <button ion-item (click)="changeText()">Change text</button>
-  <button ion-item (click)="deleteNote()">Delete this note</button>
-  <!-- <button ion-item (click)="changeMainTags()">Change main tags</button>
-  <button ion-item (click)="changeOtherTags()">Change other tags</button>
-  <button ion-item (click)="setDone()">{{done}}</button>
-  <button ion-item (click)="changeLinks()">Change links</button> -->
+  <button ion-item (click)="filterByText()">Search by text</button>
+  <button ion-item (click)="filterByTagsNoRole()">Search by tags (basic)</button>
+  <button ion-item (click)="filterByTagsWithRole()">Search by tags (advanced)</button>
 </ion-list>
