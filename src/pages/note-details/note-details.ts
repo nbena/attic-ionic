@@ -403,7 +403,9 @@ export class NoteDetailsPage {
   }
 
   changeDoneAPI(){
-     return this.atticNotes.changeDone(this.note.title, this.shownIsDone);
+    //  return this.atticNotes.changeDone(this.note.title, this.shownIsDone);
+    this.note.isdone = this.shownIsDone;
+    return this.atticNotes.changeDone(this.note);
   }
 
   removeTagsAPI(){

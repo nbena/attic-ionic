@@ -390,9 +390,10 @@ return this.items.filter((item) => {
       {title:noteTitle, text:text}}), this.http, this.auth.token);
   }
 
-  changeDone(noteTitle: string, done: boolean){
-    return Utils.postBasic('/api/notes/mod/setdone', JSON.stringify({note:
-      {title:noteTitle, isDone:done}}), this.http, this.auth.token);
+  changeDone(/*noteTitle: string, done: boolean*/note: NoteFull){
+    // return Utils.postBasic('/api/notes/mod/setdone', JSON.stringify({note:
+    //   {title:noteTitle, isDone:done}}), this.http, this.auth.token);
+    return this.db.setDone(note);
   }
 
   deleteNote(_id: any):Promise<any>{

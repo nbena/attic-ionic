@@ -273,6 +273,11 @@ export class Synch {
   the db is flushed and everything is re-downloaded from the server.
   */
 
+  /*
+  when consuming the logs, all of the set-done, set-text, chage-links and so will
+  be collapsed and just the last will be used.
+  */
+
 
 
 }

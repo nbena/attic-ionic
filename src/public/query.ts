@@ -136,23 +136,27 @@ export class Query{
 
   static readonly GET_TOKEN = 'select * from auth where token is not null';
 
+  static readonly UPDATE_NOTE_SET_DONE = 'update notes set isdone=?, json_object=? where title=?';
+
+  static readonly IS_NOTE_NOT_IN_THE_SERVER = 'select * from logs where notetitle=? and action=\'create\'';
   /*
   tag and notes in the db just memorize an array of ids.
   */
+  //static readonly INSERT_SET_DONE_INTO_LOGS = 'insert into logs(notetitle, action) values (?,?)';
 
-  static getQueryTable(table: Table, sql: string): string{
-    let result: string;
-    switch(table){
-      case Table.Notes:
-      result = sql.replace('?', 'notes');
-      case Table.NotesToSave:
-      result = sql.replace('?', 'notes_to_save');
-      case Table.Tags:
-      result = sql.replace('?', 'tags');
-      case Table.TagsToSave:
-      result = sql.replace('?', 'tags_to_save');
-    }
-    return result;
-  }
+  // static getQueryTable(table: Table, sql: string): string{
+  //   let result: string;
+  //   switch(table){
+  //     case Table.Notes:
+  //     result = sql.replace('?', 'notes');
+  //     case Table.NotesToSave:
+  //     result = sql.replace('?', 'notes_to_save');
+  //     case Table.Tags:
+  //     result = sql.replace('?', 'tags');
+  //     case Table.TagsToSave:
+  //     result = sql.replace('?', 'tags_to_save');
+  //   }
+  //   return result;
+  // }
 
  }
