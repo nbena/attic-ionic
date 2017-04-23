@@ -717,12 +717,12 @@ public insertNoteMinQuietly(note: NoteExtraMin):Promise<any>{
       resolve(true);
     })
     .catch(error=>{
-      // console.log('error in inserting note min:'),
-      // console.log(JSON.stringify(error));
-      // console.log(JSON.stringify(error.stack));
-      if(error.code===19){
+      console.log('error in inserting note min:'),
+      console.log(JSON.stringify(error));
+      if(error.message.search(Const.UNIQUE_FAILED)){
         /*ok, constraint violation, the note is already there.*/
         console.log('already there.');
+        resolve(true);
       }else{
         reject(error);
       }

@@ -241,15 +241,11 @@ export class AtticNotes {
         /*need to parse, it will be changed (maybe)*/
         for(let i=0;i<result.length;i++){
           let note:NoteExtraMin = new NoteExtraMin();
-          console.log('result[i]');
-          console.log(JSON.stringify(result[i]));
           note.title = result[i].title;
           parsedResult.push(note);
           /*note.userid = result[i].userid;*/
           this.db.insertNoteMinQuietly(note);
         }
-        console.log('parsed is');
-        console.log(JSON.stringify(parsedResult));
         resolve(parsedResult);
       })
       .catch(error=>{
@@ -301,6 +297,7 @@ export class AtticNotes {
             if(isNteworkAvailable==false){
               resolve([]);
             }else{
+              /*TODO , saving the title of note returned here, it will fully downloaded.*/
               return this.notesByTags_loadFromNetworkAndInsert(tags);
             }
           }/*end of useDb*/
