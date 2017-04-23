@@ -8,7 +8,7 @@ import { Auth } from './auth';
 // import { TagExtraMin, TagMin, TagFull } from '../models/tags';
 import { Utils } from '../public/utils';
 
-import { TagExtraMin } from '../models/tags';
+import { TagExtraMin, TagAlmostMin } from '../models/tags';
 import { Db } from './db';
 import { NetManager } from './net-manager';
 
@@ -37,11 +37,11 @@ export class AtticTags {
   // }
 
   loadTagsMin(force: boolean){
-    return new Promise<TagExtraMin[]>((resolve, reject)=>{
+    return new Promise<TagAlmostMin[]>((resolve, reject)=>{
         let useForce: boolean = force;
         let isNteworkAvailable: boolean = this.netManager.isConnected;
         let areThereTagsInTheDb: boolean;
-        let tags:TagExtraMin[]=[];
+        let tags:TagAlmostMin[]=[];
         let useDb: boolean;
         this.db.getNumberOfTags()
         .then(number=>{
@@ -65,7 +65,7 @@ export class AtticTags {
             resolve(fetchingResult);
           }else{
             /*fetchingResult = NoteMin[] from the network, need to insert.*/
-            tags = fetchingResult as TagExtraMin[];
+            tags = fetchingResult as TagAlmostMin[];
             for(let i=0;i<tags.length;i++){
               this.db.insertNoteMinQuietly(tags[i]);
             }
@@ -117,7 +117,13 @@ export class AtticTags {
   //   return Utils.postBasic('/api/tags/by-title/reg/unpop', {title: title}, this.http, this.auth.token);
   // }
 
-  filterTagByTitle(tags: TagExtraMin[], title: string):TagExtraMin[]{
+  // filterTagByTitle(tags: TagExtraMin[], title: string):TagExtraMin[]{
+  //   return tags.filter((tag)=>{
+  //     return tag.title.indexOf(title.toLowerCase())>-1;
+  //   });
+  // }
+
+  filterTagByTitle(tags: TagAlmostMin[], title: string):TagAlmostMin[]{
     return tags.filter((tag)=>{
       return tag.title.indexOf(title.toLowerCase())>-1;
     });

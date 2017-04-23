@@ -8,6 +8,8 @@ import { Utils } from '../public/utils';
 import { Db/*, LogObject*/ } from './db';
 import { NetManager } from './net-manager';
 
+import { TagAlmostMin } from '../models/tags';
+
 import 'rxjs/add/operator/map';
 
 /*
@@ -292,6 +294,10 @@ export class AtticNotes {
       resolve(true);
     });
     //return Utils.putBasic('/api/notes/create', JSON.stringify({note:note}), this.http, this.auth.token);
+  }
+
+  createNote2(note: NoteFull, tags: TagAlmostMin[]):Promise<any>{
+    return this.db.createNewNote2(note, tags);
   }
 
   notesByTag(tags: string[]){

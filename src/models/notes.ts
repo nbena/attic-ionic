@@ -41,6 +41,10 @@ export class NoteMin extends NoteBarebon{
 //   mainTags: TagFull[];
 //   otherTags: TagFull[];
 // }
+// export class NoteFull extends NoteBarebon{
+//   maintags: TagAlmostMin[];
+//   othertags: TagAlmostMin[];
+// }
 export class NoteFull extends NoteBarebon{
   maintags: TagExtraMin[];
   othertags: TagExtraMin[];

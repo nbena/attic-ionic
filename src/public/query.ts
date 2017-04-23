@@ -127,6 +127,8 @@ export class Query{
 
   // static readonly UPDATE_JSON_OBJ_IF_NECESSARY_TAG = 'update tags set json_object=? where title=? and json_object <> ?';
 
+  static readonly UPDATE_JSON_OBJ_TAG ='update tags set json_object=?  where title=?';
+
   static readonly EMPLTY_NOTES = 'delete from notes';
   static readonly EMPTY_TAGS = 'delete from tags';
 

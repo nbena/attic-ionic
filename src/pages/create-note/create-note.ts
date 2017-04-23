@@ -3,7 +3,7 @@ import { NavController, NavParams, AlertController } from 'ionic-angular';
 import { AtticNotes } from '../../providers/attic-notes';
 import { AtticTags } from '../../providers/attic-tags';
 import { NoteFull, NoteSmart, NoteMin, NoteExtraMin } from '../../models/notes';
-import { TagExtraMin, TagFull } from '../../models/tags';
+import { TagExtraMin, TagFull, TagAlmostMin } from '../../models/tags';
 import { Utils } from '../../public/utils'
 
 /*
@@ -21,14 +21,16 @@ export class CreateNotePage {
 //  oldNote: NoteFull;
   newNote: NoteFull;
 
-  tags: TagExtraMin[];
-  mainTags: TagExtraMin[];
-  otherTags: TagExtraMin[];
+  tags: TagAlmostMin[];
+  mainTags: TagAlmostMin[];
+  otherTags: TagAlmostMin[];
   // isDone: boolean;
   links: string[];
 
-  mainTagsString: string[];
-  otherTagsString: string[];
+  // mainTagsString: string[];
+  // otherTagsString: string[];
+
+
 
   constructor(public navCtrl: NavController, public navParams: NavParams,
     private alertCtrl: AlertController,
@@ -42,8 +44,9 @@ export class CreateNotePage {
       this.links = [];
       //this.oldNote =  new NoteFull();
       //this.oldNote.isdone = false;
-      this.mainTagsString = [];
-      this.otherTagsString = [];
+      // this.mainTagsString = [];
+      // this.otherTagsString = [];
+
     }
 
   ionViewDidLoad() {
@@ -54,7 +57,7 @@ export class CreateNotePage {
   loadMinTags(){
     this.atticTags.loadTagsMin(true)
       .then(result=>{
-        this.tags=<TagExtraMin[]>result;
+        this.tags=<TagAlmostMin[]>result;
       })
       .catch(error=>{
         console.log(error);
@@ -71,24 +74,29 @@ export class CreateNotePage {
     this.newNote.maintags = [];
     this.newNote.othertags = [];
 
-    // for(let i=0;i<this.mainTagsString.length;i++){
-    //   this.newNote.maintags.push(this.mainTagsString[i]);
-    // }
-    //
-    // for(let i=0;i<this.otherTagsString.length;i++){
-    //   this.newNote.othertags.push(this.otherTagsString[i]);
-    // }
-    this.newNote.maintags = this.mainTagsString.map((tagTitle):TagExtraMin=>{
-      let tag = new TagExtraMin();
-      tag.title=tagTitle;
-      return tag;
-    });
 
-    this.newNote.othertags = this.otherTagsString.map((tagTitle):TagExtraMin=>{
-      let tag = new TagExtraMin();
-      tag.title=tagTitle;
-      return tag;
-    });
+    // this.newNote.maintags = this.mainTagsString.map((tagTitle):TagExtraMin=>{
+    //   let tag = new TagExtraMin();
+    //   tag.title=tagTitle;
+    //   return tag;
+    // });
+    //
+    // this.newNote.othertags = this.otherTagsString.map((tagTitle):TagExtraMin=>{
+    //   let tag = new TagExtraMin();
+    //   tag.title=tagTitle;
+    //   return tag;
+    // });
+
+    // this.newNote.maintags = this.mainTags.map((tag)=>{
+    //   return tag;
+    // });
+    // this.newNote.othertags = this.otherTags.map((tag)=>{
+    //   return tag;
+    // });
+
+    this.newNote.maintags = this.mainTags;
+    this.newNote.othertags = this.otherTags;
+    // this.newNote.maintags.forEach((tag)=>{tag.no})
 
     this.newNote.creationdate = new Date();
     this.newNote.lastmodificationdate = this.newNote.creationdate;
@@ -106,7 +114,9 @@ export class CreateNotePage {
   createNote(){
     this.getNote();
     // console.log(JSON.stringify({note:this.newNote}));
-    this.atticNotes.createNote(this.newNote)
+    this.mainTags.forEach((tag)=>{tag.noteslength++});
+    this.otherTags.forEach((tag)=>{tag.noteslength++});
+    this.atticNotes.createNote2(this.newNote, this.mainTags.concat(this.otherTags))
       .then(result=>{
         console.log(result);
         this.navCtrl.pop();
