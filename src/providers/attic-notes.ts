@@ -314,8 +314,6 @@ export class AtticNotes {
       })
       .then(secondFetch=>{
         /*just the one from the network*/
-        console.log('secondFetch');
-        console.log(JSON.stringify(secondFetch)),
         resolve(secondFetch);
       })
       .catch(error=>{
