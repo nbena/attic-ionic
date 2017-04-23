@@ -59,7 +59,7 @@ static putBasic(uriFinal: string, body: any, http: Http, token: any){
   });
 }
 
-static postBasic(uriFinal: string, body: any, http: Http, token: any){
+static postBasic(uriFinal: string, body: any, http: Http, token: any):Promise<any>{
   return new Promise((resolve, reject)=>{
 
     let headers = new Headers();

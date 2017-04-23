@@ -147,6 +147,8 @@ export class Query{
   static readonly INSERT_NOTE_OLDTITLE_INTO_LOGS = 'insert into logs(notetitle, oldtitle, action) values (?,?,?)';
 
   static readonly IS_NOTE_NOT_IN_THE_SERVER = 'select * from logs where notetitle=? and action=\'create\'';
+
+  static readonly SELECT_NOTES_BY_TAGS = 'select notetitle from notes_tags where tagtitle=?';
   /*
   tag and notes in the db just memorize an array of ids.
   */

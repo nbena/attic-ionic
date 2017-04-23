@@ -17,6 +17,8 @@ import 'rxjs/add/operator/debounceTime';
 
 import { Synch } from '../../providers/synch';
 
+import { TagAlmostMin } from '../../models/tags';
+
 /*
   Generated class for the Notes page.
 
@@ -137,7 +139,7 @@ export class NotesPage {
     */
     switch(this.currentFilter){
       case Filter.Tags:
-        this.loadByTags(<string[]>this.currentFilterValue/*, firstTime*/);
+        this.loadByTags(<TagAlmostMin[]>this.currentFilterValue/*, firstTime*/, force);
       break;
       // case Filter.MainTags:
       //   this.loadByMainTags(<string[]>this.currentFilterValue);
@@ -198,12 +200,14 @@ export class NotesPage {
   //     })
   // }
 
-  loadByTags(tags: string[]){
+  loadByTags(tags: TagAlmostMin[], force: boolean){
   //  if(this.allNotes!=null){
       /*doing the filter on the note that I have.*/
   //  }
-    this.atticNotes.notesByTag(tags)
+    this.atticNotes.notesByTag2(tags, force)
     .then(result=>{
+      console.log('result here is');
+      console.log(JSON.stringify(result));
       if(this.allNotes==null){
         this.allNotes = result as NoteExtraMin[];
         this.shownNotes = this.allNotes.slice();

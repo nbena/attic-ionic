@@ -376,7 +376,14 @@ public insertOrUpdateNote(note: NoteFull):Promise<any>{
         ])
       })
       .then(results=>{
-        console.log('done with other tags');
+        return this.getNotesCount();
+      })
+      .then(notesCount=>{
+        this.notesCount = notesCount;
+        return this.getTagsCount();
+      })
+      .then(tagsCount=>{
+        this.tagsCount = tagsCount;
         resolve(true);
       })
       .catch(error=>{
@@ -384,105 +391,83 @@ public insertOrUpdateNote(note: NoteFull):Promise<any>{
         console.log(JSON.stringify(error));
       })
 
-          //   for(let i=0;i<note.maintags.length;i++){
-          //     this.db.executeSql(Query.TAG_EXISTS, [note.maintags[i].title])
-          //     .then(resultSet=>{
-          //       if(resultSet.rows==0){
-          //         /*try-update*/
-          //         this.db.executeSql(Query.INSERT_TAG_MIN, [JSON.stringify(note.maintags[i]), note.maintags[i].title]);
-          //         this.db.executeSql(Query.INSERT_NOTES_TAGS, [note.title, note.maintags[i].title, 'mainTags', note.userid]);
-          //       }
-          //     })
-          //   }
-          //   for(let i=0;i<note.othertags.length;i++){
-          //     this.db.executeSql(Query.INSERT_TAG_MIN, [note.othertags[i].title, JSON.stringify(note.othertags[i])])
-          //     .then(resultSet=>{
-          //       if(resultSet.rows==0){
-          //         /*try-update*/
-          //         this.db.executeSql(Query.INSERT_TAG_MIN, [JSON.stringify(note.othertags[i]), note.othertags[i].title]);
-          //         this.db.executeSql(Query.INSERT_NOTES_TAGS, [note.title, note.othertags[i].title, 'otherTags', note.userid]);
-          //       }
-          //     })
-          //  }
     })
 }
 
-
-public createNewNote(note:NoteFull):Promise<any>{
-  return new Promise<any>((resolve, reject)=>{
-    this.db.transaction(tx=>{
-      /*p=this.db.executeSql(Query.INSERT_NOTE, [note.title, note.userid, note.text, note.creationdate, note.lastmodificationdate, note.isdone, note.links, JSON.stringify(note)]);*/
-      /* insert into notes(title, userid, text, creationdate, remote_lastmodificationdate, isdone, links, json_object) values(?,?,?,?,?,?,?,?,?)';*/
-      tx.executeSql(Query.INSERT_NOTE, [note.title, note.userid, note.text, note.creationdate, note.lastmodificationdate, note.isdone, JSON.stringify(note.links), JSON.stringify(note)],
-      (tx:any, res:any)=>{
-        if(res){
-          console.log('res note is');
-          console.log(JSON.stringify(res));
-        }
-      }, (tx:any, err: any)=>{
-        if(err){
-          console.log('error in insert note');
-          console.log(JSON.stringify(err));
-        }
-      });
-
-      /*'insert into logs (notetitle, action) values (?,?)';*/
-      tx.executeSql(Query.INSERT_NOTE_OLDTITLE_INTO_LOGS, [note.title, note.title, 'create'],
-      (tx:any, res:any)=>{
-        if(res){
-          console.log('res logs is');
-          console.log(JSON.stringify(res));
-        }
-      }, (tx:any, err: any)=>{
-        if(err){
-          console.log('error in insert log');
-          console.log(JSON.stringify(err));
-        }
-      });
-
-      note.maintags.map((tag)=>{
-/*   = 'insert into notes_tags(notetitle,tagtitle, role) values(?,?,?);';*/
-        tx.executeSql(Query.INSERT_NOTES_TAGS, [note.title, tag.title, 'mainTags'],
-        (tx:any, res:any)=>{
-          if(res){
-            console.log('res maintags is');
-            console.log(JSON.stringify(res));
-          }
-        }, (tx:any, err: any)=>{
-          if(err){
-            console.log('error in insert maintag');
-            console.log(JSON.stringify(err));
-          }
-        });
-      });
-
-      note.othertags.map((tag)=>{
-        tx.executeSql(Query.INSERT_NOTES_TAGS, [note.title, tag.title, 'otherTags'],
-        (tx:any, res:any)=>{
-          if(res){
-            console.log('res other is');
-            console.log(JSON.stringify(res));
-          }
-        }, (tx:any, err: any)=>{
-                if(err){
-                  console.log('error in insert othertag');
-                  console.log(JSON.stringify(err));
-                }
-              });
-      });
-      //resolve(true);
-  })
-  .then(txResult=>{
-    console.log('tx completed, note created');
-    resolve(true);
-  })
-  .catch(error=>{
-    console.log('transaction error:');
-    console.log(JSON.stringify(error));
-    reject(error);
-  })
-})
-}
+// @deprecate
+// public createNewNote(note:NoteFull):Promise<any>{
+//   return new Promise<any>((resolve, reject)=>{
+//     this.db.transaction(tx=>{
+//       tx.executeSql(Query.INSERT_NOTE, [note.title, note.userid, note.text, note.creationdate, note.lastmodificationdate, note.isdone, JSON.stringify(note.links), JSON.stringify(note)],
+//       (tx:any, res:any)=>{
+//         if(res){
+//           console.log('res note is');
+//           console.log(JSON.stringify(res));
+//         }
+//       }, (tx:any, err: any)=>{
+//         if(err){
+//           console.log('error in insert note');
+//           console.log(JSON.stringify(err));
+//         }
+//       });
+//
+//       //'insert into logs (notetitle, action) values (?,?)';
+//       tx.executeSql(Query.INSERT_NOTE_OLDTITLE_INTO_LOGS, [note.title, note.title, 'create'],
+//       (tx:any, res:any)=>{
+//         if(res){
+//           console.log('res logs is');
+//           console.log(JSON.stringify(res));
+//         }
+//       }, (tx:any, err: any)=>{
+//         if(err){
+//           console.log('error in insert log');
+//           console.log(JSON.stringify(err));
+//         }
+//       });
+//
+//       note.maintags.map((tag)=>{
+// //   = 'insert into notes_tags(notetitle,tagtitle, role) values(?,?,?);';
+//         tx.executeSql(Query.INSERT_NOTES_TAGS, [note.title, tag.title, 'mainTags'],
+//         (tx:any, res:any)=>{
+//           if(res){
+//             console.log('res maintags is');
+//             console.log(JSON.stringify(res));
+//           }
+//         }, (tx:any, err: any)=>{
+//           if(err){
+//             console.log('error in insert maintag');
+//             console.log(JSON.stringify(err));
+//           }
+//         });
+//       });
+//
+//       note.othertags.map((tag)=>{
+//         tx.executeSql(Query.INSERT_NOTES_TAGS, [note.title, tag.title, 'otherTags'],
+//         (tx:any, res:any)=>{
+//           if(res){
+//             console.log('res other is');
+//             console.log(JSON.stringify(res));
+//           }
+//         }, (tx:any, err: any)=>{
+//                 if(err){
+//                   console.log('error in insert othertag');
+//                   console.log(JSON.stringify(err));
+//                 }
+//               });
+//       });
+//       //resolve(true);
+//   })
+//   .then(txResult=>{
+//     console.log('tx completed, note created');
+//     resolve(true);
+//   })
+//   .catch(error=>{
+//     console.log('transaction error:');
+//     console.log(JSON.stringify(error));
+//     reject(error);
+//   })
+// })
+// }
 
 
 public createNewNote2(note:NoteFull, tags:TagAlmostMin[]):Promise<any>{
@@ -575,7 +560,12 @@ public createNewNote2(note:NoteFull, tags:TagAlmostMin[]):Promise<any>{
       //resolve(true);
   })
   .then(txResult=>{
-    console.log('tx completed, note created');
+    /*update the note count.*/
+    return this.getNotesCount();
+  })
+  .then(notesCount=>{
+    this.notesCount = notesCount;
+    console.log('tx completed, note created and count updated');
     resolve(true);
   })
   .catch(error=>{
@@ -585,158 +575,6 @@ public createNewNote2(note:NoteFull, tags:TagAlmostMin[]):Promise<any>{
   })
 })
 }
-
-// public insertOrUpdateNote(note:NoteFull):Promise<any>{
-//   /*check if it's up-to-date, the query will return somethins only if exists and it's up-to-date*/
-//   return new Promise<any>((resolve, reject)=>{
-//     let isPresent:boolean;
-//     this.db.executeSql(Query.NOTE_EXISTS, [])
-//     .then(result=>{
-//       let p:Promise<any>;
-//
-//       if(result.rows.length > 0){
-//         isPresent=true;
-//         /*using the 'try-update.'*/
-//         /*  static readonly UPDATE_NOTE_2 = 'update notes set text=?, remote_lastmodificationdate=?, creationdate?, isdone=?, links=?, json_object=? where title=? and json_object <> ?';
-//         */
-//         p=this.db.executeSql(Query.UPDATE_NOTE_2,[note.text, note.lastmodificationdate, note.creationdate, note.isdone, note.links, JSON.stringify(note), note.title, JSON.stringify(note)]);
-//       }else{
-//         isPresent=false;
-//         p=this.db.executeSql(Query.INSERT_NOTE, [note.title, note.userid, note.text, note.creationdate, note.lastmodificationdate, note.isdone, note.links, JSON.stringify(note)]);
-//       }
-//       return p;
-//     })
-//     .then(insertOrUpdateResult=>{
-//       /*using the try-or for tags.*/
-//       for(let i=0;i<note.maintags.length;i++){
-//         this.db.executeSql(Query.TAG_EXISTS, [note.maintags[i].title])
-//         .then(resultSet=>{
-//           if(resultSet.rows==0){
-//             /*try-update*/
-//             this.db.executeSql(Query.INSERT_TAG_MIN, [JSON.stringify(note.maintags[i]), note.maintags[i].title]);
-//             this.db.executeSql(Query.INSERT_NOTES_TAGS, [note.title, note.maintags[i].title, 'mainTags', note.userid]);
-//           }
-//         })
-//       }
-//       for(let i=0;i<note.othertags.length;i++){
-//         this.db.executeSql(Query.INSERT_TAG_MIN, [note.othertags[i].title, JSON.stringify(note.othertags[i])])
-//         .then(resultSet=>{
-//           if(resultSet.rows==0){
-//             /*try-update*/
-//             this.db.executeSql(Query.INSERT_TAG_MIN, [JSON.stringify(note.othertags[i]), note.othertags[i].title]);
-//             this.db.executeSql(Query.INSERT_NOTES_TAGS, [note.title, note.othertags[i].title, 'otherTags', note.userid]);
-//           }
-//         })
-//       }
-//       //resolve(true);
-//     })
-//     .catch(error=>{
-//       reject(error);
-//     })
-//   });
-// }
-/*
-static readonly UPDATE_NOTE_2 = 'update notes set text=?, remote_lastmodificationdate=?, creationdate=?, isdone=?, links=?, json_object=? where title=? and json_object <> ?';
-*/
-/*
-here a different approach, test if present, then insert or update. I will check wich approach has the performance.
-*/
-// public insertOrUpdateNote(note:NoteFull, updateTags: boolean){
-//   return new Promise<any>((resolve, reject)=>{
-//     console.log('checking for note: ');
-//     console.log(JSON.stringify(note));
-//     this.db.executeSql(Query.NOTE_EXISTS, [note.title])
-//     .then(result=>{
-//
-//         /*note is note present, inserting it.*/
-//         this.db.transaction(
-//           (tx)=>{
-//
-//           }
-//         )
-//     })
-//     .catch(error=>{
-//       reject(error);
-//     })
-
-    // this.db.transaction(t=>{
-    //   t.executeSql(Query.NOTE_EXISTS, [note.title])
-    //   .then(result=>{
-    //     if(result.rows.length<=0){
-    //       console.log('note not exists');
-    //       t.executeSql(Query.INSERT_NOTE, [note.title, note.userid, note.text, note.creationdate, note.lastmodificationdate, note.isdone, note.links, JSON.stringify(note)]);
-    //     }else{
-    //       console.log('note exists, update it.');
-    //       t.executeSql(Query.UPDATE_NOTE_2, [note.text, note.lastmodificationdate, note.creationdate, note.isdone, note.links, JSON.stringify(note), note.title, JSON.stringify(note)]);
-    //     }
-    //     if(updateTags){
-    //       for(let i=0;i<note.maintags.length;i++){
-    //         console.log('checking things for ');
-    //         console.log(JSON.stringify(note.maintags[i]));
-    //         t.executeSql(Query.TAG_EXISTS, [note.maintags[i].title])
-    //         .then(result=>{
-    //           if(result.rows.length<=0){
-    //             console.log('tag doesn\t exists, insert it.');
-    //             t.executeSql(Query.INSERT_TAG, [note.maintags[i].title, note.userid, JSON.stringify(note.maintags[i])]);
-    //             /*if new we can push it also to notes_tags*/
-    //             console.log('inserting also in notes_tags');
-    //             t.executeSql(Query.INSERT_NOTES_TAGS, [note.title, note.maintags[i].title, 'mainTags', note.userid]);
-    //           }else{
-    //             /*just update, the on update cascade will update into notes_tags*/
-    //             //no, because what I get from the DBis just the title of the note, so there's no chanche to update it properly.
-    //             // t.executeSql(Query.UPDATE_TAG_2, [JSON.stringify(note.maintags[i]), note.maintags[i].title, JSON.stringify(note.maintags[i])]);
-    //           }
-    //         })
-    //       } /*end of maintags*/
-    //       for(let i=0;i<note.othertags.length;i++){
-    //         console.log('checking things for ');
-    //         console.log(JSON.stringify(note.othertags[i]));
-    //         t.executeSql(Query.TAG_EXISTS, [note.othertags[i].title])
-    //         .then(result=>{
-    //           if(result.rows.length<=0){
-    //             console.log('tag doesn\t exists, insert it.');
-    //             t.executeSql(Query.INSERT_TAG, [note.othertags[i].title, note.userid, JSON.stringify(note.maintags[i])]);
-    //             /*if new we can push it also to notes_tags*/
-    //             console.log('inserting also in notes_tags');
-    //             t.executeSql(Query.INSERT_NOTES_TAGS, [note.title, note.othertags[i].title, 'otherTags', note.userid]);
-    //           }else{
-    //             /*just update, the on update cascade will update into notes_tags*/
-    //             //no, because what I get from the DBis just the title of the note, so there's no chanche to update it properly.
-    //             // t.executeSql(Query.UPDATE_TAG_2, [JSON.stringify(note.othertags[i]), note.othertags[i].title, JSON.stringify(note.othertags[i])]);
-    //           }
-    //         })
-    //       }
-    //     }
-    //     t.executeSql(Query.GET_NOTES_COUNT, [])
-    //     .then(rawResult=>{
-    //       this.notesCount = rawResult.rows.item(0).count;
-    //     })
-    //     .catch(error=>{
-    //       console.log('get notes number error');
-    //       console.log(JSON.stringify(error));
-    //     });
-    //     t.executeSql(Query.GET_TAGS_COUNT,[])
-    //     .then(rawResult=>{
-    //       this.tagsCount = rawResult.rows.item(0).count;
-    //     })
-    //     .catch(error=>{
-    //       console.log('get tags number error');
-    //       console.log(JSON.stringify(error));
-    //     });
-    //   })
-    //   resolve(true);
-    // })
-    // .then(txResult=>{
-    //   return this.getNotesAndTagsCountWrapper();
-    // })
-    // .then(()=>{
-    //   resolve(true);
-    // })
-    // .catch(error=>{
-    //   reject(error);
-    // });
-  //})
-//}
 
 
 public isNoteFull(title: string):Promise<boolean>{
@@ -1173,4 +1011,42 @@ public setTitle(note :NoteFull, newTitle: string):Promise<any>{
     })
   })
 }
+
+  public getNotesByTags(tags: TagAlmostMin[]):Promise<NoteExtraMin[]>{
+    return new Promise<NoteExtraMin[]>((resolve, reject)=>{
+      let queryString: string = Query.SELECT_NOTES_BY_TAGS;
+      if(tags.length!=1){
+        /*have to prepare it, if not, it is already ready for query.*/
+        for(let i=1;i<tags.length;i++){
+          queryString = queryString.concat(' or tagtitle=?');
+        }
+      }
+      // console.log('the query is:');
+      // console.log(queryString);
+      this.db.executeSql(queryString, tags.map((tag)=>{return tag.title}))
+      .then(result=>{
+        let notes:NoteExtraMin[] = [];
+        console.log('db result is:');
+        console.log(JSON.stringify(result));
+        if(result.rows.length > 0){
+          for(let i=0;i<result.rows.length;i++){
+            // console.log('result.rows.item(i)');
+            // console.log(JSON.stringify(result.rows.item(i)));
+            // console.log(JSON.stringify(result.rows));
+            let noteTitle:string = result.rows.item(i).notetitle;
+            let note: NoteExtraMin = new NoteExtraMin();
+            note.title = noteTitle;
+            notes.push(note);
+          }
+        }
+        resolve(notes);
+      })
+      .catch(error=>{
+        console.log('error in getting notes by tags');
+        console.log(JSON.stringify(error));
+        reject(error);
+      })
+    })
+  }
+
 }

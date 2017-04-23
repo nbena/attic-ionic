@@ -150,9 +150,9 @@ export class TagsPage {
       })
   }
 
-  notesByTag(event, title: string){
+  notesByTag(event, tag: TagAlmostMin){
     event.stopPropagation();
-    let tags = [title];
+    let tags = [tag];
     let filterType = Filter.Tags;
     // console.log("proper event fired");
     // console.log("is array: "+(tags instanceof Array).toString());
