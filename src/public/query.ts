@@ -140,6 +140,10 @@ export class Query{
   static readonly UPDATE_NOTE_SET_TEXT = 'update notes set text=?, json_object=? where title=?';
   static readonly UPDATE_NOTE_SET_LINKS = 'update notes set links=?, json_object=? where title=?';
 
+  static readonly UPDATE_NOTE_SET_TITLE = 'update notes set title=?, json_object=? where title=?';
+
+  static readonly INSERT_NOTE_OLDTITLE_INTO_LOGS = 'insert into logs(notetitle, oldtitle, action) values (?,?,?)';
+
   static readonly IS_NOTE_NOT_IN_THE_SERVER = 'select * from logs where notetitle=? and action=\'create\'';
   /*
   tag and notes in the db just memorize an array of ids.

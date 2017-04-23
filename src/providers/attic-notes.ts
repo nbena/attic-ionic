@@ -338,9 +338,10 @@ return this.items.filter((item) => {
   }
 
 
-  changeTitle(noteTitle: string, newTitle: string){
-    return Utils.postBasic('/api/notes/mod/title', JSON.stringify({note:
-      {title: noteTitle, newTitle: newTitle}}), this.http, this.auth.token);
+  changeTitle(note: NoteFull, newTitle: string){
+    // return Utils.postBasic('/api/notes/mod/title', JSON.stringify({note:
+    //   {title: noteTitle, newTitle: newTitle}}), this.http, this.auth.token);
+    return this.db.setTitle(note, newTitle);
   }
 
 

@@ -82,6 +82,7 @@ export class NotesPopoverPage {
       });
       prompt.present();
     this.close();
+  //  this.navCtrl.popTo()
   }
 
   /*
@@ -89,7 +90,7 @@ export class NotesPopoverPage {
   */
 
   changeTitleAPI(title: string){
-    this.atticNotes.changeTitle(this.note.title, title)
+    this.atticNotes.changeTitle(this.note, title)
       .then(result=>{
         // this.note.title=title;
         Utils.presentToast(this.toastCtrl, 'Title updated');

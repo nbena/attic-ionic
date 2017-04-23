@@ -427,7 +427,7 @@ public createNewNote(note:NoteFull):Promise<any>{
       });
 
       /*'insert into logs (notetitle, action) values (?,?)';*/
-      tx.executeSql(Query.INSERT_NOTE_INTO_LOGS, [note.title, 'create'],
+      tx.executeSql(Query.INSERT_NOTE_OLDTITLE_INTO_LOGS, [note.title, note.title, 'create'],
       (tx:any, res:any)=>{
         if(res){
           console.log('res logs is');
@@ -906,7 +906,7 @@ private setDoneAlsoRemote(note: NoteFull):Promise<any>{
   return new Promise<any>((resolve, reject)=>{
     this.db.transaction(tx=>{
       tx.executeSql(Query.UPDATE_NOTE_SET_DONE, [note.isdone, JSON.stringify(note), note.title]);
-      tx.executeSql(Query.INSERT_NOTE_INTO_LOGS, [note.title, 'set-done']);
+      tx.executeSql(Query.INSERT_NOTE_OLDTITLE_INTO_LOGS, [note.title, note.title, 'set-done']);
     })
     .then(txResult=>{
       console.log('tx completed');
@@ -964,7 +964,7 @@ private setTextAlsoRemote(note: NoteFull):Promise<any>{
   return new Promise<any>((resolve, reject)=>{
     this.db.transaction(tx=>{
       tx.executeSql(Query.UPDATE_NOTE_SET_TEXT, [note.text, JSON.stringify(note), note.title]);
-      tx.executeSql(Query.INSERT_NOTE_INTO_LOGS, [note.title, 'change-text']);
+      tx.executeSql(Query.INSERT_NOTE_OLDTITLE_INTO_LOGS, [note.title, note.title,'change-text']);
     })
     .then(txResult=>{
       console.log('tx completed');
@@ -1015,14 +1015,14 @@ public setText(note :NoteFull):Promise<any>{
 
 
 private setLinksJustLocal(note: NoteFull):Promise<any>{
-  return this.db.executeSql(Query.UPDATE_NOTE_SET_DONE, [JSON.stringify(note.links), JSON.stringify(note), note.title]);
+  return this.db.executeSql(Query.UPDATE_NOTE_SET_LINKS, [JSON.stringify(note.links), JSON.stringify(note), note.title]);
 }
 
 private setLinksAlsoRemote(note: NoteFull):Promise<any>{
   return new Promise<any>((resolve, reject)=>{
     this.db.transaction(tx=>{
-      tx.executeSql(Query.UPDATE_NOTE_SET_DONE, [JSON.stringify(note.links), JSON.stringify(note), note.title]);
-      tx.executeSql(Query.INSERT_NOTE_INTO_LOGS, [note.title, 'set-link']);
+      tx.executeSql(Query.UPDATE_NOTE_SET_LINKS, [JSON.stringify(note.links), JSON.stringify(note), note.title]);
+      tx.executeSql(Query.INSERT_NOTE_OLDTITLE_INTO_LOGS, [note.title, note.title,'set-link']);
     })
     .then(txResult=>{
       console.log('tx completed');
@@ -1065,6 +1065,68 @@ public setLinks(note :NoteFull):Promise<any>{
     })
     .catch(error=>{
       console.log('error in set-links');
+      console.log(JSON.stringify(error));
+      reject(error);
+    })
+  })
+}
+
+
+private setTitleJustLocal(note: NoteFull, newTitle: string):Promise<any>{
+  let oldTitle:string = note.title;
+  note.title = newTitle;
+  return this.db.executeSql(Query.UPDATE_NOTE_SET_TITLE, [newTitle, JSON.stringify(note), oldTitle]);
+}
+
+private setTitleAlsoRemote(note: NoteFull, newTitle: string):Promise<any>{
+  return new Promise<any>((resolve, reject)=>{
+    let oldTitle:string = note.title;
+    note.title = newTitle;
+    this.db.transaction(tx=>{
+      tx.executeSql(Query.UPDATE_NOTE_SET_TITLE,[newTitle, JSON.stringify(note), oldTitle]);
+      tx.executeSql(Query.INSERT_NOTE_OLDTITLE_INTO_LOGS, [newTitle, oldTitle,'change-title']);
+    })
+    .then(txResult=>{
+      console.log('tx completed');
+      resolve(true);
+    })
+    .catch(error=>{
+      console.log('tx set title error');
+      console.log(JSON.stringify(error));
+      reject(error);
+    })
+  })
+}
+
+/*a full object in order to re-calculate the json_object and insert it directly.
+If i use just the title, I'd have to get to json_object, modify and reinsert. */
+public setTitle(note :NoteFull, newTitle: string):Promise<any>{
+  /*UODATE_NOTE_SET_DONE = 'update note set isdone=?, json_object=? where title=?';*/
+  /*'select * from logs where notetitle=? and action=\'create\'';*/
+  /*first check if the note must be sent to the server, if so,
+  I can only update it.
+  If the note is already in the server, I need to write modification to the log.
+  */
+  return new Promise<any>((resolve, reject)=>{
+    let inTheServer: boolean = false;
+    this.db.executeSql(Query.IS_NOTE_NOT_IN_THE_SERVER, [note.title])
+    .then(result=>{
+      if(result.rows.length > 0){
+        // console.log('the note is not in the server');
+        // inTheServer = false;
+        return this.setTitleJustLocal(note, newTitle);
+      }else{
+        // console.log('the note is already in the server');
+        // inTheServer = true;
+        return this.setTitleAlsoRemote(note, newTitle);
+      }
+    })
+    .then(upadteResuullt=>{
+      console.log('set title ok'),
+      resolve(true);
+    })
+    .catch(error=>{
+      console.log('error in set-title');
       console.log(JSON.stringify(error));
       reject(error);
     })

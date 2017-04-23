@@ -89,6 +89,10 @@ export class NoteDetailsPage {
     public toastCtrl: ToastController,
     private atticNotes: AtticNotes, private atticTags: AtticTags) {
     this.title=navParams.get('title');
+    this.init();
+  }
+
+  init(){
     this.noteByTitle(false);
     this.loadTags(false);
   }
