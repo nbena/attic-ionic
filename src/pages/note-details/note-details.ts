@@ -399,7 +399,9 @@ export class NoteDetailsPage {
   }
 
   changeLinksAPI(){
-    return this.atticNotes.changeLinks(this.note.title, this.shownLinks);
+    // return this.atticNotes.changeLinks(this.note.title, this.shownLinks);
+    this.note.links = this.shownLinks;
+    return this.atticNotes.changeLinks(this.note);
   }
 
   changeDoneAPI(){

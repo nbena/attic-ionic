@@ -913,7 +913,7 @@ private setDoneAlsoRemote(note: NoteFull):Promise<any>{
       resolve(true);
     })
     .catch(error=>{
-      console.log('tx error');
+      console.log('tx set done error');
       console.log(JSON.stringify(error));
       reject(error);
     })
@@ -934,12 +934,12 @@ public setDone(note :NoteFull):Promise<any>{
     this.db.executeSql(Query.IS_NOTE_NOT_IN_THE_SERVER, [note.title])
     .then(result=>{
       if(result.rows.length > 0){
-        console.log('the note is not in the server');
-        inTheServer = false;
+        // console.log('the note is not in the server');
+        // inTheServer = false;
         return this.setDoneJustLocal(note);
       }else{
-        console.log('the note is already in the server');
-        inTheServer = true;
+        // console.log('the note is already in the server');
+        // inTheServer = true;
         return this.setDoneAlsoRemote(note);
       }
     })
@@ -948,7 +948,123 @@ public setDone(note :NoteFull):Promise<any>{
       resolve(true);
     })
     .catch(error=>{
-      console.log('error');
+      console.log('error in set-done');
+      console.log(JSON.stringify(error));
+      reject(error);
+    })
+  })
+}
+
+
+private setTextJustLocal(note: NoteFull):Promise<any>{
+  return this.db.executeSql(Query.UPDATE_NOTE_SET_TEXT, [note.text, JSON.stringify(note), note.title]);
+}
+
+private setTextAlsoRemote(note: NoteFull):Promise<any>{
+  return new Promise<any>((resolve, reject)=>{
+    this.db.transaction(tx=>{
+      tx.executeSql(Query.UPDATE_NOTE_SET_TEXT, [note.text, JSON.stringify(note), note.title]);
+      tx.executeSql(Query.INSERT_NOTE_INTO_LOGS, [note.title, 'change-text']);
+    })
+    .then(txResult=>{
+      console.log('tx completed');
+      resolve(true);
+    })
+    .catch(error=>{
+      console.log('tx set text error');
+      console.log(JSON.stringify(error));
+      reject(error);
+    })
+  })
+}
+
+/*a full object in order to re-calculate the json_object and insert it directly.
+If i use just the title, I'd have to get to json_object, modify and reinsert. */
+public setText(note :NoteFull):Promise<any>{
+  /*UODATE_NOTE_SET_DONE = 'update note set isdone=?, json_object=? where title=?';*/
+  /*'select * from logs where notetitle=? and action=\'create\'';*/
+  /*first check if the note must be sent to the server, if so,
+  I can only update it.
+  If the note is already in the server, I need to write modification to the log.
+  */
+  return new Promise<any>((resolve, reject)=>{
+    let inTheServer: boolean = false;
+    this.db.executeSql(Query.IS_NOTE_NOT_IN_THE_SERVER, [note.title])
+    .then(result=>{
+      if(result.rows.length > 0){
+        // console.log('the note is not in the server');
+        // inTheServer = false;
+        return this.setTextJustLocal(note);
+      }else{
+        // console.log('the note is already in the server');
+        // inTheServer = true;
+        return this.setTextAlsoRemote(note);
+      }
+    })
+    .then(upadteResuullt=>{
+      console.log('set text ok'),
+      resolve(true);
+    })
+    .catch(error=>{
+      console.log('error in set-text');
+      console.log(JSON.stringify(error));
+      reject(error);
+    })
+  })
+}
+
+
+private setLinksJustLocal(note: NoteFull):Promise<any>{
+  return this.db.executeSql(Query.UPDATE_NOTE_SET_DONE, [JSON.stringify(note.links), JSON.stringify(note), note.title]);
+}
+
+private setLinksAlsoRemote(note: NoteFull):Promise<any>{
+  return new Promise<any>((resolve, reject)=>{
+    this.db.transaction(tx=>{
+      tx.executeSql(Query.UPDATE_NOTE_SET_DONE, [JSON.stringify(note.links), JSON.stringify(note), note.title]);
+      tx.executeSql(Query.INSERT_NOTE_INTO_LOGS, [note.title, 'set-link']);
+    })
+    .then(txResult=>{
+      console.log('tx completed');
+      resolve(true);
+    })
+    .catch(error=>{
+      console.log('tx set link error');
+      console.log(JSON.stringify(error));
+      reject(error);
+    })
+  })
+}
+
+/*a full object in order to re-calculate the json_object and insert it directly.
+If i use just the title, I'd have to get to json_object, modify and reinsert. */
+public setLinks(note :NoteFull):Promise<any>{
+  /*UODATE_NOTE_SET_DONE = 'update note set isdone=?, json_object=? where title=?';*/
+  /*'select * from logs where notetitle=? and action=\'create\'';*/
+  /*first check if the note must be sent to the server, if so,
+  I can only update it.
+  If the note is already in the server, I need to write modification to the log.
+  */
+  return new Promise<any>((resolve, reject)=>{
+    let inTheServer: boolean = false;
+    this.db.executeSql(Query.IS_NOTE_NOT_IN_THE_SERVER, [note.title])
+    .then(result=>{
+      if(result.rows.length > 0){
+        // console.log('the note is not in the server');
+        // inTheServer = false;
+        return this.setLinksJustLocal(note);
+      }else{
+        // console.log('the note is already in the server');
+        // inTheServer = true;
+        return this.setLinksAlsoRemote(note);
+      }
+    })
+    .then(upadteResuullt=>{
+      console.log('set links ok'),
+      resolve(true);
+    })
+    .catch(error=>{
+      console.log('error in set-links');
       console.log(JSON.stringify(error));
       reject(error);
     })

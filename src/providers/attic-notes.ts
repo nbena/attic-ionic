@@ -380,14 +380,16 @@ return this.items.filter((item) => {
   // removeLinks(noteId: string, links: string[]){
   //   return Utils.postBasic('/api/notes/mod/removelinks', JSON.stringify({id: noteId, links: links }), this.http, this.auth.token);
   // }
-  changeLinks(noteTitle: string, links:string[]){
-    return Utils.postBasic('/api/notes/mod/links', JSON.stringify({note:
-      {title: noteTitle, links:links}}), this.http, this.auth.token);
+  changeLinks(/*noteTitle: string, links:string[]*/note:NoteFull){
+    // return Utils.postBasic('/api/notes/mod/links', JSON.stringify({note:
+    //   {title: noteTitle, links:links}}), this.http, this.auth.token);
+    return this.db.setLinks(note);
   }
 
-  changeText(noteTitle: string, text:string){
-    return Utils.postBasic('/api/notes/mod/text', JSON.stringify({note:
-      {title:noteTitle, text:text}}), this.http, this.auth.token);
+  changeText(/*noteTitle: string, text:string*/note:NoteFull){
+    // return Utils.postBasic('/api/notes/mod/text', JSON.stringify({note:
+    //   {title:noteTitle, text:text}}), this.http, this.auth.token);
+    return this.db.setText(note);
   }
 
   changeDone(/*noteTitle: string, done: boolean*/note: NoteFull){

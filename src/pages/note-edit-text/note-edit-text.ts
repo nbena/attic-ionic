@@ -37,7 +37,8 @@ export class NoteEditTextPage {
 
 
   changeText(){
-    this.atticNotes.changeText(this.note.title, this.text)
+    this.note.text = this.text;
+    this.atticNotes.changeText(this.note)
       .then(result=>{
         console.log(result);
         Utils.presentToast(this.toastCtrl, 'Text updated');

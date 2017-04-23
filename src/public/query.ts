@@ -137,6 +137,8 @@ export class Query{
   static readonly GET_TOKEN = 'select * from auth where token is not null';
 
   static readonly UPDATE_NOTE_SET_DONE = 'update notes set isdone=?, json_object=? where title=?';
+  static readonly UPDATE_NOTE_SET_TEXT = 'update notes set text=?, json_object=? where title=?';
+  static readonly UPDATE_NOTE_SET_LINKS = 'update notes set links=?, json_object=? where title=?';
 
   static readonly IS_NOTE_NOT_IN_THE_SERVER = 'select * from logs where notetitle=? and action=\'create\'';
   /*
