@@ -22,8 +22,8 @@ export class CreateNotePage {
   newNote: NoteFull;
 
   tags: TagAlmostMin[];
-  mainTags: TagAlmostMin[];
-  otherTags: TagAlmostMin[];
+  mainTags: TagAlmostMin[] = [];
+  otherTags: TagAlmostMin[]  = [];
   // isDone: boolean;
   links: string[];
 

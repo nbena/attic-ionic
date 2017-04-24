@@ -128,7 +128,9 @@ export class Query{
   // static readonly UPDATE_JSON_OBJ_IF_NECESSARY_TAG = 'update tags set json_object=? where title=? and json_object <> ?';
 
   static readonly UPDATE_JSON_OBJ_TAG ='update tags set json_object=? where title=? and userid=?';
+  static readonly UPDATE_JSON_OBJ_NOTE ='update notes set json_object=? where title=? and userid=?';
 
+  static readonly GET_TITLE_AND_JSON_OF_NOTES_TO_UPDATE = 'select title, role, json_object from notes join notes_tags on title=notetitle where notes.mustbedeleted=\'false\' and notes_tags.mustbedeleted=\'false\' and tagtitle=? and notes.userid=? and notes_tags.userid=notes.userid';
   // static readonly EMPLTY_NOTES = 'delete from notes';
   // static readonly EMPTY_TAGS = 'delete from tags';
 

@@ -139,4 +139,6 @@ export class AtticTags {
     return this.db.deleteTag(tag, this.auth.userid);
   }
 
+  /*the note full object is not kept in the DB as json, is recreated everytime.*/
+
 }

@@ -134,19 +134,58 @@ export class Db {
       });
     })
     //});
-//  }
+  }
 
-}
-private getLogsCount(userid: string):Promise<any>{
-  return this.db.executeSql(Query.GET_LOGS_COUNT,[userid]);
+// }
+// private getLogsCount(userid: string):Promise<any>{
+//   return this.db.executeSql(Query.GET_LOGS_COUNT,[userid]);
+// }
+//
+// private getNotesCount(userid: string):Promise<any>{
+//   return this.db.executeSql(Query.GET_NOTES_COUNT,[userid]);
+// }
+//
+// private getTagsCount(userid: string):Promise<any>{
+//   return this.db.executeSql(Query.GET_TAGS_COUNT,[userid]);
+// }
+
+private getNotesCountAdvanced(userid: string):Promise<any>{
+  return new Promise<number>((resolve, reject)=>{
+    this.db.executeSql(Query.GET_NOTES_COUNT, [userid])
+    .then(result=>{
+      if(result.rows.length <= 0){
+        reject(new Error(JSON.stringify(result)));
+      }else{
+        resolve(result.rows.item(0).count);
+      }
+    })
+  })
 }
 
-private getNotesCount(userid: string):Promise<any>{
-  return this.db.executeSql(Query.GET_NOTES_COUNT,[userid]);
+private getTagsCountAdvanced(userid: string):Promise<any>{
+  return new Promise<number>((resolve, reject)=>{
+    this.db.executeSql(Query.GET_TAGS_COUNT, [userid])
+    .then(result=>{
+      if(result.rows.length <= 0){
+        reject(new Error(JSON.stringify(result)));
+      }else{
+        resolve(result.rows.item(0).count);
+      }
+    })
+  })
 }
 
-private getTagsCount(userid: string):Promise<any>{
-  return this.db.executeSql(Query.GET_TAGS_COUNT,[userid]);
+private getLogsCountAdvanced(userid: string):Promise<any>{
+  return new Promise<number>((resolve, reject)=>{
+    this.db.executeSql(Query.GET_LOGS_COUNT, [userid])
+    .then(result=>{
+      if(result.rows.length <= 0){
+        reject(new Error(JSON.stringify(result)));
+      }else{
+        resolve(result.rows.item(0).count);
+      }
+    })
+  })
 }
 
 // private getLogsCountWrapper (userid: string){
@@ -227,17 +266,17 @@ private getTagsCount(userid: string):Promise<any>{
 //   })
 // }
 private count(userid: string):Promise<any>{
-  return this.getLogsCount(userid)
+  return this.getLogsCountAdvanced(userid)
     .then(count=>{
-      this.logsCount = count.rows.item(0).count;
-      return this.getNotesCount(userid);
+      this.logsCount = count;
+      return this.getNotesCountAdvanced(userid);
     })
     .then(count=>{
-      this.notesCount = count.rows.item(0).count;
-      return this.getTagsCount(userid);
+      this.notesCount = count;
+      return this.getTagsCountAdvanced(userid);
     })
     .then(count=>{
-      this.tagsCount = count.rows.item(0).count;
+      this.tagsCount = count;
       console.log('counts:');
       console.log(JSON.stringify([this.logsCount, this.notesCount, this.tagsCount]));
     });
@@ -401,11 +440,11 @@ public insertOrUpdateNote(note: NoteFull, userid: string):Promise<any>{
         ])
       })
       .then(results=>{
-        return this.getNotesCount(userid);
+        return this.getNotesCountAdvanced(userid);
       })
       .then(notesCount=>{
         this.notesCount = notesCount;
-        return this.getTagsCount(userid);
+        return this.getTagsCountAdvanced(userid);
       })
       .then(tagsCount=>{
         this.tagsCount = tagsCount;
@@ -586,7 +625,7 @@ public createNewNote2(note:NoteFull, tags:TagAlmostMin[], userid: string):Promis
   })
   .then(txResult=>{
     /*update the note count.*/
-    return this.getNotesCount(userid);
+    return this.getNotesCountAdvanced(userid);
   })
   .then(notesCount=>{
     this.notesCount = notesCount;
@@ -701,9 +740,10 @@ public insertTagMinQuietly(tag: TagAlmostMin, userid: string):Promise<any>{
     this.db.executeSql(Query.INSERT_TAG_MIN,[tag.title, JSON.stringify(tag)])
     .then(result=>{
       /*nothing to do.*/
-      return this.getTagsCount(userid);
+      return this.getTagsCountAdvanced(userid);
     })
-    .then(()=>{
+    .then(count=>{
+      this.tagsCount = count;
       resolve(true);
     })
     .catch(error=>{
@@ -736,9 +776,10 @@ public insertNoteMinQuietly(note: NoteExtraMin, userid: string):Promise<any>{
     this.db.executeSql(Query.INSERT_NOTE_MIN,[note.title, JSON.stringify(note), userid])
     .then(result=>{
       /*nothing to do.*/
-      return this.getNotesCount(userid);
+      return this.getNotesCountAdvanced(userid);
     })
-    .then(()=>{
+    .then(count=>{
+      this.notesCount = count;
       resolve(true);
     })
     .catch(error=>{
@@ -1123,8 +1164,44 @@ public setTitle(note :NoteFull, newTitle: string, userid: string):Promise<any>{
     return new Promise<any>((resolve, reject)=>{
       this.db.transaction(tx=>{
         tx.executeSql(Query.INSERT_TAG_OLDTITLE_INTO_LOGS, [tag.title, tag.title, 'delete', userid]);
+        /*now update the json_object of eventual full notes.*/
+        tx.executeSql(Query.GET_TITLE_AND_JSON_OF_NOTES_TO_UPDATE, [tag.title, userid],
+          (tx: any, res: any)=>{ /*result callback*/
+            // console.log('select result');
+            // console.log(JSON.stringify(res));
+            if(res.rows.length <= 0){
+              console.log('no note to update');
+              return;
+            }else{
+              for(let i=0;i<res.rows.length;i++){
+                console.log('I have to update:');
+                console.log(JSON.stringify(res.rows.length));
+                let json_object:any = JSON.parse(res.rows.item(i).json_object);
+                // console.log('item(i):');
+                // console.log(JSON.stringify(res.rows.item(i)));
+                // console.log('parsed is:');
+                // console.log(JSON.stringify(json_object));
+                let role:string = res.rows.item(i).role;
+                let title: string = res.rows.item(i).title;
+                if(role == 'mainTags'){
+                  json_object.maintags.splice(Utils.myIndexOf(json_object.maintags, tag),1);
+                  console.log('removed maintag:');
+                }else{
+                  json_object.othertags.splice(Utils.myIndexOf(json_object.othertags, tag),1);
+                  console.log('removed othertag:');
+                }
+                console.log(JSON.stringify(json_object));
+                tx.executeSql(Query.UPDATE_JSON_OBJ_NOTE, [JSON.stringify(json_object),title,userid]);
+              }
+            }
+          },
+          (tx: any, error: any)=>{ /*error callback*/
+            console.log('error in select:');
+            console.log(JSON.stringify(error));
+          }
+        );
         tx.executeSql(Query.SET_TAG_DELETED, [tag.title, userid ]);
-        tx.executeSql(Query.SET_TAG_DELETED_NOTES_TAGS, [userid]);
+        tx.executeSql(Query.SET_TAG_DELETED_NOTES_TAGS, [tag.title, userid]);
       })
       .then(txResult=>{
         console.log('tx completed, result:');
