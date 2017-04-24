@@ -11,7 +11,7 @@ import { TagDetailsPage } from '../pages/tag-details/tag-details';
 
 import { CreateNotePage } from '../pages/create-note/create-note';
 import { NoteDetailsPopoverPage } from '../pages/note-details-popover/note-details-popover';
-import { TagsPopoverPage } from '../pages/tags-popover/tags-popover';
+import { TagDetailsPopoverPage } from '../pages/tag-details-popover/tag-details-popover';
 import { NotesPopoverPage } from '../pages/notes-popover/notes-popover';
 import { NoteEditTextPage } from '../pages/note-edit-text/note-edit-text';
 
@@ -43,7 +43,7 @@ import { Network } from '@ionic-native/network';
     CreateNotePage,
     NoteDetailsPopoverPage,
     NoteEditTextPage,
-    TagsPopoverPage,
+    TagDetailsPopoverPage,
     NotesPopoverPage
   ],
   imports: [
@@ -61,7 +61,7 @@ import { Network } from '@ionic-native/network';
     CreateNotePage,
     NoteDetailsPopoverPage,
     NoteEditTextPage,
-    TagsPopoverPage,
+    TagDetailsPopoverPage,
     NotesPopoverPage
     //NoteEditTagsPage
   ],

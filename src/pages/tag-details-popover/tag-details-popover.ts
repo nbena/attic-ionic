@@ -3,6 +3,7 @@ import { NavController, NavParams, ToastController, AlertController, ViewControl
 import { TagFull } from '../../models/tags';
 import { AtticTags } from '../../providers/attic-tags';
 import { Utils } from '../../public/utils';
+import { TagsPage } from '../tags/tags';
 
 /*
   Generated class for the TagsPopover page.
@@ -11,10 +12,10 @@ import { Utils } from '../../public/utils';
   Ionic pages and navigation.
 */
 @Component({
-  selector: 'page-tags-popover',
-  templateUrl: 'tags-popover.html'
+  selector: 'page-tag-details-popover',
+  templateUrl: 'tag-details-popover.html'
 })
-export class TagsPopoverPage {
+export class TagDetailsPopoverPage {
 
   tag: TagFull;
 
@@ -84,6 +85,7 @@ export class TagsPopoverPage {
     this.atticTags.deleteTag(this.tag)
     .then(result=>{
       Utils.presentToast(this.toastCtrl, 'Tag deleted');
+      this.navCtrl.popTo(TagsPage);
     })
     .catch(error=>{
       console.log(JSON.stringify(error))

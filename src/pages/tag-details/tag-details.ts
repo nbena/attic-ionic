@@ -4,7 +4,7 @@ import { NavController, NavParams, PopoverController } from 'ionic-angular';
 import { /*TagFull, TagExtraMin, *//*TagMin*/TagFull } from '../../models/tags';
 import { AtticTags } from '../../providers/attic-tags';
 import { NoteDetailsPage } from '../note-details/note-details';
-import { TagsPopoverPage } from '../tags-popover/tags-popover';
+import { TagDetailsPopoverPage } from '../tag-details-popover/tag-details-popover';
 
 /*
   Generated class for the TagDetails page.
@@ -63,7 +63,7 @@ export class TagDetailsPage {
   }
 
   showPopover(event){
-    let popover=this.popoverCtrl.create(TagsPopoverPage, {tag: this.tag});
+    let popover=this.popoverCtrl.create(TagDetailsPopoverPage, {tag: this.tag});
     popover.present({
       ev:event
     });

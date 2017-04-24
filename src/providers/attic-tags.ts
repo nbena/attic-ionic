@@ -135,7 +135,8 @@ export class AtticTags {
   }
 
   deleteTag(tag: TagExtraMin):Promise<any>{
-    return Utils.deleteBasic('/api/tags/'+tag.title, this.http, this.auth.token);
+    // return Utils.deleteBasic('/api/tags/'+tag.title, this.http, this.auth.token);
+    return this.db.deleteTag(tag, this.auth.userid);
   }
 
 }

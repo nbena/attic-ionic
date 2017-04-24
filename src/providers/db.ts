@@ -1119,7 +1119,7 @@ public setTitle(note :NoteFull, newTitle: string, userid: string):Promise<any>{
     })
   }
 
-  deleteTag(tag: TagAlmostMin, userid: string):Promise<any>{
+  deleteTag(tag: TagExtraMin, userid: string):Promise<any>{
     return new Promise<any>((resolve, reject)=>{
       this.db.transaction(tx=>{
         tx.executeSql(Query.INSERT_TAG_OLDTITLE_INTO_LOGS, [tag.title, tag.title, 'delete', userid]);
