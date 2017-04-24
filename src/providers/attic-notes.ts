@@ -57,7 +57,7 @@ export class AtticNotes {
       let areThereNotesInTheDb: boolean;
       let notes:NoteExtraMin[]=[];
       let useDb: boolean;
-      this.db.getNumberOfNotes()
+      this.db.getNumberOfNotes(this.auth.userid)
       .then(number=>{
         areThereNotesInTheDb = (number > 0) ? true : false;
         console.log('the numberof notes is');
@@ -67,7 +67,7 @@ export class AtticNotes {
         console.log('usedb note: ');
         console.log(JSON.stringify(useDb));
         if(useDb){
-          return this.db.getNotesMin();
+          return this.db.getNotesMin(this.auth.userid);
         }else{
           console.log('no notes, using the network');
           return Utils.getBasic('/api/notes/all/min', this.http, this.auth.token);
@@ -81,7 +81,7 @@ export class AtticNotes {
           /*fetchingResult = NoteMin[] from the network, need to insert.*/
           notes = fetchingResult as NoteExtraMin[];
           for(let i=0;i<notes.length;i++){
-            this.db.insertNoteMinQuietly(notes[i]);
+            this.db.insertNoteMinQuietly(notes[i], this.auth.userid);
           }
           resolve(notes);
         }
@@ -108,7 +108,7 @@ export class AtticNotes {
         console.log(JSON.stringify(result.note));
         note = result.note as NoteFull;
         /*inserting in the DB.*/
-        this.db.insertOrUpdateNote(note); /*this will be done asynchronously?*/
+        this.db.insertOrUpdateNote(note, this.auth.userid); /*this will be done asynchronously?*/
         resolve(note);
       // .catch(error=>{
       //   console.log('errror while fetching and inserting.');
@@ -138,13 +138,13 @@ export class AtticNotes {
       let areThereNotesInTheDb: boolean;
       let useDb: boolean;
       let callNet: boolean;
-      this.db.getNumberOfNotes()
+      this.db.getNumberOfNotes(this.auth.userid)
       .then(number=>{
         areThereNotesInTheDb = (number > 0) ? true : false;
         useDb = Utils.shouldUseDb(this.netManager.isConnected, areThereNotesInTheDb, force);
         callNet = !useDb;
         if(useDb){
-          return this.db.getNoteFull(title)
+          return this.db.getNoteFull(title, this.auth.userid)
         }else{
           return this.noteByTitle_loadFromNetworkAndInsert(title);
         }
@@ -223,7 +223,7 @@ export class AtticNotes {
   // }
 
   createNote2(note: NoteFull, tags: TagAlmostMin[]):Promise<any>{
-    return this.db.createNewNote2(note, tags);
+    return this.db.createNewNote2(note, tags, this.auth.userid);
   }
 
   // notesByTag(tags: string[], force: boolean){
@@ -251,7 +251,7 @@ export class AtticNotes {
           note.title = result[i].title;
           parsedResult.push(note);
           /*note.userid = result[i].userid;*/
-          this.db.insertNoteMinQuietly(note);
+          this.db.insertNoteMinQuietly(note, this.auth.userid);
         }
         resolve(parsedResult);
       })
@@ -274,7 +274,7 @@ export class AtticNotes {
       if(expectedResult == 0){
         resolve([]);
       }
-      this.db.getNumberOfNotes()
+      this.db.getNumberOfNotes(this.auth.userid)
       .then(number=>{
         areThereNotesInTheDb = (number > 0) ? true : false;
         console.log('the numberof notes is');
@@ -284,7 +284,7 @@ export class AtticNotes {
         console.log('usedb note: ');
         console.log(JSON.stringify(useDb));
         if(useDb){
-          return this.db.getNotesByTags(tags)
+          return this.db.getNotesByTags(tags, this.auth.userid)
         }else{
           console.log('no notes, using the network');
           return this.notesByTags_loadFromNetworkAndInsert(tags);
@@ -370,7 +370,7 @@ return this.items.filter((item) => {
       let areThereNotesInTheDb: boolean;
       let notes:NoteExtraMin[]=[];
       let useDb: boolean;
-      this.db.getNumberOfNotes()
+      this.db.getNumberOfNotes(this.auth.userid)
       .then(number=>{
         areThereNotesInTheDb = (number > 0) ? true : false;
         console.log('the numberof notes is');
@@ -380,7 +380,7 @@ return this.items.filter((item) => {
         console.log('usedb note: ');
         console.log(JSON.stringify(useDb));
         if(useDb){
-          return this.db.getNotesByText(text);
+          return this.db.getNotesByText(text, this.auth.userid);
         }else{
           console.log('no notes, using the network');
           return Utils.postBasic('/api/notes/by-text', JSON.stringify({note:{text:text}}),this.http, this.auth.token);
@@ -401,7 +401,7 @@ return this.items.filter((item) => {
   changeTitle(note: NoteFull, newTitle: string){
     // return Utils.postBasic('/api/notes/mod/title', JSON.stringify({note:
     //   {title: noteTitle, newTitle: newTitle}}), this.http, this.auth.token);
-    return this.db.setTitle(note, newTitle);
+    return this.db.setTitle(note, newTitle, this.auth.userid);
   }
 
 
@@ -444,22 +444,22 @@ return this.items.filter((item) => {
   changeLinks(/*noteTitle: string, links:string[]*/note:NoteFull){
     // return Utils.postBasic('/api/notes/mod/links', JSON.stringify({note:
     //   {title: noteTitle, links:links}}), this.http, this.auth.token);
-    return this.db.setLinks(note);
+    return this.db.setLinks(note, this.auth.userid);
   }
 
   changeText(/*noteTitle: string, text:string*/note:NoteFull){
     // return Utils.postBasic('/api/notes/mod/text', JSON.stringify({note:
     //   {title:noteTitle, text:text}}), this.http, this.auth.token);
-    return this.db.setText(note);
+    return this.db.setText(note, this.auth.userid);
   }
 
   changeDone(/*noteTitle: string, done: boolean*/note: NoteFull){
     // return Utils.postBasic('/api/notes/mod/setdone', JSON.stringify({note:
     //   {title:noteTitle, isDone:done}}), this.http, this.auth.token);
-    return this.db.setDone(note);
+    return this.db.setDone(note, this.auth.userid);
   }
 
-  deleteNote(_id: any):Promise<any>{
+  deleteNote(note: NoteExtraMin):Promise<any>{
     // if(_id instanceof Number){
     //   // let obj = new LogObject();
     //   // obj.action = Action.DeleteNote;
@@ -468,7 +468,7 @@ return this.items.filter((item) => {
     // }else{
     //   return this.db.transactionDeleteNoteFromNotes(<string>_id);
     // }
-    return null;
+    return this.db.deleteNote(note, this.auth.userid);
   }
 
 }

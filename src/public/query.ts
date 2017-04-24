@@ -71,24 +71,24 @@ export class Query{
   static readonly CREATE_LOGS_TABLE = 'create table if not exists logs(id integer primary key autoincrement,notetitle varchar(64) default null,tagtitle varchar(64) default null,role varchar(9) default null,action varchar(64) not null, creationdate date default(datetime(\'now\',\'localtime\')), foreign key(notetitle) references notes(title) on update cascade on delete cascade,foreign key(tagtitle) references tags(title) on update cascade on delete cascade,constraint action_check check(action=\'create\' or action=\'delete\' or action=\'change-title\' or action=\'change-text\' or action=\'add-tag\' or action=\'remove-tag\' or action =\'set-done\' or action=\'set-link\'),constraint role_check check (role =\'mainTags\' or role = \'otherTags\' or role is null),constraint if_all check ((role is not null and noteTitle is not null and tagTitle is not null) or (noteTitle is not null) or (tagTitle is not null)));'
   static readonly CREATE_AUTH_TABLE = 'create table if not exists auth(token text default null, userid varchar(64), primary key(userid));';
 
-  static readonly GET_LOGS_COUNT = 'select count(*) as count from logs';
-  static readonly GET_NOTES_COUNT = 'select count(*) as count from notes where mustbedeleted=\'false\'';
-  static readonly GET_NOTES_COUNT_TOTAL = 'select count(*) as count from notes';
-  static readonly GET_TAGS_COUNT = 'select count(*) as count from tags where mustbedeleted=\'false\'';
-  static readonly GET_TAGS_COUNT_TOTAL = 'select count(*) as count from tags';
+  static readonly GET_LOGS_COUNT = 'select count(*) as count from logs where userid=?';
+  static readonly GET_NOTES_COUNT = 'select count(*) as count from notes where mustbedeleted=\'false\' and userid=?';
+  static readonly GET_NOTES_COUNT_TOTAL = 'select count(*) as count from notes where userid=?';
+  static readonly GET_TAGS_COUNT = 'select count(*) as count from tags where mustbedeleted=\'false\' and userid=?';
+  static readonly GET_TAGS_COUNT_TOTAL = 'select count(*) as count from tag where userid=?';
 
-  static readonly GET_NOTES_MIN = 'select title from notes where mustbedeleted=\'false\'';
+  // static readonly GET_NOTES_MIN = 'select title from notes where mustbedeleted=\'false\' and userid=?';
   /*postgres:select title, count(tagTitle)::integer as notesLength
   from attic.tags as t left join attic.notes_tags on title=tagTitle
   where t.userId=$1
   group by title, t.userId
   order by notesLength desc, title asc;*/
   /*this query has been tested and it works.*/
-  static readonly GET_TAGS_MIN = 'select title, count(tagtitle) as noteslength from tags left join notes_tags on title=tagtitle where mustbedeleted=\'false\' group by title order by noteslength desc, title asc;'
+  // static readonly GET_TAGS_MIN = 'select title, count(tagtitle) as noteslength from tags left join notes_tags on title=tagtitle where mustbedeleted=\'false\' and userid=? group by title order by noteslength desc, title asc;'
   /*here we use the json_obj.*/
-  static readonly GET_NOTE_FULL_JSON ='select json_object from notes where title=? and mustbedeleted=\'false\'';
+  static readonly GET_NOTE_FULL_JSON ='select json_object from notes where title=? and mustbedeleted=\'false\' and userid=?';
   /*here we use the json_obj.*/
-  static readonly GET_TAG_FULL_JSON = 'select json_object from tags where title=?';
+  static readonly GET_TAG_FULL_JSON = 'select json_object from tags where title=? and userid=?';
 
   static readonly INSERT_NOTE = 'insert into notes(title, userid, text, creationdate, remote_lastmodificationdate, isdone, links, json_object) values (?,?,?,?,?,?,?,?)';
   //static readonly INSERT_NOTE_LOCAL = 'insert into notes(title, userid, text, creationdate, remote_lastmodificationdate, isdone, links, json_object) values (?,?,?,?,?,?,?,?,?)';
@@ -96,61 +96,67 @@ export class Query{
   //static readonly INSERT_CLIENT_CREATED_NOTE = 'insert into notes(title, text, links, isdone)';
 
   static readonly INSERT_TAG = 'insert into tags(title, userid, json_object)  values(?,?,?);';
-  static readonly INSERT_NOTES_TAGS = 'insert into notes_tags(notetitle,tagtitle, role) values (?,?,?)';
+  static readonly INSERT_NOTES_TAGS = 'insert into notes_tags(notetitle,tagtitle, role, userid) values (?,?,?,?)';
 
-  static readonly NOTE_EXISTS = 'select title from notes where title=?';
-  static readonly TAG_EXISTS = 'select title from tags where title=?';
-  static readonly NOTES_TAGS_EXISTS_NO_ROLE = 'select notetitle from notes_tags where notetitle=? and tagtitle=?';
-  static readonly NOTES_TAGS_EXISTS_WITH_ROLE = 'select notetitle from notes_tags where notetitle=? and tagtitle=? and role=?';
+  static readonly NOTE_EXISTS = 'select title from notes where title=? and userid=?';
+  static readonly TAG_EXISTS = 'select title from tags where title=? and userid=?';
+  static readonly NOTES_TAGS_EXISTS_NO_ROLE = 'select notetitle from notes_tags where notetitle=? and tagtitle=? and userid=?';
+  static readonly NOTES_TAGS_EXISTS_WITH_ROLE = 'select notetitle from notes_tags where notetitle=? and tagtitle=? and role=? and userid=?';
 
   /*
   The update functions on notes and tags will update the object only if there is some differences,
   how do I do this? By checking that the json_object saved is different from the right-now-calculated.
   */
 
-  static readonly UPDATE_NOTE = 'update notes set title=?, userid=?, text=?, remote_lastmodificationdate=?, isdone=?, links=?, json_object=? where title=? and json_object <> ?';
-  static readonly UPDATE_NOTE_2 = 'update notes set text=?, remote_lastmodificationdate=?, creationdate=?, isdone=?, links=?, json_object=? where title=? and json_object <> ?';
-  static readonly UPDATE_TAG = 'update tags set title=?, userid=?, json_obectj=? where title=?';
-  static readonly UPDATE_TAG_2 = 'update tags set json_object=? where title=? and json_object <> ?';
-  static readonly UPDATE_NOTES_TAGS = 'update notes_tags set notetitle=?, tagtitle=?, role=?, userid=?, where notetitle=?, tagtitle=?';
+  // static readonly UPDATE_NOTE = 'update notes set title=?, userid=?, text=?, remote_lastmodificationdate=?, isdone=?, links=?, json_object=? where title=? and json_object <> ?';
+  static readonly UPDATE_NOTE_2 = 'update notes set text=?, remote_lastmodificationdate=?, creationdate=?, isdone=?, links=?, json_object=? where title=? and json_object <> ? and userid=?';
+  // static readonly UPDATE_TAG = 'update tags set title=?, userid=?, json_obectj=? where title=?';
+  static readonly UPDATE_TAG_2 = 'update tags set json_object=? where title=? and json_object <> ? and userid=?';
+  // static readonly UPDATE_NOTES_TAGS = 'update notes_tags set notetitle=?, tagtitle=?, role=?, userid=?, where notetitle=? and tagtitle=?';
 
-  static readonly NOTE_EXISTS_AND_IS_FULL = 'select text from notes where mustbedeleted=\'false\' and title=?';
-  static readonly TAG_EXISTS_AND_IS_FULL = 'select json_object from tags where mustbedeleted=\'false\' and title=?';
+  static readonly NOTE_EXISTS_AND_IS_FULL = 'select text from notes where mustbedeleted=\'false\' and title=? and userid=?';
+  static readonly TAG_EXISTS_AND_IS_FULL = 'select json_object from tags where mustbedeleted=\'false\' and title=? and userid=?';
 
-  static readonly INSERT_NOTE_MIN = 'insert into notes(title, json_object) values (?,?)';
-  static readonly INSERT_TAG_MIN = 'insert into tags(title, json_object) values (?,?)';
+  static readonly INSERT_NOTE_MIN = 'insert into notes(title, json_object, userid) values (?,?,?)';
+  static readonly INSERT_TAG_MIN = 'insert into tags(title, json_object, userid) values (?,?.?)';
 
-  static readonly SELECT_NOTES_MIN = 'select json_object from notes where mustbedeleted=\'false\';';
-  static readonly SELECT_TAGS_MIN = 'select json_object from tags where mustbedeleted=\'false\'';
+  static readonly SELECT_NOTES_MIN = 'select json_object from notes where mustbedeleted=\'false\' and userid=?';
+  static readonly SELECT_TAGS_MIN = 'select json_object from tags where mustbedeleted=\'false\' and userid=?';
 
-  static readonly IS_NOTE_UP_TO_DATE = 'select title from notes where mustbedeleted=\'false\' and title=? and json_object=?';
+  // static readonly IS_NOTE_UP_TO_DATE = 'select title from notes where mustbedeleted=\'false\' and title=? and json_object=?';
 
   // static readonly UPDATE_JSON_OBJ_IF_NECESSARY_TAG = 'update tags set json_object=? where title=? and json_object <> ?';
 
-  static readonly UPDATE_JSON_OBJ_TAG ='update tags set json_object=?  where title=?';
+  static readonly UPDATE_JSON_OBJ_TAG ='update tags set json_object=? where title=? and userid=?';
 
-  static readonly EMPLTY_NOTES = 'delete from notes';
-  static readonly EMPTY_TAGS = 'delete from tags';
+  // static readonly EMPLTY_NOTES = 'delete from notes';
+  // static readonly EMPTY_TAGS = 'delete from tags';
 
-  static readonly INSERT_NOTE_INTO_LOGS = 'insert into logs (notetitle, action) values(?,?)';
+  // static readonly INSERT_NOTE_INTO_LOGS = 'insert into logs (notetitle, action) values(?,?)';
 
   static readonly INSERT_TOKEN = 'insert into auth (token, userid) values(?,?)';
 
-  static readonly GET_TOKEN = 'select * from auth where token is not null';
+  static readonly GET_TOKEN = 'select * from auth where token is not null limit 1;';
 
-  static readonly UPDATE_NOTE_SET_DONE = 'update notes set isdone=?, json_object=? where title=?';
-  static readonly UPDATE_NOTE_SET_TEXT = 'update notes set text=?, json_object=? where title=?';
-  static readonly UPDATE_NOTE_SET_LINKS = 'update notes set links=?, json_object=? where title=?';
+  static readonly UPDATE_NOTE_SET_DONE = 'update notes set isdone=?, json_object=? where title=? and userid=?';
+  static readonly UPDATE_NOTE_SET_TEXT = 'update notes set text=?, json_object=? where title=? and userid=?';
+  static readonly UPDATE_NOTE_SET_LINKS = 'update notes set links=?, json_object=? where title=? and userid=?';
+  static readonly UPDATE_NOTE_SET_TITLE = 'update notes set title=?, json_object=? where title=? and userid=?';
 
-  static readonly UPDATE_NOTE_SET_TITLE = 'update notes set title=?, json_object=? where title=?';
+  static readonly INSERT_NOTE_OLDTITLE_INTO_LOGS = 'insert into logs(notetitle, oldtitle, action, userid) values (?,?,?,?)';
+  static readonly INSERT_TAG_OLDTITLE_INTO_LOGS = 'insert into logs(tagtitle, oldtitle, action, userid) values (?,?,?,?)';
 
-  static readonly INSERT_NOTE_OLDTITLE_INTO_LOGS = 'insert into logs(notetitle, oldtitle, action) values (?,?,?)';
 
-  static readonly IS_NOTE_NOT_IN_THE_SERVER = 'select * from logs where notetitle=? and action=\'create\'';
+  static readonly IS_NOTE_NOT_IN_THE_SERVER = 'select * from logs where notetitle=? and action=\'create\' and userid=?';
 
-  static readonly SELECT_NOTES_BY_TAGS = 'select notetitle from notes_tags where tagtitle=? and mustbedeleted=\'false\'';
+  static readonly SELECT_NOTES_MIN_BY_TAGS = 'select notetitle from notes_tags where userid=? and mustbedeleted=\'false\' and tagtitle=?';
+  static readonly SELECT_NOTES_MIN_BY_TEXT = 'select title from notes where text like %?% and mustbedeleted=\'false\' and userid=?';
 
-  static readonly SELECT_NOTES_MIN_BY_TEXT = 'select title from notes where text like %?% and mustbedeleted=\'false\'';
+  static readonly SET_NOTE_DELETED = 'update notes set mustbedeleted=\'true\' where title=? and userid=?';
+  static readonly SET_NOTE_DELETED_NOTES_TAGS = 'update notes_tags set mustbedeleted=\'true\' where notetitle=? and userid=?';
+
+  static readonly SET_TAG_DELETED = 'update tags set mustbedeleted=\'true\' where title=? and userid=?';
+  static readonly SET_TAG_DELETED_NOTES_TAGS = 'update notes_tags set mustbedeleted=\'true\' where tagtitle=? and userid=?';
   /*
   tag and notes in the db just memorize an array of ids.
   */

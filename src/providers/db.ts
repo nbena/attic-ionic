@@ -83,6 +83,9 @@ export class Db {
   private notesCount: number = 0;
   private tagsCount: number = 0;
 
+  private userid: string = null;
+  private token: any = null;
+
   private promise: Promise<SQLite>;
 
 
@@ -92,6 +95,7 @@ export class Db {
     //if(!this.open) {
     this.promise = new Promise<SQLite>((resolve, reject)=>{
       this.platform.ready().then(ready=>{
+      //  let tempUserid: string = '';
         this.db = new SQLite();
         this.db.openDatabase(
           {name: "attic.db", location: "default"})
@@ -106,8 +110,17 @@ export class Db {
               });
             })
             .then(transactionResult=>{
+              return this.db.executeSql(Query.GET_TOKEN, []);
+            })
+            .then(tokenResult=>{
               this.open = true;
-              return this.count();
+              if(tokenResult.rows.length > 0){
+                this.token = tokenResult.rows.item(0).token;
+                this.userid = tokenResult.rows.item(0).userid;
+                return this.count(this.userid);
+              }else{
+                resolve(this.db);
+              }
             })
             .then(count=>{
               resolve(this.db);
@@ -124,74 +137,74 @@ export class Db {
 //  }
 
 }
-private getLogsCount():Promise<any>{
-  return this.db.executeSql(Query.GET_LOGS_COUNT,[]);
+private getLogsCount(userid: string):Promise<any>{
+  return this.db.executeSql(Query.GET_LOGS_COUNT,[userid]);
 }
 
-private getNotesCount():Promise<any>{
-  return this.db.executeSql(Query.GET_NOTES_COUNT,[]);
+private getNotesCount(userid: string):Promise<any>{
+  return this.db.executeSql(Query.GET_NOTES_COUNT,[userid]);
 }
 
-private getTagsCount():Promise<any>{
-  return this.db.executeSql(Query.GET_TAGS_COUNT,[]);
+private getTagsCount(userid: string):Promise<any>{
+  return this.db.executeSql(Query.GET_TAGS_COUNT,[userid]);
 }
 
-private getLogsCountWrapper(){
-  return new Promise<any>((resolve, reject)=>{
-    this.getLogsCount()
-    .then(result=>{
-      this.logsCount = result.rows.item(0).count;
-      resolve();
-    })
-    .catch(error=>{
-      // console.log(JSON.stringify(error));
-      reject(error);
-    })
-  })
-}
+// private getLogsCountWrapper (userid: string){
+//   return new Promise<any>((resolve, reject)=>{
+//     this.getLogsCount()
+//     .then(result=>{
+//       this.logsCount = result.rows.item(0).count;
+//       resolve();
+//     })
+//     .catch(error=>{
+//       // console.log(JSON.stringify(error));
+//       reject(error);
+//     })
+//   })
+// }
 
-private getNotesCountWrapper(){
-  return new Promise<any>((resolve, reject)=>{
-    this.getNotesCount()
-    .then(result=>{
-      this.notesCount = result.rows.item(0).count;
-      resolve();
-    })
-    .catch(error=>{
-      // console.log(JSON.stringify(error));
-      reject(error);
-    })
-  })
-}
-
-private getTagsCountWrapper(){
-  return new Promise<any>((resolve, reject)=>{
-    this.getTagsCount()
-    .then(result=>{
-      this.tagsCount = result.rows.item(0).count;
-      resolve();
-    })
-    .catch(error=>{
-      // console.log(JSON.stringify(error));
-      reject(error);
-    })
-  })
-}
-
-private getNotesAndTagsCountWrapper(){
-  return new Promise<any>((resolve, reject)=>{
-    this.getNotesCount()
-    .then(()=>{
-      return this.getTagsCount()
-    })
-    .then(()=>{
-      resolve();
-    })
-    .catch(error=>{
-      reject(error);
-    })
-  })
-}
+// private getNotesCountWrapper(userid: string){
+//   return new Promise<any>((resolve, reject)=>{
+//     this.getNotesCount()
+//     .then(result=>{
+//       this.notesCount = result.rows.item(0).count;
+//       resolve();
+//     })
+//     .catch(error=>{
+//       // console.log(JSON.stringify(error));
+//       reject(error);
+//     })
+//   })
+// }
+//
+// private getTagsCountWrapper(userid: string){
+//   return new Promise<any>((resolve, reject)=>{
+//     this.getTagsCount()
+//     .then(result=>{
+//       this.tagsCount = result.rows.item(0).count;
+//       resolve();
+//     })
+//     .catch(error=>{
+//       // console.log(JSON.stringify(error));
+//       reject(error);
+//     })
+//   })
+// }
+//
+// private getNotesAndTagsCountWrapper(userid: string){
+//   return new Promise<any>((resolve, reject)=>{
+//     this.getNotesCount()
+//     .then(()=>{
+//       return this.getTagsCount()
+//     })
+//     .then(()=>{
+//       resolve();
+//     })
+//     .catch(error=>{
+//       reject(error);
+//     })
+//   })
+// }
 
 
 
@@ -213,15 +226,15 @@ private getNotesAndTagsCountWrapper(){
 //     console.log(JSON.stringify(error));
 //   })
 // }
-private count():Promise<any>{
-  return this.getLogsCount()
+private count(userid: string):Promise<any>{
+  return this.getLogsCount(userid)
     .then(count=>{
       this.logsCount = count.rows.item(0).count;
-      return this.getNotesCount();
+      return this.getNotesCount(userid);
     })
     .then(count=>{
       this.notesCount = count.rows.item(0).count;
-      return this.getTagsCount();
+      return this.getTagsCount(userid);
     })
     .then(count=>{
       this.tagsCount = count.rows.item(0).count;
@@ -230,19 +243,19 @@ private count():Promise<any>{
     });
 }
 
-public getNumberOfNotes(){
+public getNumberOfNotes(userid: string){
   return this.promise.then(db=>{
     return this.notesCount;
   });
 }
 
-public getNumberOfTags(){
+public getNumberOfTags(userid: string){
   return this.promise.then(db=>{
     return this.tagsCount;
   });
 }
 
-public getNumberOfLogs(){
+public getNumberOfLogs(userid: string){
   return this.promise.then(db=>{
     return this.logsCount;
   });
@@ -273,14 +286,25 @@ public getNumberOfLogs(){
 //
 // }
 /*use this because they are 'promise-safe'*/
+/*JUST ONE TOKEN WILL BE IN THE DB.*/
 public getToken():Promise<any>{
   return new Promise<any>((resolve, reject)=>{
     try{
       this.promise.then(db=>{
-        db.executeSql(Query.GET_TOKEN, [])
-        .then(result=>{
-          resolve(result);
-        })
+        if(this.userid !=null && this.token!=null){
+          resolve({userid: this.userid, token: this.token});
+        }else{
+          db.executeSql(Query.GET_TOKEN, [])
+          .then(result=>{
+            if(result.rows.length <= 0){
+              resolve(null);
+            }else{
+              this.userid = result.rows.item(0).userid;
+              this.token = result.rows.item(0).token;
+              resolve({userid: this.userid, token: this.token});
+            }
+          })
+        }
       })
     }catch(e){
       reject(e);
@@ -316,10 +340,10 @@ static readonly UPDATE_NOTES_TAGS = 'update notes_tags set notetitle=?, tagtitle
 static readonly INSERT_NOTES_TAGS = 'insert into notes_tags(notetitle,tagtitle, role, userid) values(?,?,?,?)';
 */
 
-public insertOrUpdateNote(note: NoteFull):Promise<any>{
+public insertOrUpdateNote(note: NoteFull, userid: string):Promise<any>{
   return new Promise<any>((resolve, reject)=>{
     let isPresent: boolean;
-    this.db.executeSql(Query.NOTE_EXISTS, [note.title])
+    this.db.executeSql(Query.NOTE_EXISTS, [note.title, userid])
     .then(result=>{
       let p:Promise<any>;
       console.log('is present?');
@@ -327,12 +351,12 @@ public insertOrUpdateNote(note: NoteFull):Promise<any>{
         isPresent = true;
         console.log('yes');
         /*  static readonly UPDATE_NOTE_2 = 'update notes set text=?, remote_lastmodificationdate=?, creationdate?, isdone=?, links=?, json_object=? where title=? and json_object <> ?';*/
-        p=this.db.executeSql(Query.UPDATE_NOTE_2,[note.text, note.lastmodificationdate, note.creationdate, note.isdone, note.links, JSON.stringify(note), note.title, JSON.stringify(note)]);
+        p=this.db.executeSql(Query.UPDATE_NOTE_2,[note.text, note.lastmodificationdate, note.creationdate, note.isdone, note.links, JSON.stringify(note), note.title, JSON.stringify(note), userid]);
       }else{
         isPresent=false;
         console.log('no');
         /*  static readonly INSERT_NOTE = 'insert into notes(title, userid, text, creationdate, remote_lastmodificationdate, isdone, links, json_object) values(?,?,?,?,?,?,?,?)';*/
-        p=this.db.executeSql(Query.INSERT_NOTE, [note.title, note.userid, note.text, note.creationdate, note.lastmodificationdate, note.isdone, JSON.stringify(note.links), JSON.stringify(note)]);
+        p=this.db.executeSql(Query.INSERT_NOTE, [note.title, userid, note.text, note.creationdate, note.lastmodificationdate, note.isdone, JSON.stringify(note.links), JSON.stringify(note)]);
       }
       return p;
     })
@@ -341,7 +365,7 @@ public insertOrUpdateNote(note: NoteFull):Promise<any>{
         note.maintags.map((tag)=>{
           console.log('currently I\'m working on main');
           console.log(JSON.stringify(tag));
-          return this.db.executeSql(Query.TAG_EXISTS, [tag.title])
+          return this.db.executeSql(Query.TAG_EXISTS, [tag.title, userid])
           .then(result=>{
             if(result.rows.length==0){
               /*static readonly INSERT_TAG_MIN = 'insert into tags(title, json_object) values (?,?)';*/
@@ -350,11 +374,12 @@ public insertOrUpdateNote(note: NoteFull):Promise<any>{
           })
           .then(secondResult=>{
             /*  static readonly INSERT_NOTES_TAGS = 'insert into notes_tags(notetitle,tagtitle, role, userid) values(?,?,?,?);';*/
-            return  this.db.executeSql(Query.INSERT_NOTES_TAGS, [note.title, tag.title, 'mainTags', note.userid]);
+            return  this.db.executeSql(Query.INSERT_NOTES_TAGS, [note.title, tag.title, 'mainTags', userid]);
           })
         })
       ]);
     })
+
 
 
       .then((results)=>{
@@ -363,24 +388,24 @@ public insertOrUpdateNote(note: NoteFull):Promise<any>{
           note.othertags.map((tag)=>{
             console.log('currently I\'m working on other');
             console.log(JSON.stringify(tag));
-            return this.db.executeSql(Query.TAG_EXISTS, [tag.title])
+            return this.db.executeSql(Query.TAG_EXISTS, [tag.title, userid])
             .then(result=>{
               if(result.rows.length==0){
                 return this.db.executeSql(Query.INSERT_TAG_MIN, [tag.title, JSON.stringify(tag)]);
               }
             })
             .then(secondResult=>{
-              return  this.db.executeSql(Query.INSERT_NOTES_TAGS, [note.title, tag.title, 'otherTags', note.userid]);
+              return  this.db.executeSql(Query.INSERT_NOTES_TAGS, [note.title, tag.title, 'otherTags', userid]);
             })
           })
         ])
       })
       .then(results=>{
-        return this.getNotesCount();
+        return this.getNotesCount(userid);
       })
       .then(notesCount=>{
         this.notesCount = notesCount;
-        return this.getTagsCount();
+        return this.getTagsCount(userid);
       })
       .then(tagsCount=>{
         this.tagsCount = tagsCount;
@@ -470,12 +495,12 @@ public insertOrUpdateNote(note: NoteFull):Promise<any>{
 // }
 
 
-public createNewNote2(note:NoteFull, tags:TagAlmostMin[]):Promise<any>{
+public createNewNote2(note:NoteFull, tags:TagAlmostMin[], userid: string):Promise<any>{
   return new Promise<any>((resolve, reject)=>{
     this.db.transaction(tx=>{
       /*p=this.db.executeSql(Query.INSERT_NOTE, [note.title, note.userid, note.text, note.creationdate, note.lastmodificationdate, note.isdone, note.links, JSON.stringify(note)]);*/
       /* insert into notes(title, userid, text, creationdate, remote_lastmodificationdate, isdone, links, json_object) values(?,?,?,?,?,?,?,?,?)';*/
-      tx.executeSql(Query.INSERT_NOTE, [note.title, note.userid, note.text, note.creationdate, note.lastmodificationdate, note.isdone, JSON.stringify(note.links), JSON.stringify(note)],
+      tx.executeSql(Query.INSERT_NOTE, [note.title, userid, note.text, note.creationdate, note.lastmodificationdate, note.isdone, JSON.stringify(note.links), JSON.stringify(note)],
       (tx:any, res:any)=>{
         if(res){
           console.log('res note is');
@@ -489,7 +514,7 @@ public createNewNote2(note:NoteFull, tags:TagAlmostMin[]):Promise<any>{
       });
 
       /*'insert into logs (notetitle, action) values (?,?)';*/
-      tx.executeSql(Query.INSERT_NOTE_OLDTITLE_INTO_LOGS, [note.title, note.title, 'create'],
+      tx.executeSql(Query.INSERT_NOTE_OLDTITLE_INTO_LOGS, [note.title, note.title, 'create', userid],
       (tx:any, res:any)=>{
         if(res){
           console.log('res logs is');
@@ -504,7 +529,7 @@ public createNewNote2(note:NoteFull, tags:TagAlmostMin[]):Promise<any>{
 
       note.maintags.map((tag)=>{
 /*   = 'insert into notes_tags(notetitle,tagtitle, role) values(?,?,?);';*/
-        tx.executeSql(Query.INSERT_NOTES_TAGS, [note.title, tag.title, 'mainTags'],
+        tx.executeSql(Query.INSERT_NOTES_TAGS, [note.title, tag.title, 'mainTags', userid],
         (tx:any, res:any)=>{
           if(res){
             console.log('res maintags is');
@@ -517,7 +542,7 @@ public createNewNote2(note:NoteFull, tags:TagAlmostMin[]):Promise<any>{
           }
         });
 
-        tx.executeSql(Query.UPDATE_JSON_OBJ_TAG,[JSON.stringify(tag), tag.title],
+        tx.executeSql(Query.UPDATE_JSON_OBJ_TAG,[JSON.stringify(tag), tag.title, userid],
         (tx:any, res:any)=>{
           if(res){
             console.log('res json maintags is');
@@ -532,7 +557,7 @@ public createNewNote2(note:NoteFull, tags:TagAlmostMin[]):Promise<any>{
       });
 
       note.othertags.map((tag)=>{
-        tx.executeSql(Query.INSERT_NOTES_TAGS, [note.title, tag.title, 'otherTags'],
+        tx.executeSql(Query.INSERT_NOTES_TAGS, [note.title, tag.title, 'otherTags', userid],
         (tx:any, res:any)=>{
           if(res){
             console.log('res other is');
@@ -544,7 +569,7 @@ public createNewNote2(note:NoteFull, tags:TagAlmostMin[]):Promise<any>{
                   console.log(JSON.stringify(err));
                 }
               });
-        tx.executeSql(Query.UPDATE_JSON_OBJ_TAG,[JSON.stringify(tag), tag.title],
+        tx.executeSql(Query.UPDATE_JSON_OBJ_TAG,[JSON.stringify(tag), tag.title, userid],
         (tx:any, res:any)=>{
           if(res){
             console.log('res othertags obj is');
@@ -561,7 +586,7 @@ public createNewNote2(note:NoteFull, tags:TagAlmostMin[]):Promise<any>{
   })
   .then(txResult=>{
     /*update the note count.*/
-    return this.getNotesCount();
+    return this.getNotesCount(userid);
   })
   .then(notesCount=>{
     this.notesCount = notesCount;
@@ -577,9 +602,9 @@ public createNewNote2(note:NoteFull, tags:TagAlmostMin[]):Promise<any>{
 }
 
 
-public isNoteFull(title: string):Promise<boolean>{
+public isNoteFull(title: string, userid: string):Promise<boolean>{
   return new Promise<boolean>((resolve, reject)=>{
-    /*return */this.db.executeSql(Query.NOTE_EXISTS_AND_IS_FULL,[title])
+    /*return */this.db.executeSql(Query.NOTE_EXISTS_AND_IS_FULL,[title, userid])
     .then(result=>{
       if(result.rows.items(0).text == null || result.rows.length == 0){
         resolve(false);
@@ -593,9 +618,9 @@ public isNoteFull(title: string):Promise<boolean>{
   });
 }
 
-public isTagFull(title: string):Promise<boolean>{
+public isTagFull(title: string, userid: string):Promise<boolean>{
   return new Promise<boolean>((resolve, reject)=>{
-    /*return */this.db.executeSql(Query.TAG_EXISTS_AND_IS_FULL,[title])
+    /*return */this.db.executeSql(Query.TAG_EXISTS_AND_IS_FULL,[title, userid])
     .then(result=>{
       if(result.rows.item(0).json_obj == null){
         resolve(false);
@@ -612,9 +637,9 @@ public isTagFull(title: string):Promise<boolean>{
 /*
 if not full, I will return null.
 */
-public getNoteFull(title: string):Promise<NoteFull>{
+public getNoteFull(title: string, userid: string):Promise<NoteFull>{
   return new Promise<NoteFull>((resolve, reject)=>{
-    this.db.executeSql(Query.GET_NOTE_FULL_JSON, [title])
+    this.db.executeSql(Query.GET_NOTE_FULL_JSON, [title, userid])
     .then(result=>{
       let note:NoteFull;
       if(result.rows.length<=0){
@@ -671,12 +696,12 @@ this differ form notesMin because when we download a tag from the server, the ti
 but the notesLength (and so the json_object) can be changed, so try to update it if it's different.
 Notes has not this problem because their json_object is made of the title and nothing more.
 */
-public insertTagMinQuietly(tag: TagAlmostMin):Promise<any>{
+public insertTagMinQuietly(tag: TagAlmostMin, userid: string):Promise<any>{
   return new Promise<any>((resolve, reject)=>{
     this.db.executeSql(Query.INSERT_TAG_MIN,[tag.title, JSON.stringify(tag)])
     .then(result=>{
       /*nothing to do.*/
-      return this.getTagsCount();
+      return this.getTagsCount(userid);
     })
     .then(()=>{
       resolve(true);
@@ -689,7 +714,7 @@ public insertTagMinQuietly(tag: TagAlmostMin):Promise<any>{
         console.log('already there.');
         /*ok, constraint violation, the note is already there.*/
         /*maybe the json_object is changed, trying to update.*/
-        this.db.executeSql(Query.UPDATE_TAG_2, [JSON.stringify(tag), tag.title, JSON.stringify(tag)])
+        this.db.executeSql(Query.UPDATE_TAG_2, [JSON.stringify(tag), tag.title, JSON.stringify(tag), userid])
         .then(result=>{
           console.log('ok');
           resolve(true);
@@ -706,12 +731,12 @@ public insertTagMinQuietly(tag: TagAlmostMin):Promise<any>{
   })
 }
 
-public insertNoteMinQuietly(note: NoteExtraMin):Promise<any>{
+public insertNoteMinQuietly(note: NoteExtraMin, userid: string):Promise<any>{
   return new Promise<any>((resolve, reject)=>{
-    this.db.executeSql(Query.INSERT_NOTE_MIN,[note.title, JSON.stringify(note)])
+    this.db.executeSql(Query.INSERT_NOTE_MIN,[note.title, JSON.stringify(note), userid])
     .then(result=>{
       /*nothing to do.*/
-      return this.getNotesCount();
+      return this.getNotesCount(userid);
     })
     .then(()=>{
       resolve(true);
@@ -730,9 +755,9 @@ public insertNoteMinQuietly(note: NoteExtraMin):Promise<any>{
   })
 }
 
-public getNotesMin():Promise<NoteExtraMin[]>{
+public getNotesMin(userid: string):Promise<NoteExtraMin[]>{
   return new Promise<NoteExtraMin[]>((resolve, reject)=>{
-    this.db.executeSql(Query.SELECT_NOTES_MIN, [])
+    this.db.executeSql(Query.SELECT_NOTES_MIN, [userid])
     .then(result=>{
       let array:NoteExtraMin[] = [];
       for(let i=0;i<result.rows.length;i++){
@@ -755,9 +780,9 @@ public getNotesMin():Promise<NoteExtraMin[]>{
 }
 
 
-public getTagsMin():Promise<TagAlmostMin[]>{
+public getTagsMin(userid: string):Promise<TagAlmostMin[]>{
   return new Promise<TagExtraMin[]>((resolve, reject)=>{
-    this.db.executeSql(Query.SELECT_TAGS_MIN, [])
+    this.db.executeSql(Query.SELECT_TAGS_MIN, [userid])
     .then(result=>{
       let array:TagAlmostMin[] = [];
       for(let i=0;i<result.rows.length;i++){
@@ -777,15 +802,15 @@ public getTagsMin():Promise<TagAlmostMin[]>{
   });
 }
 
-private setDoneJustLocal(note: NoteFull):Promise<any>{
-  return this.db.executeSql(Query.UPDATE_NOTE_SET_DONE, [note.isdone, JSON.stringify(note), note.title]);
+private setDoneJustLocal(note: NoteFull, userid: string):Promise<any>{
+  return this.db.executeSql(Query.UPDATE_NOTE_SET_DONE, [note.isdone, JSON.stringify(note), note.title, userid]);
 }
 
-private setDoneAlsoRemote(note: NoteFull):Promise<any>{
+private setDoneAlsoRemote(note: NoteFull, userid: string):Promise<any>{
   return new Promise<any>((resolve, reject)=>{
     this.db.transaction(tx=>{
-      tx.executeSql(Query.UPDATE_NOTE_SET_DONE, [note.isdone, JSON.stringify(note), note.title]);
-      tx.executeSql(Query.INSERT_NOTE_OLDTITLE_INTO_LOGS, [note.title, note.title, 'set-done']);
+      tx.executeSql(Query.UPDATE_NOTE_SET_DONE, [note.isdone, JSON.stringify(note), note.title, userid]);
+      tx.executeSql(Query.INSERT_NOTE_OLDTITLE_INTO_LOGS, [note.title, note.title, 'set-done', userid]);
     })
     .then(txResult=>{
       console.log('tx completed');
@@ -801,7 +826,7 @@ private setDoneAlsoRemote(note: NoteFull):Promise<any>{
 
 /*a full object in order to re-calculate the json_object and insert it directly.
 If i use just the title, I'd have to get to json_object, modify and reinsert. */
-public setDone(note :NoteFull):Promise<any>{
+public setDone(note :NoteFull, userid: string):Promise<any>{
   /*UODATE_NOTE_SET_DONE = 'update note set isdone=?, json_object=? where title=?';*/
   /*'select * from logs where notetitle=? and action=\'create\'';*/
   /*first check if the note must be sent to the server, if so,
@@ -810,16 +835,16 @@ public setDone(note :NoteFull):Promise<any>{
   */
   return new Promise<any>((resolve, reject)=>{
     let inTheServer: boolean = false;
-    this.db.executeSql(Query.IS_NOTE_NOT_IN_THE_SERVER, [note.title])
+    this.db.executeSql(Query.IS_NOTE_NOT_IN_THE_SERVER, [note.title, userid])
     .then(result=>{
       if(result.rows.length > 0){
         // console.log('the note is not in the server');
         // inTheServer = false;
-        return this.setDoneJustLocal(note);
+        return this.setDoneJustLocal(note, userid);
       }else{
         // console.log('the note is already in the server');
         // inTheServer = true;
-        return this.setDoneAlsoRemote(note);
+        return this.setDoneAlsoRemote(note, userid);
       }
     })
     .then(upadteResuullt=>{
@@ -835,15 +860,15 @@ public setDone(note :NoteFull):Promise<any>{
 }
 
 
-private setTextJustLocal(note: NoteFull):Promise<any>{
-  return this.db.executeSql(Query.UPDATE_NOTE_SET_TEXT, [note.text, JSON.stringify(note), note.title]);
+private setTextJustLocal(note: NoteFull, userid: string):Promise<any>{
+  return this.db.executeSql(Query.UPDATE_NOTE_SET_TEXT, [note.text, JSON.stringify(note), note.title, userid]);
 }
 
-private setTextAlsoRemote(note: NoteFull):Promise<any>{
+private setTextAlsoRemote(note: NoteFull, userid: string):Promise<any>{
   return new Promise<any>((resolve, reject)=>{
     this.db.transaction(tx=>{
-      tx.executeSql(Query.UPDATE_NOTE_SET_TEXT, [note.text, JSON.stringify(note), note.title]);
-      tx.executeSql(Query.INSERT_NOTE_OLDTITLE_INTO_LOGS, [note.title, note.title,'change-text']);
+      tx.executeSql(Query.UPDATE_NOTE_SET_TEXT, [note.text, JSON.stringify(note), note.title, userid]);
+      tx.executeSql(Query.INSERT_NOTE_OLDTITLE_INTO_LOGS, [note.title, note.title,'change-text', userid]);
     })
     .then(txResult=>{
       console.log('tx completed');
@@ -859,7 +884,7 @@ private setTextAlsoRemote(note: NoteFull):Promise<any>{
 
 /*a full object in order to re-calculate the json_object and insert it directly.
 If i use just the title, I'd have to get to json_object, modify and reinsert. */
-public setText(note :NoteFull):Promise<any>{
+public setText(note :NoteFull, userid: string):Promise<any>{
   /*UODATE_NOTE_SET_DONE = 'update note set isdone=?, json_object=? where title=?';*/
   /*'select * from logs where notetitle=? and action=\'create\'';*/
   /*first check if the note must be sent to the server, if so,
@@ -868,16 +893,16 @@ public setText(note :NoteFull):Promise<any>{
   */
   return new Promise<any>((resolve, reject)=>{
     let inTheServer: boolean = false;
-    this.db.executeSql(Query.IS_NOTE_NOT_IN_THE_SERVER, [note.title])
+    this.db.executeSql(Query.IS_NOTE_NOT_IN_THE_SERVER, [note.title, userid])
     .then(result=>{
       if(result.rows.length > 0){
         // console.log('the note is not in the server');
         // inTheServer = false;
-        return this.setTextJustLocal(note);
+        return this.setTextJustLocal(note, userid);
       }else{
         // console.log('the note is already in the server');
         // inTheServer = true;
-        return this.setTextAlsoRemote(note);
+        return this.setTextAlsoRemote(note, userid);
       }
     })
     .then(upadteResuullt=>{
@@ -893,15 +918,15 @@ public setText(note :NoteFull):Promise<any>{
 }
 
 
-private setLinksJustLocal(note: NoteFull):Promise<any>{
-  return this.db.executeSql(Query.UPDATE_NOTE_SET_LINKS, [JSON.stringify(note.links), JSON.stringify(note), note.title]);
+private setLinksJustLocal(note: NoteFull, userid: string):Promise<any>{
+  return this.db.executeSql(Query.UPDATE_NOTE_SET_LINKS, [JSON.stringify(note.links), JSON.stringify(note), note.title, userid]);
 }
 
-private setLinksAlsoRemote(note: NoteFull):Promise<any>{
+private setLinksAlsoRemote(note: NoteFull, userid: string):Promise<any>{
   return new Promise<any>((resolve, reject)=>{
     this.db.transaction(tx=>{
-      tx.executeSql(Query.UPDATE_NOTE_SET_LINKS, [JSON.stringify(note.links), JSON.stringify(note), note.title]);
-      tx.executeSql(Query.INSERT_NOTE_OLDTITLE_INTO_LOGS, [note.title, note.title,'set-link']);
+      tx.executeSql(Query.UPDATE_NOTE_SET_LINKS, [JSON.stringify(note.links), JSON.stringify(note), note.title, userid]);
+      tx.executeSql(Query.INSERT_NOTE_OLDTITLE_INTO_LOGS, [note.title, note.title,'set-link', userid]);
     })
     .then(txResult=>{
       console.log('tx completed');
@@ -917,7 +942,7 @@ private setLinksAlsoRemote(note: NoteFull):Promise<any>{
 
 /*a full object in order to re-calculate the json_object and insert it directly.
 If i use just the title, I'd have to get to json_object, modify and reinsert. */
-public setLinks(note :NoteFull):Promise<any>{
+public setLinks(note :NoteFull, userid: string):Promise<any>{
   /*UODATE_NOTE_SET_DONE = 'update note set isdone=?, json_object=? where title=?';*/
   /*'select * from logs where notetitle=? and action=\'create\'';*/
   /*first check if the note must be sent to the server, if so,
@@ -926,16 +951,16 @@ public setLinks(note :NoteFull):Promise<any>{
   */
   return new Promise<any>((resolve, reject)=>{
     let inTheServer: boolean = false;
-    this.db.executeSql(Query.IS_NOTE_NOT_IN_THE_SERVER, [note.title])
+    this.db.executeSql(Query.IS_NOTE_NOT_IN_THE_SERVER, [note.title, userid])
     .then(result=>{
       if(result.rows.length > 0){
         // console.log('the note is not in the server');
         // inTheServer = false;
-        return this.setLinksJustLocal(note);
+        return this.setLinksJustLocal(note, userid);
       }else{
         // console.log('the note is already in the server');
         // inTheServer = true;
-        return this.setLinksAlsoRemote(note);
+        return this.setLinksAlsoRemote(note, userid);
       }
     })
     .then(upadteResuullt=>{
@@ -951,19 +976,19 @@ public setLinks(note :NoteFull):Promise<any>{
 }
 
 
-private setTitleJustLocal(note: NoteFull, newTitle: string):Promise<any>{
+private setTitleJustLocal(note: NoteFull, newTitle: string, userid: string):Promise<any>{
   let oldTitle:string = note.title;
   note.title = newTitle;
-  return this.db.executeSql(Query.UPDATE_NOTE_SET_TITLE, [newTitle, JSON.stringify(note), oldTitle]);
+  return this.db.executeSql(Query.UPDATE_NOTE_SET_TITLE, [newTitle, JSON.stringify(note), oldTitle, userid]);
 }
 
-private setTitleAlsoRemote(note: NoteFull, newTitle: string):Promise<any>{
+private setTitleAlsoRemote(note: NoteFull, newTitle: string, userid: string):Promise<any>{
   return new Promise<any>((resolve, reject)=>{
     let oldTitle:string = note.title;
     note.title = newTitle;
     this.db.transaction(tx=>{
-      tx.executeSql(Query.UPDATE_NOTE_SET_TITLE,[newTitle, JSON.stringify(note), oldTitle]);
-      tx.executeSql(Query.INSERT_NOTE_OLDTITLE_INTO_LOGS, [newTitle, oldTitle,'change-title']);
+      tx.executeSql(Query.UPDATE_NOTE_SET_TITLE,[newTitle, JSON.stringify(note), oldTitle, userid]);
+      tx.executeSql(Query.INSERT_NOTE_OLDTITLE_INTO_LOGS, [newTitle, oldTitle,'change-title', userid]);
     })
     .then(txResult=>{
       console.log('tx completed');
@@ -979,7 +1004,7 @@ private setTitleAlsoRemote(note: NoteFull, newTitle: string):Promise<any>{
 
 /*a full object in order to re-calculate the json_object and insert it directly.
 If i use just the title, I'd have to get to json_object, modify and reinsert. */
-public setTitle(note :NoteFull, newTitle: string):Promise<any>{
+public setTitle(note :NoteFull, newTitle: string, userid: string):Promise<any>{
   /*UODATE_NOTE_SET_DONE = 'update note set isdone=?, json_object=? where title=?';*/
   /*'select * from logs where notetitle=? and action=\'create\'';*/
   /*first check if the note must be sent to the server, if so,
@@ -988,16 +1013,16 @@ public setTitle(note :NoteFull, newTitle: string):Promise<any>{
   */
   return new Promise<any>((resolve, reject)=>{
     let inTheServer: boolean = false;
-    this.db.executeSql(Query.IS_NOTE_NOT_IN_THE_SERVER, [note.title])
+    this.db.executeSql(Query.IS_NOTE_NOT_IN_THE_SERVER, [note.title, userid])
     .then(result=>{
       if(result.rows.length > 0){
         // console.log('the note is not in the server');
         // inTheServer = false;
-        return this.setTitleJustLocal(note, newTitle);
+        return this.setTitleJustLocal(note, newTitle, userid);
       }else{
         // console.log('the note is already in the server');
         // inTheServer = true;
-        return this.setTitleAlsoRemote(note, newTitle);
+        return this.setTitleAlsoRemote(note, newTitle, userid);
       }
     })
     .then(upadteResuullt=>{
@@ -1012,9 +1037,9 @@ public setTitle(note :NoteFull, newTitle: string):Promise<any>{
   })
 }
 
-  public getNotesByTags(tags: TagAlmostMin[]):Promise<NoteExtraMin[]>{
+  public getNotesByTags(tags: TagAlmostMin[], userid: string):Promise<NoteExtraMin[]>{
     return new Promise<NoteExtraMin[]>((resolve, reject)=>{
-      let queryString: string = Query.SELECT_NOTES_BY_TAGS;
+      let queryString: string = Query.SELECT_NOTES_MIN_BY_TAGS;
       if(tags.length!=1){
         /*have to prepare it, if not, it is already ready for query.*/
         for(let i=1;i<tags.length;i++){
@@ -1023,7 +1048,7 @@ public setTitle(note :NoteFull, newTitle: string):Promise<any>{
       }
       // console.log('the query is:');
       // console.log(queryString);
-      this.db.executeSql(queryString, tags.map((tag)=>{return tag.title}))
+      this.db.executeSql(queryString, [userid].concat(tags.map((tag)=>{return tag.title})))
       .then(result=>{
         let notes:NoteExtraMin[] = [];
         console.log('db result is:');
@@ -1049,7 +1074,7 @@ public setTitle(note :NoteFull, newTitle: string):Promise<any>{
     })
   }
 
-  getNotesByText(text: string):Promise<NoteExtraMin[]>{
+  getNotesByText(text: string, userid: string):Promise<NoteExtraMin[]>{
     return new Promise<NoteExtraMin[]>((resolve, reject)=>{
       this.db.executeSql(Query.SELECT_NOTES_MIN_BY_TEXT, [text])
       .then(result=>{
@@ -1072,5 +1097,47 @@ public setTitle(note :NoteFull, newTitle: string):Promise<any>{
       })
     });
   }
+
+
+  deleteNote(note: NoteExtraMin, userid: string):Promise<any>{
+    return new Promise<any>((resolve, reject)=>{
+      this.db.transaction(tx=>{
+        tx.executeSql(Query.INSERT_NOTE_OLDTITLE_INTO_LOGS, [note.title, note.title, 'delete', userid]);
+        tx.executeSql(Query.SET_NOTE_DELETED, [note.title, userid]);
+        tx.executeSql(Query.SET_NOTE_DELETED_NOTES_TAGS, [note.title, userid]);
+      })
+      .then(txResult=>{
+        console.log('tx completed, result:');
+        console.log(JSON.stringify(txResult));
+        resolve(true);
+      })
+      .catch(error=>{
+        console.log('tx error');
+        console.log(JSON.stringify(error));
+        reject(error);
+      })
+    })
+  }
+
+  deleteTag(tag: TagAlmostMin, userid: string):Promise<any>{
+    return new Promise<any>((resolve, reject)=>{
+      this.db.transaction(tx=>{
+        tx.executeSql(Query.INSERT_TAG_OLDTITLE_INTO_LOGS, [tag.title, tag.title, 'delete', userid]);
+        tx.executeSql(Query.SET_TAG_DELETED, [tag.title, userid ]);
+        tx.executeSql(Query.SET_TAG_DELETED_NOTES_TAGS, [userid]);
+      })
+      .then(txResult=>{
+        console.log('tx completed, result:');
+        console.log(JSON.stringify(txResult));
+        resolve(true);
+      })
+      .catch(error=>{
+        console.log('tx error');
+        console.log(JSON.stringify(error));
+        reject(error);
+      })
+    })
+  }
+
 
 }

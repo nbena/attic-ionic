@@ -43,7 +43,7 @@ export class AtticTags {
         let areThereTagsInTheDb: boolean;
         let tags:TagAlmostMin[]=[];
         let useDb: boolean;
-        this.db.getNumberOfTags()
+        this.db.getNumberOfTags(this.auth.userid)
         .then(number=>{
           areThereTagsInTheDb = (number > 0) ? true : false;
           console.log('the number of tags is');
@@ -53,7 +53,7 @@ export class AtticTags {
           console.log('usedb note: ');
           console.log(JSON.stringify(useDb));
           if(useDb){
-            return this.db.getTagsMin();
+            return this.db.getTagsMin(this.auth.userid);
           }else{
             console.log('no notes, using the network');
             return Utils.getBasic('/api/tags/all/min', this.http, this.auth.token);
@@ -67,7 +67,7 @@ export class AtticTags {
             /*fetchingResult = NoteMin[] from the network, need to insert.*/
             tags = fetchingResult as TagAlmostMin[];
             for(let i=0;i<tags.length;i++){
-              this.db.insertNoteMinQuietly(tags[i]);
+              this.db.insertNoteMinQuietly(tags[i], this.auth.userid);
             }
             resolve(tags);
           }

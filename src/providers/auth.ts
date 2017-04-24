@@ -48,13 +48,20 @@ export class Auth {
         // }else{
         //   return false;
         // }
-        console.log('raw result is:');
+        console.log('not-raw result is:');
         console.log(JSON.stringify(result));
-        if(result.rows.length <= 0){
+        // if(result.rows.length <= 0){
+        //   return false;
+        // }else{
+        //   this.token = result.rows.item(0).token;
+        //   this.userid = result.rows.item(0).userid;
+        //   return true;
+        // }
+        if(result==null){
           return false;
         }else{
-          this.token = result.rows.item(0).token;
-          this.userid = result.rows.item(0).userid;
+          this.token = result.token;
+          this.userid = result.userid;
           return true;
         }
       })
