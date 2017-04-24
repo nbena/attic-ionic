@@ -39,24 +39,10 @@ export class Auth {
       console.log('checking auth');
       return this.db.getToken()
       .then(result=>{
-        // console.log('db result in checkauth is');
-        // console.log(JSON.stringify(result));
-        // this.userid = result.userid;
-        // if(tokenNotExpired(result.token)){
-        //   this.token = result.token;
-        //   return true;
-        // }else{
-        //   return false;
-        // }
+
         console.log('not-raw result is:');
         console.log(JSON.stringify(result));
-        // if(result.rows.length <= 0){
-        //   return false;
-        // }else{
-        //   this.token = result.rows.item(0).token;
-        //   this.userid = result.rows.item(0).userid;
-        //   return true;
-        // }
+
         if(result==null){
           return false;
         }else{

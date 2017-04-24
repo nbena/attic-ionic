@@ -4,6 +4,7 @@ import { NoteFull } from '../../models/notes';
 import { NoteEditTextPage } from '../note-edit-text/note-edit-text';
 import { AtticNotes } from '../../providers/attic-notes';
 import { Utils } from '../../public/utils';
+import { NotesPage } from '../notes/notes';
 /*
   Generated class for the NotesPopover page.
 
@@ -109,7 +110,7 @@ export class NoteDetailsPopoverPage {
   }
 
   deleteNote(){
-    Utils.askConfirm(this.alertCtrl, 'Are you sure to delete note \''+this.note.title+'\'',(_ : boolean)=>{
+    Utils.askConfirm(this.alertCtrl, 'Are you sure to delete note \''+this.note.title+'\'?',(_ : boolean)=>{
       if(_){
         this.deleteNoteAPI();
       }/*else{
@@ -122,6 +123,8 @@ export class NoteDetailsPopoverPage {
     this.atticNotes.deleteNote(this.note)
     .then(result=>{
       Utils.presentToast(this.toastCtrl, 'Note deleted');
+      // this.close();
+      this.navCtrl.popTo(NotesPage);
     })
     .catch(error=>{
       console.log(JSON.stringify(error));
