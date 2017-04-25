@@ -3,7 +3,7 @@ import { Http } from '@angular/http';
 import { SQLite } from 'ionic-native';
 import { Platform } from 'ionic-angular';
 import { Query } from '../public/query';
-import { Table, Const, Action, WhichField } from '../public/const';
+import { Table, Const, DbAction, WhichField } from '../public/const';
 import { Utils } from '../public/utils';
 import { NoteExtraMin, NoteFull, NoteSQLite,NoteMin } from '../models/notes';
 import { TagExtraMin, TagFull, TagMin, TagAlmostMin, TagSQLite } from '../models/tags';
@@ -66,6 +66,31 @@ import { Queue } from 'typescript-collections';
 //   query: string;
 //   data: any[];
 // }
+
+export class LogObjMin{
+
+  note: string;
+  userid: string;
+  tag: string;
+  action: DbAction.DbAction;
+  role: string;
+}
+
+export class LobObjFull{
+  note: NoteFull;
+  userid: string;
+  tag: TagExtraMin;
+  action: DbAction.DbAction;
+  role: string;
+}
+
+export class LogObjSmart{
+  note: any;
+  userid: string;
+  tag: any;
+  action: DbAction.DbAction;
+  role: string;
+}
 
 /*
   Generated class for the Db provider.
@@ -1215,6 +1240,32 @@ public setTitle(note :NoteFull, newTitle: string, userid: string):Promise<any>{
       })
     })
   }
+
+
+  public cleanUpEverything(userid: string):Promise<any>{
+    return new Promise<any>((resolve, reject)=>{
+      this.db.transaction(tx=>{
+        tx.executeSql(Query.CLEAN_UP_NOTES_CREATE, [userid, userid]);
+        tx.executeSql(Query.CLEAN_UP_TAGS_CREATE, [userid, userid]);
+        tx.executeSql(Query.CLEAN_UP_NOTES_SET_DONE, [userid, userid]);
+        tx.executeSql(Query.CLEAN_UP_NOTES_SET_TEXT, [userid, userid]);
+        tx.executeSql(Query.CLEAN_UP_NOTES_SET_LINK, [userid, userid]);
+      })
+      .then(txResult=>{
+        console.log('cleanup completed');
+        console.log(JSON.stringify(txResult));
+        resolve(true);
+      })
+      .catch(error=>{
+        console.log('error in clean up');
+        console.log(JSON.stringify(error)),
+        reject(error);
+      })
+    });
+  }
+
+
+
 
 
 }

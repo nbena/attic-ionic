@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Http, Headers } from '@angular/http';
 /* importing auth because I need the token. */
 import { Auth } from './auth';
-import { Action, Const } from '../public/const';
+import { DbAction, Const } from '../public/const';
 import { NoteExtraMin/*, NoteSmart,*/, NoteFull,NoteMin, NoteBarebon } from '../models/notes';
 import { Utils } from '../public/utils';
 import { Db/*, LogObject*/ } from './db';
@@ -470,5 +470,7 @@ return this.items.filter((item) => {
     // }
     return this.db.deleteNote(note, this.auth.userid);
   }
+
+  /*warning, a note full object can be saved in the db if there are pending operations on it?*/
 
 }

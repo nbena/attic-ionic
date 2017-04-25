@@ -8,7 +8,7 @@ import { NoteExtraMin, NoteFull, NoteSQLite, NoteMin } from '../models/notes';
 import { TagExtraMin, TagFull, TagSQLite, TagMin } from '../models/tags';
 //import * as Collections from 'typescript-collections';
 import { Queue } from 'typescript-collections';
-import { Action } from '../public/const';
+import { DbAction } from '../public/const';
 import { Network } from '@ionic-native/network';
 import { Platform } from 'ionic-angular';
 

@@ -14,28 +14,85 @@ export enum Table{
   TagsToSave
 }
 
-export enum Action{
+// export enum Action{
+//
+//   CreateNote,
+//   CreateTag,
+//
+//   ChangeNoteTitle,
+//   ChangeText,
+//   AddMainTags,
+//   AddOtherTags,
+//   RemoveMainTags,
+//   RemoveOtherTags,
+//   AddLinks,
+//   RemoveLinks,
+//   SetDone,
+//
+//   DeleteNote,
+//   DeleteTag,
+//
+//   ChangeTagTitle
+//
+//
+// }
 
-  CreateNote,
-  CreateTag,
 
-  ChangeNoteTitle,
-  ChangeText,
-  AddMainTags,
-  AddOtherTags,
-  RemoveMainTags,
-  RemoveOtherTags,
-  AddLinks,
-  RemoveLinks,
-  SetDone,
+export namespace DbAction {
+  export function asDbActionToString(action: DbAction){
+    let res: string = '';
+    switch(action){
+      case DbAction.add_tag:
+        res = 'add-tag';
+      case DbAction.change_text:
+        res = 'change-text';
+      case DbAction.remove_tag:
+        res = 'remove-tag';
+      case DbAction.set_done:
+        res = 'set-done';
+      case DbAction.set_link:
+        res = 'set-link';
+      default:
+        res = DbAction[action];
+    }
+  }
 
-  DeleteNote,
-  DeleteTag,
+  export function asDbActionFromString(action: string){
+    let res: DbAction;
+    if(action == 'add-tag'){
+      res = DbAction.add_tag;
+    }
+    else if(action == 'change-text'){
+      res = DbAction.change_text;
+    }
+    else if (action == 'remove-tag'){
+      res = DbAction.remove_tag;
+    }
+    else if (action == 'set-done'){
+      res = DbAction.set_done;
+    }
+    else if (action =='set-link'){
+      res = DbAction.set_link;
+    }
+    else{
+      res = DbAction[action];
+    }
+    return res;
+  }
 
-  ChangeTagTitle
-
-
+  export enum DbAction{
+    create,
+    delete,
+    change_title,
+    change_text,
+    set_done,
+    set_link,
+    add_tag,
+    remove_tag
+  }
 }
+
+
 
 export enum WhichField{
   Notes,
@@ -61,14 +118,32 @@ export class Const{
 
   public static readonly UNIQUE_FAILED = 'UNIQUE constraint failed';
 
-  public static isNote(act: Action):boolean{
-    return act!=Action.CreateTag &&
-            act!=Action.DeleteTag &&
-            act!=Action.ChangeTagTitle
-  }
+  // public static asDbActionString(action: DbAction){
+  //   let res: string = '';
+  //   switch(action){
+  //     case DbAction.add_tag:
+  //       res = 'add-tag';
+  //     case DbAction.change_text:
+  //       res = 'change-text';
+  //     case DbAction.remove_tag:
+  //       res = 'remove-tag';
+  //     case DbAction.set_done:
+  //       res = 'set-done';
+  //     case DbAction.set_link:
+  //       res = 'set-link';
+  //     default:
+  //       res = DbAction[action];
+  //   }
+  // }
 
-  public static isTag(act: Action):boolean{
-    return !Const.isNote(act);
-  }
+  // public static isNote(act: Action):boolean{
+  //   return act!=Action.CreateTag &&
+  //           act!=Action.DeleteTag &&
+  //           act!=Action.ChangeTagTitle
+  // }
+
+  // public static isTag(act: Action):boolean{
+  //   return !Const.isNote(act);
+  // }
 
 }
