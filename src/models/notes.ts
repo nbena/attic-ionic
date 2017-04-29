@@ -35,6 +35,12 @@ export class NoteMin extends NoteBarebon{
   maintags: string[];
   othertags: string[];
 
+  constructor(){
+    super();
+    this.maintags = [];
+    this.othertags = [];
+  }
+
 }
 
 // export class NoteFull extends NoteBarebon{
@@ -48,6 +54,11 @@ export class NoteMin extends NoteBarebon{
 export class NoteFull extends NoteBarebon{
   maintags: TagExtraMin[];
   othertags: TagExtraMin[];
+  constructor(){
+    super();
+    this.maintags = [];
+    this.othertags = [];
+  }
 }
 export class NoteSQLite extends NoteFull{
   mainTagsToAdd: TagFull[];

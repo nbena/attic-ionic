@@ -1353,48 +1353,104 @@ public setTitle(note :NoteFull, newTitle: string, userid: string):Promise<any>{
 
 
 /* must be re-written.*/
+  // public getObjectTagsToAddToNotes(userid: string):Promise<LogObjSmart[]>{
+  //   return new Promise<LogObjSmart[]>((resolve, reject)=>{
+  //     this.db.transaction(tx=>{
+  //       tx.executeSql(Query.SELECT_TAGS_TO_SAVE, [userid],
+  //         (tx: any, res: any)=>{ /*result callback*/
+  //           if(res.rows.length<=0){
+  //             resolve(null);
+  //           }else{
+  //             let results:LogObjSmart[]=[];
+  //             for(let i=0;i<res.rows.length;i++){
+  //               let obj: LogObjSmart = new LogObjSmart();
+  //               let tag:TagExtraMin  = new TagExtraMin();
+  //               tag.title = res.rows.item(i).tagtitle;
+  //               let note:NoteExtraMin = new NoteExtraMin();
+  //               note.title = res.rows.item(i).notetitle;
+  //               obj.tag = tag;
+  //               obj.note = note;
+  //               obj. role = res.rows.item(i).role;
+  //               // console.log(JSON.stringify(obj.note));
+  //               obj.action = DbAction.DbAction.create;
+  //               obj.userid = userid;
+  //               results.push(obj);
+  //             }
+  //             resolve(results);
+  //           }
+  //         },
+  //         (tx: any, error: any)=>{ /*error callback*/
+  //           console.log('error in getting notes to save.');
+  //           console.log(JSON.stringify(error));
+  //           reject(error); /*?????*/
+  //         }
+  //       )
+  //     })
+  //     .then(txResult=>{
+  //       // console.log('txResult');
+  //       // console.log(JSON.stringify(txResult));
+  //       resolve(null); /*never here (?)*/
+  //     })
+  //     .catch(txError=>{
+  //       console.log('tx error');
+  //       console.log(JSON.stringify(txError));
+  //       reject(txError);
+  //     })
+  //   })
+  // }
   public getObjectTagsToAddToNotes(userid: string):Promise<LogObjSmart[]>{
     return new Promise<LogObjSmart[]>((resolve, reject)=>{
       this.db.transaction(tx=>{
-        tx.executeSql(Query.SELECT_TAGS_TO_SAVE, [userid],
-          (tx: any, res: any)=>{ /*result callback*/
+        tx.executeSql(Query.SELECT_TAGS_TO_ADD_TO_NOTES_2, [userid],
+          (tx: any, res: any)=>{
             if(res.rows.length<=0){
               resolve(null);
             }else{
-              let results:LogObjSmart[]=[];
+              let result:LogObjSmart[]=[];
               for(let i=0;i<res.rows.length;i++){
-                let obj: LogObjSmart = new LogObjSmart();
-                let tag:TagExtraMin  = new TagExtraMin();
-                tag.title = res.rows.item(i).tagtitle;
-                let note:NoteExtraMin = new NoteExtraMin();
+                let obj:LogObjSmart = new LogObjSmart();
+                obj.userid=userid;
+                let note:NoteMin = new NoteMin();
                 note.title = res.rows.item(i).notetitle;
-                obj.tag = tag;
+                note.userid = userid;
+                if(res.rows.item(i).role == 'mainTags'){
+                  note.maintags.push(res.rows.item(i).tagtitle);
+                }else{
+                  note.othertags.push(res.rows.item(i).tagtitle);
+                }
+                for(let j=i+1;j<res.rows.length;j++){
+                  if(note.title == res.rows.item(j).notetitle){
+                    if(res.rows.item(i).role == 'mainTags'){
+                      note.maintags.push(res.rows.item(i).tagtitle);
+                    }else{
+                      note.othertags.push(res.rows.item(i).tagtitle);
+                    }
+                  }else{
+                    break;
+                  }
+                }
                 obj.note = note;
-                obj. role = res.rows.item(i).role;
-                // console.log(JSON.stringify(obj.note));
-                obj.action = DbAction.DbAction.create;
-                obj.userid = userid;
-                results.push(obj);
+                result.push(obj);
               }
-              resolve(results);
+              resolve(result);
             }
           },
-          (tx: any, error: any)=>{ /*error callback*/
-            console.log('error in getting notes to save.');
+          (tx: any, error: any)=>{
+            console.log('error in tx');
             console.log(JSON.stringify(error));
-            reject(error); /*?????*/
+            reject(error);
           }
         )
       })
       .then(txResult=>{
-        // console.log('txResult');
-        // console.log(JSON.stringify(txResult));
-        resolve(null); /*never here (?)*/
+        console.log('tx completed');
+        console.log(JSON.stringify(txResult));
+        resolve(txResult);
       })
-      .catch(txError=>{
-        console.log('tx error');
-        console.log(JSON.stringify(txError));
-        reject(txError);
+      .catch(error=>{
+        console.log('tx error'),
+        console.log(JSON.stringify(error));
+        reject(error);
       })
     })
   }

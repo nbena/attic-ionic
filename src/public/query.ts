@@ -187,6 +187,7 @@ export class Query{
   static readonly SELECT_TAGS_TO_ADD_TO_NOTES = 'select * from logs where logs.userid=? and tagtitle is not null and notetitle is not null and action=\'create\' and role is not null';
   static readonly DELETE_TAGS_TO_ADD_TO_NOTES = 'delete fro logs where id in (select id from logs where action=\'create\' and userid=? and tagtitle is not null and notetitle is not null and role is not null);';
 
+  static readonly SELECT_TAGS_TO_ADD_TO_NOTES_2 = 'select * from logs where notetitle is not null and tagtitle is not null and role is not null and action=\'add-tag\' and userid=? order by notetitle, role';
 
   /*
   tag and notes in the db just memorize an array of ids.
