@@ -1318,6 +1318,52 @@ public setTitle(note :NoteFull, newTitle: string, userid: string):Promise<any>{
               let results:LogObjSmart[]=[];
               for(let i=0;i<res.rows.length;i++){
                 let obj: LogObjSmart = new LogObjSmart();
+                obj.note = null;
+                let tag:TagExtraMin = new TagExtraMin();
+                tag.title = res.rows.item(i).tagtitle;
+                obj.tag = tag;
+                // console.log('obj is:');
+                // console.log(JSON.stringify(obj.note));
+                obj.action = DbAction.DbAction.create;
+                obj.userid = userid;
+                results.push(obj);
+              }
+              resolve(results);
+            }
+          },
+          (tx: any, error: any)=>{ /*error callback*/
+            console.log('error in getting notes to save.');
+            console.log(JSON.stringify(error));
+            reject(error); /*?????*/
+          }
+        )
+      })
+      .then(txResult=>{
+        // console.log('txResult');
+        // console.log(JSON.stringify(txResult));
+        resolve(null); /*never here (?)*/
+      })
+      .catch(txError=>{
+        console.log('tx error');
+        console.log(JSON.stringify(txError));
+        reject(txError);
+      })
+    })
+  }
+
+
+/* must be re-written.*/
+  public getObjectTagsToAddToNotes(userid: string):Promise<LogObjSmart[]>{
+    return new Promise<LogObjSmart[]>((resolve, reject)=>{
+      this.db.transaction(tx=>{
+        tx.executeSql(Query.SELECT_TAGS_TO_SAVE, [userid],
+          (tx: any, res: any)=>{ /*result callback*/
+            if(res.rows.length<=0){
+              resolve(null);
+            }else{
+              let results:LogObjSmart[]=[];
+              for(let i=0;i<res.rows.length;i++){
+                let obj: LogObjSmart = new LogObjSmart();
                 let tag:TagExtraMin  = new TagExtraMin();
                 tag.title = res.rows.item(i).tagtitle;
                 let note:NoteExtraMin = new NoteExtraMin();
@@ -1344,6 +1390,82 @@ public setTitle(note :NoteFull, newTitle: string, userid: string):Promise<any>{
         // console.log('txResult');
         // console.log(JSON.stringify(txResult));
         resolve(null); /*never here (?)*/
+      })
+      .catch(txError=>{
+        console.log('tx error');
+        console.log(JSON.stringify(txError));
+        reject(txError);
+      })
+    })
+  }
+
+  deleteNotesToSaveFromLogs(userid: string):Promise<any>{
+    return new Promise<any>((resolve, reject)=>{
+      this.db.transaction(tx=>{
+        tx.executeSql(Query.DELETE_NOTES_TO_SAVE_LOGS, [userid],
+          (tx: any, res: any)=>{console.log('delete ok');},
+          (tx: any, error: any)=>{
+            //if(error!=null){
+              console.log('error in deleting');
+              console.log(JSON.stringify(error));
+          //}
+        }
+        )
+      })
+      .then(txResult=>{
+        console.log('tx completed');
+        resolve(true);
+      })
+      .catch(txError=>{
+        console.log('tx error');
+        console.log(JSON.stringify(txError));
+        reject(txError);
+      })
+    })
+  }
+
+  deleteTagsToSaveFromLogs(userid: string):Promise<any>{
+    return new Promise<any>((resolve, reject)=>{
+      this.db.transaction(tx=>{
+        tx.executeSql(Query.DELETE_TAGS_TO_SAVE_LOGS, [userid],
+          (tx: any, res: any)=>{console.log('delete ok');},
+          (tx: any, error: any)=>{
+            //if(error!=null){
+              console.log('error in deleting');
+              console.log(JSON.stringify(error));
+          //}
+        }
+        )
+      })
+      .then(txResult=>{
+        console.log('tx completed');
+        resolve(true);
+      })
+      .catch(txError=>{
+        console.log('tx error');
+        console.log(JSON.stringify(txError));
+        reject(txError);
+      })
+    })
+  }
+
+
+  deleteTagsToAddToNotesFromLogs(userid: string):Promise<any>{
+    return new Promise<any>((resolve, reject)=>{
+      this.db.transaction(tx=>{
+        tx.executeSql(Query.DELETE_TAGS_TO_ADD_TO_NOTES, [userid],
+          (tx: any, res: any)=>{console.log('delete ok');},
+          (tx: any, error: any)=>{
+            //if(error!=null){
+              console.log('error in deleting');
+              console.log(JSON.stringify(error));
+          //}
+        }
+        )
+      })
+      .then(txResult=>{
+        console.log('tx completed');
+        resolve(true);
       })
       .catch(txError=>{
         console.log('tx error');

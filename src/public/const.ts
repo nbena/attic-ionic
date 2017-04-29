@@ -117,6 +117,7 @@ export class Const{
   public static readonly ERR_TOKEN_NOT_FOUND = 'token not found';
 
   public static readonly UNIQUE_FAILED = 'UNIQUE constraint failed';
+  public static readonly SERVER_ERROR = 'server error';
 
   // public static asDbActionString(action: DbAction){
   //   let res: string = '';

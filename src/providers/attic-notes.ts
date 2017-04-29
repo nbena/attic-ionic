@@ -406,7 +406,7 @@ return this.items.filter((item) => {
 
 
   addTags(noteTitle: string, mainTags: string[], otherTags: string[]){
-    return Utils.postBasic('/api/mod/notes/addtags', JSON.stringify({note:
+    return Utils.postBasic('/api/notes/mod/addtags', JSON.stringify({note:
       {title: noteTitle, maintags: mainTags, othertags: otherTags}}), this.http, this.auth.token);
   }
 

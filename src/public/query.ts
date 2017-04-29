@@ -179,8 +179,13 @@ export class Query{
 
 
   static readonly SELECT_NOTES_TO_SAVE = 'select * from notes join logs on title=notetitle and notes.userid=logs.userid where notes.userid=? and action=\'create\'';
-  static readonly SELECT_TAGS_TO_SAVE = 'select * from logs where logs.userid=? and tagtitle is not null and notetitle is not null and action=\'create\'';
+  static readonly SELECT_TAGS_TO_SAVE = 'select * from logs where logs.userid=? and tagtitle is not null and notetitle is null and action=\'create\'';
 
+  static readonly DELETE_NOTES_TO_SAVE_LOGS = 'delete from logs where id in (select id from logs where action=\'create\' and userid=?  and tagtitle is null and notetitle is not null);'
+  static readonly DELETE_TAGS_TO_SAVE_LOGS = 'delete from logs where id in (select id from logs where action=\'create\' and userid=?  and tagtitle is not null and notetitle is null and role is null);'
+
+  static readonly SELECT_TAGS_TO_ADD_TO_NOTES = 'select * from logs where logs.userid=? and tagtitle is not null and notetitle is not null and action=\'create\' and role is not null';
+  static readonly DELETE_TAGS_TO_ADD_TO_NOTES = 'delete fro logs where id in (select id from logs where action=\'create\' and userid=? and tagtitle is not null and notetitle is not null and role is not null);';
 
 
   /*
