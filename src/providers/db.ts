@@ -1408,29 +1408,30 @@ public setTitle(note :NoteFull, newTitle: string, userid: string):Promise<any>{
             }else{
               let result:LogObjSmart[]=[];
               for(let i=0;i<res.rows.length;i++){
-                let obj:LogObjSmart = new LogObjSmart();
-                obj.userid=userid;
-                let note:NoteMin = new NoteMin();
-                note.title = res.rows.item(i).notetitle;
-                note.userid = userid;
-                if(res.rows.item(i).role == 'mainTags'){
-                  note.maintags.push(res.rows.item(i).tagtitle);
-                }else{
-                  note.othertags.push(res.rows.item(i).tagtitle);
-                }
-                for(let j=i+1;j<res.rows.length;j++){
-                  if(note.title == res.rows.item(j).notetitle){
-                    if(res.rows.item(i).role == 'mainTags'){
-                      note.maintags.push(res.rows.item(i).tagtitle);
-                    }else{
-                      note.othertags.push(res.rows.item(i).tagtitle);
-                    }
+
+                if(result.length > 0 && (result[result.length-1].note.title == res.rows.item(i).notetitle)){
+                  if(res.rows.item(i).role=='mainTags'){
+                    result[result.length-1].note.maintags.push(res.rows.item(i).tagtitle);
                   }else{
-                    break;
+                    result[result.length-1].note.othertags.push(res.rows.item(i).tagtitle);
                   }
+                  result[result.length-1].action = DbAction.DbAction.add_tag;
+                  result[result.length-1].userid = userid;
+                }else{
+                  /*create new note.*/
+                  let obj:LogObjSmart = new LogObjSmart();
+                  let note:NoteMin = new NoteMin();
+                  note.title=res.rows.item(i).notetitle;
+                  if(res.rows.item(i).role=='mainTags'){
+                    note.maintags.push(res.rows.item(i).tagtitle);
+                  }else{
+                    note.othertags.push(res.rows.item(i).tagtitle);
+                  }
+                  obj.userid=userid;
+                  obj.action = DbAction.DbAction.add_tag;
+                  obj.note = note;
+                  result.push(obj)
                 }
-                obj.note = note;
-                result.push(obj);
               }
               resolve(result);
             }

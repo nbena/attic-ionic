@@ -62,12 +62,6 @@ export class AtticTags {
         .then(fetchingResult=>{
           if(useDb){
             /*fetchingResult = NoteMin[] from the DB.*/
-            /////////////////////////
-            this.db.getObjectTagsToAddToNotes(this.auth.userid)
-            .then(result=>{
-              console.log('tags to add');
-              console.log(JSON.stringify(result));
-            })
             resolve(fetchingResult);
           }else{
             /*fetchingResult = NoteMin[] from the network, need to insert.*/
