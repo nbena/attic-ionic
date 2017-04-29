@@ -160,6 +160,8 @@ export class Query{
   static readonly SET_TAG_DELETED = 'update tags set mustbedeleted=\'true\' where title=? and userid=?';
   static readonly SET_TAG_DELETED_NOTES_TAGS = 'update notes_tags set mustbedeleted=\'true\' where tagtitle=? and userid=?';
 
+
+
   static readonly NOTES_TO_CLEAN_UP_CREATE = 'select distinct notetitle from logs as l where exists (select * from logs as l1 where action=\'delete\' and l.notetitle=l1.notetitle and userid=?) and exists (select * from logs as l1 where action=\'create\' and l.notetitle=l1.notetitle and userid=?)';
   static readonly CLEAN_UP_NOTES_CREATE = 'delete from notes where title in (select distinct notetitle from logs as l where exists (select * from logs as l1 where action=\'delete\' and l.notetitle=l1.notetitle  and userid=?) and exists (select * from logs as l1 where action=\'create\' and l.notetitle=l1.notetitle and userid=?));'
 
@@ -174,6 +176,11 @@ export class Query{
 
   static readonly CLEAN_UP_NOTES_SET_LINK = 'select id from logs as l where action=\'set-link\' and userid=? and id < (select max(id) from logs as l1 where action=\'set-link\' and l.notetitle = l1.notetitle and userid=?);';
   static readonly NOTES_TO_CLEAN_UP_SET_LINK = 'delete from logs where id in (select id from logs as l where action=\'set-link\' and userid=? and id < (select max(id) from logs as l1 where action=\'set-link\' and l.notetitle = l1.notetitle and userid=?));';
+
+
+  static readonly SELECT_NOTES_TO_SAVE = 'select * from notes join logs on title=notetitle and notes.userid=logs.userid where notes.userid=? and action=\'create\'';
+  static readonly SELECT_TAGS_TO_SAVE = 'select * from logs where logs.userid=? and tagtitle is not null and notetitle is not null and action=\'create\'';
+
 
 
   /*

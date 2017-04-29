@@ -1265,7 +1265,93 @@ public setTitle(note :NoteFull, newTitle: string, userid: string):Promise<any>{
   }
 
 
+  public getObjectNotesToSave(userid: string):Promise<LogObjSmart[]>{
+    return new Promise<LogObjSmart[]>((resolve, reject)=>{
+      this.db.transaction(tx=>{
+        tx.executeSql(Query.SELECT_NOTES_TO_SAVE, [userid],
+          (tx: any, res: any)=>{ /*result callback*/
+            if(res.rows.length<=0){
+              resolve(null);
+            }else{
+              let results:LogObjSmart[]=[];
+              for(let i=0;i<res.rows.length;i++){
+                let obj: LogObjSmart = new LogObjSmart();
+                obj.note = JSON.parse(res.rows.item(i).json_object);
+                // console.log('obj is:');
+                // console.log(JSON.stringify(obj.note));
+                obj.action = DbAction.DbAction.create;
+                obj.userid = userid;
+                results.push(obj);
+              }
+              resolve(results);
+            }
+          },
+          (tx: any, error: any)=>{ /*error callback*/
+            console.log('error in getting notes to save.');
+            console.log(JSON.stringify(error));
+            reject(error); /*?????*/
+          }
+        )
+      })
+      .then(txResult=>{
+        // console.log('txResult');
+        // console.log(JSON.stringify(txResult));
+        resolve(null); /*never here (?)*/
+      })
+      .catch(txError=>{
+        console.log('tx error');
+        console.log(JSON.stringify(txError));
+        reject(txError);
+      })
+    })
+  }
 
+
+  public getObjectTagsToSave(userid: string):Promise<LogObjSmart[]>{
+    return new Promise<LogObjSmart[]>((resolve, reject)=>{
+      this.db.transaction(tx=>{
+        tx.executeSql(Query.SELECT_TAGS_TO_SAVE, [userid],
+          (tx: any, res: any)=>{ /*result callback*/
+            if(res.rows.length<=0){
+              resolve(null);
+            }else{
+              let results:LogObjSmart[]=[];
+              for(let i=0;i<res.rows.length;i++){
+                let obj: LogObjSmart = new LogObjSmart();
+                let tag:TagExtraMin  = new TagExtraMin();
+                tag.title = res.rows.item(i).tagtitle;
+                let note:NoteExtraMin = new NoteExtraMin();
+                note.title = res.rows.item(i).notetitle;
+                obj.tag = tag;
+                obj.note = note;
+                obj. role = res.rows.item(i).role;
+                // console.log(JSON.stringify(obj.note));
+                obj.action = DbAction.DbAction.create;
+                obj.userid = userid;
+                results.push(obj);
+              }
+              resolve(results);
+            }
+          },
+          (tx: any, error: any)=>{ /*error callback*/
+            console.log('error in getting notes to save.');
+            console.log(JSON.stringify(error));
+            reject(error); /*?????*/
+          }
+        )
+      })
+      .then(txResult=>{
+        // console.log('txResult');
+        // console.log(JSON.stringify(txResult));
+        resolve(null); /*never here (?)*/
+      })
+      .catch(txError=>{
+        console.log('tx error');
+        console.log(JSON.stringify(txError));
+        reject(txError);
+      })
+    })
+  }
 
 
 }
