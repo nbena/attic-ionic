@@ -386,6 +386,17 @@ public setToken(token: any, userid: string):Promise<any>{
         })
       })
     }catch(e){
+      if(e.message.search(Const.UNIQUE_FAILED) > 0){
+        //user is already there.
+        this.db.executeSql(Query.INSERT_ONLY_TOKEN, [token, userid])
+        .then(result=>{
+          resolve(true);
+        })
+        .catch(error=>{
+          reject(error);
+          /*don't know if it's correct.*/
+        })
+      }
       reject(e);
     }
   })

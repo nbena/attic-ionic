@@ -65,13 +65,13 @@ export class Query{
 
   //opt: a json field for each object.
 
-  static readonly CREATE_NOTES_TABLE ='create table if not exists notes(title varchar(64),userid varchar(64) default null,text text default null, links text default null, isdone boolean default false,creationdate date default (datetime(\'now\',\'localtime\')),local_lastmodificationdate date default (datetime(\'now\',\'localtime\')), remote_lastmodificationdate date default (datetime(\'now\',\'localtime\')),mustbedeleted boolean default false, json_object text default null,primary key(title))';
-  static readonly CREATE_TAGS_TABLE = 'create table if not exists tags(title varchar(64),userid varchar(64) default null, mustbedeleted boolean default false, json_object text default null,primary key(title));';
-  static readonly CREATE_NOTES_TAGS_TABLE ='create table if not exists notes_tags(notetitle varchar(64),tagtitle varchar(64),role varchar(9),mustbedeleted boolean default false,primary key(notetitle, tagtitle),foreign key(notetitle) references notes(title) on update cascade on delete cascade,foreign key(tagtitle) references tags(title) on update cascade on delete cascade,constraint role_check check (role = \'mainTags\' or role = \'otherTags\'))';
-  static readonly CREATE_LOGS_TABLE = 'create table if not exists logs(id integer primary key autoincrement,notetitle varchar(64) default null,tagtitle varchar(64) default null,role varchar(9) default null,action varchar(64) not null, creationdate date default(datetime(\'now\',\'localtime\')), foreign key(notetitle) references notes(title) on update cascade on delete cascade,foreign key(tagtitle) references tags(title) on update cascade on delete cascade,constraint action_check check(action=\'create\' or action=\'delete\' or action=\'change-title\' or action=\'change-text\' or action=\'add-tag\' or action=\'remove-tag\' or action =\'set-done\' or action=\'set-link\'),constraint role_check check (role =\'mainTags\' or role = \'otherTags\' or role is null),constraint if_all check ((role is not null and noteTitle is not null and tagTitle is not null) or (noteTitle is not null) or (tagTitle is not null)));'
   static readonly CREATE_AUTH_TABLE = 'create table if not exists auth(token text default null, userid varchar(64), primary key(userid));';
+  static readonly CREATE_NOTES_TABLE ='create table if not exists notes(title varchar(64),userid varchar(64) default null,text text default null, links text default null, isdone boolean default false,creationdate date default (datetime(\'now\',\'localtime\')),local_lastmodificationdate date default (datetime(\'now\',\'localtime\')), remote_lastmodificationdate date default (datetime(\'now\',\'localtime\')),mustbedeleted boolean default false, json_object text default null,primary key(title, userid), foreign key(userid) references auth(userid) on update cascade on delete cascade);';
+  static readonly CREATE_TAGS_TABLE = 'create table if not exists tags(title varchar(64),userid varchar(64) default null, mustbedeleted boolean default false, json_object text default null,primary key(title, userid), foreign key(userid) references auth(userid) on update cascade on delete cascade);';
+  static readonly CREATE_NOTES_TAGS_TABLE ='create table if not exists notes_tags(notetitle varchar(64), userid varchar(64), tagtitle varchar(64),role varchar(9),mustbedeleted boolean default false,primary key(notetitle, tagtitle, userid),foreign key(notetitle) references notes(title) on update cascade on delete cascade,foreign key(tagtitle) references tags(title) on update cascade on delete cascade, foreign key(userid) references auth(userid) on update cascade on delete cascade,constraint role_check check (role = \'mainTags\' or role = \'otherTags\'))';
+  static readonly CREATE_LOGS_TABLE = 'create table if not exists logs_sequence(id integer primary key autoincrement,notetitle varchar(64) default null,tagtitle varchar(64) default null,role varchar(9) default null,action varchar(64) not null, creationdate date default(datetime(\'now\',\'localtime\')), userid varchar(64), foreign key(notetitle) references notes(title) on update cascade on delete cascade,foreign key(tagtitle) references tags(title) on update cascade on delete cascade, foreign key(userid) references auth(userid) on update cascade on delete cascade, constraint action_check check(action=\'create\' or action=\'delete\' or action=\'change-title\' or action=\'change-text\' or action=\'add-tag\' or action=\'remove-tag\' or action =\'set-done\' or action=\'set-link\'),constraint role_check check (role =\'mainTags\' or role = \'otherTags\' or role is null),constraint if_all check ((role is not null and noteTitle is not null and tagTitle is not null) or (noteTitle is not null) or (tagTitle is not null)));'
 
-  static readonly GET_LOGS_COUNT = 'select count(*) as count from logs where userid=?';
+  static readonly GET_LOGS_COUNT = 'select count(*) as count from logs_sequence where userid=?';
   static readonly GET_NOTES_COUNT = 'select count(*) as count from notes where mustbedeleted=\'false\' and userid=?';
   static readonly GET_NOTES_COUNT_TOTAL = 'select count(*) as count from notes where userid=?';
   static readonly GET_TAGS_COUNT = 'select count(*) as count from tags where mustbedeleted=\'false\' and userid=?';
@@ -137,6 +137,7 @@ export class Query{
   // static readonly INSERT_NOTE_INTO_LOGS = 'insert into logs (notetitle, action) values(?,?)';
 
   static readonly INSERT_TOKEN = 'insert into auth (token, userid) values(?,?)';
+  static readonly INSERT_ONLY_TOKEN = 'update auth set token=? where userid=?';
 
   static readonly GET_TOKEN = 'select * from auth where token is not null limit 1;';
 
@@ -145,11 +146,11 @@ export class Query{
   static readonly UPDATE_NOTE_SET_LINKS = 'update notes set links=?, json_object=? where title=? and userid=?';
   static readonly UPDATE_NOTE_SET_TITLE = 'update notes set title=?, json_object=? where title=? and userid=?';
 
-  static readonly INSERT_NOTE_OLDTITLE_INTO_LOGS = 'insert into logs(notetitle, oldtitle, action, userid) values (?,?,?,?)';
-  static readonly INSERT_TAG_OLDTITLE_INTO_LOGS = 'insert into logs(tagtitle, oldtitle, action, userid) values (?,?,?,?)';
+  static readonly INSERT_NOTE_OLDTITLE_INTO_LOGS = 'insert into logs_sequence(notetitle, oldtitle, action, userid) values (?,?,?,?)';
+  static readonly INSERT_TAG_OLDTITLE_INTO_LOGS = 'insert into logs_sequence(tagtitle, oldtitle, action, userid) values (?,?,?,?)';
 
 
-  static readonly IS_NOTE_NOT_IN_THE_SERVER = 'select * from logs where notetitle=? and action=\'create\' and userid=?';
+  static readonly IS_NOTE_NOT_IN_THE_SERVER = 'select * from logs_sequence where notetitle=? and action=\'create\' and userid=?';
 
   static readonly SELECT_NOTES_MIN_BY_TAGS = 'select notetitle from notes_tags where userid=? and mustbedeleted=\'false\' and tagtitle=?';
   static readonly SELECT_NOTES_MIN_BY_TEXT = 'select title from notes where text like %?% and mustbedeleted=\'false\' and userid=?';
@@ -162,32 +163,32 @@ export class Query{
 
 
 
-  static readonly NOTES_TO_CLEAN_UP_CREATE = 'select distinct notetitle from logs as l where exists (select * from logs as l1 where action=\'delete\' and l.notetitle=l1.notetitle and userid=?) and exists (select * from logs as l1 where action=\'create\' and l.notetitle=l1.notetitle and userid=?)';
-  static readonly CLEAN_UP_NOTES_CREATE = 'delete from notes where title in (select distinct notetitle from logs as l where exists (select * from logs as l1 where action=\'delete\' and l.notetitle=l1.notetitle  and userid=?) and exists (select * from logs as l1 where action=\'create\' and l.notetitle=l1.notetitle and userid=?));'
+  static readonly NOTES_TO_CLEAN_UP_CREATE = 'select distinct notetitle from logs_sequence as l where exists (select * from logs_sequence as l1 where action=\'delete\' and l.notetitle=l1.notetitle and userid=?) and exists (select * from logs_sequence as l1 where action=\'create\' and l.notetitle=l1.notetitle and userid=?)';
+  static readonly CLEAN_UP_NOTES_CREATE = 'delete from notes where title in (select distinct notetitle from logs_sequence as l where exists (select * from logs_sequence as l1 where action=\'delete\' and l.notetitle=l1.notetitle  and userid=?) and exists (select * from logs_sequence as l1 where action=\'create\' and l.notetitle=l1.notetitle and userid=?));'
 
-  static readonly TAGS_TO_CLEAN_UP_CREATE = 'select distinct tagtitle from logs as l where exists (select * from logs as l1 where action=\'delete\' and l.tagtitle=l1.tagtitle) and exists (select * from logs as l1 where action=\'create\' and l.tagtitle=l1.tagtitle)';
-  static readonly CLEAN_UP_TAGS_CREATE = 'delete from tags where title in (select distinct tagtitle from logs as l where exists (select * from logs as l1 where action=\'delete\' and l.tagtitle=l1.tagtitle and userid=?) and exists (select * from logs as l1 where action=\'create\' and l.tagtitle=l1.tagtitle and userid=?));'
+  static readonly TAGS_TO_CLEAN_UP_CREATE = 'select distinct tagtitle from logs_sequence as l where exists (select * from logs_sequence as l1 where action=\'delete\' and l.tagtitle=l1.tagtitle) and exists (select * from logs_sequence as l1 where action=\'create\' and l.tagtitle=l1.tagtitle)';
+  static readonly CLEAN_UP_TAGS_CREATE = 'delete from tags where title in (select distinct tagtitle from logs_sequence as l where exists (select * from logs_sequence as l1 where action=\'delete\' and l.tagtitle=l1.tagtitle and userid=?) and exists (select * from logs_sequence as l1 where action=\'create\' and l.tagtitle=l1.tagtitle and userid=?));'
 
-  static readonly CLEAN_UP_NOTES_SET_DONE = 'select id from logs as l where action=\'set-done\' and userid=? and id < (select max(id) from logs as l1 where action=\'set-done\' and l.notetitle = l1.notetitle and userid=?);';
-  static readonly NOTES_TO_CLEAN_UP_SET_DONE = 'delete from logs where id in (select id from logs as l where action=\'set-done\' and userid=? and id < (select max(id) from logs as l1 where action=\'set-done\' and l.notetitle = l1.notetitle and userid=?));';
+  static readonly CLEAN_UP_NOTES_SET_DONE = 'select id from logs_sequence as l where action=\'set-done\' and userid=? and id < (select max(id) from logs_sequence as l1 where action=\'set-done\' and l.notetitle = l1.notetitle and userid=?);';
+  static readonly NOTES_TO_CLEAN_UP_SET_DONE = 'delete from logs_sequence where id in (select id from logs_sequence as l where action=\'set-done\' and userid=? and id < (select max(id) from logs_sequence as l1 where action=\'set-done\' and l.notetitle = l1.notetitle and userid=?));';
 
-  static readonly CLEAN_UP_NOTES_SET_TEXT = 'select id from logs as l where action=\'change-text\' and userid=? and id < (select max(id) from logs as l1 where action=\'change-text\' and l.notetitle = l1.notetitle and userid=?);';
-  static readonly NOTES_TO_CLEAN_UP_SET_TEXT = 'delete from logs where id in (select id from logs as l where action=\'change-text\' and userid=? and id < (select max(id) from logs as l1 where action=\'change-text\' and l.notetitle = l1.notetitle and userid=?));';
+  static readonly CLEAN_UP_NOTES_SET_TEXT = 'select id from logs_sequence as l where action=\'change-text\' and userid=? and id < (select max(id) from logs_sequence as l1 where action=\'change-text\' and l.notetitle = l1.notetitle and userid=?);';
+  static readonly NOTES_TO_CLEAN_UP_SET_TEXT = 'delete from logs_sequence where id in (select id from logs_sequence as l where action=\'change-text\' and userid=? and id < (select max(id) from logs_sequence as l1 where action=\'change-text\' and l.notetitle = l1.notetitle and userid=?));';
 
-  static readonly CLEAN_UP_NOTES_SET_LINK = 'select id from logs as l where action=\'set-link\' and userid=? and id < (select max(id) from logs as l1 where action=\'set-link\' and l.notetitle = l1.notetitle and userid=?);';
-  static readonly NOTES_TO_CLEAN_UP_SET_LINK = 'delete from logs where id in (select id from logs as l where action=\'set-link\' and userid=? and id < (select max(id) from logs as l1 where action=\'set-link\' and l.notetitle = l1.notetitle and userid=?));';
+  static readonly CLEAN_UP_NOTES_SET_LINK = 'select id from logs_sequence as l where action=\'set-link\' and userid=? and id < (select max(id) from logs_sequence as l1 where action=\'set-link\' and l.notetitle = l1.notetitle and userid=?);';
+  static readonly NOTES_TO_CLEAN_UP_SET_LINK = 'delete from logs_sequence where id in (select id from logs_sequence as l where action=\'set-link\' and userid=? and id < (select max(id) from logs_sequence as l1 where action=\'set-link\' and l.notetitle = l1.notetitle and userid=?));';
 
 
-  static readonly SELECT_NOTES_TO_SAVE = 'select * from notes join logs on title=notetitle and notes.userid=logs.userid where notes.userid=? and action=\'create\'';
-  static readonly SELECT_TAGS_TO_SAVE = 'select * from logs where logs.userid=? and tagtitle is not null and notetitle is null and action=\'create\'';
+  static readonly SELECT_NOTES_TO_SAVE = 'select * from notes join logs_sequence on title=notetitle and notes.userid=logs.userid where notes.userid=? and action=\'create\'';
+  static readonly SELECT_TAGS_TO_SAVE = 'select * from logs where logs_sequence.userid=? and tagtitle is not null and notetitle is null and action=\'create\'';
 
-  static readonly DELETE_NOTES_TO_SAVE_LOGS = 'delete from logs where id in (select id from logs where action=\'create\' and userid=?  and tagtitle is null and notetitle is not null);'
-  static readonly DELETE_TAGS_TO_SAVE_LOGS = 'delete from logs where id in (select id from logs where action=\'create\' and userid=?  and tagtitle is not null and notetitle is null and role is null);'
+  static readonly DELETE_NOTES_TO_SAVE_LOGS = 'delete from logs_sequence where id in (select id from logs_sequence where action=\'create\' and userid=?  and tagtitle is null and notetitle is not null);'
+  static readonly DELETE_TAGS_TO_SAVE_LOGS = 'delete from logs_sequence where id in (select id from logs_sequence where action=\'create\' and userid=?  and tagtitle is not null and notetitle is null and role is null);'
 
-  static readonly SELECT_TAGS_TO_ADD_TO_NOTES = 'select * from logs where logs.userid=? and tagtitle is not null and notetitle is not null and action=\'create\' and role is not null';
-  static readonly DELETE_TAGS_TO_ADD_TO_NOTES = 'delete fro logs where id in (select id from logs where action=\'create\' and userid=? and tagtitle is not null and notetitle is not null and role is not null);';
+  static readonly SELECT_TAGS_TO_ADD_TO_NOTES = 'select * from logs_sequence where logs_sequence.userid=? and tagtitle is not null and notetitle is not null and action=\'create\' and role is not null';
+  static readonly DELETE_TAGS_TO_ADD_TO_NOTES = 'delete fro logs_sequence where id in (select id from logs_sequence where action=\'create\' and userid=? and tagtitle is not null and notetitle is not null and role is not null);';
 
-  static readonly SELECT_TAGS_TO_ADD_TO_NOTES_2 = 'select * from logs where notetitle is not null and tagtitle is not null and role is not null and action=\'add-tag\' and userid=? order by notetitle, role';
+  static readonly SELECT_TAGS_TO_ADD_TO_NOTES_2 = 'select * from logs_sequence where notetitle is not null and tagtitle is not null and role is not null and action=\'add-tag\' and userid=? order by notetitle, role';
 
   /*
   tag and notes in the db just memorize an array of ids.
