@@ -135,8 +135,9 @@ export class TagsPage {
   }
 
   createNewTagAPI(title: string){
-
-    this.atticTags.createTag(title)
+    let tag:TagExtraMin = new TagExtraMin();
+    tag.title=title;
+    this.atticTags.createTag(tag)
       .then(result=>{
         this.allTags.push(<TagFull>result);
         this.shownTags.push(<TagFull>result);

@@ -583,10 +583,8 @@ public createNewNote2(note:NoteFull, tags:TagAlmostMin[], userid: string):Promis
           console.log(JSON.stringify(res));
         }
       }, (tx:any, err: any)=>{
-        if(err){
           console.log('error in insert note');
           console.log(JSON.stringify(err));
-        }
       });
 
       /*'insert into logs (notetitle, action) values (?,?)';*/
@@ -597,10 +595,8 @@ public createNewNote2(note:NoteFull, tags:TagAlmostMin[], userid: string):Promis
           console.log(JSON.stringify(res));
         }
       }, (tx:any, err: any)=>{
-        if(err){
           console.log('error in insert log');
           console.log(JSON.stringify(err));
-        }
       });
 
       note.maintags.map((tag)=>{
@@ -612,10 +608,8 @@ public createNewNote2(note:NoteFull, tags:TagAlmostMin[], userid: string):Promis
             console.log(JSON.stringify(res));
           }
         }, (tx:any, err: any)=>{
-          if(err){
             console.log('error in insert maintag');
             console.log(JSON.stringify(err));
-          }
         });
 
         tx.executeSql(Query.UPDATE_JSON_OBJ_TAG,[JSON.stringify(tag), tag.title, userid],
@@ -625,10 +619,8 @@ public createNewNote2(note:NoteFull, tags:TagAlmostMin[], userid: string):Promis
             console.log(JSON.stringify(res));
           }
         }, (tx:any, err: any)=>{
-          if(err){
             console.log('error in update json_obj maintag');
             console.log(JSON.stringify(err));
-          }
         })
       });
 
@@ -640,11 +632,9 @@ public createNewNote2(note:NoteFull, tags:TagAlmostMin[], userid: string):Promis
             console.log(JSON.stringify(res));
           }
         }, (tx:any, err: any)=>{
-                if(err){
-                  console.log('error in insert othertag');
-                  console.log(JSON.stringify(err));
-                }
-              });
+              console.log('error in insert othertag');
+              console.log(JSON.stringify(err));
+            });
         tx.executeSql(Query.UPDATE_JSON_OBJ_TAG,[JSON.stringify(tag), tag.title, userid],
         (tx:any, res:any)=>{
           if(res){
@@ -652,11 +642,9 @@ public createNewNote2(note:NoteFull, tags:TagAlmostMin[], userid: string):Promis
             console.log(JSON.stringify(res));
           }
         }, (tx:any, err: any)=>{
-                if(err){
-                  console.log('error in update json_obj othertag');
-                  console.log(JSON.stringify(err));
-                }
-              })
+              console.log('error in update json_obj othertag');
+              console.log(JSON.stringify(err));
+            })
       });
       //resolve(true);
   })
@@ -1229,7 +1217,29 @@ public setTitle(note :NoteFull, newTitle: string, userid: string):Promise<any>{
   createTag(tag: TagExtraMin, userid: string):Promise<any>{
     return new Promise<any>((resolve , reject)=>{
       this.db.transaction(tx=>{
-        
+        tx.executeSql(Query.INSERT_TAG, [tag.title, userid, JSON.stringify(tag)],
+        (tx: any, res: any)=>{/*nothing*/},
+        (tx: any, error: any)=>{
+          console.log('error in insert tag');
+          console.log(JSON.stringify(error));
+        }
+      );
+      tx.executeSql(Query.INSERT_TAG_OLDTITLE_INTO_LOGS, [tag.title, tag.title, 'create', userid],
+      (tx: any, res: any)=>{/*nothing*/},
+      (tx: any, error: any)=>{
+        console.log('error in insert tag in logs');
+        console.log(JSON.stringify(error));
+      }
+    )
+      })
+      .then(txResult=>{
+        console.log('tag creation completed');
+        resolve(true);
+      })
+      .catch(error=>{
+        console.log('tag creation error');
+        console.log(JSON.stringify(error));
+        reject(error);
       })
     });
   }
@@ -1338,7 +1348,7 @@ public setTitle(note :NoteFull, newTitle: string, userid: string):Promise<any>{
           (tx: any, error: any)=>{ /*error callback*/
             console.log('error in getting notes to save.');
             console.log(JSON.stringify(error));
-            reject(error); /*?????*/
+            //reject(error); /*?????*/
           }
         )
       })
@@ -1383,7 +1393,7 @@ public setTitle(note :NoteFull, newTitle: string, userid: string):Promise<any>{
           (tx: any, error: any)=>{ /*error callback*/
             console.log('error in getting notes to save.');
             console.log(JSON.stringify(error));
-            reject(error); /*?????*/
+            //reject(error); /*?????*/
           }
         )
       })
@@ -1488,7 +1498,7 @@ public setTitle(note :NoteFull, newTitle: string, userid: string):Promise<any>{
           (tx: any, error: any)=>{
             console.log('error in tx');
             console.log(JSON.stringify(error));
-            reject(error);
+            //reject(error); /*?no....*/
           }
         )
       })

@@ -162,8 +162,9 @@ export class AtticTags {
   /*
   * create a new tag.
   */
-  createTag(title: string):Promise<any>{
-    return Utils.putBasic('/api/tags/'+title, '', this.http, this.auth.token);
+  createTag(tag: TagExtraMin):Promise<any>{
+    // return Utils.putBasic('/api/tags/'+title, '', this.http, this.auth.token);
+    return this.db.createTag(tag, this.auth.userid);
   }
 
   // tagsByTitle(title: string){
