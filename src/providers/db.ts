@@ -773,7 +773,7 @@ Notes has not this problem because their json_object is made of the title and no
 */
 public insertTagMinQuietly(tag: TagAlmostMin, userid: string):Promise<any>{
   return new Promise<any>((resolve, reject)=>{
-    this.db.executeSql(Query.INSERT_TAG_MIN,[tag.title, JSON.stringify(tag)])
+    this.db.executeSql(Query.INSERT_TAG_MIN,[tag.title, JSON.stringify(tag), userid])
     .then(result=>{
       /*nothing to do.*/
       return this.getTagsCountAdvanced(userid);

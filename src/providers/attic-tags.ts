@@ -67,7 +67,7 @@ export class AtticTags {
             /*fetchingResult = NoteMin[] from the network, need to insert.*/
             tags = fetchingResult as TagAlmostMin[];
             for(let i=0;i<tags.length;i++){
-              this.db.insertNoteMinQuietly(tags[i], this.auth.userid);
+              this.db.insertTagMinQuietly(tags[i], this.auth.userid);
             }
             resolve(tags);
           }

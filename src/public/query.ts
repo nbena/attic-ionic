@@ -118,7 +118,7 @@ export class Query{
   static readonly TAG_EXISTS_AND_IS_FULL = 'select json_object from tags where mustbedeleted=\'false\' and title=? and userid=?';
 
   static readonly INSERT_NOTE_MIN = 'insert into notes(title, json_object, userid) values (?,?,?)';
-  static readonly INSERT_TAG_MIN = 'insert into tags(title, json_object, userid) values (?,?.?)';
+  static readonly INSERT_TAG_MIN = 'insert into tags(title, json_object, userid) values (?,?,?)';
 
   static readonly SELECT_NOTES_MIN = 'select json_object from notes where mustbedeleted=\'false\' and userid=?';
   static readonly SELECT_TAGS_MIN = 'select json_object from tags where mustbedeleted=\'false\' and userid=?';
