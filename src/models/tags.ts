@@ -1,4 +1,4 @@
-import { NoteFull } from './notes'
+import { NoteExtraMin, NoteFull } from './notes'
 /*
 Defining interfaces for the API.
 Here's the interface for the tags.
@@ -23,24 +23,37 @@ export class TagAlmostMin extends TagExtraMin{
   noteslength: number;
 }
 
-export class TagMin extends TagAlmostMin{
-  // _userId: string,
-  notes: string[];
+// export class TagMin extends TagAlmostMin{
+//   // _userId: string,
+//   notes: NoteExtraMin[];
+//
+//   // constructor(title: string){
+//   //   super();
+//   //   this.title=title;
+//   // }
+//   constructor(){
+//     super();
+//     this.notes =[];
+//   }
+// }
 
-  // constructor(title: string){
-  //   super();
-  //   this.title=title;
-  // }
-  constructor(){
-    super();
-    this.notes =[];
-  }
-}
 
+// export class TagFull extends TagAlmostMin{
+//
+//   notes: NoteFull[];
+//   // constructor(title: string){
+//   //   super();
+//   //   this.title=title;
+//   // }
+//   constructor(){
+//     super();
+//     this.notes =[];
+//   }
+// }
 
 export class TagFull extends TagAlmostMin{
 
-  notes: NoteFull[];
+  notes: TagExtraMin[];
   // constructor(title: string){
   //   super();
   //   this.title=title;

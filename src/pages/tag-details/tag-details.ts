@@ -25,15 +25,15 @@ export class TagDetailsPage {
     private popoverCtrl: PopoverController,
     private atticTags: AtticTags) {
       this.title=navParams.get('title');
-      this.tagByTitle(this.title);
+      this.tagByTitle(this.title, false);
   }
 
   ionViewDidLoad() {
     console.log('ionViewDidLoad TagDetailsPage');
   }
 
-  tagByTitle(title: string){
-    this.atticTags.tagByTitle(this.title)
+  tagByTitle(title: string, force: boolean){
+    this.atticTags.tagByTitle(this.title, force)
       .then(result=>{
 
         // this.tag = new TagFull();
@@ -42,7 +42,7 @@ export class TagDetailsPage {
         // for(let i=0;i<result.tag.notes.length;i++){
         //   this.tag.notes.push(result.tag.notes[i].notetitle);
         // }
-        this.tag=result.tag as TagFull;
+        this.tag=result;
         console.log('the tag is:');
         console.log(JSON.stringify(this.tag));
       })
@@ -55,8 +55,8 @@ export class TagDetailsPage {
     this.navCtrl.push(NoteDetailsPage, {title});
   }
 
-  refresh(refresher){
-    this.tagByTitle(this.title);
+  refresh(refresher, force: boolean){
+    this.tagByTitle(this.title, force);
     setTimeout(()=>{
       refresher.complete();
     },2000);

@@ -326,16 +326,16 @@ static pushLink(alertCtrl:AlertController, cb: ((_: any)=>void) ){
   return array;
 }
 
- static getEffectiveNotesFromTags(tag: TagFull):NoteFull[]{
-   let array: NoteFull[];
-   if(typeof tag == 'TagFull'){
-     array = tag.notes;
-   }else if(typeof tag == 'TagSQLite'){
-     let tagRes = <TagSQLite>tag;
-     array = tagRes.notes.concat(tagRes.addedNotes);
-     array = Utils.arrayDiff(array, tagRes.removedNotes);
-   }
-   return array;
- }
+ // static getEffectiveNotesFromTags(tag: TagFull):NoteFull[]{
+ //   let array: NoteFull[];
+ //   if(typeof tag == 'TagFull'){
+ //     array = tag.notes;
+ //   }else if(typeof tag == 'TagSQLite'){
+ //     let tagRes = <TagSQLite>tag;
+ //     array = tagRes.notes.concat(tagRes.addedNotes);
+ //     array = Utils.arrayDiff(array, tagRes.removedNotes);
+ //   }
+ //   return array;
+ // }
 
 }

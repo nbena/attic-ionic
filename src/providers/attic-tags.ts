@@ -8,7 +8,7 @@ import { Auth } from './auth';
 // import { TagExtraMin, TagMin, TagFull } from '../models/tags';
 import { Utils } from '../public/utils';
 
-import { TagExtraMin, TagAlmostMin } from '../models/tags';
+import { TagExtraMin, TagAlmostMin, TagFull } from '../models/tags';
 import { Db } from './db';
 import { NetManager } from './net-manager';
 
@@ -84,27 +84,80 @@ export class AtticTags {
   //   return Utils.getBasic('/api/tags/all/min/notes-length', this.http, this.auth.token);
   // }
 
-  tagByTitle(title: string):Promise<any>{
-    // return new Promise((resolve, reject)=>{
-    //
-    //   let headers = new Headers();
-    //   headers.append('Authorization', this.auth.token);
-    //
-    //   let uri = Const.API_URI+'/api/tags/'+id;
-    //   this.http.get(uri, {headers: headers})
-    //     .subscribe(res=>{
-    //
-    //       let data = res.json();
-    //       if(data.ok==false){
-    //         throw new Error(data.msg);
-    //       }
-    //       resolve(data.result);
-    //     },(err)=>{
-    //       reject(err);
-    //     })
-    // });
-    return Utils.getBasic('/api/tags/'+title, this.http, this.auth.token);
-  }
+  // tagByTitle(title: string):Promise<any>{
+  //   return Utils.getBasic('/api/tags/'+title, this.http, this.auth.token);
+  // }
+
+
+    private tagByTitle_loadFromNetworkAndInsert(title: string):Promise<any>{
+      return new Promise<any>((resolve, reject)=>{
+        let tag:TagFull;
+        Utils.getBasic('/api/tags/'+title, this.http, this.auth.token)
+        .then(result=>{
+          console.log('the resul from network is: ');
+          console.log(JSON.stringify(result.tag));
+          tag = result.tag as TagFull;
+          /*inserting in the DB.*/
+          /*===============================================*/
+          /*tags are always min!!!! it just change the json_object*/
+          this.db.insertTagMinQuietly(tag, this.auth.userid); /*this will be done asynchronously?*/
+          resolve(tag);
+        // .catch(error=>{
+        //   console.log('errror while fetching and inserting.');
+        //   console.log(JSON.stringify(error));
+        //   reject(error);
+        // })
+      })
+      .catch(error=>{
+        reject(error);
+      })
+    })
+    }
+
+    public tagByTitle(title: string, force: boolean):Promise<TagFull>{
+      console.log('title:');
+      console.log(title);
+      return new Promise<TagFull>((resolve, reject)=>{
+        let areThereTagsInTheDb: boolean;
+        let useDb: boolean;
+        let callNet: boolean;
+        this.db.getNumberOfTags(this.auth.userid)
+        .then(number=>{
+          areThereTagsInTheDb = (number > 0) ? true : false;
+          useDb = Utils.shouldUseDb(this.netManager.isConnected, areThereTagsInTheDb, force);
+          callNet = !useDb;
+          if(useDb){
+            return this.db.getTagFull(title, this.auth.userid)
+          }else{
+            return this.tagByTitle_loadFromNetworkAndInsert(title);
+          }
+        })
+        .then(tagFull=>{
+          if(useDb){
+            /*we have the note and nothing more should have done.*/
+            if(tagFull==null){
+              return this.tagByTitle_loadFromNetworkAndInsert(title);
+            }else{
+              resolve(tagFull);
+            }
+          }else{
+            /*we have the note and it has been inserted into the DB*/
+            resolve(tagFull);
+          }
+        })
+        .then(fromNet=>{
+          /*if here the note is not in the DB.*/
+          resolve(fromNet);
+        })
+        .catch(error=>{
+          console.log('error in getting full tag');
+          console.log(JSON.stringify(error));
+          reject(error);
+        })
+      })
+    }
+
+
 
   /*
   * create a new tag.

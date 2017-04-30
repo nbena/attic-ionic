@@ -6,7 +6,7 @@ import { Query } from '../public/query';
 import { Table, Const, DbAction, WhichField } from '../public/const';
 import { Utils } from '../public/utils';
 import { NoteExtraMin, NoteFull, NoteSQLite,NoteMin } from '../models/notes';
-import { TagExtraMin, TagFull, TagMin, TagAlmostMin, TagSQLite } from '../models/tags';
+import { TagExtraMin, TagFull, /*TagMin,*/ TagAlmostMin, TagSQLite } from '../models/tags';
 import { Queue } from 'typescript-collections';
 //import * as Promise from 'bluebird';
 
@@ -26,6 +26,7 @@ import { Queue } from 'typescript-collections';
 //
 // export class LogObject{
 //   _id: number;
+
 //   action: Action;
 //   refNotes: string;
 //   refTags: string;
@@ -386,7 +387,7 @@ public setToken(token: any, userid: string):Promise<any>{
         })
       })
     }catch(e){
-      if(e.message.search(Const.UNIQUE_FAILED) > 0){
+      if(e.message.search(Const.UNIQUE_FAILED) >= 0){
         //user is already there.
         this.db.executeSql(Query.INSERT_ONLY_TOKEN, [token, userid])
         .then(result=>{
@@ -743,6 +744,36 @@ public getNoteFull(title: string, userid: string):Promise<NoteFull>{
   });
 }
 
+public getTagFull(title: string, userid: string):Promise<TagFull>{
+  return new Promise<TagFull>((resolve, reject)=>{
+    this.db.executeSql(Query.GET_TAG_FULL_JSON, [title, userid])
+    .then(result=>{
+      let tag:TagFull;
+      if(result.rows.length<=0){
+        resolve(null);
+      }else{
+        /*try the parsing.*/
+        let rawResult:any = result.rows.item(0);
+        tag = JSON.parse(rawResult.json_object) as TagFull;
+        console.log('the tag is');
+        console.log(JSON.stringify(tag));
+        /*check if it's full.*/
+        if(tag.notes == null || tag.notes.length < 0 || tag.notes == undefined){
+          console.log('throw the error, tag is not full!');
+
+          resolve(null);
+        }else{
+          /*if here the note is ok.*/
+          resolve(tag);
+        }
+      }
+    })
+    .catch(error=>{
+      reject(error);
+    })
+  });
+}
+
 // public insertTagMin(tag: TagExtraMin):Promise<any>{
 //
 // }
@@ -785,8 +816,7 @@ public insertTagMinQuietly(tag: TagAlmostMin, userid: string):Promise<any>{
     .catch(error=>{
       console.log('error in inserting tags: ');
       console.log(JSON.stringify(error));
-      console.log(JSON.stringify(error.stack));
-      if(error.code===19){
+      if(error.message.search(Const.UNIQUE_FAILED)>=0){
         console.log('already there.');
         /*ok, constraint violation, the note is already there.*/
         /*maybe the json_object is changed, trying to update.*/
@@ -821,7 +851,7 @@ public insertNoteMinQuietly(note: NoteExtraMin, userid: string):Promise<any>{
     .catch(error=>{
       console.log('error in inserting note min:'),
       console.log(JSON.stringify(error));
-      if(error.message.search(Const.UNIQUE_FAILED)){
+      if(error.message.search(Const.UNIQUE_FAILED)>=0){
         /*ok, constraint violation, the note is already there.*/
         console.log('already there.');
         resolve(true);
@@ -1194,6 +1224,14 @@ public setTitle(note :NoteFull, newTitle: string, userid: string):Promise<any>{
         reject(error);
       })
     })
+  }
+
+  createTag(tag: TagExtraMin, userid: string):Promise<any>{
+    return new Promise<any>((resolve , reject)=>{
+      this.db.transaction(tx=>{
+        
+      })
+    });
   }
 
   deleteTag(tag: TagExtraMin, userid: string):Promise<any>{

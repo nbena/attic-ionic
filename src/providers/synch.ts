@@ -6,7 +6,7 @@ import { Auth } from './auth';
 import { AtticTags } from './attic-tags';
 import { AtticNotes } from './attic-notes';
 import { NoteExtraMin, NoteFull, NoteSQLite, NoteMin } from '../models/notes';
-import { TagExtraMin, TagFull, TagSQLite, TagMin } from '../models/tags';
+import { TagExtraMin, TagFull, TagSQLite/*, TagMin*/ } from '../models/tags';
 //import * as Collections from 'typescript-collections';
 import { Queue } from 'typescript-collections';
 import { DbAction } from '../public/const';

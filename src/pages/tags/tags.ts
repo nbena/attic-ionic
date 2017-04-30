@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { NavController, NavParams, AlertController } from 'ionic-angular';
 
 
-import { TagExtraMin, TagMin, TagFull, TagAlmostMin } from '../../models/tags';
+import { TagExtraMin,/* TagMin, */TagFull, TagAlmostMin } from '../../models/tags';
 import { AtticTags } from '../../providers/attic-tags';
 import { TagDetailsPage } from '../tag-details/tag-details';
 import { NotesPage } from '../notes/notes';
