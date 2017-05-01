@@ -1301,7 +1301,7 @@ public setTitle(note :NoteFull, newTitle: string, userid: string):Promise<any>{
   }
 
 
-  public addTags(note: NoteExtraMin,  userid: string, mainTags? :  TagExtraMin[], otherTags?: TagExtraMin[]):Promise<any>{
+  public addTags(note: NoteFull,  userid: string, mainTags? :  TagExtraMin[], otherTags?: TagExtraMin[]):Promise<any>{
     return new Promise<any>((resolve, reject)=>{
       this.db.transaction(tx=>{
         /*first update note with a new json_object*/
@@ -1334,7 +1334,6 @@ public setTitle(note :NoteFull, newTitle: string, userid: string):Promise<any>{
                 let tag:any = JSON.parse(res.rows.item(0));
                 let tagFull:TagFull = new TagFull();
                 tagFull.title  = tag.title;
-                tagFull
                 tagFull.noteslength = tag.noteslength+1;
                 if(tag.notes!=null && tag.notes != undefined){
                   tagFull.notes=tag.notes;
@@ -1379,7 +1378,6 @@ public setTitle(note :NoteFull, newTitle: string, userid: string):Promise<any>{
                 let tag:any = JSON.parse(res.rows.item(0));
                 let tagFull:TagFull = new TagFull();
                 tagFull.title  = tag.title;
-                tagFull
                 tagFull.noteslength = tag.noteslength+1;
                 if(tag.notes!=null && tag.notes != undefined){
                   tagFull.notes=tag.notes;

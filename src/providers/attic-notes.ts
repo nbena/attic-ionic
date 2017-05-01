@@ -405,7 +405,7 @@ return this.items.filter((item) => {
   }
 
 
-  addTags(note: NoteExtraMin, mainTags: TagExtraMin[], otherTags: TagExtraMin[]){
+  addTags(note: NoteFull, mainTags: TagExtraMin[], otherTags: TagExtraMin[]){
     // return Utils.postBasic('/api/notes/mod/addtags', JSON.stringify({note:
     //   {title: note.title,
     //     maintags: mainTags.map((tag)=>{return tag.title}),
@@ -415,7 +415,7 @@ return this.items.filter((item) => {
   }
 
 
-  addMainTags(note: NoteExtraMin, mainTags: TagExtraMin[]){
+  addMainTags(note: NoteFull, mainTags: TagExtraMin[]){
     // return Utils.postBasic('/api/notes/mod/addtags', JSON.stringify({note:
     //   {title: note.title,
     //     mainTags: mainTags.map((tag)=>{tag.title}) }}),
@@ -423,7 +423,7 @@ return this.items.filter((item) => {
     return this.db.addTags(note, this.auth.userid, mainTags);
   }
 
-  addOtherTags(note: NoteExtraMin, otherTags: TagExtraMin[]){
+  addOtherTags(note: NoteFull, otherTags: TagExtraMin[]){
     // return Utils.postBasic('/api/notes/mod/addtags', JSON.stringify({note:
     //   {title: note.title,
     //     othertags: otherTags.map((tag)=>{return tag.title}) }}),

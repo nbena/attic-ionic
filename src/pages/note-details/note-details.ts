@@ -249,6 +249,7 @@ export class NoteDetailsPage {
     Utils.pushAllJSON(this.mainTagsToAdd, tags);
     this.haveToAddMainTags = true;
     this.submitChangeEnabled = true;
+    this.note.maintags=this.note.maintags.concat(this.mainTagsToAdd);
   }
 
   addOtherTags(){
@@ -280,6 +281,7 @@ export class NoteDetailsPage {
     Utils.pushAllJSON(this.otherTagsToAdd, tags);
     this.haveToAddOtherTags = true;
     this.submitChangeEnabled = true;
+    this.note.othertags=this.note.othertags.concat(this.otherTagsToAdd);
 
   }
 
