@@ -1306,7 +1306,7 @@ public setTitle(note :NoteFull, newTitle: string, userid: string):Promise<any>{
       this.db.transaction(tx=>{
         /*first update note with a new json_object*/
         tx.executeSql(Query.UPDATE_JSON_OBJ_NOTE,[JSON.stringify(note), note.title, userid],
-          (tx: any, res: any)=>{/*nothing*/},
+          (tx: any, res: any)=>{/*nothing*/console.log('updated json_obj note');},
           (tx: any, error: any)=>{
             console.log('error in update JSON object.');
             console.log(JSON.stringify(error));
@@ -1315,14 +1315,14 @@ public setTitle(note :NoteFull, newTitle: string, userid: string):Promise<any>{
       if(mainTags!=null){
         for(let i=0;i<mainTags.length;i++){
           tx.executeSql(Query.INSERT_NOTES_TAGS, [note.title, mainTags[i].title, 'mainTags', userid],
-            (tx: any, res: any)=>{/*nothing*/},
+            (tx: any, res: any)=>{/*nothing*/console.log('update notes_tags main');},
             (tx: any, error: any)=>{
               console.log('error in inserting main tags in notes_tags');
               console.log(JSON.stringify(error));
             }
         );
         tx.executeSql(Query.INSERT_NOTE_TAG_INTO_LOGS, [note.title, note.title, mainTags[i].title, 'mainTags', 'add-tag', userid],
-          (tx: any, res: any)=>{/*nothing*/},
+          (tx: any, res: any)=>{/*nothing*/console.log('insert into logs ok');},
           (tx: any, error: any)=>{
             console.log('error in inserting main tags in logs');
             console.log(JSON.stringify(error))
@@ -1331,14 +1331,18 @@ public setTitle(note :NoteFull, newTitle: string, userid: string):Promise<any>{
         tx.executeSql(Query.GET_TAG_FULL_JSON, [mainTags[i].title, userid],
           (tx: any, res: any)=>{
             if(res.rows.length>0){
-                let tag:any = JSON.parse(res.rows.item(0));
+                let tag:any = JSON.parse(res.rows.item(0).json_object);
+                console.log('the tag is:');
+                console.log(JSON.stringify(tag));
                 let tagFull:TagFull = new TagFull();
                 tagFull.title  = tag.title;
                 tagFull.noteslength = tag.noteslength+1;
                 if(tag.notes!=null && tag.notes != undefined){
                   tagFull.notes=tag.notes;
                 }
-                tagFull.notes.push(note);
+                let noteExtraMin:NoteExtraMin = new NoteExtraMin();
+                noteExtraMin.title = note.title;
+                tagFull.notes.push(noteExtraMin);
                 tagFull.userid=userid;
                 tx.executeSql(Query.UPDATE_JSON_OBJ_TAG, [JSON.stringify(tagFull), tagFull.title, userid],
                   (tx: any, res: any)=>{},
@@ -1357,7 +1361,7 @@ public setTitle(note :NoteFull, newTitle: string, userid: string):Promise<any>{
         }
       }
       if(otherTags!=null){
-        for(let i=0;i<mainTags.length;i++){
+        for(let i=0;i<otherTags.length;i++){
           tx.executeSql(Query.INSERT_NOTES_TAGS, [note.title, otherTags[i].title, 'otherTags', userid],
             (tx: any, res: any)=>{/*nothing*/},
             (tx: any, error: any)=>{
@@ -1372,17 +1376,19 @@ public setTitle(note :NoteFull, newTitle: string, userid: string):Promise<any>{
             console.log(JSON.stringify(error))
           }
         );
-        tx.executeSql(Query.GET_TAG_FULL_JSON, [mainTags[i].title, userid],
+        tx.executeSql(Query.GET_TAG_FULL_JSON, [otherTags[i].title, userid],
           (tx: any, res: any)=>{
             if(res.rows.length>0){
-                let tag:any = JSON.parse(res.rows.item(0));
+                let tag:any = JSON.parse(res.rows.item(0).json_object);
                 let tagFull:TagFull = new TagFull();
                 tagFull.title  = tag.title;
                 tagFull.noteslength = tag.noteslength+1;
                 if(tag.notes!=null && tag.notes != undefined){
                   tagFull.notes=tag.notes;
                 }
-                tagFull.notes.push(note);
+                let noteExtraMin:NoteExtraMin = new NoteExtraMin();
+                noteExtraMin.title = note.title;
+                tagFull.notes.push(noteExtraMin);
                 tagFull.userid=userid;
                 tx.executeSql(Query.UPDATE_JSON_OBJ_TAG, [JSON.stringify(tagFull), tagFull.title, userid],
                   (tx: any, res: any)=>{},

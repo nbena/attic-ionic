@@ -50,7 +50,7 @@ export class AtticTags {
           console.log(number);
           // let useDb = !isNteworkAvailable || areThereNotesInTheDb || !force;
           useDb = Utils.shouldUseDb(isNteworkAvailable, areThereTagsInTheDb, force);
-          console.log('usedb note: ');
+          console.log('usedb tag: ');
           console.log(JSON.stringify(useDb));
           if(useDb){
             return this.db.getTagsMin(this.auth.userid);
@@ -60,6 +60,8 @@ export class AtticTags {
           }
         })
         .then(fetchingResult=>{
+          console.log('fetch result is:');
+          console.log(JSON.stringify(fetchingResult));
           if(useDb){
             /*fetchingResult = NoteMin[] from the DB.*/
             resolve(fetchingResult);

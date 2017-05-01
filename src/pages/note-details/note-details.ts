@@ -146,6 +146,8 @@ export class NoteDetailsPage {
   loadTags(force: boolean){
     this.atticTags.loadTagsMin(force)
       .then(result=>{
+        // console.log('the tags:');
+        // console.log(JSON.stringify(result));
         this.availableTags=<TagExtraMin[]>result;
         this.areTagsAvailable=true;
         this.makeReallyAvailable();
@@ -254,7 +256,7 @@ export class NoteDetailsPage {
 
   addOtherTags(){
     let alert = this.alertCtrl.create();
-    alert.setTitle("Add main tags");
+    alert.setTitle("Add other tags");
 
     for(let i=0;i<this.reallyAvailableTags.length;i++){
       alert.addInput({
