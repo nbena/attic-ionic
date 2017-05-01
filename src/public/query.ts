@@ -149,6 +149,8 @@ export class Query{
   static readonly INSERT_NOTE_OLDTITLE_INTO_LOGS = 'insert into logs_sequence(notetitle, oldtitle, action, userid) values (?,?,?,?)';
   static readonly INSERT_TAG_OLDTITLE_INTO_LOGS = 'insert into logs_sequence(tagtitle, oldtitle, action, userid) values (?,?,?,?)';
 
+  static readonly INSERT_NOTE_TAG_INTO_LOGS = 'insert into logs_sequence(notetitle, oldtitle, tagtitle, role, action, userid) values (?,?,?,?,?,?)';
+
 
   static readonly IS_NOTE_NOT_IN_THE_SERVER = 'select * from logs_sequence where notetitle=? and action=\'create\' and userid=?';
 
@@ -189,6 +191,8 @@ export class Query{
   static readonly DELETE_TAGS_TO_ADD_TO_NOTES = 'delete fro logs_sequence where id in (select id from logs_sequence where action=\'create\' and userid=? and tagtitle is not null and notetitle is not null and role is not null);';
 
   static readonly SELECT_TAGS_TO_ADD_TO_NOTES_2 = 'select * from logs_sequence where notetitle is not null and tagtitle is not null and role is not null and action=\'add-tag\' and userid=? order by notetitle, role';
+
+  static readonly ADD_TAGS_TO_NOTE = 'insert into notes_tags(notetitle, tagtitle, role, userid) values (?,?,?,?)';
 
   /*
   tag and notes in the db just memorize an array of ids.

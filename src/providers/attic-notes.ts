@@ -8,7 +8,7 @@ import { Utils } from '../public/utils';
 import { Db/*, LogObject*/ } from './db';
 import { NetManager } from './net-manager';
 
-import { TagAlmostMin } from '../models/tags';
+import { TagAlmostMin, TagExtraMin } from '../models/tags';
 
 import 'rxjs/add/operator/map';
 
@@ -405,19 +405,30 @@ return this.items.filter((item) => {
   }
 
 
-  addTags(noteTitle: string, mainTags: string[], otherTags: string[]){
-    return Utils.postBasic('/api/notes/mod/addtags', JSON.stringify({note:
-      {title: noteTitle, maintags: mainTags, othertags: otherTags}}), this.http, this.auth.token);
+  addTags(note: NoteExtraMin, mainTags: TagExtraMin[], otherTags: TagExtraMin[]){
+    // return Utils.postBasic('/api/notes/mod/addtags', JSON.stringify({note:
+    //   {title: note.title,
+    //     maintags: mainTags.map((tag)=>{return tag.title}),
+    //     othertags: otherTags.map((tag)=>{tag.title})}}),
+    //     this.http, this.auth.token);
+    return this.db.addTags(note, this.auth.userid, mainTags, otherTags);
   }
 
-  addMainTags(noteTitle: string, tagIds: string[]){
-    return Utils.postBasic('/api/notes/mod/addtags', JSON.stringify({note:
-      {title: noteTitle, mainTags: tagIds }}), this.http, this.auth.token);
+
+  addMainTags(note: NoteExtraMin, mainTags: TagExtraMin[]){
+    // return Utils.postBasic('/api/notes/mod/addtags', JSON.stringify({note:
+    //   {title: note.title,
+    //     mainTags: mainTags.map((tag)=>{tag.title}) }}),
+    //     this.http, this.auth.token);
+    return this.db.addTags(note, this.auth.userid, mainTags);
   }
 
-  addOtherTags(noteTitle: string, tagIds: string[]){
-    return Utils.postBasic('/api/notes/mod/addtags', JSON.stringify({note:
-      {title: noteTitle, othertags: tagIds }}), this.http, this.auth.token);
+  addOtherTags(note: NoteExtraMin, otherTags: TagExtraMin[]){
+    // return Utils.postBasic('/api/notes/mod/addtags', JSON.stringify({note:
+    //   {title: note.title,
+    //     othertags: otherTags.map((tag)=>{return tag.title}) }}),
+    //     this.http, this.auth.token);
+    return this.db.addTags(note, this.auth.userid, null, otherTags);
   }
 
   // removeMainTags(noteId: string, tagIds: string[]){

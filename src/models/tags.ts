@@ -62,6 +62,7 @@ export class TagFull extends TagAlmostMin{
     super();
     this.notes =[];
   }
+  userid: string;
 }
 
 export class TagSQLite extends TagFull {

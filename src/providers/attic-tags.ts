@@ -162,7 +162,7 @@ export class AtticTags {
   /*
   * create a new tag.
   */
-  createTag(tag: TagExtraMin):Promise<any>{
+  createTag(tag: TagAlmostMin):Promise<any>{
     // return Utils.putBasic('/api/tags/'+title, '', this.http, this.auth.token);
     return this.db.createTag(tag, this.auth.userid);
   }

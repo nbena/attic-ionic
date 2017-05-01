@@ -380,18 +380,18 @@ export class NoteDetailsPage {
   }
 
   addTagsAPI(){
-    return this.atticNotes.addTags(this.note.title, Utils.fromTagsToString(this.mainTagsToAdd), Utils.fromTagsToString(this.otherTagsToAdd));
+    return this.atticNotes.addTags(this.note, this.mainTagsToAdd, this.otherTagsToAdd);
   }
 
   /*
   defining real APIs
   */
   addMainTagsAPI(){
-    return this.atticNotes.addMainTags(this.note.title, Utils.fromTagsToString(this.mainTagsToAdd));
+    return this.atticNotes.addMainTags(this.note, this.mainTagsToAdd);
   }
 
   addOtherTagsAPI(){
-    return this.atticNotes.addOtherTags(this.note.title, Utils.fromTagsToString(this.otherTagsToAdd));
+    return this.atticNotes.addOtherTags(this.note, this.otherTagsToAdd);
   }
 
   removeMainTagsAPI(){
