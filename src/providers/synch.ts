@@ -57,19 +57,34 @@ export class Synch {
     console.log('Hello Synch Provider');
 
   }
+  /*
+  https://stackoverflow.com/questions/42008227/promise-all-find-which-promise-rejected
+  to find the correct promise.
+  */
 
 
   /*TODO: write a method that absorbs the modification also to the title, to put to 'clean up series'.*/
 
   public sendNotesToSave():Promise<any>{
+    let correctResult:string[] = [];
     return new Promise<any>((resolve, reject)=>{
       this.db.getObjectNotesToSave(this.auth.userid)
       .then(objs=>{
         if(objs == null){
           resolve(true);
         }else{
-          return Promise.all(objs.map((obj)=>{
+          return Promise.all(objs.map((obj, index)=>{
             return Utils.putBasic('/api/notes/create', JSON.stringify({note: obj.note}),this.http, this.auth.token)
+            /*
+              .catch(err=>{
+                err.index = index;
+                throw err;
+              })
+              */
+              //have to see if it works.
+              .then(res=>{
+                correctResult.push(obj.note.title);
+              })
           }))
         }
       })
@@ -77,13 +92,10 @@ export class Synch {
         /*according to MDN, it returns the values of each promise.*/
         console.log('results:');
         console.log(JSON.stringify(results));
-        // for(let i=0;i<results.length;i++){
-        //   if(results[i] !== 'ok' && results[i] != {ok:true}){
-        //     reject(new Error())
-        //   }
-        // } /*no need, the functions itself does not throw an error
+
       /*  only if the result is correct*/
-      return this.db.deleteNotesToSaveFromLogs(this.auth.userid);
+      //return this.db.deleteNotesToSaveFromLogs(this.auth.userid);
+      return this.db.deleteNoteToCreateFromLogsMultiVersion(correctResult, this.auth.userid);
       })
       .then(dbResult=>{
         resolve(true);
@@ -99,13 +111,17 @@ export class Synch {
 
   public sendTagsToSave():Promise<any>{
     return new Promise<any>((resolve, reject)=>{
+      let correctResult:string[]=[];
       this.db.getObjectTagsToSave(this.auth.userid)
       .then(objs=>{
         if(objs == null){
           resolve(true);
         }else{
           return Promise.all(objs.map((obj)=>{
-            return Utils.putBasic('/api/tags/'+obj.tag.title, {}, this.http, this.auth.token);
+            return Utils.putBasic('/api/tags/'+obj.tag.title, {}, this.http, this.auth.token)
+            .then(res=>{
+              correctResult.push(obj.tag.title);
+            })
           }))
         }
       })
@@ -113,13 +129,9 @@ export class Synch {
         /*according to MDN, it returns the values of each promise.*/
         console.log('results:');
         console.log(JSON.stringify(results));
-        // for(let i=0;i<results.length;i++){
-        //   if(results[i] !== 'ok' && results[i] != {ok:true}){
-        //     reject(new Error())
-        //   }
-        // } /*no need, the functions itself does not throw an error
       /*  only if the result is correct*/
-      return this.db.deleteTagsToSaveFromLogs(this.auth.userid);
+      //return this.db.deleteTagsToSaveFromLogs(this.auth.userid);
+      return this.db.deleteTagToCreateFromLogsMultiVersion(correctResult, this.auth.userid)
       })
       .then(dbResult=>{
         resolve(true);
@@ -134,6 +146,7 @@ export class Synch {
 
 
   public sendTagsToAddToNotes():Promise<any>{
+    let correctResult:string[]=[];
     return new Promise<any>((resolve, reject)=>{
       this.db.getObjectTagsToAddToNotes(this.auth.userid)
       .then(objs=>{
@@ -149,7 +162,10 @@ export class Synch {
             if(obj.note.othertags.length>0){
               reqBody.note.othertags = obj.note.othertags;
             }
-            return Utils.postBasic('/api/notes/mod/addtags', JSON.stringify({note: reqBody.note}), this.http, this.auth.token);
+            return Utils.postBasic('/api/notes/mod/addtags', JSON.stringify({note: reqBody.note}), this.http, this.auth.token)
+            .then(res=>{
+              correctResult.push(obj.note.title);
+            })
           }))
         }
       })
@@ -157,13 +173,9 @@ export class Synch {
         /*according to MDN, it returns the values of each promise.*/
         console.log('results:');
         console.log(JSON.stringify(results));
-        // for(let i=0;i<results.length;i++){
-        //   if(results[i] !== 'ok' && results[i] != {ok:true}){
-        //     reject(new Error())
-        //   }
-        // } /*no need, the functions itself does not throw an error
       /*  only if the result is correct*/
-      return this.db.deleteTagsToAddToNotesFromLogs(this.auth.userid);
+      // return this.db.deleteTagsToAddToNotesFromLogs(this.auth.userid);
+      return this.db.deleteTagsToAddToSpecificNoteFromLogs(correctResult, this.auth.userid);
       })
       .then(dbResult=>{
         resolve(true);
@@ -178,8 +190,77 @@ export class Synch {
 
 
 
+  public sendNotesToDelete():Promise<any>{
+    let correctResult:string[]=[];
+    return new Promise<any>((resolve, reject)=>{
+      this.db.getObjectNotesToDelete(this.auth.userid)
+      .then(objs=>{
+        if(objs == null){
+          resolve(true);
+        }else{
+          return Promise.all(objs.map((obj)=>{
+            return Utils.deleteBasic('/api/notes/'+obj.note.title, this.http, this.auth.token)
+            .then(res=>{
+              correctResult.push(obj.note.title);
+            })
+          }))
+        }
+      })
+      .then(results=>{
+        /*according to MDN, it returns the values of each promise.*/
+        console.log('results:');
+        console.log(JSON.stringify(results));
+      /*  only if the result is correct*/
+      // return this.db.deleteTagsToAddToNotesFromLogs(this.auth.userid);
+      return this.db.deleteNotesToDeleteMultiVersion(correctResult, this.auth.userid);
+      })
+      .then(dbResult=>{
+        resolve(true);
+    })
+      .catch(error=>{
+        console.log('error in processing notes');
+        console.log(JSON.stringify(error));
+        reject(error);
+      })
+    })
+  }
 
 
+
+  public sendTagsToDelete():Promise<any>{
+    let correctResult:string[]=[];
+    return new Promise<any>((resolve, reject)=>{
+      this.db.getObjectTagsToDelete(this.auth.userid)
+      .then(objs=>{
+        if(objs == null){
+          resolve(true);
+        }else{
+          return Promise.all(objs.map((obj)=>{
+            return Utils.deleteBasic('/api/tags/'+obj.tag.title, this.http, this.auth.token)
+            .then(res=>{
+              correctResult.push(obj.tag.title);
+            })
+          }))
+        }
+      })
+      .then(results=>{
+        /*according to MDN, it returns the values of each promise.*/
+        console.log('results:');
+        console.log(JSON.stringify(results));
+      /*  only if the result is correct*/
+      // return this.db.deleteTagsToAddToNotesFromLogs(this.auth.userid);
+      return this.db.deleteTagsToDeleteMultiVersion(correctResult, this.auth.userid);
+      })
+      .then(dbResult=>{
+        resolve(true);
+    })
+      .catch(error=>{
+        console.log('error in processing notes');
+        console.log(JSON.stringify(error));
+        reject(error);
+      })
+    })
+  }
 
 
 
