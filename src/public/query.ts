@@ -194,6 +194,35 @@ export class Query{
 
   static readonly ADD_TAGS_TO_NOTE = 'insert into notes_tags(notetitle, tagtitle, role, userid) values (?,?,?,?)';
 
+
+  //===============================SINGLE DELETE FROM LOGS_SEQUENCE========================0
+
+  /*functions to work directly on logs are divided into two types:
+  -delete all the set (e.g.: all the notes that must be saved)
+  -delete just one (e.g.: the note with a certain title that must be saved)
+  Both are necessary because when Synch tries to Synch, if it works for all of the set,
+  the we can delete all the set, if it works just for a couple of, we can keep track of what
+  is correct, and delete just them.
+  */
+
+  //tags-to-add and tags-to-remove
+  static readonly DELETE_FROM_LOGS_TAGS_TO_ADD_WHERE_NOTE = 'delete from logs_sequence where userid=? and tagtitle is not null and role is not null and action=\'add-tag\' and (notetitle=?)';
+  static readonly DELETE_FROM_LOGS_TAGS_TO_DELETE_WHERE_NOTE = 'delete from logs_sequence where userid=? and tagtitle is not null and role is not null and action=\'remove-tag\' and (notetitle=?)';
+
+
+  //note and tag to create
+  static readonly DELETE_FROM_LOGS_TAG_CREATED_WHERE_TAG = 'delete from logs_sequence where userid=? and notetitle is null and action=\'create\' and (tagtitle=?)';
+  static readonly DELETE_FROM_LOGS_NOTE_CREATED_WHERE_NOTE = 'delete from logs_sequence where userid=? and tagtitle is null and action=\'create\' and (notetitle=?)';
+
+  //set-done
+  static readonly DELETE_FROM_LOGS_NOTE_SET_DONE_WHERE_NOTE = 'delete from logs_sequence where userid=? and action=\'set-done\' and tagtitle is null and (notetitle=?)';
+  //set-link
+  static readonly DELETE_FROM_LOGS_NOTE_SET_LINK_WHERE_NOTE = 'delete from logs_sequence where userid=? and action=\'set-link\' and tagtitle is null and (notetitle=?)';
+  //change-text
+  static readonly DELETE_FROM_LOGS_NOTE_CHANGE_TEXT_WHERE_NOTE = 'delete from logs_sequence where userid=? and action=\'change-text\' and tagtitle is null and (notetitle=?)';
+
+
+
   /*
   tag and notes in the db just memorize an array of ids.
   */

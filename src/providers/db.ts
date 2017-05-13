@@ -1533,52 +1533,13 @@ public setTitle(note :NoteFull, newTitle: string, userid: string):Promise<any>{
   }
 
 
-/* must be re-written.*/
-  // public getObjectTagsToAddToNotes(userid: string):Promise<LogObjSmart[]>{
-  //   return new Promise<LogObjSmart[]>((resolve, reject)=>{
-  //     this.db.transaction(tx=>{
-  //       tx.executeSql(Query.SELECT_TAGS_TO_SAVE, [userid],
-  //         (tx: any, res: any)=>{ /*result callback*/
-  //           if(res.rows.length<=0){
-  //             resolve(null);
-  //           }else{
-  //             let results:LogObjSmart[]=[];
-  //             for(let i=0;i<res.rows.length;i++){
-  //               let obj: LogObjSmart = new LogObjSmart();
-  //               let tag:TagExtraMin  = new TagExtraMin();
-  //               tag.title = res.rows.item(i).tagtitle;
-  //               let note:NoteExtraMin = new NoteExtraMin();
-  //               note.title = res.rows.item(i).notetitle;
-  //               obj.tag = tag;
-  //               obj.note = note;
-  //               obj. role = res.rows.item(i).role;
-  //               // console.log(JSON.stringify(obj.note));
-  //               obj.action = DbAction.DbAction.create;
-  //               obj.userid = userid;
-  //               results.push(obj);
-  //             }
-  //             resolve(results);
-  //           }
-  //         },
-  //         (tx: any, error: any)=>{ /*error callback*/
-  //           console.log('error in getting notes to save.');
-  //           console.log(JSON.stringify(error));
-  //           reject(error); /*?????*/
-  //         }
-  //       )
-  //     })
-  //     .then(txResult=>{
-  //       // console.log('txResult');
-  //       // console.log(JSON.stringify(txResult));
-  //       resolve(null); /*never here (?)*/
-  //     })
-  //     .catch(txError=>{
-  //       console.log('tx error');
-  //       console.log(JSON.stringify(txError));
-  //       reject(txError);
-  //     })
-  //   })
-  // }
+  /**
+  * Return an array of LogObjSmart:
+  * note is a note min object, with added tag in its 'mainTags'
+  * and 'otherTags'.
+  * This is very smart, because I can sent to the server all
+  * the tags that must be added to that note IN ONE MESSAGE.
+  */
   public getObjectTagsToAddToNotes(userid: string):Promise<LogObjSmart[]>{
     return new Promise<LogObjSmart[]>((resolve, reject)=>{
       this.db.transaction(tx=>{
@@ -1637,6 +1598,10 @@ public setTitle(note :NoteFull, newTitle: string, userid: string):Promise<any>{
     })
   }
 
+
+  /**
+  * Delete from logs_sequence note-userid-create
+  */
   deleteNotesToSaveFromLogs(userid: string):Promise<any>{
     return new Promise<any>((resolve, reject)=>{
       this.db.transaction(tx=>{
@@ -1662,6 +1627,9 @@ public setTitle(note :NoteFull, newTitle: string, userid: string):Promise<any>{
     })
   }
 
+  /**
+  * Delete from logs_sequence tag-userid-create
+  */
   deleteTagsToSaveFromLogs(userid: string):Promise<any>{
     return new Promise<any>((resolve, reject)=>{
       this.db.transaction(tx=>{
@@ -1688,6 +1656,12 @@ public setTitle(note :NoteFull, newTitle: string, userid: string):Promise<any>{
   }
 
 
+  /**
+  * Delete from logs_sequence all the entry with note-tag-add-tag
+  * To do when all the tags that should be added has been sent to
+  * to the server.
+  *
+  */
   deleteTagsToAddToNotesFromLogs(userid: string):Promise<any>{
     return new Promise<any>((resolve, reject)=>{
       this.db.transaction(tx=>{
@@ -1707,6 +1681,275 @@ public setTitle(note :NoteFull, newTitle: string, userid: string):Promise<any>{
       })
       .catch(txError=>{
         console.log('tx error');
+        console.log(JSON.stringify(txError));
+        reject(txError);
+      })
+    })
+  }
+
+
+  //===============================================SINGLE DELETE FROM LOGS_SEQUENCE=========
+
+  /**
+  Delete from logs_sequence all of the entries like:
+  notetitle-by-param; tag; add-tag; mainTags | otherTags
+  */
+  deleteTagsToAddToSpecificNoteFromLogs(noteTitle: string, userid: string):Promise<any>{
+    return new Promise<any>((resolve, reject)=>{
+      this.db.transaction(tx=>{
+        tx.executeSql(Query.DELETE_FROM_LOGS_TAGS_TO_ADD_WHERE_NOTE, [userid, noteTitle],
+          (tx:any, res:any)=>{console.log('delete tags-to-add from single note ok.')},
+          (tx: any, err:any)=>{
+            console.log('error in deleting tags-to-add from single note.');
+            console.log(JSON.stringify(err));
+          }
+        )
+      })
+      .then(txResult=>{
+        console.log('tx completed');
+        resolve(true);
+      })
+      .catch(txError=>{
+        console.log('txError');
+        console.log(JSON.stringify(txError));
+        reject(txError);
+      })
+    })
+  }
+
+
+  /**
+  Delete from logs_sequence all of the entries like:
+  notetitle-by-param; tag; remove-tag; mainTags | otherTags
+  */
+  deleteTagsToDeleteToSpecificNoteFromLogs(noteTitle: string, userid: string):Promise<any>{
+    return new Promise<any>((resolve, reject)=>{
+      this.db.transaction(tx=>{
+        tx.executeSql(Query.DELETE_FROM_LOGS_TAGS_TO_DELETE_WHERE_NOTE, [userid, noteTitle],
+          (tx:any, res:any)=>{console.log('delete tags-to-remove from single note ok.')},
+          (tx: any, err:any)=>{
+            console.log('error in deleting tags-to-remove from single note.');
+            console.log(JSON.stringify(err));
+          }
+        )
+      })
+      .then(txResult=>{
+        console.log('tx completed');
+        resolve(true);
+      })
+      .catch(txError=>{
+        console.log('txError');
+        console.log(JSON.stringify(txError));
+        reject(txError);
+      })
+    })
+  }
+
+
+  //USE MULTIVERSION.
+  // /**
+  // Delete from logs_sequence all of the entries like:
+  // notetitle-by-param; tag; add-tag; mainTags | otherTags
+  // */
+  // deleteTagToCreateFromLogs(tagTitle: string, userid: string):Promise<any>{
+  //   return new Promise<any>((resolve, reject)=>{
+  //     this.db.transaction(tx=>{
+  //       tx.executeSql(Query.DELETE_FROM_LOGS_TAG_CREATED_WHERE_TAG, [userid, tagTitle],
+  //         (tx:any, res:any)=>{console.log('delete tag-to-create.')},
+  //         (tx: any, err:any)=>{
+  //           console.log('error in deleting tag-to-create.');
+  //           console.log(JSON.stringify(err));
+  //         }
+  //       )
+  //     })
+  //     .then(txResult=>{
+  //       console.log('tx completed');
+  //       resolve(true);
+  //     })
+  //     .catch(txError=>{
+  //       console.log('txError');
+  //       console.log(JSON.stringify(txError));
+  //       reject(txError);
+  //     })
+  //   })
+  // }
+  //
+  //
+  // /**
+  // Delete from logs_sequence all of the entries like:
+  // notetitle-by-param; tag; remove-tag; mainTags | otherTags
+  // */
+  // deleteNoteToCreateFromLogs(noteTitle: string, userid: string):Promise<any>{
+  //   return new Promise<any>((resolve, reject)=>{
+  //     this.db.transaction(tx=>{
+  //       tx.executeSql(Query.DELETE_FROM_LOGS_NOTE_CREATED_WHERE_NOTE, [userid, noteTitle],
+  //         (tx:any, res:any)=>{console.log('delete note-to-create ok.')},
+  //         (tx: any, err:any)=>{
+  //           console.log('error in deleting note-to-create.');
+  //           console.log(JSON.stringify(err));
+  //         }
+  //       )
+  //     })
+  //     .then(txResult=>{
+  //       console.log('tx completed');
+  //       resolve(true);
+  //     })
+  //     .catch(txError=>{
+  //       console.log('txError');
+  //       console.log(JSON.stringify(txError));
+  //       reject(txError);
+  //     })
+  //   })
+  // }
+
+//tested in console.
+private prepareDeleteTagFromLogsMultiVersion(tagTitles: string[], queryString: string):string{
+  //let res: string = Query.DELETE_FROM_LOGS_TAG_CREATED_WHERE_TAG;
+  let res: string = queryString;
+  res = res.replace(')', '');
+  for(let i=1;i<tagTitles.length;i++){
+    res = res.concat(' or tagtitle=?');
+  }
+  res = res.concat(')');
+  return res;
+}
+
+//tested in console.
+private prepareDeleteNoteFromLogsMultiVersion(noteTitles: string[], queryString: string):string{
+  //let res: string = Query.DELETE_FROM_LOGS_NOTE_CREATED_WHERE_NOTE;
+  let res: string = queryString;
+  res = res.replace(')', '');
+  for(let i=1;i<noteTitles.length;i++){
+    res = res.concat(' or notetitle=?');
+  }
+  res = res.concat(')');
+  return res;
+}
+  /**
+  Delete from logs_sequence all of the entries like:
+  notetitle-by-param; tag; add-tag; mainTags | otherTags
+  optimized version that accepts an array of tags title.
+  */
+  deleteTagToCreateFromLogsMultiVersion(tagTitles: string[], userid: string):Promise<any>{
+    return new Promise<any>((resolve, reject)=>{
+      this.db.transaction(tx=>{
+        let query = this.prepareDeleteTagFromLogsMultiVersion(tagTitles,Query.DELETE_FROM_LOGS_TAG_CREATED_WHERE_TAG);
+        tx.executeSql(query, [userid, tagTitles],
+          (tx:any, res:any)=>{console.log('delete tags-to-create.')},
+          (tx: any, err:any)=>{
+            console.log('error in deleting tags-to-create.');
+            console.log(JSON.stringify(err));
+          }
+        )
+      })
+      .then(txResult=>{
+        console.log('tx completed');
+        resolve(true);
+      })
+      .catch(txError=>{
+        console.log('txError');
+        console.log(JSON.stringify(txError));
+        reject(txError);
+      })
+    })
+  }
+
+
+  /**
+  Delete from logs_sequence all of the entries like:
+  notetitle-by-param; tag; remove-tag; mainTags | otherTags
+  Optimized  version that accepts an array of notes title.
+  */
+  deleteNoteToCreateFromLogsMultiVersion(noteTitles: string[], userid: string):Promise<any>{
+    return new Promise<any>((resolve, reject)=>{
+      this.db.transaction(tx=>{
+        let query = this.prepareDeleteNoteFromLogsMultiVersion(noteTitles, Query.DELETE_FROM_LOGS_NOTE_CREATED_WHERE_NOTE);
+        tx.executeSql(query, [userid, noteTitles],
+          (tx:any, res:any)=>{console.log('delete notes-to-create ok.')},
+          (tx: any, err:any)=>{
+            console.log('error in deleting notes-to-create.');
+            console.log(JSON.stringify(err));
+          }
+        )
+      })
+      .then(txResult=>{
+        console.log('tx completed');
+        resolve(true);
+      })
+      .catch(txError=>{
+        console.log('txError');
+        console.log(JSON.stringify(txError));
+        reject(txError);
+      })
+    })
+  }
+
+  deleteNoteFromLogsSetLinkMultiVersion(noteTitles: string[], userid: string):Promise<any>{
+    return new Promise<any>((resolve, reject)=>{
+      this.db.transaction(tx=>{
+        let query = this.prepareDeleteNoteFromLogsMultiVersion(noteTitles, Query.DELETE_FROM_LOGS_NOTE_SET_LINK_WHERE_NOTE);
+        tx.executeSql(query, [userid, noteTitles],
+          (tx:any, res:any)=>{console.log('delete notes-set-link ok.')},
+          (tx: any, err:any)=>{
+            console.log('error in deleting notes-set-link.');
+            console.log(JSON.stringify(err));
+          }
+        )
+      })
+      .then(txResult=>{
+        console.log('tx completed');
+        resolve(true);
+      })
+      .catch(txError=>{
+        console.log('txError');
+        console.log(JSON.stringify(txError));
+        reject(txError);
+      })
+    })
+  }
+
+  deleteNoteFromLogsSetDoneMultiVersion(noteTitles: string[], userid: string):Promise<any>{
+    return new Promise<any>((resolve, reject)=>{
+      this.db.transaction(tx=>{
+        let query = this.prepareDeleteNoteFromLogsMultiVersion(noteTitles, Query.DELETE_FROM_LOGS_NOTE_SET_DONE_WHERE_NOTE);
+        tx.executeSql(query, [userid, noteTitles],
+          (tx:any, res:any)=>{console.log('delete notes-set-done ok.')},
+          (tx: any, err:any)=>{
+            console.log('error in deleting notes-set-done.');
+            console.log(JSON.stringify(err));
+          }
+        )
+      })
+      .then(txResult=>{
+        console.log('tx completed');
+        resolve(true);
+      })
+      .catch(txError=>{
+        console.log('txError');
+        console.log(JSON.stringify(txError));
+        reject(txError);
+      })
+    })
+  }
+
+  deleteNoteFromLogsChangeTextMultiVersion(noteTitles: string[], userid: string):Promise<any>{
+    return new Promise<any>((resolve, reject)=>{
+      this.db.transaction(tx=>{
+        let query = this.prepareDeleteNoteFromLogsMultiVersion(noteTitles, Query.DELETE_FROM_LOGS_NOTE_CHANGE_TEXT_WHERE_NOTE);
+        tx.executeSql(query, [userid, noteTitles],
+          (tx:any, res:any)=>{console.log('delete notes-change-text ok.')},
+          (tx: any, err:any)=>{
+            console.log('error in deleting notes-to-create.');
+            console.log(JSON.stringify(err));
+          }
+        )
+      })
+      .then(txResult=>{
+        console.log('tx completed');
+        resolve(true);
+      })
+      .catch(txError=>{
+        console.log('txError');
         console.log(JSON.stringify(txError));
         reject(txError);
       })
