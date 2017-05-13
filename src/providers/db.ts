@@ -1689,15 +1689,43 @@ public setTitle(note :NoteFull, newTitle: string, userid: string):Promise<any>{
 
 
   //===============================================SINGLE DELETE FROM LOGS_SEQUENCE=========
+  //there are not really 'single', and they work for a set as well.
+
+
+  //tested in console.
+  private prepareDeleteTagFromLogsMultiVersion(tagTitles: string[], queryString: string):string{
+    //let res: string = Query.DELETE_FROM_LOGS_TAG_CREATED_WHERE_TAG;
+    let res: string = queryString;
+    res = res.replace(')', '');
+    for(let i=1;i<tagTitles.length;i++){
+      res = res.concat(' or tagtitle=?');
+    }
+    res = res.concat(')');
+    return res;
+  }
+
+  //tested in console.
+  private prepareDeleteNoteFromLogsMultiVersion(noteTitles: string[], queryString: string):string{
+    //let res: string = Query.DELETE_FROM_LOGS_NOTE_CREATED_WHERE_NOTE;
+    let res: string = queryString;
+    res = res.replace(')', '');
+    for(let i=1;i<noteTitles.length;i++){
+      res = res.concat(' or notetitle=?');
+    }
+    res = res.concat(')');
+    return res;
+  }
+
 
   /**
   Delete from logs_sequence all of the entries like:
   notetitle-by-param; tag; add-tag; mainTags | otherTags
   */
-  deleteTagsToAddToSpecificNoteFromLogs(noteTitle: string, userid: string):Promise<any>{
+  deleteTagsToAddToSpecificNoteFromLogs(noteTitles: string[], userid: string):Promise<any>{
     return new Promise<any>((resolve, reject)=>{
       this.db.transaction(tx=>{
-        tx.executeSql(Query.DELETE_FROM_LOGS_TAGS_TO_ADD_WHERE_NOTE, [userid, noteTitle],
+        let query: string = this.prepareDeleteNoteFromLogsMultiVersion(noteTitles, Query.DELETE_FROM_LOGS_TAGS_TO_ADD_WHERE_NOTE);
+        tx.executeSql(query, [userid, noteTitles],
           (tx:any, res:any)=>{console.log('delete tags-to-add from single note ok.')},
           (tx: any, err:any)=>{
             console.log('error in deleting tags-to-add from single note.');
@@ -1722,10 +1750,11 @@ public setTitle(note :NoteFull, newTitle: string, userid: string):Promise<any>{
   Delete from logs_sequence all of the entries like:
   notetitle-by-param; tag; remove-tag; mainTags | otherTags
   */
-  deleteTagsToDeleteToSpecificNoteFromLogs(noteTitle: string, userid: string):Promise<any>{
+  deleteTagsToDeleteToSpecificNoteFromLogs(noteTitles: string[], userid: string):Promise<any>{
     return new Promise<any>((resolve, reject)=>{
       this.db.transaction(tx=>{
-        tx.executeSql(Query.DELETE_FROM_LOGS_TAGS_TO_DELETE_WHERE_NOTE, [userid, noteTitle],
+        let query: string = this.prepareDeleteNoteFromLogsMultiVersion(noteTitles, Query.DELETE_FROM_LOGS_TAGS_TO_DELETE_WHERE_NOTE);
+        tx.executeSql(query, [userid, noteTitles],
           (tx:any, res:any)=>{console.log('delete tags-to-remove from single note ok.')},
           (tx: any, err:any)=>{
             console.log('error in deleting tags-to-remove from single note.');
@@ -1802,29 +1831,7 @@ public setTitle(note :NoteFull, newTitle: string, userid: string):Promise<any>{
   //   })
   // }
 
-//tested in console.
-private prepareDeleteTagFromLogsMultiVersion(tagTitles: string[], queryString: string):string{
-  //let res: string = Query.DELETE_FROM_LOGS_TAG_CREATED_WHERE_TAG;
-  let res: string = queryString;
-  res = res.replace(')', '');
-  for(let i=1;i<tagTitles.length;i++){
-    res = res.concat(' or tagtitle=?');
-  }
-  res = res.concat(')');
-  return res;
-}
 
-//tested in console.
-private prepareDeleteNoteFromLogsMultiVersion(noteTitles: string[], queryString: string):string{
-  //let res: string = Query.DELETE_FROM_LOGS_NOTE_CREATED_WHERE_NOTE;
-  let res: string = queryString;
-  res = res.replace(')', '');
-  for(let i=1;i<noteTitles.length;i++){
-    res = res.concat(' or notetitle=?');
-  }
-  res = res.concat(')');
-  return res;
-}
   /**
   Delete from logs_sequence all of the entries like:
   notetitle-by-param; tag; add-tag; mainTags | otherTags
