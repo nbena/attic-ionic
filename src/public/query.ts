@@ -187,8 +187,8 @@ export class Query{
   static readonly DELETE_NOTES_TO_SAVE_LOGS = 'delete from logs_sequence where id in (select id from logs_sequence where action=\'create\' and userid=?  and tagtitle is null and notetitle is not null);'
   static readonly DELETE_TAGS_TO_SAVE_LOGS = 'delete from logs_sequence where id in (select id from logs_sequence where action=\'create\' and userid=?  and tagtitle is not null and notetitle is null and role is null);'
 
-  static readonly SELECT_TAGS_TO_ADD_TO_NOTES = 'select * from logs_sequence where logs_sequence.userid=? and tagtitle is not null and notetitle is not null and action=\'create\' and role is not null';
-  static readonly DELETE_TAGS_TO_ADD_TO_NOTES = 'delete fro logs_sequence where id in (select id from logs_sequence where action=\'create\' and userid=? and tagtitle is not null and notetitle is not null and role is not null);';
+  static readonly SELECT_TAGS_TO_ADD_TO_NOTES = 'select * from logs_sequence where logs_sequence.userid=? and tagtitle is not null and notetitle is not null and action=\'add-tag\' and role is not null';
+  static readonly DELETE_TAGS_TO_ADD_TO_NOTES = 'delete from logs_sequence where id in (select id from logs_sequence where action=\'add-tag\' and userid=? and tagtitle is not null and notetitle is not null and role is not null);';
 
   static readonly SELECT_TAGS_TO_ADD_TO_NOTES_2 = 'select * from logs_sequence where notetitle is not null and tagtitle is not null and role is not null and action=\'add-tag\' and userid=? order by notetitle, role';
 
