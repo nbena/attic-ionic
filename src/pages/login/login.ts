@@ -33,7 +33,8 @@ export class LoginPage {
   // constructor(public navCtrl: NavController, public navParams: NavParams) {}
   constructor(public navCtrl: NavController, private toastCtrl: ToastController,
     private auth: Auth,
-    public loadingCtrl: LoadingController, private db: Db){}
+    public loadingCtrl: LoadingController, private db: Db,
+  ){}
 
 
 

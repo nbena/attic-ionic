@@ -14,6 +14,8 @@ import { Network } from '@ionic-native/network';
 import { Platform } from 'ionic-angular';
 import { Utils } from '../public/utils';
 
+import { NetManager } from './net-manager';
+
 /*
   Generated class for the Synch provider.
 
@@ -33,7 +35,7 @@ very important to decide the order!
 @Injectable()
 export class Synch {
 
-
+  private isStarted: boolean = false;
 
   // private currentCursor : number = -1; /*the _id of the last consumed object.*/
   //
@@ -47,6 +49,7 @@ export class Synch {
   // private connectedSubscription : any;
 
   constructor(private network: Network, private db: Db,
+    private netManager: NetManager,
     // private atticNotes: AtticNotes,
     // private atticTags: AtticTags,
     private auth: Auth,
@@ -57,11 +60,32 @@ export class Synch {
     console.log('Hello Synch Provider');
 
   }
+
+
+  public synch(){
+    if(!this.isStarted){
+      this.isStarted = true;
+      console.log('starting sending notes');
+      this.sendTagsToSave()
+      .then(tagsSent=>{
+        console.log('tags sent');
+        return this.sendNotesToSave();
+      })
+      .then(notesSent=>{
+        console.log('notes sent');
+      })
+      .catch(error=>{
+        console.log('sent error:');
+        console.log(JSON.stringify(error));
+      })
+    }
+  }
+
+
   /*
   https://stackoverflow.com/questions/42008227/promise-all-find-which-promise-rejected
   to find the correct promise.
   */
-
 
   /*TODO: write a method that absorbs the modification also to the title, to put to 'clean up series'.*/
 
@@ -70,10 +94,14 @@ export class Synch {
     return new Promise<any>((resolve, reject)=>{
       this.db.getObjectNotesToSave(this.auth.userid)
       .then(objs=>{
+        console.log('the objs');
+        console.log(JSON.stringify(objs));
         if(objs == null){
           resolve(true);
         }else{
           return Promise.all(objs.map((obj, index)=>{
+            console.log('the current obj');
+            console.log(JSON.stringify(JSON.stringify(obj.note)));
             return Utils.putBasic('/api/notes/create', JSON.stringify({note: obj.note}),this.http, this.auth.token)
             /*
               .catch(err=>{

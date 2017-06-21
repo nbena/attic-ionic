@@ -60,6 +60,7 @@ export class CreateNotePage {
         this.tags=<TagAlmostMin[]>result;
       })
       .catch(error=>{
+        console.log('load min tags error');
         console.log(error);
       })
   }
@@ -122,6 +123,7 @@ export class CreateNotePage {
         this.navCtrl.pop();
       })
       .catch(error=>{
+        console.log('create note error');
         console.log(error);
       })
   }

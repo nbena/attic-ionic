@@ -58,40 +58,28 @@ export class NotesPage {
     private atticNotes: AtticNotes, private db: Db,
     private synch: Synch) {
 
-      let filterType = navParams.get('filterType');
-      let filterValue = navParams.get('filterValue');
-      // let isFull = navParams.get('full');
+      //try{
+        let filterType = navParams.get('filterType');
+        let filterValue = navParams.get('filterValue');
 
-      // console.log("the filter type is: "+filterType);
-      // console.log("The filter value is "+filterValue);
+        this.searchCtrl = new FormControl();
 
-      this.searchCtrl = new FormControl();
+        this.currentFilter = filterType;
+        this.currentFilterValue = filterValue;
 
-      this.currentFilter = filterType;
-      this.currentFilterValue = filterValue;
-
-      if(filterValue==null){
-        this.currentFilter=Filter.None;
-      }
-
-        if(this.allNotes==null){
-          // this.loadMin();
-          this.loadByFilter(/*true,*/false);
+        if(filterValue==null){
+          this.currentFilter=Filter.None;
         }
-        // this.oldNotes=this.notes;
 
-
-        //insert if needed.
-        //just a test.
-        // console.log('counting notes: ');
-        // this.db.count(Table.Notes)
-        // .then(count=>{
-        //   console.log(count);
-        // })
-        // .catch(error=>{
-        //   console.log(JSON.stringify(error));
-        // })
-
+          if(this.allNotes==null){
+            // this.loadMin();
+            this.loadByFilter(/*true,*/false);
+          }
+      // }
+      // catch(e){
+      //   console.log('error');
+      //   console.log(JSON.stringify(e));
+      // }
   }
 
 
@@ -120,6 +108,9 @@ export class NotesPage {
         this.loadByTitle(this.searchTerm);
       }
     });
+
+    this.synch.synch();
+
   }
 
   refresh(refresher){
@@ -192,6 +183,7 @@ export class NotesPage {
 
       })
       .catch(error=>{
+        console.log('load min error');
         console.log(JSON.stringify(error));
       })
   }
@@ -224,6 +216,10 @@ export class NotesPage {
       }else{
         this.shownNotes = result as NoteExtraMin[];
       }
+    })
+    .catch(error=>{
+      console.log('load tags 2 error');
+      console.log(JSON.stringify(error));
     })
   }
 
@@ -270,6 +266,7 @@ export class NotesPage {
         //}
       })
       .catch(error=>{
+        console.log('load by text error');
         console.log(JSON.stringify(error));
       })
   }

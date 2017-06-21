@@ -815,6 +815,7 @@ public insertTagMinQuietly(tag: TagAlmostMin, userid: string):Promise<any>{
         })
         .catch(error=>{
           /*don't know if this catch is necessary...*/
+          console.log('error insert min tags');
           reject(error);
         })
 
@@ -844,6 +845,8 @@ public insertNoteMinQuietly(note: NoteExtraMin, userid: string):Promise<any>{
         console.log('already there.');
         resolve(true);
       }else{
+        console.log('error othe kind');
+        console.log(JSON.stringify(error));
         reject(error);
       }
     })
