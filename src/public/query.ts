@@ -73,7 +73,8 @@ export class Query{
   static readonly CREATE_NOTES_TAGS_TABLE ='create table if not exists notes_tags(notetitle varchar(64), userid varchar(64), tagtitle varchar(64),role varchar(9),mustbedeleted boolean default false,primary key(notetitle, tagtitle, userid),foreign key(notetitle) references notes(title) on update cascade on delete cascade,foreign key(tagtitle) references tags(title) on update cascade on delete cascade, foreign key(userid) references auth(userid) on update cascade on delete cascade,constraint role_check check (role = \'mainTags\' or role = \'otherTags\'));';
   static readonly CREATE_LOGS_TABLE = 'create table if not exists logs_sequence(id integer primary key autoincrement,notetitle varchar(64) default null,oldtitle varchar(64),tagtitle varchar(64) default null,role varchar(9) default null,action varchar(64) not null, creationdate date default(datetime(\'now\',\'localtime\')), userid varchar(64), foreign key(notetitle) references notes(title) on update cascade on delete cascade,foreign key(tagtitle) references tags(title) on update cascade on delete cascade, foreign key(userid) references auth(userid) on update cascade on delete cascade, constraint action_check check(action=\'create\' or action=\'delete\' or action=\'change-title\' or action=\'change-text\' or action=\'add-tag\' or action=\'remove-tag\' or action =\'set-done\' or action=\'set-link\'),constraint role_check check (role =\'mainTags\' or role = \'otherTags\' or role is null),constraint if_all check ((role is not null and noteTitle is not null and tagTitle is not null or (noteTitle is not null) or (tagTitle is not null))));'
 
-  static readonly CCREATE_TRIGGER_DELETE_NOTE_COMPRESSION = 'create trigger deleteNoteCompression after update of mustbedeleted on notes for each row begin delete from logs_sequence where notetitle = old.title; delete from notes where title = old.title; end;'
+  static readonly CREATE_TRIGGER_DELETE_NOTE_COMPRESSION = 'create trigger if not exists deleteNoteCompression after update of mustbedeleted on notes for each row when exists ( select * from logs_sequence where action=\'create\' and notetitle = old.title and userid=old.userid) begin delete from logs_sequence where notetitle = old.title and userid=old.userid; delete from notes where title = old.title and userid=old.userid; end;';
+  static readonly CREATE_TRIGGER_DELETE_TAG_COMPRESSION = 'create trigger if not exists deleteTagCompression after update of mustbedeleted on tags for each row when exists ( select * from logs_sequence where action=\'create\' and tagtitle = old.title and userid=old.userid) and not exists (select * from logs_sequence where action=\'add-tag\' and tagtitle=old.title and userid=old.userid)begin delete from logs_sequence where tagtitle = old.title and userid=old.userid; delete from tags where title=old.title and userid=old.userid; end;'
 
   static readonly GET_LOGS_COUNT = 'select count(*) as count from logs_sequence where userid=?';
   static readonly GET_NOTES_COUNT = 'select count(*) as count from notes where mustbedeleted=\'false\' and userid=?';
@@ -184,7 +185,7 @@ export class Query{
   static readonly CLEAN_UP_NOTES_SET_LINK = 'select id from logs_sequence as l where action=\'set-link\' and userid=? and id < (select max(id) from logs_sequence as l1 where action=\'set-link\' and l.notetitle = l1.notetitle and userid=?);';
   static readonly NOTES_TO_CLEAN_UP_SET_LINK = 'delete from logs_sequence where id in (select id from logs_sequence as l where action=\'set-link\' and userid=? and id < (select max(id) from logs_sequence as l1 where action=\'set-link\' and l.notetitle = l1.notetitle and userid=?));';
 
-
+//===========================================
   static readonly SELECT_NOTES_TO_SAVE = 'select * from notes join logs_sequence on title=notetitle and notes.userid=logs_sequence.userid where notes.userid=? and action=\'create\'';
   static readonly SELECT_TAGS_TO_SAVE = 'select * from logs_sequence where logs_sequence.userid=? and tagtitle is not null and notetitle is null and action=\'create\'';
 
@@ -194,9 +195,17 @@ export class Query{
   static readonly DELETE_NOTES_TO_SAVE_LOGS = 'delete from logs_sequence where id in (select id from logs_sequence where action=\'create\' and userid=? and tagtitle is null and notetitle is not null);'
   static readonly DELETE_TAGS_TO_SAVE_LOGS = 'delete from logs_sequence where id in (select id from logs_sequence where action=\'create\' and userid=? and tagtitle is not null and notetitle is null);'
 
-
   static readonly SELECT_TAGS_TO_ADD_TO_NOTES = 'select * from logs_sequence where logs_sequence.userid=? and tagtitle is not null and notetitle is not null and action=\'add-tag\' and role is not null';
   static readonly DELETE_TAGS_TO_ADD_TO_NOTES = 'delete from logs_sequence where id in (select id from logs_sequence where action=\'add-tag\' and userid=? and tagtitle is not null and notetitle is not null and role is not null);';
+
+  static readonly SELECT_NOTES_TO_CHANGE_TEXT = 'select notetitle, text from logs_sequence join notes on notetitle=title and logs_sequence.userid=notes.userid where logs_sequence.userid=? and tagtitle is null and notetitle is not null and action=\'change-text\';'
+  static readonly DELETE_NOTES_TO_CHANGE_TEXT = 'delete from logs_sequence where id in (select id from logs_sequence where action=\'change-text\' and userid=? and tagtitle is null and notetitle is not null);';
+
+  static readonly SELECT_NOTES_TO_CHANGE_LINKS = 'select notetitle, links from logs_sequence join notes on notetitle=title and logs_sequence.userid=notes.userid where logs_sequence.userid=? and tagtitle is null and notetitle is not null and action=\'change-links\';'
+  static readonly DELETE_NOTES_TO_CHANGE_LINKS = 'delete from logs_sequence where id in (select id from logs_sequence where action=\'change-links\' and userid=? and tagtitle is null and notetitle is not null);';
+
+  static readonly SELECT_NOTES_TO_SET_DONE = 'select notetitle, isdone from logs_sequence join notes on notetitle=title and logs_sequence.userid=notes.userid where logs_sequence.userid=? and tagtitle is null and notetitle is not null and action=\'set-done\';'
+  static readonly DELETE_NOTES_TO_SET_DONE = 'delete from logs_sequence where id in (select id from logs_sequence where action=\'set-done\' and userid=? and tagtitle is null and notetitle is not null);';
 
   static readonly SELECT_TAGS_TO_ADD_TO_NOTES_2 = 'select * from logs_sequence where notetitle is not null and tagtitle is not null and role is not null and action=\'add-tag\' and userid=? order by notetitle, role';
 

@@ -133,6 +133,8 @@ export class Db {
                 tx.executeSql(Query.CREATE_NOTES_TAGS_TABLE,[]);
                 tx.executeSql(Query.CREATE_LOGS_TABLE,[]);
                 tx.executeSql(Query.CREATE_AUTH_TABLE,[]);
+                tx.executeSql(Query.CREATE_TRIGGER_DELETE_NOTE_COMPRESSION, []);
+                tx.executeSql(Query.CREATE_TRIGGER_DELETE_TAG_COMPRESSION, []);
               });
             })
             .then(transactionResult=>{
@@ -1693,6 +1695,138 @@ public setTitle(note :NoteFull, newTitle: string, userid: string):Promise<any>{
         console.log('tx error'),
         console.log(JSON.stringify(error));
         reject(error);
+      })
+    })
+  }
+
+
+  public getObjectNotesToChangeText(userid: string):Promise<LogObjSmart[]>{
+    return new Promise<LogObjSmart[]>((resolve, reject)=>{
+      this.db.transaction(tx=>{
+        tx.executeSql(Query.SELECT_NOTES_TO_CHANGE_TEXT, [userid],
+          (tx: any, res: any)=>{ /*result callback*/
+            if(res.rows.length<=0){
+              resolve(null);
+            }else{
+              let results:LogObjSmart[]=[];
+              for(let i=0;i<res.rows.length;i++){
+                let obj: LogObjSmart = new LogObjSmart();
+                obj.tag = null;
+                let note:NoteFull = new NoteFull();
+                note.title = res.rows.item(i).notetitle;
+                note.text = res.rows.item(i).text;
+                obj.note = note;
+                obj.action = DbAction.DbAction.change_text;
+                obj.userid = userid;
+                results.push(obj);
+              }
+              resolve(results);
+            }
+          },
+          (tx: any, error: any)=>{ /*error callback*/
+            console.log('error in getting notes to change text.');
+            console.log(JSON.stringify(error));
+            //reject(error); /*?????*/
+          }
+        )
+      })
+      .then(txResult=>{
+        // console.log('txResult');
+        // console.log(JSON.stringify(txResult));
+        resolve(null); /*never here (?)*/
+      })
+      .catch(txError=>{
+        console.log('tx error');
+        console.log(JSON.stringify(txError));
+        reject(txError);
+      })
+    })
+  }
+
+
+  public getObjectNotesToChangeLinks(userid: string):Promise<LogObjSmart[]>{
+    return new Promise<LogObjSmart[]>((resolve, reject)=>{
+      this.db.transaction(tx=>{
+        tx.executeSql(Query.SELECT_NOTES_TO_CHANGE_LINKS, [userid],
+          (tx: any, res: any)=>{ /*result callback*/
+            if(res.rows.length<=0){
+              resolve(null);
+            }else{
+              let results:LogObjSmart[]=[];
+              for(let i=0;i<res.rows.length;i++){
+                let obj: LogObjSmart = new LogObjSmart();
+                obj.tag = null;
+                let note:NoteFull = new NoteFull();
+                note.title = res.rows.item(i).notetitle;
+                note.links = JSON.parse(res.rows.item(i).links);
+                obj.note = note;
+                obj.action = DbAction.DbAction.set_link;
+                obj.userid = userid;
+                results.push(obj);
+              }
+              resolve(results);
+            }
+          },
+          (tx: any, error: any)=>{ /*error callback*/
+            console.log('error in getting notes to change link.');
+            console.log(JSON.stringify(error));
+            //reject(error); /*?????*/
+          }
+        )
+      })
+      .then(txResult=>{
+        // console.log('txResult');
+        // console.log(JSON.stringify(txResult));
+        resolve(null); /*never here (?)*/
+      })
+      .catch(txError=>{
+        console.log('tx error');
+        console.log(JSON.stringify(txError));
+        reject(txError);
+      })
+    })
+  }
+
+
+  public getObjectNotesToSetDone(userid: string):Promise<LogObjSmart[]>{
+    return new Promise<LogObjSmart[]>((resolve, reject)=>{
+      this.db.transaction(tx=>{
+        tx.executeSql(Query.SELECT_NOTES_TO_SET_DONE, [userid],
+          (tx: any, res: any)=>{ /*result callback*/
+            if(res.rows.length<=0){
+              resolve(null);
+            }else{
+              let results:LogObjSmart[]=[];
+              for(let i=0;i<res.rows.length;i++){
+                let obj: LogObjSmart = new LogObjSmart();
+                obj.tag = null;
+                let note:NoteFull = new NoteFull();
+                note.title = res.rows.item(i).notetitle;
+                note.isdone = res.rows.item(i).isdone;
+                obj.note = note;
+                obj.action = DbAction.DbAction.set_done;
+                obj.userid = userid;
+                results.push(obj);
+              }
+              resolve(results);
+            }
+          },
+          (tx: any, error: any)=>{ /*error callback*/
+            console.log('error in getting notes to set done.');
+            console.log(JSON.stringify(error));
+            //reject(error); /*?????*/
+          }
+        )
+      })
+      .then(txResult=>{
+        // console.log('txResult');
+        // console.log(JSON.stringify(txResult));
+        resolve(null); /*never here (?)*/
+      })
+      .catch(txError=>{
+        console.log('tx error');
+        console.log(JSON.stringify(txError));
+        reject(txError);
       })
     })
   }

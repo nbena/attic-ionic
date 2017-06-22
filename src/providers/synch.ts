@@ -75,6 +75,18 @@ export class Synch {
       })
       .then(notesSent=>{
         console.log('notes sent');
+        return this.sendTagsToAddToNotes();
+      })
+      .then(tagsAdded=>{
+        console.log('tags added');
+        return this.sendTagsToDelete();
+      })
+      .then(tagsDeleted=>{
+        console.log('tags deleted');
+        return this.sendNotesToDelete();
+      })
+      .then(notesDeleted=>{
+        console.log('notes deleted');
         this.isStarted = false;
       })
       .catch(error=>{
@@ -290,6 +302,124 @@ export class Synch {
     })
       .catch(error=>{
         console.log('error in processing notes');
+        console.log(JSON.stringify(error));
+        reject(error);
+      })
+    })
+  }
+
+
+
+  public sendNotesToChangeText():Promise<any>{
+    let correctResult:string[]=[];
+    return new Promise<any>((resolve, reject)=>{
+      this.db.getObjectNotesToChangeText(this.auth.userid)
+      .then(objs=>{
+        if(objs == null){
+          resolve(true);
+        }else{
+          return Promise.all(objs.map((obj)=>{
+            return Utils.postBasic('/api/change-text/', JSON.stringify({note:
+              {title:obj.note.tile,
+                text:obj.note.text
+              }}), this.http, this.auth.token)
+            .then(res=>{
+              correctResult.push(obj.note.title);
+            })
+          }))
+        }
+      })
+      .then(results=>{
+        /*according to MDN, it returns the values of each promise.*/
+        console.log('results:');
+        console.log(JSON.stringify(results));
+      /*  only if the result is correct*/
+      // return this.db.deleteTagsToAddToNotesFromLogs(this.auth.userid);
+      return this.db.deleteNoteFromLogsChangeTextMultiVersion(correctResult, this.auth.userid);
+      })
+      .then(dbResult=>{
+        resolve(true);
+    })
+      .catch(error=>{
+        console.log('error in processing notes to change text.');
+        console.log(JSON.stringify(error));
+        reject(error);
+      })
+    })
+  }
+
+
+  public sendNotesToChangeLinks():Promise<any>{
+    let correctResult:string[]=[];
+    return new Promise<any>((resolve, reject)=>{
+      this.db.getObjectNotesToChangeLinks(this.auth.userid)
+      .then(objs=>{
+        if(objs == null){
+          resolve(true);
+        }else{
+          return Promise.all(objs.map((obj)=>{
+            return Utils.postBasic('/api/change-links/', JSON.stringify({note:
+              {title:obj.note.tile,
+              links: obj.note.links
+              }}), this.http, this.auth.token)
+            .then(res=>{
+              correctResult.push(obj.note.title);
+            })
+          }))
+        }
+      })
+      .then(results=>{
+        /*according to MDN, it returns the values of each promise.*/
+        console.log('results:');
+        console.log(JSON.stringify(results));
+      /*  only if the result is correct*/
+      // return this.db.deleteTagsToAddToNotesFromLogs(this.auth.userid);
+      return this.db.deleteNoteFromLogsSetLinkMultiVersion(correctResult, this.auth.userid);
+      })
+      .then(dbResult=>{
+        resolve(true);
+    })
+      .catch(error=>{
+        console.log('error in processing notes to change links.');
+        console.log(JSON.stringify(error));
+        reject(error);
+      })
+    })
+  }
+
+
+  public sendNotesToChangeDone():Promise<any>{
+    let correctResult:string[]=[];
+    return new Promise<any>((resolve, reject)=>{
+      this.db.getObjectNotesToSetDone(this.auth.userid)
+      .then(objs=>{
+        if(objs == null){
+          resolve(true);
+        }else{
+          return Promise.all(objs.map((obj)=>{
+            return Utils.postBasic('/api/set-done/', JSON.stringify({note:
+              {title:obj.note.tile,
+                isdone: obj.note.isdone
+              }}), this.http, this.auth.token)
+            .then(res=>{
+              correctResult.push(obj.note.title);
+            })
+          }))
+        }
+      })
+      .then(results=>{
+        /*according to MDN, it returns the values of each promise.*/
+        console.log('results:');
+        console.log(JSON.stringify(results));
+      /*  only if the result is correct*/
+      // return this.db.deleteTagsToAddToNotesFromLogs(this.auth.userid);
+      return this.db.deleteNoteFromLogsSetDoneMultiVersion(correctResult, this.auth.userid);
+      })
+      .then(dbResult=>{
+        resolve(true);
+    })
+      .catch(error=>{
+        console.log('error in processing notes to set done.');
         console.log(JSON.stringify(error));
         reject(error);
       })
