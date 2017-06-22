@@ -1507,6 +1507,8 @@ public setTitle(note :NoteFull, newTitle: string, userid: string):Promise<any>{
               for(let i=0;i<res.rows.length;i++){
                 let obj: LogObjSmart = new LogObjSmart();
                 let note:NoteExtraMin = new NoteExtraMin();
+                console.log('the i-object is');
+                console.log(JSON.stringify(res.rows.item(i)));
                 note.title = res.rows.item(i).notetitle;
                 obj.note = note;
                 // console.log('obj is:');

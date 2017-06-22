@@ -55,7 +55,7 @@ export class AtticTags {
           if(useDb){
             return this.db.getTagsMin(this.auth.userid);
           }else{
-            console.log('no notes, using the network');
+            console.log('no tags, using the network');
             return Utils.getBasic('/api/tags/all/min', this.http, this.auth.token);
           }
         })

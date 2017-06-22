@@ -55,7 +55,8 @@ export class CreateNotePage {
 
 
   loadMinTags(){
-    this.atticTags.loadTagsMin(true)
+    /*before it was true.*/
+    this.atticTags.loadTagsMin(false)
       .then(result=>{
         this.tags=<TagAlmostMin[]>result;
       })

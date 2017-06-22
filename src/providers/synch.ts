@@ -63,6 +63,8 @@ export class Synch {
 
 
   public synch(){
+    console.log('is started?');
+    console.log(JSON.stringify(this.isStarted));
     if(!this.isStarted){
       this.isStarted = true;
       console.log('starting sending notes');
@@ -73,10 +75,12 @@ export class Synch {
       })
       .then(notesSent=>{
         console.log('notes sent');
+        this.isStarted = false;
       })
       .catch(error=>{
         console.log('sent error:');
         console.log(JSON.stringify(error));
+        this.isStarted = false;
       })
     }
   }
@@ -142,6 +146,8 @@ export class Synch {
       let correctResult:string[]=[];
       this.db.getObjectTagsToSave(this.auth.userid)
       .then(objs=>{
+        console.log('the tags to save:');
+        console.log(JSON.stringify(objs));
         if(objs == null){
           resolve(true);
         }else{

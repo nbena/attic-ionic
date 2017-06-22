@@ -112,13 +112,13 @@ static shouldUseDb(newtorkAvailable:boolean, itemAvailable:boolean, force:boolea
     /*if I'm forced to use the network not use DB*/
     res = false;
   }
-  /*else is not needed.*/
   if (!itemAvailable){
     /*if there aren't item in the DB, I'm not going to use it.*/
     res = false;
   }else{
     res = true;
   }
+  /*else is not needed.*/
   if (!newtorkAvailable){
     /*but if there is no network I'm force to use the DB.*/
     res = true;
