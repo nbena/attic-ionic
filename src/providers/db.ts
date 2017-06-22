@@ -1431,8 +1431,9 @@ public setTitle(note :NoteFull, newTitle: string, userid: string):Promise<any>{
   public cleanUpEverything(userid: string):Promise<any>{
     return new Promise<any>((resolve, reject)=>{
       this.db.transaction(tx=>{
-        tx.executeSql(Query.CLEAN_UP_NOTES_CREATE, [userid, userid]);
-        tx.executeSql(Query.CLEAN_UP_TAGS_CREATE, [userid, userid]);
+        /*the first two are now done by two triggers.*/
+        // tx.executeSql(Query.CLEAN_UP_NOTES_CREATE, [userid, userid]);
+        // tx.executeSql(Query.CLEAN_UP_TAGS_CREATE, [userid, userid]);
         tx.executeSql(Query.CLEAN_UP_NOTES_SET_DONE, [userid, userid]);
         tx.executeSql(Query.CLEAN_UP_NOTES_SET_TEXT, [userid, userid]);
         tx.executeSql(Query.CLEAN_UP_NOTES_SET_LINK, [userid, userid]);
@@ -1455,10 +1456,14 @@ public setTitle(note :NoteFull, newTitle: string, userid: string):Promise<any>{
   Each object is the result of JSON.parse(db_row.json_object)
   */
   public getObjectNotesToSave(userid: string):Promise<LogObjSmart[]>{
+    // console.log('userid: '+userid);
     return new Promise<LogObjSmart[]>((resolve, reject)=>{
       this.db.transaction(tx=>{
+        // console.log('query is: '+Query.SELECT_NOTES_TO_SAVE);
         tx.executeSql(Query.SELECT_NOTES_TO_SAVE, [userid],
           (tx: any, res: any)=>{ /*result callback*/
+            // console.log('query executed? the rows');
+            // console.log(res.rows.length);
             if(res.rows.length<=0){
               resolve(null);
             }else{
@@ -1509,8 +1514,8 @@ public setTitle(note :NoteFull, newTitle: string, userid: string):Promise<any>{
               for(let i=0;i<res.rows.length;i++){
                 let obj: LogObjSmart = new LogObjSmart();
                 let note:NoteExtraMin = new NoteExtraMin();
-                console.log('the i-object is');
-                console.log(JSON.stringify(res.rows.item(i)));
+                // console.log('the i-object is');
+                // console.log(JSON.stringify(res.rows.item(i)));
                 note.title = res.rows.item(i).notetitle;
                 obj.note = note;
                 // console.log('obj is:');
@@ -1523,7 +1528,7 @@ public setTitle(note :NoteFull, newTitle: string, userid: string):Promise<any>{
             }
           },
           (tx: any, error: any)=>{ /*error callback*/
-            console.log('error in getting notes to save.');
+            console.log('error in getting notes to delete.');
             console.log(JSON.stringify(error));
             //reject(error); /*?????*/
           }

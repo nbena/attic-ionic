@@ -190,7 +190,7 @@ export class Query{
   static readonly SELECT_TAGS_TO_SAVE = 'select * from logs_sequence where logs_sequence.userid=? and tagtitle is not null and notetitle is null and action=\'create\'';
 
   static readonly SELECT_TAGS_TO_DELETE = 'select * from logs_sequence where notetitle is null and userid=? and tagtitle is not null and action=\'delete\'';
-  static readonly SELECT_NOTES_TO_DELETE = 'select * from logs_sequence where notetitle is not null null and userid=? and tagtitle is null and action=\'delete\'';
+  static readonly SELECT_NOTES_TO_DELETE = 'select * from logs_sequence where notetitle is not null and userid=? and tagtitle is null and action=\'delete\'';
 
   static readonly DELETE_NOTES_TO_SAVE_LOGS = 'delete from logs_sequence where id in (select id from logs_sequence where action=\'create\' and userid=? and tagtitle is null and notetitle is not null);'
   static readonly DELETE_TAGS_TO_SAVE_LOGS = 'delete from logs_sequence where id in (select id from logs_sequence where action=\'create\' and userid=? and tagtitle is not null and notetitle is null);'

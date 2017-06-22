@@ -63,12 +63,16 @@ export class Synch {
 
 
   public synch(){
-    console.log('is started?');
-    console.log(JSON.stringify(this.isStarted));
+    console.log('is started?'); console.log(JSON.stringify(this.isStarted));
     if(!this.isStarted){
       this.isStarted = true;
-      console.log('starting sending notes');
-      this.sendTagsToSave()
+      /*first thing to do is cleaning up.*/
+      console.log('cleaning up');
+      this.cleanUp()
+      .then(cleanUp=>{
+        console.log('starting sending things');
+        return this.sendTagsToSave();
+      })
       .then(tagsSent=>{
         console.log('tags sent');
         return this.sendNotesToSave();
@@ -87,6 +91,18 @@ export class Synch {
       })
       .then(notesDeleted=>{
         console.log('notes deleted');
+        return this.sendNotesToChangeDone();
+      })
+      .then(notesSetDone=>{
+        console.log('set done');
+        return this.sendNotesToChangeText();
+      })
+      .then(notesChangedText=>{
+        console.log('text changed')
+        return this.sendNotesToChangeLinks();
+      })
+      .then(notesChangedLinks=>{
+        console.log('everything is done');
         this.isStarted = false;
       })
       .catch(error=>{
@@ -95,6 +111,12 @@ export class Synch {
         this.isStarted = false;
       })
     }
+  }
+
+
+  //basically just a wrapper.
+  private cleanUp(){
+    return this.db.cleanUpEverything(this.auth.userid);
   }
 
 
@@ -110,7 +132,7 @@ export class Synch {
     return new Promise<any>((resolve, reject)=>{
       this.db.getObjectNotesToSave(this.auth.userid)
       .then(objs=>{
-        console.log('the objs');
+        console.log('the objs notes:');
         console.log(JSON.stringify(objs));
         if(objs == null){
           resolve(true);
