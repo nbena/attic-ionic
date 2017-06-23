@@ -8,6 +8,8 @@ import { Utils } from '../public/utils';
 import { Db/*, LogObject*/ } from './db';
 import { NetManager } from './net-manager';
 
+import { Synch } from './synch';
+
 import { TagAlmostMin, TagExtraMin } from '../models/tags';
 
 import 'rxjs/add/operator/map';
@@ -22,7 +24,9 @@ import 'rxjs/add/operator/map';
 export class AtticNotes {
 
   constructor(public http: Http, public auth: Auth,
-    private db: Db, private netManager: NetManager) {
+    private db: Db, private netManager: NetManager,
+    private synch: Synch
+  ) {
     console.log('Hello AtticNotes Provider');
   }
 
@@ -63,7 +67,7 @@ export class AtticNotes {
         console.log('the numberof notes is');
         console.log(number);
         // let useDb = !isNteworkAvailable || areThereNotesInTheDb || !force;
-        useDb = Utils.shouldUseDb(isNteworkAvailable, areThereNotesInTheDb, force);
+        useDb = Utils.shouldUseDb(isNteworkAvailable, areThereNotesInTheDb, force, this.synch.isSynching());
         console.log('usedb note: ');
         console.log(JSON.stringify(useDb));
         if(useDb){
@@ -141,7 +145,7 @@ export class AtticNotes {
       this.db.getNumberOfNotes(this.auth.userid)
       .then(number=>{
         areThereNotesInTheDb = (number > 0) ? true : false;
-        useDb = Utils.shouldUseDb(this.netManager.isConnected, areThereNotesInTheDb, force);
+        useDb = Utils.shouldUseDb(this.netManager.isConnected, areThereNotesInTheDb, force, this.synch.isSynching());
         callNet = !useDb;
         if(useDb){
           return this.db.getNoteFull(title, this.auth.userid)
@@ -280,7 +284,7 @@ export class AtticNotes {
         console.log('the numberof notes is');
         console.log(number);
         // let useDb = !isNteworkAvailable || areThereNotesInTheDb || !force;
-        useDb = Utils.shouldUseDb(isNteworkAvailable, areThereNotesInTheDb, force);
+        useDb = Utils.shouldUseDb(isNteworkAvailable, areThereNotesInTheDb, force, this.synch.isSynching());
         console.log('usedb note: ');
         console.log(JSON.stringify(useDb));
         if(useDb){
@@ -376,7 +380,7 @@ return this.items.filter((item) => {
         console.log('the numberof notes is');
         console.log(number);
         // let useDb = !isNteworkAvailable || areThereNotesInTheDb || !force;
-        useDb = Utils.shouldUseDb(isNteworkAvailable, areThereNotesInTheDb, force);
+        useDb = Utils.shouldUseDb(isNteworkAvailable, areThereNotesInTheDb, force, this.synch.isSynching());
         console.log('usedb note: ');
         console.log(JSON.stringify(useDb));
         if(useDb){

@@ -61,6 +61,10 @@ export class Synch {
 
   }
 
+  public isSynching():boolean{
+    return this.isStarted;
+  }
+
 
   public synch(){
     console.log('is started?'); console.log(JSON.stringify(this.isStarted));

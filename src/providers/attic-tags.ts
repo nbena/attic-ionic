@@ -11,6 +11,7 @@ import { Utils } from '../public/utils';
 import { TagExtraMin, TagAlmostMin, TagFull } from '../models/tags';
 import { Db } from './db';
 import { NetManager } from './net-manager';
+import { Synch } from './synch';
 
 /*
   Generated class for the AtticTags provider.
@@ -22,7 +23,9 @@ import { NetManager } from './net-manager';
 export class AtticTags {
 
   constructor(public http: Http, public auth: Auth,
-    private db: Db, private netManager: NetManager) {
+    private db: Db, private netManager: NetManager,
+    private synch: Synch
+  ) {
     console.log('Hello AtticTags Provider');
   }
 
@@ -49,7 +52,7 @@ export class AtticTags {
           console.log('the number of tags is');
           console.log(number);
           // let useDb = !isNteworkAvailable || areThereNotesInTheDb || !force;
-          useDb = Utils.shouldUseDb(isNteworkAvailable, areThereTagsInTheDb, force);
+          useDb = Utils.shouldUseDb(isNteworkAvailable, areThereTagsInTheDb, force, this.synch.isSynching());
           console.log('usedb tag: ');
           console.log(JSON.stringify(useDb));
           if(useDb){
@@ -126,7 +129,7 @@ export class AtticTags {
         this.db.getNumberOfTags(this.auth.userid)
         .then(number=>{
           areThereTagsInTheDb = (number > 0) ? true : false;
-          useDb = Utils.shouldUseDb(this.netManager.isConnected, areThereTagsInTheDb, force);
+          useDb = Utils.shouldUseDb(this.netManager.isConnected, areThereTagsInTheDb, force, this.synch.isSynching());
           callNet = !useDb;
           if(useDb){
             return this.db.getTagFull(title, this.auth.userid)
