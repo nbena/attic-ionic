@@ -106,7 +106,7 @@ static deleteBasic(uriFinal: string, http: Http, token: any){
   });
 }
 
-static shouldUseDb(newtorkAvailable:boolean, itemAvailable:boolean, force:boolean, isSynching:boolean):boolean{
+static shouldUseDb(newtorkAvailable:boolean, itemAvailable:boolean, force:boolean/*, isSynching:boolean*/):boolean{
   let res:boolean = true;
   if(force){
     /*if I'm forced to use the network not use DB*/
@@ -123,11 +123,11 @@ static shouldUseDb(newtorkAvailable:boolean, itemAvailable:boolean, force:boolea
     /*but if there is no network I'm force to use the DB.*/
     res = true;
   }
-  if(isSynching){
-    res = true;
-  }else{
-    res = false;
-  }
+  // if(isSynching){
+  //   res = true;
+  // }else{
+  //   res = false;
+  // }
   return res;
 }
 

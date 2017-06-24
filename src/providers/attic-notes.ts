@@ -67,7 +67,7 @@ export class AtticNotes {
         console.log('the numberof notes is');
         console.log(number);
         // let useDb = !isNteworkAvailable || areThereNotesInTheDb || !force;
-        useDb = Utils.shouldUseDb(isNteworkAvailable, areThereNotesInTheDb, force, this.synch.isSynching());
+        useDb = Utils.shouldUseDb(isNteworkAvailable, areThereNotesInTheDb, force/*, this.synch.isSynching()*/);
         console.log('usedb note: ');
         console.log(JSON.stringify(useDb));
         if(useDb){
@@ -83,11 +83,17 @@ export class AtticNotes {
           resolve(fetchingResult);
         }else{
           /*fetchingResult = NoteMin[] from the network, need to insert.*/
-          notes = fetchingResult as NoteExtraMin[];
-          for(let i=0;i<notes.length;i++){
-            this.db.insertNoteMinQuietly(notes[i], this.auth.userid);
+          /*inserting is available only if the locks are available*/
+          if(!this.synch.isNoteFullyLocked()){
+            notes = fetchingResult as NoteExtraMin[];
+            for(let i=0;i<notes.length;i++){
+              this.db.insertNoteMinQuietly(notes[i], this.auth.userid);
+            }
+            resolve(notes);
+          }else{
+            /*can't insert*/
+            console.log('fetched notes min but it is locked');
           }
-          resolve(notes);
         }
       })
       .catch(error=>{
@@ -112,7 +118,11 @@ export class AtticNotes {
         console.log(JSON.stringify(result.note));
         note = result.note as NoteFull;
         /*inserting in the DB.*/
-        this.db.insertOrUpdateNote(note, this.auth.userid); /*this will be done asynchronously?*/
+        if(!this.synch.isNoteFullyLocked()){
+          this.db.insertOrUpdateNote(note, this.auth.userid); /*this will be done asynchronously? yes... maybe*/
+        }else{
+          console.log('fetched note by title but it is locked');
+        }
         resolve(note);
       // .catch(error=>{
       //   console.log('errror while fetching and inserting.');
@@ -145,7 +155,7 @@ export class AtticNotes {
       this.db.getNumberOfNotes(this.auth.userid)
       .then(number=>{
         areThereNotesInTheDb = (number > 0) ? true : false;
-        useDb = Utils.shouldUseDb(this.netManager.isConnected, areThereNotesInTheDb, force, this.synch.isSynching());
+        useDb = Utils.shouldUseDb(this.netManager.isConnected, areThereNotesInTheDb, force/*, this.synch.isSynching()*/);
         callNet = !useDb;
         if(useDb){
           return this.db.getNoteFull(title, this.auth.userid)
@@ -255,7 +265,11 @@ export class AtticNotes {
           note.title = result[i].title;
           parsedResult.push(note);
           /*note.userid = result[i].userid;*/
-          this.db.insertNoteMinQuietly(note, this.auth.userid);
+          if(!this.synch.isNoteFullyLocked()){
+            this.db.insertNoteMinQuietly(note, this.auth.userid);
+          }else{
+            console.log('fetched notes by tags but it is locked');
+          }
         }
         resolve(parsedResult);
       })
@@ -284,7 +298,7 @@ export class AtticNotes {
         console.log('the numberof notes is');
         console.log(number);
         // let useDb = !isNteworkAvailable || areThereNotesInTheDb || !force;
-        useDb = Utils.shouldUseDb(isNteworkAvailable, areThereNotesInTheDb, force, this.synch.isSynching());
+        useDb = Utils.shouldUseDb(isNteworkAvailable, areThereNotesInTheDb, force/*, this.synch.isSynching()*/);
         console.log('usedb note: ');
         console.log(JSON.stringify(useDb));
         if(useDb){
@@ -380,7 +394,7 @@ return this.items.filter((item) => {
         console.log('the numberof notes is');
         console.log(number);
         // let useDb = !isNteworkAvailable || areThereNotesInTheDb || !force;
-        useDb = Utils.shouldUseDb(isNteworkAvailable, areThereNotesInTheDb, force, this.synch.isSynching());
+        useDb = Utils.shouldUseDb(isNteworkAvailable, areThereNotesInTheDb, force/*, this.synch.isSynching()*/);
         console.log('usedb note: ');
         console.log(JSON.stringify(useDb));
         if(useDb){
@@ -415,7 +429,14 @@ return this.items.filter((item) => {
     //     maintags: mainTags.map((tag)=>{return tag.title}),
     //     othertags: otherTags.map((tag)=>{tag.title})}}),
     //     this.http, this.auth.token);
-    return this.db.addTags(note, this.auth.userid, mainTags, otherTags);
+    if(!this.synch.isNoteFullyLocked()){
+      return this.db.addTags(note, this.auth.userid, mainTags, otherTags);
+    }else{
+      return new Promise<any>((resolve, reject)=>{
+        console.log('trying to add tags but it is locked');
+        reject(new Error('synching'));
+      })
+    }
   }
 
 
@@ -424,7 +445,14 @@ return this.items.filter((item) => {
     //   {title: note.title,
     //     mainTags: mainTags.map((tag)=>{tag.title}) }}),
     //     this.http, this.auth.token);
-    return this.db.addTags(note, this.auth.userid, mainTags);
+    if(!this.synch.isNoteFullyLocked()){
+      return this.db.addTags(note, this.auth.userid, mainTags);
+    }else{
+      return new Promise<any>((resolve, reject)=>{
+        console.log('trying to add main tags but it is locked');
+        reject(new Error('synching'));
+      })
+    }
   }
 
   addOtherTags(note: NoteFull, otherTags: TagExtraMin[]){
@@ -432,7 +460,14 @@ return this.items.filter((item) => {
     //   {title: note.title,
     //     othertags: otherTags.map((tag)=>{return tag.title}) }}),
     //     this.http, this.auth.token);
-    return this.db.addTags(note, this.auth.userid, null, otherTags);
+    if(!this.synch.isNoteFullyLocked()){
+      return this.db.addTags(note, this.auth.userid, null, otherTags);
+    }else{
+      return new Promise<any>((resolve, reject)=>{
+        console.log('trying to add other tags but it is locked');
+        reject(new Error('synching'));
+      })
+    }
   }
 
   // removeMainTags(noteId: string, tagIds: string[]){
@@ -442,9 +477,17 @@ return this.items.filter((item) => {
   // removeOtherTags(noteId: string, tagIds: string[]){
   //   return Utils.postBasic('/api/notes/mod/removetags', JSON.stringify({id: noteId, otherTags: tagIds }), this.http, this.auth.token);
   // }
-  removeTags(noteTitle: string, tags: string[]){
-    return Utils.postBasic('/api/notes/mod/removetags',JSON.stringify({note:
-      {title:noteTitle, tags:tags}}), this.http, this.auth.token );
+  removeTags(note: NoteFull, tags: string[]){
+    // return Utils.postBasic('/api/notes/mod/removetags',JSON.stringify({note:
+    //   {title:noteTitle, tags:tags}}), this.http, this.auth.token );
+    if(!this.synch.isNoteFullyLocked()){
+      return this.db.removeTagsFromNote(note, this.auth.userid, tags);
+    }else{
+      return new Promise<any>((resolve, reject)=>{
+        console.log('trying to remove tags but it is locked');
+        reject(new Error('synching'));
+      })
+    }
   }
 
   // addLinks(noteId: string, links: string[]){
@@ -459,19 +502,40 @@ return this.items.filter((item) => {
   changeLinks(/*noteTitle: string, links:string[]*/note:NoteFull){
     // return Utils.postBasic('/api/notes/mod/links', JSON.stringify({note:
     //   {title: noteTitle, links:links}}), this.http, this.auth.token);
-    return this.db.setLinks(note, this.auth.userid);
+    if(!this.synch.isNoteFullyLocked()){
+      return this.db.setLinks(note, this.auth.userid);
+    }else{
+      return new Promise<any>((resolve, reject)=>{
+        console.log('trying to change links but it is locked');
+        reject(new Error('synching'));
+      })
+    }
   }
 
   changeText(/*noteTitle: string, text:string*/note:NoteFull){
     // return Utils.postBasic('/api/notes/mod/text', JSON.stringify({note:
     //   {title:noteTitle, text:text}}), this.http, this.auth.token);
-    return this.db.setText(note, this.auth.userid);
+    if(!this.synch.isNoteFullyLocked()){
+      return this.db.setText(note, this.auth.userid);
+    }else{
+      return new Promise<any>((resolve, reject)=>{
+        console.log('trying to change text but it is locked');
+        reject(new Error('synching'));
+      })
+    }
   }
 
   changeDone(/*noteTitle: string, done: boolean*/note: NoteFull){
     // return Utils.postBasic('/api/notes/mod/setdone', JSON.stringify({note:
     //   {title:noteTitle, isDone:done}}), this.http, this.auth.token);
-    return this.db.setDone(note, this.auth.userid);
+    if(!this.synch.isNoteFullyLocked()){
+      return this.db.setDone(note, this.auth.userid);
+    }else{
+      return new Promise<any>((resolve, reject)=>{
+        console.log('trying to set done but it is locked');
+        reject(new Error('synching'));
+      })
+    }
   }
 
   deleteNote(note: NoteExtraMin):Promise<any>{
@@ -483,7 +547,14 @@ return this.items.filter((item) => {
     // }else{
     //   return this.db.transactionDeleteNoteFromNotes(<string>_id);
     // }
-    return this.db.deleteNote(note, this.auth.userid);
+    if(!this.synch.isNoteFullyLocked()){
+      return this.db.deleteNote(note, this.auth.userid);
+    }else{
+      return new Promise<any>((resolve, reject)=>{
+        console.log('trying to delete but it is locked');
+        reject(new Error('synching'));
+      })
+    }
   }
 
   /*warning, a note full object can be saved in the db if there are pending operations on it?*/

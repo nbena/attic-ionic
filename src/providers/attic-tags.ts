@@ -52,7 +52,7 @@ export class AtticTags {
           console.log('the number of tags is');
           console.log(number);
           // let useDb = !isNteworkAvailable || areThereNotesInTheDb || !force;
-          useDb = Utils.shouldUseDb(isNteworkAvailable, areThereTagsInTheDb, force, this.synch.isSynching());
+          useDb = Utils.shouldUseDb(isNteworkAvailable, areThereTagsInTheDb, force/*, this.synch.isSynching()*/);
           console.log('usedb tag: ');
           console.log(JSON.stringify(useDb));
           if(useDb){
@@ -70,9 +70,13 @@ export class AtticTags {
             resolve(fetchingResult);
           }else{
             /*fetchingResult = NoteMin[] from the network, need to insert.*/
-            tags = fetchingResult as TagAlmostMin[];
-            for(let i=0;i<tags.length;i++){
-              this.db.insertTagMinQuietly(tags[i], this.auth.userid);
+            if(!this.synch.isTagLocked()){
+              tags = fetchingResult as TagAlmostMin[];
+              for(let i=0;i<tags.length;i++){
+                this.db.insertTagMinQuietly(tags[i], this.auth.userid);
+              }
+            }else{
+              console.log('fetched tags by title but it is locked');
             }
             resolve(tags);
           }
@@ -105,7 +109,11 @@ export class AtticTags {
           /*inserting in the DB.*/
           /*===============================================*/
           /*tags are always min!!!! it just change the json_object*/
-          this.db.insertTagMinQuietly(tag, this.auth.userid); /*this will be done asynchronously?*/
+          if(!this.synch.isTagLocked()){
+            this.db.insertTagMinQuietly(tag, this.auth.userid); /*this will be done asynchronously?*/
+          }else{
+            console.log('fetched tag by title but it is locked')
+          }
           resolve(tag);
         // .catch(error=>{
         //   console.log('errror while fetching and inserting.');
@@ -129,7 +137,7 @@ export class AtticTags {
         this.db.getNumberOfTags(this.auth.userid)
         .then(number=>{
           areThereTagsInTheDb = (number > 0) ? true : false;
-          useDb = Utils.shouldUseDb(this.netManager.isConnected, areThereTagsInTheDb, force, this.synch.isSynching());
+          useDb = Utils.shouldUseDb(this.netManager.isConnected, areThereTagsInTheDb, force/*, this.synch.isSynching()*/);
           callNet = !useDb;
           if(useDb){
             return this.db.getTagFull(title, this.auth.userid)
@@ -169,7 +177,14 @@ export class AtticTags {
   */
   createTag(tag: TagAlmostMin):Promise<any>{
     // return Utils.putBasic('/api/tags/'+title, '', this.http, this.auth.token);
-    return this.db.createTag(tag, this.auth.userid);
+    if(!this.synch.isTagLocked()){
+      return this.db.createTag(tag, this.auth.userid);
+    }else{
+      return new Promise<any>((resolve, reject)=>{
+        console.log('trying to create tag but it is locked');
+        reject(new Error('synching'));
+      })
+    }
   }
 
   // tagsByTitle(title: string){
@@ -195,7 +210,14 @@ export class AtticTags {
 
   deleteTag(tag: TagExtraMin):Promise<any>{
     // return Utils.deleteBasic('/api/tags/'+tag.title, this.http, this.auth.token);
-    return this.db.deleteTag(tag, this.auth.userid);
+    if(!this.synch.isTagLocked()){
+      return this.db.deleteTag(tag, this.auth.userid);
+    }else{
+      return new Promise<any>((resolve, reject)=>{
+        console.log('trying to delete tag but it is locked');
+        reject(new Error('synching'));
+      })
+    }
   }
 
   /*the note full object is not kept in the DB as json, is recreated everytime.*/

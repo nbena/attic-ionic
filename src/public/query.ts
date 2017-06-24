@@ -108,6 +108,7 @@ export class Query{
   static readonly NOTES_TAGS_EXISTS_NO_ROLE = 'select notetitle from notes_tags where notetitle=? and tagtitle=? and userid=?';
   static readonly NOTES_TAGS_EXISTS_WITH_ROLE = 'select notetitle from notes_tags where notetitle=? and tagtitle=? and role=? and userid=?';
 
+
   /*
   The update functions on notes and tags will update the object only if there is some differences,
   how do I do this? By checking that the json_object saved is different from the right-now-calculated.
@@ -166,8 +167,10 @@ export class Query{
   static readonly SET_NOTE_DELETED_NOTES_TAGS = 'update notes_tags set mustbedeleted=\'true\' where notetitle=? and userid=?';
 
   static readonly SET_TAG_DELETED = 'update tags set mustbedeleted=\'true\' where title=? and userid=?';
-  static readonly SET_TAG_DELETED_NOTES_TAGS = 'update notes_tags set mustbedeleted=\'true\' where tagtitle=? and userid=?';
+  /*not ready.*/
+  static readonly SET_TAG_DELETED_NOTES_TAGS = 'update notes_tags set mustbedeleted=\'true\' where notetitle=? and userid=? and (';
 
+  //static readonlt INSERT_TAG_TO_REMOVE_FROM_NOTES_INTO_LOGS = 'insert itno logs_sequence(notetitle, tagtitle, action, userid) values ()'
 
 
   static readonly NOTES_TO_CLEAN_UP_CREATE = 'select distinct notetitle from logs_sequence as l where exists (select * from logs_sequence as l1 where action=\'delete\' and l.notetitle=l1.notetitle and userid=?) and exists (select * from logs_sequence as l1 where action=\'create\' and l.notetitle=l1.notetitle and userid=?)';

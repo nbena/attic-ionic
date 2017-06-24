@@ -66,6 +66,51 @@ export class Synch {
   public isSynching():boolean{
     return this.isStarted;
   }
+  public isNoteCreateLocked(){
+    return this.lockNoteCreate;
+  }
+  public isNoteDeleteLocked(){
+    return this.lockNoteDelete;
+  }
+  public isNoteDoneLocked(){
+    return this.lockNoteDone;
+  }
+  public isNoteTextLocked(){
+    return this.lockNoteText;
+  }
+  public isNoteLinksLocked(){
+    return this.lockNoteLinks;
+  }
+  public isNoteAddTagsLocked(){
+    return this.lockNoteAddTags;
+  }
+  public isNoteRemoveTagsLocked(){
+    return this.lockNoteRemoveTags;
+  }
+
+  public isTagCreateLocked(){
+    return this.lockTagCreate;
+  }
+  public isTagDeleteLocked(){
+    return this.lockTagDelete;
+  }
+
+
+  public isNoteBasicLocked(){
+    return this.lockNoteDone && this.lockNoteText &&
+      this.lockNoteLinks;
+  }
+
+  public isNoteFullyLocked(){
+    return this.isNoteBasicLocked && this.lockNoteCreate &&
+      this.lockNoteDelete && this.lockNoteAddTags &&
+      this.lockNoteRemoveTags;
+  }
+
+  public isTagLocked(){
+    return this.lockTagCreate && this.lockTagDelete &&
+      this.lockNoteAddTags && this.lockNoteRemoveTags;
+  }
 
   private makeAllNoteTrue(){
     this.lockNoteDone = true;

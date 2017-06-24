@@ -1435,7 +1435,65 @@ public setTitle(note: NoteFull, newTitle: string, userid: string):Promise<any>{
     });
   }
 
+/*I'm sorry.*/
+private prepareQueryRemoveTagsFromNotesLogs(noteTitle: string, userid: string, tags:string[]):string{
+  let query:string = 'insert into logs_sequence(notetitle, oldtitle, tagtitle, action, userid) values';
+  for(let i=0;i<tags.length;i++){
+    let s:string = ' (\''+noteTitle+'\',\''+noteTitle+'\',\''+tags[i]+'\',\'remove-tag\', \''+userid+'\'), ';
+    query = query + s;
+  };
+  console.log('the query is');
+  console.log(query);
+  return query;
+}
 
+//joined = joined.substring(0, joined.lastIndexOf('or'));
+private prepareQueryRemoveTagsFromNotes(tags:string[]):string{
+  let query:string = Query.SET_TAG_DELETED_NOTES_TAGS;
+  for(let i=0;i<tags.length;i++){
+    let s:string = 'tagtitle=? or';
+    query = query + s;
+  };
+  query = query.substring(0, query.lastIndexOf('or'));
+  query = query + ');';
+  console.log('the query is');
+  console.log(query);
+  return query;
+}
+
+public removeTagsFromNote(note: NoteFull, userid: string, tags: string[]):Promise<any>{
+  return new Promise<any>((resolve, reject)=>{
+    this.db.transaction(tx=>{
+      tx.executeSql(this.prepareQueryRemoveTagsFromNotesLogs(note.title, userid, tags),[],
+      (tx:any, error:any)=>{
+        console.log('error while updating logs in delete notes_tags');
+        console.log(JSON.stringify(error));
+      }
+    );
+      tx.executeSql(this.prepareQueryRemoveTagsFromNotes(tags), [note.title, userid, tags],
+      (tx:any, error:any)=>{
+        console.log('error while updating notes_tags in delete notes_tags');
+        console.log(JSON.stringify(error));
+      }
+    );
+      tx.executeSql(Query.UPDATE_JSON_OBJ_NOTE, [JSON.stringify(note), note.title, userid],
+      (tx:any, error:any)=>{
+        console.log('error while updating json_object in delete notes_tags');
+        console.log(JSON.stringify(error));
+      }
+    )
+    })
+    .then(txResult=>{
+      console.log('tx completed');
+      resolve(true);
+    })
+    .catch(error=>{
+      console.log('error in delete notes_tags');
+      console.log(JSON.stringify(error));
+      reject(error);
+    })
+  })
+}
 
 
   public cleanUpEverything(userid: string):Promise<any>{

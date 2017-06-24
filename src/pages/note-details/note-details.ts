@@ -419,7 +419,7 @@ export class NoteDetailsPage {
   }
 
   removeTagsAPI(){
-    return this.atticNotes.removeTags(this.note.title, Utils.fromTagsToString(this.tagsToRemove));
+    return this.atticNotes.removeTags(this.note, Utils.fromTagsToString(this.tagsToRemove));
   }
 
 
