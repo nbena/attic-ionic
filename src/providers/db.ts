@@ -1075,67 +1075,77 @@ public setLinks(note :NoteFull, userid: string):Promise<any>{
   })
 }
 
+//THIS WORK BUT I'M NOT GOING TO ADD SUPPORT FOR CHANGING TITLE LOCALLY NOW.
+// private setTitleJustLocal(note: NoteFull, newTitle: string, userid: string):Promise<any>{
+//   let oldTitle:string = note.title;
+//   note.title = newTitle;
+//   return this.db.executeSql(Query.UPDATE_NOTE_SET_TITLE, [newTitle, JSON.stringify(note), oldTitle, userid]);
+// }
+//
+// private setTitleAlsoRemote(note: NoteFull, newTitle: string, userid: string):Promise<any>{
+//   return new Promise<any>((resolve, reject)=>{
+//     let oldTitle:string = note.title;
+//     note.title = newTitle;
+//     this.db.transaction(tx=>{
+//       tx.executeSql(Query.UPDATE_NOTE_SET_TITLE,[newTitle, JSON.stringify(note), oldTitle, userid]);
+//       tx.executeSql(Query.INSERT_NOTE_OLDTITLE_INTO_LOGS, [newTitle, oldTitle,'change-title', userid]);
+//     })
+//     .then(txResult=>{
+//       console.log('tx completed');
+//       resolve(true);
+//     })
+//     .catch(error=>{
+//       console.log('tx set title error');
+//       console.log(JSON.stringify(error));
+//       reject(error);
+//     })
+//   })
+// }
+//
+// /*a full object in order to re-calculate the json_object and insert it directly.
+// If i use just the title, I'd have to get to json_object, modify and reinsert. */
+// public setTitle(note :NoteFull, newTitle: string, userid: string):Promise<any>{
+//   /*UODATE_NOTE_SET_DONE = 'update note set isdone=?, json_object=? where title=?';*/
+//   /*'select * from logs where notetitle=? and action=\'create\'';*/
+//   /*first check if the note must be sent to the server, if so,
+//   I can only update it.
+//   If the note is already in the server, I need to write modification to the log.
+//   */
+//   return new Promise<any>((resolve, reject)=>{
+//     let inTheServer: boolean = false;
+//     this.db.executeSql(Query.IS_NOTE_NOT_IN_THE_SERVER, [note.title, userid])
+//     .then(result=>{
+//       if(result.rows.length > 0){
+//         // console.log('the note is not in the server');
+//         // inTheServer = false;
+//         return this.setTitleJustLocal(note, newTitle, userid);
+//       }else{
+//         // console.log('the note is already in the server');
+//         // inTheServer = true;
+//         return this.setTitleAlsoRemote(note, newTitle, userid);
+//       }
+//     })
+//     .then(upadteResuullt=>{
+//       console.log('set title ok'),
+//       resolve(true);
+//     })
+//     .catch(error=>{
+//       console.log('error in set-title');
+//       console.log(JSON.stringify(error));
+//       reject(error);
+//     })
+//   })
+// }
 
-private setTitleJustLocal(note: NoteFull, newTitle: string, userid: string):Promise<any>{
+
+public setTitle(note: NoteFull, newTitle: string, userid: string):Promise<any>{
   let oldTitle:string = note.title;
   note.title = newTitle;
   return this.db.executeSql(Query.UPDATE_NOTE_SET_TITLE, [newTitle, JSON.stringify(note), oldTitle, userid]);
 }
 
-private setTitleAlsoRemote(note: NoteFull, newTitle: string, userid: string):Promise<any>{
-  return new Promise<any>((resolve, reject)=>{
-    let oldTitle:string = note.title;
-    note.title = newTitle;
-    this.db.transaction(tx=>{
-      tx.executeSql(Query.UPDATE_NOTE_SET_TITLE,[newTitle, JSON.stringify(note), oldTitle, userid]);
-      tx.executeSql(Query.INSERT_NOTE_OLDTITLE_INTO_LOGS, [newTitle, oldTitle,'change-title', userid]);
-    })
-    .then(txResult=>{
-      console.log('tx completed');
-      resolve(true);
-    })
-    .catch(error=>{
-      console.log('tx set title error');
-      console.log(JSON.stringify(error));
-      reject(error);
-    })
-  })
-}
 
-/*a full object in order to re-calculate the json_object and insert it directly.
-If i use just the title, I'd have to get to json_object, modify and reinsert. */
-public setTitle(note :NoteFull, newTitle: string, userid: string):Promise<any>{
-  /*UODATE_NOTE_SET_DONE = 'update note set isdone=?, json_object=? where title=?';*/
-  /*'select * from logs where notetitle=? and action=\'create\'';*/
-  /*first check if the note must be sent to the server, if so,
-  I can only update it.
-  If the note is already in the server, I need to write modification to the log.
-  */
-  return new Promise<any>((resolve, reject)=>{
-    let inTheServer: boolean = false;
-    this.db.executeSql(Query.IS_NOTE_NOT_IN_THE_SERVER, [note.title, userid])
-    .then(result=>{
-      if(result.rows.length > 0){
-        // console.log('the note is not in the server');
-        // inTheServer = false;
-        return this.setTitleJustLocal(note, newTitle, userid);
-      }else{
-        // console.log('the note is already in the server');
-        // inTheServer = true;
-        return this.setTitleAlsoRemote(note, newTitle, userid);
-      }
-    })
-    .then(upadteResuullt=>{
-      console.log('set title ok'),
-      resolve(true);
-    })
-    .catch(error=>{
-      console.log('error in set-title');
-      console.log(JSON.stringify(error));
-      reject(error);
-    })
-  })
-}
+
 
   public getNotesByTags(tags: TagAlmostMin[], userid: string):Promise<NoteExtraMin[]>{
     return new Promise<NoteExtraMin[]>((resolve, reject)=>{
@@ -1705,6 +1715,63 @@ public setTitle(note :NoteFull, newTitle: string, userid: string):Promise<any>{
   }
 
 
+  /**
+  * Return an array of LogObjSmart:
+  * note is a note min object. In 'maintags' are pushed ALL the tags to delete.
+  * This is very smart, because I can sent to the server all
+  * the tags that must be added to that note IN ONE MESSAGE.
+  */
+  public getObjectTagsToRemoveFromNotes(userid: string):Promise<LogObjSmart[]>{
+    return new Promise<LogObjSmart[]>((resolve, reject)=>{
+      this.db.transaction(tx=>{
+        tx.executeSql(Query.SELECT_TAGS_TO_REMOVE_FROM_NOTES_2, [userid],
+          (tx: any, res: any)=>{
+            if(res.rows.length<=0){
+              resolve(null);
+            }else{
+              let result:LogObjSmart[]=[];
+              for(let i=0;i<res.rows.length;i++){
+
+                if(result.length > 0 && (result[result.length-1].note.title == res.rows.item(i).notetitle)){
+                  result[result.length-1].note.maintags.push(res.rows.item(i).tagtitle);
+                  result[result.length-1].action = DbAction.DbAction.remove_tag;
+                  result[result.length-1].userid = userid;
+                }else{
+                  /*create new note.*/
+                  let obj:LogObjSmart = new LogObjSmart();
+                  let note:NoteMin = new NoteMin();
+                  note.title=res.rows.item(i).notetitle;
+                  note.maintags.push(res.rows.item(i).tagtitle);
+                  obj.userid=userid;
+                  obj.action = DbAction.DbAction.remove_tag;
+                  obj.note = note;
+                  result.push(obj)
+                }
+              }
+              resolve(result);
+            }
+          },
+          (tx: any, error: any)=>{
+            console.log('error in tx getting tags to delete');
+            console.log(JSON.stringify(error));
+            //reject(error); /*?no....*/
+          }
+        )
+      })
+      .then(txResult=>{
+        console.log('tx completed');
+        console.log(JSON.stringify(txResult));
+        resolve(txResult);
+      })
+      .catch(error=>{
+        console.log('tx error'),
+        console.log(JSON.stringify(error));
+        reject(error);
+      })
+    })
+  }
+
+
   public getObjectNotesToChangeText(userid: string):Promise<LogObjSmart[]>{
     return new Promise<LogObjSmart[]>((resolve, reject)=>{
       this.db.transaction(tx=>{
@@ -2060,7 +2127,7 @@ public setTitle(note :NoteFull, newTitle: string, userid: string):Promise<any>{
   Delete from logs_sequence all of the entries like:
   notetitle-by-param; tag; remove-tag; mainTags | otherTags
   */
-  deleteTagsToDeleteToSpecificNoteFromLogs(noteTitles: string[], userid: string):Promise<any>{
+  deleteTagsToRemoveFromSpecificNoteFromLogs(noteTitles: string[], userid: string):Promise<any>{
     return new Promise<any>((resolve, reject)=>{
       this.db.transaction(tx=>{
         let query: string = this.prepareNotesMultiVersion(noteTitles, Query.DELETE_FROM_LOGS_TAGS_TO_DELETE_FROM_NOTE_WHERE_NOTE);

@@ -8,7 +8,6 @@ import { AtticNotes } from './attic-notes';
 import { NoteExtraMin, NoteFull, NoteSQLite, NoteMin } from '../models/notes';
 import { TagExtraMin, TagFull, TagSQLite/*, TagMin*/ } from '../models/tags';
 //import * as Collections from 'typescript-collections';
-import { Queue } from 'typescript-collections';
 import { DbAction } from '../public/const';
 import { Network } from '@ionic-native/network';
 import { Platform } from 'ionic-angular';
@@ -37,16 +36,19 @@ export class Synch {
 
   private isStarted: boolean = false;
 
-  // private currentCursor : number = -1; /*the _id of the last consumed object.*/
-  //
-  // private lock: boolean = true; /*default lock is true, so nothing can be done.*/
-  // private secondLock: boolean = false; /*default can be enabled.*/
+  private lockNoteCreate: boolean = false;
+  private lockNoteDelete: boolean = false;
+  private lockNoteLinks: boolean = false;
+  private lockNoteText: boolean = false;
+  private lockNoteDone: boolean = false;
 
-  /*private recordsToDo: Queue<LogObject>;*/
+  private lockNoteAddTags: boolean = false;
+  private lockNoteRemoveTags: boolean = false;
 
-  // private isConnected: boolean = false;
-  // private disconnectedSubscription : any;
-  // private connectedSubscription : any;
+  private lockTagCreate: boolean = false;
+  private lockTagDelete: boolean = false;
+
+
 
   constructor(private network: Network, private db: Db,
     private netManager: NetManager,
@@ -65,49 +67,112 @@ export class Synch {
     return this.isStarted;
   }
 
+  private makeAllNoteTrue(){
+    this.lockNoteDone = true;
+    this.lockNoteText = true;
+    this.lockNoteLinks = true;
+    this.lockNoteCreate = true;
+    this.lockNoteDelete = true;
+  }
+
+  private makeAllNoteFalse(){
+    this.lockNoteDone = false;
+    this.lockNoteText = false;
+    this.lockNoteLinks = false;
+    this.lockNoteCreate = false;
+    this.lockNoteDelete = false;
+  }
+
+  private makeAllTagTrue(){
+    this.lockTagCreate = true;
+    this.lockTagDelete = true;
+  }
+
+  private makeAllTagFalse(){
+    this.lockTagCreate = false;
+    this.lockTagDelete = false;
+  }
+
+  private makeAllTrue(){
+    this.makeAllNoteTrue();
+    this.makeAllTagTrue();
+  }
+
+  private makeAllFalse(){
+    this.makeAllTagTrue();
+    this.makeAllTagFalse();
+  }
+
 
   public synch(){
     console.log('is started?'); console.log(JSON.stringify(this.isStarted));
     if(!this.isStarted){
       this.isStarted = true;
+      this.makeAllTrue();
       /*first thing to do is cleaning up.*/
       console.log('cleaning up');
       this.cleanUp()
       .then(cleanUp=>{
         console.log('starting sending things');
+        this.makeAllNoteTrue();
         return this.sendTagsToSave();
       })
       .then(tagsSent=>{
         console.log('tags sent');
+        this.makeAllTagTrue();
         return this.sendNotesToSave();
       })
       .then(notesSent=>{
         console.log('notes sent');
+        this.lockNoteDone = false;
+        this.lockNoteText = false;
+        this.lockNoteLinks = false;
+        this.lockTagCreate = true;
+        this.lockTagDelete = true;
+        /*already true.*/
+        // this.lockNoteAddTags = true;
+        // this.lockNoteRemoveTags = true;
         return this.sendTagsToAddToNotes();
       })
-      .then(tagsAdded=>{
+      .then(tagsAddedToNotes=>{
         console.log('tags added');
+        /*use the same lock as before*/
+        return this.sendTagsToRemoveFromNotes();
+      })
+      .then(tagsDeleteFromNotes=>{
+        console.log('tags added');
+        /*the previuos locks are ok.*/
         return this.sendTagsToDelete();
       })
       .then(tagsDeleted=>{
         console.log('tags deleted');
+        this.makeAllTrue();
         return this.sendNotesToDelete();
       })
       .then(notesDeleted=>{
         console.log('notes deleted');
+        //this.lockNoteDone = true; already done
+        this.lockNoteText = false;
+        this.lockNoteLinks = false;
+        this.makeAllTagFalse();
         return this.sendNotesToChangeDone();
       })
       .then(notesSetDone=>{
         console.log('set done');
+        this.lockNoteDone = false;
+        this.lockNoteText = true;
         return this.sendNotesToChangeText();
       })
       .then(notesChangedText=>{
-        console.log('text changed')
+        console.log('text changed');
+        this.lockNoteText = false;
+        this.lockNoteLinks = true;
         return this.sendNotesToChangeLinks();
       })
       .then(notesChangedLinks=>{
         console.log('everything is done');
         this.isStarted = false;
+        this.makeAllFalse();
       })
       .catch(error=>{
         console.log('sent error:');
@@ -171,7 +236,7 @@ export class Synch {
         resolve(true);
     })
       .catch(error=>{
-        console.log('error in processing notes');
+        console.log('error in processing notes-to-save');
         console.log(JSON.stringify(error));
         reject(error);
       })
@@ -209,7 +274,7 @@ export class Synch {
         resolve(true);
     })
       .catch(error=>{
-        console.log('error in processing notes');
+        console.log('error in processing tags-to-save');
         console.log(JSON.stringify(error));
         reject(error);
       })
@@ -253,7 +318,46 @@ export class Synch {
         resolve(true);
     })
       .catch(error=>{
-        console.log('error in processing notes');
+        console.log('error in processing notes (tags-to-add-to)');
+        console.log(JSON.stringify(error));
+        reject(error);
+      })
+    })
+  }
+
+
+  public sendTagsToRemoveFromNotes():Promise<any>{
+    let correctResult:string[]=[];
+    return new Promise<any>((resolve, reject)=>{
+      this.db.getObjectTagsToRemoveFromNotes(this.auth.userid)
+      .then(objs=>{
+        if(objs == null){
+          resolve(true);
+        }else{
+          return Promise.all(objs.map((obj)=>{
+            let reqBody: any ;
+            reqBody.note.title=obj.note.title;
+            reqBody.note.tags = obj.note.mainTags;
+            return Utils.postBasic('/api/notes/mod/removetags', JSON.stringify({note: reqBody.note}), this.http, this.auth.token)
+            .then(res=>{
+              correctResult.push(obj.note.title);
+            })
+          }))
+        }
+      })
+      .then(results=>{
+        /*according to MDN, it returns the values of each promise.*/
+        console.log('results:');
+        console.log(JSON.stringify(results));
+      /*  only if the result is correct*/
+      // return this.db.deleteTagsToAddToNotesFromLogs(this.auth.userid);
+      return this.db.deleteTagsToRemoveFromSpecificNoteFromLogs(correctResult, this.auth.userid);
+      })
+      .then(dbResult=>{
+        resolve(true);
+    })
+      .catch(error=>{
+        console.log('error in processing notes (tags-to-remove-from)');
         console.log(JSON.stringify(error));
         reject(error);
       })
@@ -290,7 +394,7 @@ export class Synch {
         resolve(true);
     })
       .catch(error=>{
-        console.log('error in processing notes');
+        console.log('error in processing notes-to-delete');
         console.log(JSON.stringify(error));
         reject(error);
       })
@@ -327,7 +431,7 @@ export class Synch {
         resolve(true);
     })
       .catch(error=>{
-        console.log('error in processing notes');
+        console.log('error in processing tags-to-delete');
         console.log(JSON.stringify(error));
         reject(error);
       })
@@ -367,7 +471,7 @@ export class Synch {
         resolve(true);
     })
       .catch(error=>{
-        console.log('error in processing notes to change text.');
+        console.log('error in processing notes-to-change-text.');
         console.log(JSON.stringify(error));
         reject(error);
       })
@@ -406,7 +510,7 @@ export class Synch {
         resolve(true);
     })
       .catch(error=>{
-        console.log('error in processing notes to change links.');
+        console.log('error in processing notes-to-change-links.');
         console.log(JSON.stringify(error));
         reject(error);
       })
@@ -445,7 +549,7 @@ export class Synch {
         resolve(true);
     })
       .catch(error=>{
-        console.log('error in processing notes to set done.');
+        console.log('error in processing notes-to-set-done.');
         console.log(JSON.stringify(error));
         reject(error);
       })

@@ -209,6 +209,8 @@ export class Query{
 
   static readonly SELECT_TAGS_TO_ADD_TO_NOTES_2 = 'select * from logs_sequence where notetitle is not null and tagtitle is not null and role is not null and action=\'add-tag\' and userid=? order by notetitle, role';
 
+  static readonly SELECT_TAGS_TO_REMOVE_FROM_NOTES_2 = 'select * from logs_sequence where notetitle is not null and tagtitle is not null and action=\'remove-tag\' and userid=? order by notetitle;';
+
   static readonly ADD_TAGS_TO_NOTE = 'insert into notes_tags(notetitle, tagtitle, role, userid) values (?,?,?,?)';
 
 
