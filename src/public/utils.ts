@@ -124,6 +124,8 @@ static shouldUseDb(newtorkAvailable:boolean, itemAvailable:boolean, force:boolea
     res = true;
   }
   if(isSynching){
+    res = true;
+  }else{
     res = false;
   }
   return res;
