@@ -65,6 +65,11 @@ export class NotesPage {
         let filterType = navParams.get('filterType');
         let filterValue = navParams.get('filterValue');
 
+        console.log('filterType');
+        console.log(JSON.stringify(filterType));
+        console.log('filterValue');
+        console.log(JSON.stringify(filterValue));
+
         this.searchCtrl = new FormControl();
 
         this.currentFilter = filterType;
@@ -85,8 +90,9 @@ export class NotesPage {
       // }
 
       /*execute first time (?)*/
-      this.synchingTask();
-
+      if(this.currentFilter==Filter.None){
+        this.synchingTask();
+      }
   }
 
 

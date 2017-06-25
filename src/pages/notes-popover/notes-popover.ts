@@ -1,5 +1,7 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams } from 'ionic-angular';
+import { NavController, NavParams, AlertController, ViewController } from 'ionic-angular';
+import { NotesPage } from '../notes/notes';
+import { Filter} from '../../public/const';
 
 
 /*
@@ -18,23 +20,9 @@ export class NotesPopoverPage {
 
 
 
-  constructor(public navCtrl: NavController, private navParams: NavParams) {
-
-
-        // this.oldNotes=this.notes;
-
-
-        //insert if needed.
-        //just a test.
-        // console.log('counting notes: ');
-        // this.db.count(Table.Notes)
-        // .then(count=>{
-        //   console.log(count);
-        // })
-        // .catch(error=>{
-        //   console.log(JSON.stringify(error));
-        // })
-
+  constructor(public navCtrl: NavController, private navParams: NavParams,
+    private alertCtrl: AlertController, private viewCtrl: ViewController
+  ) {
   }
 
 
@@ -44,7 +32,38 @@ export class NotesPopoverPage {
   }
 
   filterByText(){
+      let prompt = this.alertCtrl.create({
+        title: 'Search by text',
+        message: 'Enter the text you want to search',
+        inputs:[
+          {
+          name: 'title',
+          placeholder: 'text'
+          }
+        ],
+        buttons: [
+          {
+            text: 'Cancel',
+            handler: data => {}
+          },
+          {
+            text: 'Ok',
+            handler: data=>{
+              this.filterByTextAPI(<string>data.title);
+            }
+          }
+        ]
+      });
+      prompt.present();
+      this.close();
+  }
+  close(){
+    this.viewCtrl.dismiss();
+  }
 
+
+  filterByTextAPI(value: string){
+    this.navCtrl.push(NotesPage, {filterType: Filter.Text, filterValue: value});
   }
 
   filterByTagsNoRole(){
@@ -52,7 +71,7 @@ export class NotesPopoverPage {
   }
 
   filterByTagsWithRole(){
-    
+
   }
 
 

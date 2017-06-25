@@ -161,7 +161,7 @@ export class Query{
   static readonly IS_NOTE_NOT_IN_THE_SERVER = 'select * from logs_sequence where notetitle=? and action=\'create\' and userid=?';
 
   static readonly SELECT_NOTES_MIN_BY_TAGS = 'select notetitle from notes_tags where userid=? and mustbedeleted=\'false\' and tagtitle=?';
-  static readonly SELECT_NOTES_MIN_BY_TEXT = 'select title from notes where text like %?% and mustbedeleted=\'false\' and userid=?';
+  static readonly SELECT_NOTES_MIN_BY_TEXT = 'select title from notes where text like ? and mustbedeleted=\'false\' and userid=?';
 
   static readonly SET_NOTE_DELETED = 'update notes set mustbedeleted=\'true\' where title=? and userid=?';
   static readonly SET_NOTE_DELETED_NOTES_TAGS = 'update notes_tags set mustbedeleted=\'true\' where notetitle=? and userid=?';

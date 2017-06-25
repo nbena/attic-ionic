@@ -1186,7 +1186,8 @@ public setTitle(note: NoteFull, newTitle: string, userid: string):Promise<any>{
 
   getNotesByText(text: string, userid: string):Promise<NoteExtraMin[]>{
     return new Promise<NoteExtraMin[]>((resolve, reject)=>{
-      this.db.executeSql(Query.SELECT_NOTES_MIN_BY_TEXT, [text])
+      text = '%'+text+'%';
+      this.db.executeSql(Query.SELECT_NOTES_MIN_BY_TEXT, [text, userid])
       .then(result=>{
         let notes:NoteExtraMin[]=[];
         if(result.rows.length <= 0){
