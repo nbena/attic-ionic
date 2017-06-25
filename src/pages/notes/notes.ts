@@ -84,7 +84,7 @@ export class NotesPage {
       //   console.log(JSON.stringify(e));
       // }
 
-      /*execute first time ?*/
+      /*execute first time (?)*/
       this.synchingTask();
 
       /*every 15 minutes*/
@@ -129,7 +129,7 @@ export class NotesPage {
   }
 
   refresh(refresher){
-    this.loadMin(true);
+    this.loadMinAndSynch(true);
     setTimeout(()=>{
       refresher.complete();
     },2000);
@@ -196,6 +196,19 @@ export class NotesPage {
         this.allNotes=result as NoteExtraMin[];
         this.shownNotes=this.allNotes;
 
+      })
+      .catch(error=>{
+        console.log('load min error');
+        console.log(JSON.stringify(error));
+      })
+  }
+
+  loadMinAndSynch(force: boolean){
+    this.atticNotes.loadNotesMin(force)
+      .then(result=>{
+        this.allNotes=result as NoteExtraMin[];
+        this.shownNotes=this.allNotes;
+        this.synchingTask();
       })
       .catch(error=>{
         console.log('load min error');
