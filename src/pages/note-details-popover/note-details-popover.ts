@@ -33,8 +33,11 @@ export class NoteDetailsPopoverPage {
 
 
   changeText(){
-    this.close();
-    this.navCtrl.push(NoteEditTextPage, {note: this.note});
+    // this.close();
+    this.navCtrl.push(NoteEditTextPage, {note: this.note})
+    .then(()=>{
+      this.viewCtrl.dismiss();
+    })
   }
 
   // changeMainTags(){
@@ -82,7 +85,7 @@ export class NoteDetailsPopoverPage {
         ]
       });
       prompt.present();
-    this.close();
+    // this.close();
   //  this.navCtrl.popTo()
   }
 
@@ -95,15 +98,17 @@ export class NoteDetailsPopoverPage {
       .then(result=>{
         // this.note.title=title;
         Utils.presentToast(this.toastCtrl, 'Title updated');
+        
+        this.viewCtrl.dismiss();
       })
       .catch(error=>{
         console.log(JSON.stringify(error));
       });
   }
 
-  close(){
-    this.viewCtrl.dismiss();
-  }
+  // close(){
+  //   this.viewCtrl.dismiss();
+  // }
 
   ionViewDidLoad() {
     console.log('ionViewDidLoad NotesPopoverPage');

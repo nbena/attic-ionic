@@ -54,22 +54,25 @@ export class TagDetailsPopoverPage {
       ]
     });
     prompt.present();
-  this.close();
+  // this.close();
   }
 
   changeTitleAPI(newTitle:string){
     this.atticTags.changeTitle(this.tag, newTitle)
     .then(result=>{
       Utils.presentToast(this.toastCtrl, 'Title updated');
+
+      this.viewCtrl.dismiss();
+
     })
     .catch(error=>{
       console.log(JSON.stringify(error))
     })
   }
 
-  close(){
-    this.viewCtrl.dismiss();
-  }
+  // close(){
+  //   this.viewCtrl.dismiss();
+  // }
 
   deleteTag(){
     Utils.askConfirm(this.alertCtrl, 'Are you sure to delete tag \''+this.tag.title+'\'',(_ : boolean)=>{

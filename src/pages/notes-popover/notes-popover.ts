@@ -57,25 +57,31 @@ export class NotesPopoverPage {
         ]
       });
       prompt.present();
-      this.close();
+      // this.close();
   }
-  close(){
-    this.viewCtrl.dismiss();
-  }
+  // close(){
+  //   this.viewCtrl.dismiss();
+  // }
 
 
   filterByTextAPI(value: string){
-    this.navCtrl.push(NotesPage, {filterType: Filter.Text, filterValue: value});
+    this.navCtrl.push(NotesPage, {filterType: Filter.Text, filterValue: value})
+    .then(()=>{
+      this.viewCtrl.dismiss();
+    })
   }
 
   filterByTagsNoRole(){
-    this.close();
-    this.navCtrl.push(NotesByTagPage);
+    //this.close();
+    this.navCtrl.push(NotesByTagPage)
+    .then(()=>{
+      this.viewCtrl.dismiss();
+    })
   }
 
-  filterByTagsWithRole(){
-
-  }
+  // filterByTagsWithRole(){
+  //
+  // }
 
 
 
