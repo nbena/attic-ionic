@@ -419,7 +419,34 @@ return this.items.filter((item) => {
   changeTitle(note: NoteFull, newTitle: string){
     // return Utils.postBasic('/api/notes/mod/title', JSON.stringify({note:
     //   {title: noteTitle, newTitle: newTitle}}), this.http, this.auth.token);
-    return this.db.setTitle(note, newTitle, this.auth.userid);
+    if(!this.synch.isNoteFullyLocked()){
+      return new Promise<any>((resolve, reject)=>{
+        Utils.postBasic('/api/notes/mod/change-title', JSON.stringify({
+          note:{
+            title: note.title,
+            newtitle: newTitle
+          }
+        }),
+        this.http,this.auth.userid
+      )
+      .then(sentTitle=>{
+        /*pushsing data to db*/
+        return this.db.setNoteTitle(note, newTitle, this.auth.userid);
+      })
+      .then(changedLocally=>{
+        resolve(true);
+      })
+      .catch(error=>{
+        console.log('error in changing title');
+        reject(error);
+      })
+      })
+    }else{
+      return new Promise<any>((resolve, reject)=>{
+        console.log('trying to change title but it is locked');
+        reject(new Error('synching'));
+      });
+    }
   }
 
 

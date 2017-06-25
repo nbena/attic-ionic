@@ -152,6 +152,8 @@ export class Query{
   static readonly UPDATE_NOTE_SET_LINKS = 'update notes set links=?, json_object=? where title=? and userid=?';
   static readonly UPDATE_NOTE_SET_TITLE = 'update notes set title=?, json_object=? where title=? and userid=?';
 
+  static readonly UPDATE_TAG_SET_TITLE = 'update tags set title=?, json_object=? where title=? and userid=?;';
+
   static readonly INSERT_NOTE_OLDTITLE_INTO_LOGS = 'insert into logs_sequence(notetitle, oldtitle, action, userid) values (?,?,?,?)';
   static readonly INSERT_TAG_OLDTITLE_INTO_LOGS = 'insert into logs_sequence(tagtitle, oldtitle, action, userid) values (?,?,?,?)';
 

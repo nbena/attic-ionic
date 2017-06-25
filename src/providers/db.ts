@@ -1138,12 +1138,19 @@ public setLinks(note :NoteFull, userid: string):Promise<any>{
 // }
 
 
-public setTitle(note: NoteFull, newTitle: string, userid: string):Promise<any>{
+/*just execute the query and nothing more.*/
+public setNoteTitle(note: NoteFull, newTitle: string, userid: string):Promise<any>{
   let oldTitle:string = note.title;
   note.title = newTitle;
   return this.db.executeSql(Query.UPDATE_NOTE_SET_TITLE, [newTitle, JSON.stringify(note), oldTitle, userid]);
 }
 
+/*a changing on tags will make it lose its fullness*/
+public setTagTitle(tag: TagExtraMin, newTitle: string, userid: string):Promise<any>{
+  let oldTitle:string = tag.title;
+  tag.title = newTitle;
+  return this.db.executeSql(Query.UPDATE_TAG_SET_TITLE, [newTitle, JSON.stringify(tag), oldTitle, userid]);
+}
 
 
 

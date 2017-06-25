@@ -204,8 +204,34 @@ export class AtticTags {
   }
 
   changeTitle(tag: TagExtraMin, newTitle: string):Promise<any>{
-    return Utils.postBasic('/api/tags/mod/changetitle', JSON.stringify({tag:
-      {title: tag.title, newtitle: newTitle}}),this.http, this.auth.token);
+    if( (!this.synch.isNoteFullyLocked()) && (!this.synch.isTagLocked()) ){
+      return new Promise<any>((resolve, reject)=>{
+        Utils.postBasic('/api/tags/mod/change-title', JSON.stringify({
+          tag:{
+            title: tag.title,
+            newtitle: newTitle
+          }
+        }),
+        this.http,this.auth.userid
+      )
+      .then(sentTitle=>{
+        /*pushsing data to db*/
+        return this.db.setTagTitle(tag, newTitle, this.auth.userid);
+      })
+      .then(changedLocally=>{
+        resolve(true);
+      })
+      .catch(error=>{
+        console.log('error in changing title');
+        reject(error);
+      })
+      })
+    }else{
+      return new Promise<any>((resolve, reject)=>{
+        console.log('trying to change title but it is locked');
+        reject(new Error('synching'));
+      });
+    }
   }
 
   deleteTag(tag: TagExtraMin):Promise<any>{
