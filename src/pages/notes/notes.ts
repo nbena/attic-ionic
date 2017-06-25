@@ -87,8 +87,6 @@ export class NotesPage {
       /*execute first time (?)*/
       this.synchingTask();
 
-      /*every 15 minutes*/
-      setInterval(this.synchingTask,900000);
   }
 
 
@@ -124,7 +122,7 @@ export class NotesPage {
     Utils.presentToast(this.toastCtrl, 'synching...');
     this.synch.synch()
     .then(synched=>{
-      Utils.presentToast(this.toastCtrl, 'synching done....');
+      Utils.presentToast(this.toastCtrl, 'synching done');
     });
   }
 
