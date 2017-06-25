@@ -149,82 +149,85 @@ export class Synch {
   }
 
 
-  public synch(){
+  public synch():Promise<any>{
     console.log('is started?'); console.log(JSON.stringify(this.isStarted));
-    if(!this.isStarted){
-      this.isStarted = true;
-      this.makeAllTrue();
-      /*first thing to do is cleaning up.*/
-      console.log('cleaning up');
-      this.cleanUp()
-      .then(cleanUp=>{
-        console.log('starting sending things');
-        this.makeAllNoteTrue();
-        return this.sendTagsToSave();
-      })
-      .then(tagsSent=>{
-        console.log('tags sent');
-        this.makeAllTagTrue();
-        return this.sendNotesToSave();
-      })
-      .then(notesSent=>{
-        console.log('notes sent');
-        this.lockNoteDone = false;
-        this.lockNoteText = false;
-        this.lockNoteLinks = false;
-        this.lockTagCreate = true;
-        this.lockTagDelete = true;
-        /*already true.*/
-        // this.lockNoteAddTags = true;
-        // this.lockNoteRemoveTags = true;
-        return this.sendTagsToAddToNotes();
-      })
-      .then(tagsAddedToNotes=>{
-        console.log('tags added');
-        /*use the same lock as before*/
-        return this.sendTagsToRemoveFromNotes();
-      })
-      .then(tagsDeleteFromNotes=>{
-        console.log('tags added');
-        /*the previuos locks are ok.*/
-        return this.sendTagsToDelete();
-      })
-      .then(tagsDeleted=>{
-        console.log('tags deleted');
+    return new Promise<any>((resolve, reject)=>{
+      if(!this.isStarted){
+        this.isStarted = true;
         this.makeAllTrue();
-        return this.sendNotesToDelete();
-      })
-      .then(notesDeleted=>{
-        console.log('notes deleted');
-        //this.lockNoteDone = true; already done
-        this.lockNoteText = false;
-        this.lockNoteLinks = false;
-        this.makeAllTagFalse();
-        return this.sendNotesToChangeDone();
-      })
-      .then(notesSetDone=>{
-        console.log('set done');
-        this.lockNoteDone = false;
-        this.lockNoteText = true;
-        return this.sendNotesToChangeText();
-      })
-      .then(notesChangedText=>{
-        console.log('text changed');
-        this.lockNoteText = false;
-        this.lockNoteLinks = true;
-        return this.sendNotesToChangeLinks();
-      })
-      .then(notesChangedLinks=>{
-        console.log('everything is done');
-        this.isStarted = false;
-        this.makeAllFalse();
-      })
-      .catch(error=>{
-        console.log('sent error:');
-        console.log(JSON.stringify(error));
-        this.isStarted = false;
-      })
-    }
+        /*first thing to do is cleaning up.*/
+        console.log('cleaning up');
+        this.cleanUp()
+        .then(cleanUp=>{
+          console.log('starting sending things');
+          this.makeAllNoteTrue();
+          return this.sendTagsToSave();
+        })
+        .then(tagsSent=>{
+          console.log('tags sent');
+          this.makeAllTagTrue();
+          return this.sendNotesToSave();
+        })
+        .then(notesSent=>{
+          console.log('notes sent');
+          this.lockNoteDone = false;
+          this.lockNoteText = false;
+          this.lockNoteLinks = false;
+          this.lockTagCreate = true;
+          this.lockTagDelete = true;
+          /*already true.*/
+          // this.lockNoteAddTags = true;
+          // this.lockNoteRemoveTags = true;
+          return this.sendTagsToAddToNotes();
+        })
+        .then(tagsAddedToNotes=>{
+          console.log('tags added');
+          /*use the same lock as before*/
+          return this.sendTagsToRemoveFromNotes();
+        })
+        .then(tagsDeleteFromNotes=>{
+          console.log('tags added');
+          /*the previuos locks are ok.*/
+          return this.sendTagsToDelete();
+        })
+        .then(tagsDeleted=>{
+          console.log('tags deleted');
+          this.makeAllTrue();
+          return this.sendNotesToDelete();
+        })
+        .then(notesDeleted=>{
+          console.log('notes deleted');
+          //this.lockNoteDone = true; already done
+          this.lockNoteText = false;
+          this.lockNoteLinks = false;
+          this.makeAllTagFalse();
+          return this.sendNotesToChangeDone();
+        })
+        .then(notesSetDone=>{
+          console.log('set done');
+          this.lockNoteDone = false;
+          this.lockNoteText = true;
+          return this.sendNotesToChangeText();
+        })
+        .then(notesChangedText=>{
+          console.log('text changed');
+          this.lockNoteText = false;
+          this.lockNoteLinks = true;
+          return this.sendNotesToChangeLinks();
+        })
+        .then(notesChangedLinks=>{
+          console.log('everything is done');
+          this.isStarted = false;
+          this.makeAllFalse();
+        })
+        .catch(error=>{
+          console.log('sent error:');
+          console.log(JSON.stringify(error));
+          this.isStarted = false;
+        })
+      }
+      resolve(true);
+    });
   }
 
 

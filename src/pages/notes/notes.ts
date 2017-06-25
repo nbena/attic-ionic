@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, PopoverController } from 'ionic-angular';
+import { NavController, NavParams, PopoverController, ToastController } from 'ionic-angular';
 
 import { AtticNotes } from '../../providers/attic-notes';
 import { NoteExtraMin, NoteSmart, NoteMin, NoteFull } from '../../models/notes';
@@ -20,6 +20,8 @@ import { Synch } from '../../providers/synch';
 import { TagAlmostMin } from '../../models/tags';
 
 import { NotesPopoverPage } from '../notes-popover/notes-popover';
+
+import { Utils } from '../../public/utils';
 
 /*
   Generated class for the Notes page.
@@ -56,6 +58,7 @@ export class NotesPage {
   constructor(public navCtrl: NavController, private navParams: NavParams,
     private popoverCtrl: PopoverController,
     private atticNotes: AtticNotes, private db: Db,
+    private toastCtrl: ToastController,
     private synch: Synch) {
 
       //try{
@@ -80,6 +83,12 @@ export class NotesPage {
       //   console.log('error');
       //   console.log(JSON.stringify(e));
       // }
+
+      /*execute first time ?*/
+      this.synchingTask();
+
+      /*every 15 minutes*/
+      setInterval(this.synchingTask,900000);
   }
 
 
@@ -109,8 +118,14 @@ export class NotesPage {
       }
     });
 
-    this.synch.synch();
+  }
 
+  private synchingTask(){
+    Utils.presentToast(this.toastCtrl, 'synching...');
+    this.synch.synch()
+    .then(synched=>{
+      Utils.presentToast(this.toastCtrl, 'synching done....');
+    });
   }
 
   refresh(refresher){

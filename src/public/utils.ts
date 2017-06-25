@@ -137,26 +137,26 @@ static logTags(tag: TagExtraMin):string{
   return result;
 }
 
-static logNote(note: NoteBarebon):string{
-  let result = '';
-  result+=('title '+note.title);
-  result+=(' text '+note.text);
-  result+=(' isDone '+(note.isdone ? "true" : "false"));
-  result+=(' links '+note.links.toString());
-
-  if(note instanceof NoteFull || note instanceof NoteMin){
-    result+='mainTags: ';
-    for(let i=0;i<note.maintags.length;i++){
-      result+=Utils.logTags(<TagExtraMin>note.maintags[i]);
-    }
-    result+='otherTags: ';
-    for(let i=0;i<note.othertags.length;i++){
-      result+=Utils.logTags(<TagExtraMin>note.othertags[i]);
-    }
-  }
-
-  return result;
-}
+// static logNote(note: NoteBarebon):string{
+//   let result = '';
+//   result+=('title '+note.title);
+//   result+=(' text '+note.text);
+//   result+=(' isDone '+(note.isdone ? "true" : "false"));
+//   result+=(' links '+note.links.toString());
+//
+//   if(note instanceof NoteFull || note instanceof NoteMin){
+//     result+='mainTags: ';
+//     for(let i=0;i<note.maintags.length;i++){
+//       result+=Utils.logTags(<TagExtraMin>note.maintags[i]);
+//     }
+//     result+='otherTags: ';
+//     for(let i=0;i<note.othertags.length;i++){
+//       result+=Utils.logTags(<TagExtraMin>note.othertags[i]);
+//     }
+//   }
+//
+//   return result;
+// }
 
 static presentToast(toastCtrl: ToastController, message: string, error?: boolean){
   let toast = toastCtrl.create({
