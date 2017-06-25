@@ -1,0 +1,57 @@
+<!--
+  Generated template for the NotesByTag page.
+
+  See http://ionicframework.com/docs/v2/components/#navigation for more info on
+  Ionic pages and navigation.
+-->
+<ion-header>
+
+  <ion-navbar color="primary">
+    <ion-title>Tags</ion-title>
+  </ion-navbar>
+
+</ion-header>
+
+
+<ion-content padding>
+
+  <ion-refresher (ionRefresh)="refresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <ion-searchbar [(ngModel)]="searchTerm" [formControl]="searchCtrl">
+  </ion-searchbar>
+
+
+  <!-- <ion-list>
+
+  <ion-item ng-repeat="item in items"
+            item="item"
+            >
+     <label class="checkbox">
+  <input type="checkbox" ng-click="clickItem(item); $event.stopPropagation();" ng-model="item.checked">
+</label>
+
+    Item {{ item.id }}
+  </ion-item>
+
+</ion-list> -->
+
+<h3>Tags!</h3>
+
+  <ion-card detail-push *ngFor="let tag of shownTags">
+
+    <ion-label class="checkbox">
+      <input type="checkbox" (click)="clickItem(item); $event.stopPropagation();">
+    </ion-label>
+    <ion-label item-right>
+      {{tag.title}}
+    </ion-label>
+
+    <ion-item>
+      <ion-label>Notes:</ion-label>
+      <ion-badge item-right>{{tag.noteslength}}</ion-badge>
+    </ion-item>
+  </ion-card>
+
+</ion-content>

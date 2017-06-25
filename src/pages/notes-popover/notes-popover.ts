@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { NavController, NavParams, AlertController, ViewController } from 'ionic-angular';
 import { NotesPage } from '../notes/notes';
+import { NotesByTagPage } from '../notes-by-tag/notes-by-tag';
 import { Filter} from '../../public/const';
 
 
@@ -20,11 +21,12 @@ export class NotesPopoverPage {
 
 
 
-  constructor(public navCtrl: NavController, private navParams: NavParams,
-    private alertCtrl: AlertController, private viewCtrl: ViewController
-  ) {
-  }
 
+  constructor(public navCtrl: NavController, private navParams: NavParams,
+    private alertCtrl: AlertController, private viewCtrl: ViewController,
+  ) {
+
+  }
 
 
   ionViewDidLoad() {
@@ -67,7 +69,8 @@ export class NotesPopoverPage {
   }
 
   filterByTagsNoRole(){
-
+    this.close();
+    this.navCtrl.push(NotesByTagPage);
   }
 
   filterByTagsWithRole(){

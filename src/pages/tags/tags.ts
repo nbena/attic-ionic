@@ -20,8 +20,8 @@ import { FormControl } from '@angular/forms';
 })
 export class TagsPage {
 
-  shownTags: TagAlmostMin[] = null;
-  allTags: TagAlmostMin[] = null;
+  private shownTags: TagAlmostMin[] = null;
+  private allTags: TagAlmostMin[] = null;
 
 
   searchCtrl: FormControl;
