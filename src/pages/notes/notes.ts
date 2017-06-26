@@ -62,8 +62,16 @@ export class NotesPage {
     private synch: Synch) {
 
       //try{
-        let filterType = navParams.get('filterType');
-        let filterValue = navParams.get('filterValue');
+      let filterType:any;
+      let filterValue:any;
+      try{
+        filterType = navParams.get('filterType');
+        filterValue = navParams.get('filterValue');
+      }
+      catch(error){
+        filterValue = null;
+        /*the handled ahead...*/
+      }
 
         this.searchCtrl = new FormControl();
 

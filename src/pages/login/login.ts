@@ -8,6 +8,8 @@ import { Auth } from '../../providers/auth';
 import { NotesPage } from '../notes/notes';
 import { RegisterPage } from '../register/register';
 
+import { TabsPage } from '../tabs/tabs';
+
 import { Filter } from '../../public/const';
 import { Utils } from '../../public/utils';
 
@@ -50,7 +52,8 @@ export class LoginPage {
       if(isAuth){
         console.log('true');
         this.loading.dismiss();
-        this.navCtrl.setRoot(NotesPage, this.getParams());
+        //this.navCtrl.setRoot(NotesPage, this.getParams());
+        this.navCtrl.setRoot(TabsPage);
       }else{
         console.log('false');
         this.loading.dismiss();
@@ -90,7 +93,8 @@ export class LoginPage {
     .then(result=>{
       this.loading.dismiss();
       // console.log("ok auth");
-      this.navCtrl.setRoot(NotesPage, this.getParams());
+      //this.navCtrl.setRoot(NotesPage, this.getParams());
+      this.navCtrl.setRoot(TabsPage);
     })
     .catch(error=>{
       console.log('auth error');

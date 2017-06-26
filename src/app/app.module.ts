@@ -20,6 +20,8 @@ import { NotesByTagPage } from '../pages/notes-by-tag/notes-by-tag';
 import { LoginPage } from '../pages/login/login';
 import { RegisterPage } from '../pages/register/register';
 
+import { TabsPage } from '../pages/tabs/tabs';
+
 //providers
 import { AtticNotes } from '../providers/attic-notes';
 import { AtticTags } from '../providers/attic-tags';
@@ -46,7 +48,8 @@ import { Network } from '@ionic-native/network';
     NoteEditTextPage,
     TagDetailsPopoverPage,
     NotesPopoverPage,
-    NotesByTagPage
+    NotesByTagPage,
+    TabsPage
   ],
   imports: [
     IonicModule.forRoot(MyApp)
@@ -66,7 +69,8 @@ import { Network } from '@ionic-native/network';
     TagDetailsPopoverPage,
     NotesPopoverPage,
     //NoteEditTagsPage
-    NotesByTagPage
+    NotesByTagPage,
+    TabsPage
   ],
   providers: [
     {provide: ErrorHandler, useClass: IonicErrorHandler},
