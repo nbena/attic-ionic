@@ -315,21 +315,21 @@ static pushLink(alertCtrl:AlertController, cb: ((_: any)=>void) ){
     prompt.present();
   }
 
-  static getEffectiveTagsFromNotes(note: NoteFull):TagFull[]{
-    let array: TagFull[];
-    if(typeof note== 'NoteFull'){
-      array =<TagFull[]> note.maintags.concat(note.othertags);
-    }else if(typeof note == 'NoteSQLite'){
-      let noteRes = <NoteSQLite>note;
-      array = <TagFull[]>noteRes.maintags.concat(noteRes.othertags, noteRes.mainTagsToAdd, noteRes.otherTagsToAdd);
-      array = Utils.arrayDiff(array, noteRes.mainTagsToRemove.concat(noteRes.otherTagsToRemove));
-    // }
-    // array = note.mainTags.concat(note.otherTags, note.mainTagsToAdd, note.otherTagsToAdd);
-    // array = Utils.arrayDiff(array, note.mainTagsToRemove.concat(note.otherTagsToRemove));
-    // return array;
-  }
-  return array;
-}
+//   static getEffectiveTagsFromNotes(note: NoteFull):TagFull[]{
+//     let array: TagFull[];
+//     if(note== 'NoteFull'){
+//       array =<TagFull[]> note.maintags.concat(note.othertags);
+//     }else if(tnote == 'NoteSQLite'){
+//       let noteRes = <NoteSQLite>note;
+//       array = <TagFull[]>noteRes.maintags.concat(noteRes.othertags, noteRes.mainTagsToAdd, noteRes.otherTagsToAdd);
+//       array = Utils.arrayDiff(array, noteRes.mainTagsToRemove.concat(noteRes.otherTagsToRemove));
+//     // }
+//     // array = note.mainTags.concat(note.otherTags, note.mainTagsToAdd, note.otherTagsToAdd);
+//     // array = Utils.arrayDiff(array, note.mainTagsToRemove.concat(note.otherTagsToRemove));
+//     // return array;
+//   }
+//   return array;
+// }
 
  // static getEffectiveNotesFromTags(tag: TagFull):NoteFull[]{
  //   let array: NoteFull[];

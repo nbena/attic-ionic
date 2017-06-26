@@ -51,14 +51,34 @@ MenuToggle is used for the sidemenu.
 
 
 
-</ion-content>
+<!-- </ion-content> -->
+
+
+
 <!--
 <button fab fab-bottom fab-right (click)="createNewTag()">
     <ion-icon name="add"></ion-icon>
 </button> -->
 
-<ion-fab right bottom>
+<!-- <ion-fab right bottom>
   <button ion-fab color="primary" (click)="createNewTag()">
     <ion-icon name="add"></ion-icon>
   </button>
-</ion-fab>
+</ion-fab> -->
+
+<style>
+  .fixed-div {
+    right: 0;
+    bottom: 0;
+  }
+</style>
+
+  <div class="fixed-div">
+<!-- <ion-fixed class="fixed-div"> -->
+  <button fab fab-right fab-bottom color="primary" (click)="createNewTag()">
+    <ion-icon name="add"></ion-icon>
+  </button>
+<!-- </ion-fixed> -->
+</div>
+
+</ion-content>
