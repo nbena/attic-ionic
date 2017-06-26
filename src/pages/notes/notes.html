@@ -8,11 +8,11 @@
 
   <ion-navbar color="primary">
 
-    <ion-buttons start>
+    <!-- <ion-buttons start>
       <button ion-button icon-only menuToggle>
         <ion-icon name="menu"></ion-icon>
       </button>
-    </ion-buttons>
+    </ion-buttons> -->
 
     <ion-title>notes</ion-title>
 
@@ -56,11 +56,27 @@
 
 
 
-</ion-content>
+<!-- </ion-content> -->
 
 
-  <ion-fab right bottom>
+  <!-- <ion-fab right bottom>
+    <button ion-fab color="primary" (click)="createNewNote()">
+      <ion-icon name="add"></ion-icon>
+    </button>
+  </ion-fab> -->
+
+  <style>
+    .fixed-fab {
+      position: absolute;
+      bottom: 20px; right: 4px;
+    }
+  </style>
+
+
+  <ion-fab fab-bottom fab-right class="fixed-fab">
     <button ion-fab color="primary" (click)="createNewNote()">
       <ion-icon name="add"></ion-icon>
     </button>
   </ion-fab>
+
+  </ion-content>

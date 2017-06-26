@@ -1,7 +1,10 @@
 import { NgModule, ErrorHandler } from '@angular/core';
 import { IonicApp, IonicModule, IonicErrorHandler } from 'ionic-angular';
 import { MyApp } from './app.component';
-import { Storage } from '@ionic/storage';
+import { IonicStorageModule } from '@ionic/storage';
+
+import { BrowserModule } from '@angular/platform-browser';
+import { HttpModule } from '@angular/http';
 
 //mine
 import { NotesPage } from '../pages/notes/notes';
@@ -19,6 +22,8 @@ import { NotesByTagPage } from '../pages/notes-by-tag/notes-by-tag';
 //login
 import { LoginPage } from '../pages/login/login';
 import { RegisterPage } from '../pages/register/register';
+
+import { TabsPage } from '../pages/tabs/tabs';
 
 //providers
 import { AtticNotes } from '../providers/attic-notes';
@@ -46,10 +51,17 @@ import { Network } from '@ionic-native/network';
     NoteEditTextPage,
     TagDetailsPopoverPage,
     NotesPopoverPage,
-    NotesByTagPage
+    NotesByTagPage,
+    TabsPage
   ],
   imports: [
-    IonicModule.forRoot(MyApp)
+    IonicModule.forRoot(MyApp),
+    BrowserModule,
+    HttpModule,
+    // IonicStorageModule.forRoot({
+    //
+    // })
+    IonicStorageModule.forRoot() 
   ],
   bootstrap: [IonicApp],
   entryComponents: [
@@ -66,11 +78,12 @@ import { Network } from '@ionic-native/network';
     TagDetailsPopoverPage,
     NotesPopoverPage,
     //NoteEditTagsPage
-    NotesByTagPage
+    NotesByTagPage,
+    TabsPage
   ],
   providers: [
     {provide: ErrorHandler, useClass: IonicErrorHandler},
-    Storage,
+    /*Storage,*/
     Network,
     AtticNotes,
     AtticTags,
