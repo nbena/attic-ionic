@@ -121,7 +121,7 @@ export class CreateNotePage {
     this.atticNotes.createNote2(this.newNote, this.mainTags.concat(this.otherTags))
       .then(result=>{
         console.log(result);
-        this.navCtrl.pop();
+        this.navCtrl.parent.select(0);
       })
       .catch(error=>{
         console.log('create note error');

@@ -259,7 +259,7 @@ export class Synch {
         }else{
           return Promise.all(objs.map((obj, index)=>{
             console.log('the current obj');
-            console.log(JSON.stringify(JSON.stringify(obj.note)));
+            console.log(JSON.stringify(obj.note));
             return Utils.putBasic('/api/notes/create', JSON.stringify({note: obj.note}),this.http, this.auth.token)
             /*
               .catch(err=>{

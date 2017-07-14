@@ -888,9 +888,14 @@ public getTagsMin(userid: string):Promise<TagAlmostMin[]>{
       for(let i=0;i<result.rows.length;i++){
         let rawResult:any = result.rows.item(i).json_object;
         let obj:TagAlmostMin = JSON.parse(rawResult);
-        // console.log('object returned tags: ');
-        // console.log(JSON.stringify(obj));
-        array.push(obj);
+        if(obj.noteslength == null){
+          obj.noteslength=0;
+        }
+
+        console.log('object returned tags: ');
+        console.log(JSON.stringify(obj));
+        //array.push(obj);
+        array=Utils.binaryArrayInsert(array, obj, TagAlmostMin.descendingCompare);
       }
       // console.log('the array is:');
       // console.log(JSON.stringify(array));

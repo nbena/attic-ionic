@@ -21,6 +21,26 @@ export class TagExtraMin {
 
 export class TagAlmostMin extends TagExtraMin{
   noteslength: number;
+
+  public static ascendingCompare(a:TagAlmostMin, b: TagAlmostMin):number{
+    let r:number;
+    if(a.noteslength != b.noteslength){
+      r = ((a.noteslength>b.noteslength) ? 1 : -1);
+    }else{
+      r = a.title.localeCompare(b.title);
+    }
+    return r;
+  }
+
+  public static descendingCompare(a:TagAlmostMin, b:TagAlmostMin):number{
+    let r:number;
+    if(a.noteslength != b.noteslength){
+      r = ((a.noteslength>b.noteslength) ? -1 : 1);
+    }else{
+      r = b.title.localeCompare(a.title);
+    }
+    return r;
+  }
 }
 
 // export class TagMin extends TagAlmostMin{
@@ -36,6 +56,8 @@ export class TagAlmostMin extends TagExtraMin{
 //     this.notes =[];
 //   }
 // }
+
+
 
 
 // export class TagFull extends TagAlmostMin{

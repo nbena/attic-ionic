@@ -54,6 +54,8 @@ static putBasic(uriFinal: string, body: any, http: Http, token: any){
         }
         resolve(data.result);
       },(err)=>{
+        console.log('err in put');
+        console.log(err);
         reject(err);
       })
   });
@@ -343,4 +345,24 @@ static pushLink(alertCtrl:AlertController, cb: ((_: any)=>void) ){
  //   return array;
  // }
 
+//generic utility method for a smart insert into a generic array.
+//surely we assume array is already sorted.
+ public static binaryArrayInsert<T>(array: T[], item: T, cmp: ((a,b)=>number)):T[]{
+     let returned: T[];
+     let start: number, end: number, current:number, cmpValue;
+     start = 0;
+     end = array.length;
+     current = Math.floor((start+end)/2);
+     while(end>start){
+       cmpValue = cmp(item, array[current]);
+       if(cmpValue<0){
+         end = current;
+       }else{
+         start = current+1;
+       }
+       current = Math.floor((start+end)/2);
+   }
+   array.splice(current, 0, item);
+   return array;
+ }
 }

@@ -94,7 +94,12 @@ export class NotesPage {
 
       /*execute first time (?)*/
       if(this.currentFilter==Filter.None){
-        this.synchingTask();
+        try{
+          this.synchingTask();
+        }
+        catch(e){
+          console.log(e);
+        }
       }
   }
 
