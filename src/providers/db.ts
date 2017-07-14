@@ -1276,6 +1276,12 @@ public setTagTitle(tag: TagExtraMin, newTitle: string, userid: string):Promise<a
     return new Promise<any>((resolve, reject)=>{
       this.db.transaction(tx=>{
         tx.executeSql(Query.INSERT_TAG_OLDTITLE_INTO_LOGS, [tag.title, tag.title, 'delete', userid]);
+        //,
+          // (tx:any, res:any)=>{},
+          // (tx:any, error:any)=>{
+          //   console.log('first insert error');
+          //   console.log(JSON.stringify(error));
+          // });
         /*now update the json_object of eventual full notes.*/
         tx.executeSql(Query.GET_TITLE_AND_JSON_OF_NOTES_TO_UPDATE, [tag.title, userid],
           (tx: any, res: any)=>{ /*result callback*/
@@ -1283,7 +1289,7 @@ public setTagTitle(tag: TagExtraMin, newTitle: string, userid: string):Promise<a
             // console.log(JSON.stringify(res));
             if(res.rows.length <= 0){
               console.log('no note to update');
-              return;
+              /*return;*/
             }else{
               for(let i=0;i<res.rows.length;i++){
                 console.log('I have to update:');
@@ -1311,10 +1317,26 @@ public setTagTitle(tag: TagExtraMin, newTitle: string, userid: string):Promise<a
             console.log('error in select:');
             console.log(JSON.stringify(error));
           }
+        )
+        tx.executeSql(Query.SET_TAG_DELETED, [tag.title, userid ],
+          (tx:any, res:any)=>{
+            console.log('set tag deleted ok');
+          },
+          (tx:any, error:any)=>{
+            console.log('error in set tag deleted');
+            console.log(JSON.stringify(error));
+          }
         );
-        tx.executeSql(Query.SET_TAG_DELETED, [tag.title, userid ]);
-        tx.executeSql(Query.SET_TAG_DELETED_NOTES_TAGS, [tag.title, userid]);
-      })
+        tx.executeSql(Query.SET_TAG_DELETED_IN_ALL_NOTES_TAGS, [tag.title, userid],
+          (tx:any, res:any)=>{
+            console.log('set tag deleted notes tags ok');
+          },
+          (tx:any, error:any)=>{
+            console.log('error in set tag deleted notes tags');
+            console.log(JSON.stringify(error));
+          }
+        )
+    })
       .then(txResult=>{
         console.log('tx completed, result:');
         console.log(JSON.stringify(txResult));

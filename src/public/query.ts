@@ -172,6 +172,8 @@ export class Query{
   /*not ready.*/
   static readonly SET_TAG_DELETED_NOTES_TAGS = 'update notes_tags set mustbedeleted=\'true\' where notetitle=? and userid=? and (';
 
+  static readonly SET_TAG_DELETED_IN_ALL_NOTES_TAGS = 'update notes_tags set mustbedeleted=\'true\' where tagtitle=? and userid=?';
+
   //static readonlt INSERT_TAG_TO_REMOVE_FROM_NOTES_INTO_LOGS = 'insert itno logs_sequence(notetitle, tagtitle, action, userid) values ()'
 
 
