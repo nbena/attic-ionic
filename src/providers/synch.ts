@@ -343,14 +343,16 @@ export class Synch {
         }else{
           return Promise.all(objs.map((obj)=>{
             let reqBody: any ;
-            reqBody.note.title=obj.note.title;
+            reqBody = {
+              title: obj.note.title
+            }
             if(obj.note.maintags.length>0){
-              reqBody.note.maintags = obj.note.maintags;
+              reqBody.maintags = obj.note.maintags;
             }
             if(obj.note.othertags.length>0){
-              reqBody.note.othertags = obj.note.othertags;
+              reqBody.othertags = obj.note.othertags;
             }
-            return Utils.postBasic('/api/notes/mod/addtags', JSON.stringify({note: reqBody.note}), this.http, this.auth.token)
+            return Utils.postBasic('/api/notes/mod/addtags', JSON.stringify({note: reqBody}), this.http, this.auth.token)
             .then(res=>{
               correctResult.push(obj.note.title);
             })

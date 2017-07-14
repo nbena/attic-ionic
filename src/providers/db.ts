@@ -1762,6 +1762,10 @@ public removeTagsFromNote(note: NoteFull, userid: string, tags: string[]):Promis
                   result.push(obj)
                 }
               }
+              console.log('the full result is:');
+              for(let i=0;i<result.length;i++){
+                console.log(JSON.stringify(result[i]));
+              }
               resolve(result);
             }
           },
