@@ -37,7 +37,7 @@ export class TagAlmostMin extends TagExtraMin{
     if(a.noteslength != b.noteslength){
       r = ((a.noteslength>b.noteslength) ? -1 : 1);
     }else{
-      r = b.title.localeCompare(a.title);
+      r = a.title.localeCompare(b.title);
     }
     return r;
   }
