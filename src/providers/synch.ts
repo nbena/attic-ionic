@@ -357,7 +357,7 @@ export class Synch {
             if(obj.note.othertags.length>0){
               reqBody.othertags = obj.note.othertags;
             }
-            return Utils.postBasic('/api/notes/mod/addtags', JSON.stringify({note: reqBody}), this.http, this.auth.token)
+            return Utils.postBasic('/api/notes/mod/add-tags', JSON.stringify({note: reqBody}), this.http, this.auth.token)
             .then(res=>{
               correctResult.push(obj.note.title);
             })
@@ -399,7 +399,7 @@ export class Synch {
             let reqBody: any ;
             reqBody.note.title=obj.note.title;
             reqBody.note.tags = obj.note.mainTags;
-            return Utils.postBasic('/api/notes/mod/removetags', JSON.stringify({note: reqBody.note}), this.http, this.auth.token)
+            return Utils.postBasic('/api/notes/mod/remove-tags', JSON.stringify({note: reqBody.note}), this.http, this.auth.token)
             .then(res=>{
               correctResult.push(obj.note.title);
             })
@@ -537,7 +537,7 @@ export class Synch {
           resolve(true);
         }else{
           return Promise.all(objs.map((obj)=>{
-            return Utils.postBasic('/api/change-text/', JSON.stringify({note:
+            return Utils.postBasic('/api/mod/change-text/', JSON.stringify({note:
               {title:obj.note.tile,
                 text:obj.note.text
               }}), this.http, this.auth.token)
@@ -579,7 +579,7 @@ export class Synch {
           resolve(true);
         }else{
           return Promise.all(objs.map((obj)=>{
-            return Utils.postBasic('/api/change-links/', JSON.stringify({note:
+            return Utils.postBasic('/api/mod/change-links/', JSON.stringify({note:
               {title:obj.note.tile,
               links: obj.note.links
               }}), this.http, this.auth.token)
@@ -621,7 +621,7 @@ export class Synch {
           resolve(true);
         }else{
           return Promise.all(objs.map((obj)=>{
-            return Utils.postBasic('/api/set-done/', JSON.stringify({note:
+            return Utils.postBasic('/api/mod/set-done/', JSON.stringify({note:
               {title:obj.note.tile,
                 isdone: obj.note.isdone
               }}), this.http, this.auth.token)

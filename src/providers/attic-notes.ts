@@ -427,7 +427,8 @@ return this.items.filter((item) => {
             newtitle: newTitle
           }
         }),
-        this.http,this.auth.userid
+        this.http,
+        this.auth.token
       )
       .then(sentTitle=>{
         /*pushsing data to db*/

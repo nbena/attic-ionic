@@ -206,13 +206,20 @@ export class AtticTags {
   changeTitle(tag: TagExtraMin, newTitle: string):Promise<any>{
     if( (!this.synch.isNoteFullyLocked()) && (!this.synch.isTagLocked()) ){
       return new Promise<any>((resolve, reject)=>{
+        console.log('going to send');
+        console.log(JSON.stringify({
+          tag:{
+            title: tag.title,
+            newtitle: newTitle
+          }
+        }));
         Utils.postBasic('/api/tags/mod/change-title', JSON.stringify({
           tag:{
             title: tag.title,
             newtitle: newTitle
           }
         }),
-        this.http,this.auth.userid
+        this.http,this.auth.token
       )
       .then(sentTitle=>{
         /*pushsing data to db*/

@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, ToastController, AlertController, ViewController } from 'ionic-angular';
+import { NavController, NavParams, ToastController, AlertController, ViewController, App } from 'ionic-angular';
 import { TagFull } from '../../models/tags';
 import { AtticTags } from '../../providers/attic-tags';
 import { Utils } from '../../public/utils';
@@ -21,6 +21,7 @@ export class TagDetailsPopoverPage {
 
   constructor(public navCtrl: NavController, public navParams: NavParams,
     private toastCtrl: ToastController, private alertCtrl: AlertController,
+    private app: App,
     private viewCtrl: ViewController,
     private atticTags: AtticTags) {
       this.tag = navParams.get('tag');
@@ -37,7 +38,8 @@ export class TagDetailsPopoverPage {
       inputs:[
         {
         name: 'title',
-        placeholder: 'Title'
+        /*placeholder: 'Title'*/
+        value: this.tag.title
         }
       ],
       buttons: [
@@ -58,14 +60,25 @@ export class TagDetailsPopoverPage {
   }
 
   changeTitleAPI(newTitle:string){
-    this.atticTags.changeTitle(this.tag, newTitle)
-    .then(result=>{
-      Utils.presentToast(this.toastCtrl, 'Title updated');
-
-      this.viewCtrl.dismiss();
-
+    this.viewCtrl.dismiss()
+    .then(()=>{
+      return this.atticTags.changeTitle(this.tag, newTitle)
     })
+    .then(()=>{
+      return Utils.presentToast(this.toastCtrl, 'Title updated');
+    })
+    // this.atticTags.changeTitle(this.tag, newTitle)
+    // .then(result=>{
+    //   return Utils.presentToast(this.toastCtrl, 'Title updated')
+    // })
+    // .then(()=>{
+    //   return this.viewCtrl.dismiss()
+    // })
+    // .then(()=>{
+    //   this.app.getRootNav().push(TagsPage);
+    // })
     .catch(error=>{
+      console.log('some errors happen');
       console.log(JSON.stringify(error))
     })
   }
@@ -87,8 +100,13 @@ export class TagDetailsPopoverPage {
   deleteTagAPI(){
     this.atticTags.deleteTag(this.tag)
     .then(result=>{
-      Utils.presentToast(this.toastCtrl, 'Tag deleted');
-      this.navCtrl.popTo(TagsPage);
+      return Utils.presentToast(this.toastCtrl, 'Tag deleted')
+    })
+    .then(()=>{
+      return this.viewCtrl.dismiss()
+    })
+    .then(()=>{
+      this.app.getRootNav().push(TagsPage);
     })
     .catch(error=>{
       console.log(JSON.stringify(error))

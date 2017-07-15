@@ -160,7 +160,7 @@ static logTags(tag: TagExtraMin):string{
 //   return result;
 // }
 
-static presentToast(toastCtrl: ToastController, message: string, error?: boolean){
+static presentToast(toastCtrl: ToastController, message: string, error?: boolean):Promise<any>{
   let toast = toastCtrl.create({
     message: message,
     duration: 2000,
@@ -171,7 +171,7 @@ static presentToast(toastCtrl: ToastController, message: string, error?: boolean
   // if(error){
   //     toast._cssClass = 'toast-error-css';
   // }
-  toast.present();
+  return toast.present()
 }
 
 static askConfirm(alertCtrl: AlertController, message: string, cb: ((_ :boolean)=>void)){

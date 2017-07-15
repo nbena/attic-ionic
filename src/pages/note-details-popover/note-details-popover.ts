@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, ViewController, ToastController, AlertController } from 'ionic-angular';
+import { NavController, NavParams, ViewController, ToastController, AlertController, App } from 'ionic-angular';
 import { NoteFull } from '../../models/notes';
 import { NoteEditTextPage } from '../note-edit-text/note-edit-text';
 import { AtticNotes } from '../../providers/attic-notes';
@@ -22,6 +22,7 @@ export class NoteDetailsPopoverPage {
 
   constructor(public navCtrl: NavController, public navParams: NavParams,
     public viewCtrl: ViewController, public alertCtrl: AlertController,
+    private app: App,
     public toastCtrl: ToastController, private atticNotes: AtticNotes) {
       this.note=navParams.get('note');
       // if(this.note.isDone){
@@ -68,7 +69,8 @@ export class NoteDetailsPopoverPage {
         inputs:[
           {
           name: 'title',
-          placeholder: 'Title'
+          /*placeholder: 'Title'*/
+          value : this.note.title
           }
         ],
         buttons: [
@@ -97,8 +99,9 @@ export class NoteDetailsPopoverPage {
     this.atticNotes.changeTitle(this.note, title)
       .then(result=>{
         // this.note.title=title;
-        Utils.presentToast(this.toastCtrl, 'Title updated');
-        
+        return Utils.presentToast(this.toastCtrl, 'Title updated');
+      })
+      .then(()=>{
         this.viewCtrl.dismiss();
       })
       .catch(error=>{
@@ -127,9 +130,13 @@ export class NoteDetailsPopoverPage {
   deleteNoteAPI(){
     this.atticNotes.deleteNote(this.note)
     .then(result=>{
-      Utils.presentToast(this.toastCtrl, 'Note deleted');
-      // this.close();
-      this.navCtrl.popTo(NotesPage);
+      return Utils.presentToast(this.toastCtrl, 'Note deleted');
+    })
+    .then(()=>{
+      return this.viewCtrl.dismiss()
+    })
+    .then(()=>{
+      this.app.getRootNav().push(NotesPage);
     })
     .catch(error=>{
       console.log(JSON.stringify(error));
