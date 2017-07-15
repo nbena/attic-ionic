@@ -2162,8 +2162,14 @@ public removeTagsFromNote(note: NoteFull, userid: string, tags: string[]):Promis
   deleteTagsToDeleteMultiVersion(tagTitles: string[], userid: string):Promise<any>{
     return new Promise<any>((resolve, reject)=>{
       this.db.transaction(tx=>{
+        console.log('tags');
+        console.log(JSON.stringify(tagTitles));
         let query1: string = this.prepareTagsMultiVersion(tagTitles, Query.DELETE_FROM_LOGS_TAGS_TO_DELETE_WHERE_TAG);
+        console.log('query 1');
+        console.log(query1);
         let query2: string = this.prepareTagsMultiVersion(tagTitles, Query.DELETE_FROM_TAGS_TAGS_TO_DELETE_WHERE_TAG);
+        console.log('query 2');
+        console.log(query2);
         tx.executeSql(query1, [userid, tagTitles],
           (tx:any, res:any)=>{console.log('delete tags-to-delete-logs ok.')},
           (tx: any, err:any)=>{

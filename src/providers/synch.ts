@@ -222,6 +222,7 @@ export class Synch {
           console.log('everything is done');
           this.isStarted = false;
           this.makeAllFalse();
+          resolve(true);
         })
         .catch(error=>{
           console.log('sent error:');
@@ -229,7 +230,6 @@ export class Synch {
           this.isStarted = false;
         })
       }
-      resolve(true);
     });
   }
 
@@ -278,10 +278,12 @@ export class Synch {
         /*according to MDN, it returns the values of each promise.*/
         console.log('results:');
         console.log(JSON.stringify(results));
-
       /*  only if the result is correct*/
-      //return this.db.deleteNotesToSaveFromLogs(this.auth.userid);
-      return this.db.deleteNoteToCreateFromLogsMultiVersion(correctResult, this.auth.userid);
+      if(results!=null){
+        return this.db.deleteNoteToCreateFromLogsMultiVersion(correctResult, this.auth.userid);
+      }else{
+        resolve(true);
+      }
       })
       .then(dbResult=>{
         resolve(true);
@@ -318,8 +320,11 @@ export class Synch {
         console.log('results:');
         console.log(JSON.stringify(results));
       /*  only if the result is correct*/
-      //return this.db.deleteTagsToSaveFromLogs(this.auth.userid);
-      return this.db.deleteTagToCreateFromLogsMultiVersion(correctResult, this.auth.userid)
+      if(results!=null){
+        return this.db.deleteTagToCreateFromLogsMultiVersion(correctResult, this.auth.userid);
+      }else{
+        resolve(true);
+      }
       })
       .then(dbResult=>{
         resolve(true);
@@ -364,8 +369,11 @@ export class Synch {
         console.log('results:');
         console.log(JSON.stringify(results));
       /*  only if the result is correct*/
-      // return this.db.deleteTagsToAddToNotesFromLogs(this.auth.userid);
-      return this.db.deleteTagsToAddToSpecificNoteFromLogs(correctResult, this.auth.userid);
+      if(results!=null){
+        return this.db.deleteTagsToAddToSpecificNoteFromLogs(correctResult, this.auth.userid);
+      }else{
+        resolve(true);
+      }
       })
       .then(dbResult=>{
         resolve(true);
@@ -403,8 +411,11 @@ export class Synch {
         console.log('results:');
         console.log(JSON.stringify(results));
       /*  only if the result is correct*/
-      // return this.db.deleteTagsToAddToNotesFromLogs(this.auth.userid);
-      return this.db.deleteTagsToRemoveFromSpecificNoteFromLogs(correctResult, this.auth.userid);
+      if(results!=null){
+        return this.db.deleteTagsToRemoveFromSpecificNoteFromLogs(correctResult, this.auth.userid);
+      }else{
+        resolve(true);
+      }
       })
       .then(dbResult=>{
         resolve(true);
@@ -440,8 +451,11 @@ export class Synch {
         console.log('results:');
         console.log(JSON.stringify(results));
       /*  only if the result is correct*/
-      // return this.db.deleteTagsToAddToNotesFromLogs(this.auth.userid);
-      return this.db.deleteNotesToDeleteMultiVersion(correctResult, this.auth.userid);
+      if(results!=null){
+        return this.db.deleteNotesToDeleteMultiVersion(correctResult, this.auth.userid);
+      }else{
+        resolve(true);
+      }
       })
       .then(dbResult=>{
         resolve(true);
@@ -461,6 +475,8 @@ export class Synch {
     return new Promise<any>((resolve, reject)=>{
       this.db.getObjectTagsToDelete(this.auth.userid)
       .then(objs=>{
+        console.log('objs:');
+        console.log(JSON.stringify(objs));
         if(objs == null){
           resolve(true);
         }else{
@@ -470,15 +486,34 @@ export class Synch {
               correctResult.push(obj.tag.title);
             })
           }))
+          //THIS IS POSSIBLE AND IT'S GOOD BECAUSE THERE'S NO NEED FOR THE IF BUT
+          //I DO NOT WANT TO NEST PROMISE!
+          // .then(results=>{
+          //   /*according to MDN, it returns the values of each promise.*/
+          //   console.log('results:');
+          //   console.log(JSON.stringify(results));
+          // if(results != null){
+          //   /*must go here because promise is not correctly resolved.*/
+          //   return this.db.deleteTagsToDeleteMultiVersion(correctResult, this.auth.userid);
+          // }else{
+          //   resolve(true);
+          // }
+          // })
+          // .then(dbResult=>{
+          //   resolve(true);
+          // })
         }
       })
       .then(results=>{
         /*according to MDN, it returns the values of each promise.*/
         console.log('results:');
         console.log(JSON.stringify(results));
-      /*  only if the result is correct*/
-      // return this.db.deleteTagsToAddToNotesFromLogs(this.auth.userid);
-      return this.db.deleteTagsToDeleteMultiVersion(correctResult, this.auth.userid);
+      if(results != null){
+        /*must go here because promise is not correctly resolved.*/
+        return this.db.deleteTagsToDeleteMultiVersion(correctResult, this.auth.userid);
+      }else{
+        resolve(true);
+      }
       })
       .then(dbResult=>{
         resolve(true);
@@ -517,8 +552,11 @@ export class Synch {
         console.log('results:');
         console.log(JSON.stringify(results));
       /*  only if the result is correct*/
-      // return this.db.deleteTagsToAddToNotesFromLogs(this.auth.userid);
-      return this.db.deleteNoteFromLogsChangeTextMultiVersion(correctResult, this.auth.userid);
+      if(results!=null){
+        return this.db.deleteNoteFromLogsChangeTextMultiVersion(correctResult, this.auth.userid);
+      }else{
+        resolve(true);
+      }
       })
       .then(dbResult=>{
         resolve(true);
@@ -556,8 +594,11 @@ export class Synch {
         console.log('results:');
         console.log(JSON.stringify(results));
       /*  only if the result is correct*/
-      // return this.db.deleteTagsToAddToNotesFromLogs(this.auth.userid);
-      return this.db.deleteNoteFromLogsSetLinkMultiVersion(correctResult, this.auth.userid);
+      if(results!=null){
+        return this.db.deleteNoteFromLogsSetLinkMultiVersion(correctResult, this.auth.userid);
+      }else{
+        resolve(true);
+      }
       })
       .then(dbResult=>{
         resolve(true);
@@ -595,8 +636,11 @@ export class Synch {
         console.log('results:');
         console.log(JSON.stringify(results));
       /*  only if the result is correct*/
-      // return this.db.deleteTagsToAddToNotesFromLogs(this.auth.userid);
-      return this.db.deleteNoteFromLogsSetDoneMultiVersion(correctResult, this.auth.userid);
+      if(results!=null){
+        return this.db.deleteNoteFromLogsSetDoneMultiVersion(correctResult, this.auth.userid);
+      }else{
+        resolve(true);
+      }
       })
       .then(dbResult=>{
         resolve(true);
