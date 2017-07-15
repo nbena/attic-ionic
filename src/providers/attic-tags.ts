@@ -256,3 +256,5 @@ export class AtticTags {
   /*the note full object is not kept in the DB as json, is recreated everytime.*/
 
 }
+
+/*see how to manage remote rename*/

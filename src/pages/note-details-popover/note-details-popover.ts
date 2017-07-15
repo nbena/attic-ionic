@@ -96,14 +96,21 @@ export class NoteDetailsPopoverPage {
   */
 
   changeTitleAPI(title: string){
-    this.atticNotes.changeTitle(this.note, title)
-      .then(result=>{
-        // this.note.title=title;
-        return Utils.presentToast(this.toastCtrl, 'Title updated');
-      })
-      .then(()=>{
-        this.viewCtrl.dismiss();
-      })
+    this.viewCtrl.dismiss()
+    .then(()=>{
+      return this.atticNotes.changeTitle(this.note, title)
+    })
+    .then(()=>{
+      return Utils.presentToast(this.toastCtrl, 'Title updated');
+    })
+    // this.atticNotes.changeTitle(this.note, title)
+    //   .then(result=>{
+    //     // this.note.title=title;
+    //     return Utils.presentToast(this.toastCtrl, 'Title updated');
+    //   })
+    //   .then(()=>{
+    //     this.viewCtrl.dismiss();
+    //   })
       .catch(error=>{
         console.log(JSON.stringify(error));
       });
@@ -128,15 +135,27 @@ export class NoteDetailsPopoverPage {
   }
 
   deleteNoteAPI(){
-    this.atticNotes.deleteNote(this.note)
-    .then(result=>{
+    // this.atticNotes.deleteNote(this.note)
+    // .then(result=>{
+    //   return Utils.presentToast(this.toastCtrl, 'Note deleted');
+    // })
+    // .then(()=>{
+    //   return this.viewCtrl.dismiss()
+    // })
+    // .then(()=>{
+    //   this.app.getRootNav().push(NotesPage);
+    // })
+
+
+    this.viewCtrl.dismiss()
+    .then(()=>{
+      return this.atticNotes.deleteNote(this.note)
+    })
+    .then(()=>{
+      return this.app.getRootNav().push(NotesPage);
+    })
+    .then(()=>{
       return Utils.presentToast(this.toastCtrl, 'Note deleted');
-    })
-    .then(()=>{
-      return this.viewCtrl.dismiss()
-    })
-    .then(()=>{
-      this.app.getRootNav().push(NotesPage);
     })
     .catch(error=>{
       console.log(JSON.stringify(error));

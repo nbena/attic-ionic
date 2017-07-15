@@ -67,16 +67,6 @@ export class TagDetailsPopoverPage {
     .then(()=>{
       return Utils.presentToast(this.toastCtrl, 'Title updated');
     })
-    // this.atticTags.changeTitle(this.tag, newTitle)
-    // .then(result=>{
-    //   return Utils.presentToast(this.toastCtrl, 'Title updated')
-    // })
-    // .then(()=>{
-    //   return this.viewCtrl.dismiss()
-    // })
-    // .then(()=>{
-    //   this.app.getRootNav().push(TagsPage);
-    // })
     .catch(error=>{
       console.log('some errors happen');
       console.log(JSON.stringify(error))
@@ -98,15 +88,15 @@ export class TagDetailsPopoverPage {
   }
 
   deleteTagAPI(){
-    this.atticTags.deleteTag(this.tag)
-    .then(result=>{
-      return Utils.presentToast(this.toastCtrl, 'Tag deleted')
+    this.viewCtrl.dismiss()
+    .then(()=>{
+      return this.atticTags.deleteTag(this.tag)
     })
     .then(()=>{
-      return this.viewCtrl.dismiss()
+      return this.app.getRootNav().push(TagsPage);
     })
     .then(()=>{
-      this.app.getRootNav().push(TagsPage);
+      return Utils.presentToast(this.toastCtrl, 'Tag deleted');
     })
     .catch(error=>{
       console.log(JSON.stringify(error))

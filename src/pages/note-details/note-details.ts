@@ -504,3 +504,6 @@ export class NoteDetailsPage {
   }
 
 }
+
+/*when we change the title and we go back need to refresh. Is it possible?*/
+/*when create a new note too.*/
