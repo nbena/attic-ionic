@@ -672,7 +672,7 @@ public isNoteFull(title: string, userid: string):Promise<boolean>{
   return new Promise<boolean>((resolve, reject)=>{
     /*return */this.db.executeSql(Query.NOTE_EXISTS_AND_IS_FULL,[title, userid])
     .then(result=>{
-      if(result.rows.items(0).text == null || result.rows.length == 0){
+      if(result.rows.item(0).text == null || result.rows.length == 0){
         resolve(false);
       }else{
         resolve(true);
@@ -688,7 +688,7 @@ public isTagFull(title: string, userid: string):Promise<boolean>{
   return new Promise<boolean>((resolve, reject)=>{
     /*return */this.db.executeSql(Query.TAG_EXISTS_AND_IS_FULL,[title, userid])
     .then(result=>{
-      if(result.rows.item(0).json_obj == null){
+      if(result.rows.item(0).json_object == null){
         resolve(false);
       }else{
         resolve(true);
@@ -1242,7 +1242,7 @@ public setTagTitle(tag: TagExtraMin, newTitle: string, userid: string):Promise<a
     })
   }
 
-  createTag(tag: TagAlmostMin, userid: string):Promise<any>{
+  createTag(tag: TagFull, userid: string):Promise<any>{
     return new Promise<any>((resolve , reject)=>{
       this.db.transaction(tx=>{
         tx.executeSql(Query.INSERT_TAG, [tag.title, userid, JSON.stringify(tag)],

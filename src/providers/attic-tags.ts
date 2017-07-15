@@ -175,7 +175,7 @@ export class AtticTags {
   /*
   * create a new tag.
   */
-  createTag(tag: TagAlmostMin):Promise<any>{
+  createTag(tag: TagFull):Promise<any>{
     // return Utils.putBasic('/api/tags/'+title, '', this.http, this.auth.token);
     if(!this.synch.isTagLocked()){
       return this.db.createTag(tag, this.auth.userid);

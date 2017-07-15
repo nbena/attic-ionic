@@ -41,6 +41,11 @@ export class TagAlmostMin extends TagExtraMin{
     }
     return r;
   }
+
+  constructor(){
+    super();
+    this.noteslength=0;
+  }
 }
 
 // export class TagMin extends TagAlmostMin{
@@ -75,7 +80,7 @@ export class TagAlmostMin extends TagExtraMin{
 
 export class TagFull extends TagAlmostMin{
 
-  notes: TagExtraMin[];
+  notes: NoteExtraMin[];
   // constructor(title: string){
   //   super();
   //   this.title=title;

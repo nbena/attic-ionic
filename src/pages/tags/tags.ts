@@ -8,6 +8,7 @@ import { TagDetailsPage } from '../tag-details/tag-details';
 import { NotesPage } from '../notes/notes';
 import { Filter } from '../../public/const';
 import { FormControl } from '@angular/forms';
+import { Utils } from '../../public/utils';
 /*
   Generated class for the Tags page.
 
@@ -135,13 +136,15 @@ export class TagsPage {
   }
 
   createNewTagAPI(title: string){
-    let tag:TagAlmostMin = new TagAlmostMin();
+    let tag:TagFull = new TagFull();
     tag.title=title;
-    tag.noteslength=0;
+    // tag.noteslength=0;
     this.atticTags.createTag(tag)
       .then(result=>{
-        this.allTags.push(<TagFull>result);
-        this.shownTags.push(<TagFull>result);
+        Utils.binaryArrayInsert(this.allTags, tag, TagAlmostMin.descendingCompare);
+        Utils.binaryArrayInsert(this.shownTags, tag, TagAlmostMin.descendingCompare);
+        // this.allTags.push(<TagFull>tag);
+        // this.shownTags.push(<TagFull>tag);
       })
       .catch(error=>{
         let alert = this.alertCtrl.create({

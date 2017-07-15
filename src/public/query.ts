@@ -93,7 +93,7 @@ export class Query{
   /*here we use the json_obj.*/
   static readonly GET_NOTE_FULL_JSON ='select json_object from notes where title=? and mustbedeleted=\'false\' and userid=?';
   /*here we use the json_obj.*/
-  static readonly GET_TAG_FULL_JSON = 'select json_object from tags where title=? and userid=?';
+  static readonly GET_TAG_FULL_JSON = 'select json_object from tags where mustbedeleted=\'false\' and title=? and userid=?';
 
   static readonly INSERT_NOTE = 'insert into notes(title, userid, text, creationdate, remote_lastmodificationdate, isdone, links, json_object) values (?,?,?,?,?,?,?,?)';
   //static readonly INSERT_NOTE_LOCAL = 'insert into notes(title, userid, text, creationdate, remote_lastmodificationdate, isdone, links, json_object) values (?,?,?,?,?,?,?,?,?)';
