@@ -2442,6 +2442,50 @@ public removeTagsFromNote(note: NoteFull, userid: string, tags: string[]):Promis
     })
   }
 
+
+private prepareQueryInsertIntoHelp(baseQuery: string, length:number, userid:string):string{
+  for(let i=0;i<length;i++){
+    baseQuery += '(?,'+userid+'), ';
+  }
+  baseQuery = baseQuery.substr(0, baseQuery.length-2);
+  return baseQuery;
+}
+
+
+insertIntoNotesHelp(notes:NoteExtraMin[], userid: string):Promise<any>{
+  return new Promise<any>((resolve, reject)=>{
+    let query: string = this.prepareQueryInsertIntoHelp(Query.INSERT_INTO_NOTES_HELP, notes.length, userid);
+    this.db.executeSql(query, notes.map((currentValue)=>{return currentValue.title}))
+    .then(result=>{
+      resolve(true);
+    })
+    .catch(error=>{
+      console.log('error in notes help insert'),
+      console.log(JSON.stringify(error));
+      reject(error);
+    })
+  })
+}
+
+
+insertIntoTagsHelp(tags:TagAlmostMin[], userid: string):Promise<any>{
+  return new Promise<any>((resolve, reject)=>{
+    let query: string = this.prepareQueryInsertIntoHelp(Query.INSERT_INTO_TAGS_HELP, tags.length, userid);
+    this.db.executeSql(query, tags.map((currentValue)=>{return currentValue.title}))
+    .then(result=>{
+      resolve(true);
+    })
+    .catch(error=>{
+      console.log('error in tags help insert'),
+      console.log(JSON.stringify(error));
+      reject(error);
+    })
+  })
+}
+
+
+
+
 /*think about remove notes_tags.*/
 
 }

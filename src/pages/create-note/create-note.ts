@@ -58,14 +58,16 @@ export class CreateNotePage {
 
   loadMinTags(){
     /*before it was true.*/
-    this.atticTags.loadTagsMin(false)
-      .then(result=>{
-        this.tags=<TagAlmostMin[]>result;
-      })
-      .catch(error=>{
-        console.log('load min tags error');
-        console.log(error);
-      })
+    if(this.tags==null){
+      this.atticTags.loadTagsMin(false)
+        .then(result=>{
+          this.tags=<TagAlmostMin[]>result;
+        })
+        .catch(error=>{
+          console.log('load min tags error');
+          console.log(error);
+        })
+    }
   }
 
   getNote(){
@@ -124,7 +126,10 @@ export class CreateNotePage {
       .then(result=>{
         console.log(result);
         // this.navCtrl.parent.select(0);
-        this.events.publish('change-tab',0, this.newNote.title);
+        let title:string = this.newNote.title;
+        this.makeAllNull();
+        /*it doesn't work.*/
+        this.events.publish('change-tab',0, title);
       })
       .catch(error=>{
         console.log('create note error');
@@ -135,6 +140,12 @@ export class CreateNotePage {
   deleteLinks(event, i:number){
     event.stopPropagation();
     this.links.splice(i,1);
+  }
+
+  makeAllNull(){
+    this.newNote.title="";
+    this.newNote = null;
+    //just this, keep tags loaded.
   }
 
   /*
@@ -167,5 +178,6 @@ export class CreateNotePage {
     // prompt.present();
     Utils.pushLink(this.alertCtrl, (data)=>{this.links.push(data.link)}/*function(data: string){this.links.push(data.link)}*/);
   }
+
 
 }
