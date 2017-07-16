@@ -55,7 +55,7 @@ export class NotesPage {
 
   isFull: boolean;
 
-  eventualNote: string = null;
+  /*eventualNote: string = null;*/
 
   constructor(public navCtrl: NavController, private navParams: NavParams,
     private events: Events,
@@ -105,24 +105,18 @@ export class NotesPage {
         }
       }
 
-      this.eventualNote = this.navParams.get('note');
+      let eventualNote:string=null
+
+      eventualNote = this.navParams.get('note');
       console.log('the eventual note from navParams');
-      console.log(JSON.stringify(this.eventualNote));
+      console.log(JSON.stringify(eventualNote));
+      this.unshiftIfPossible(eventualNote);
 
       this.events.subscribe('change-tab', (tab, note)=>{
-        this.eventualNote = note;
-        console.log('the eventual note from events');
-        console.log(JSON.stringify(this.eventualNote));
+        this.unshiftIfPossible(note);
       })
 
-      if(this.eventualNote!=null){
-        let eventualNoteExtraMin: NoteExtraMin = new NoteExtraMin();
-        eventualNoteExtraMin.title=this.eventualNote;
-        //Utils.binaryArrayInsert(this.allNotes, eventualNoteExtraMin, NoteExtraMin.ascendingCompare);
-        //since notes are primarly sorted by their lastmodificationdate we add the new note on top.
-        this.allNotes.unshift(eventualNoteExtraMin);
-        this.shownNotes.unshift(eventualNoteExtraMin);
-      }
+
   }
 
 
@@ -137,6 +131,14 @@ export class NotesPage {
   //calling the new page, passing the _id.
   displayNoteDetails(title: string){
     this.navCtrl.push(NoteDetailsPage, {title});
+  }
+
+  unshiftIfPossible(note:string){
+    if(note!=null){
+      let trueNote: NoteExtraMin = new NoteExtraMin();
+      trueNote.title=note;
+      this.allNotes.unshift(trueNote);  
+    }
   }
 
   ionViewDidLoad() {
