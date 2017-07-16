@@ -257,6 +257,9 @@ export class Query{
   static readonly DELETE_FROM_TAGS_TAGS_TO_DELETE_WHERE_TAG = 'delete from tags where userid=? and mustbedeleted=\'true\' and (title=?)';
 
 
+  //static readonly NEED_TO_SYNCH = 'select count(*) as c from logs_sequence where userid=?';
+
+
   /*
   tag and notes in the db just memorize an array of ids.
   */

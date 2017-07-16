@@ -654,6 +654,10 @@ export class Synch {
   }
 
 
+  public isThereSomethingToSynch(){
+    return this.db.isThereSomethingToSynch(this.auth.userid);
+  }
+
 
 
 }

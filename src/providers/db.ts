@@ -177,41 +177,56 @@ export class Db {
 //   return this.db.executeSql(Query.GET_TAGS_COUNT,[userid]);
 // }
 
-private getNotesCountAdvanced(userid: string):Promise<any>{
+private getNotesCountAdvanced(userid: string):Promise<number>{
   return new Promise<number>((resolve, reject)=>{
     this.db.executeSql(Query.GET_NOTES_COUNT, [userid])
     .then(result=>{
       if(result.rows.length <= 0){
-        reject(new Error(JSON.stringify(result)));
+        reject(new Error('empty result set'));
       }else{
         resolve(result.rows.item(0).count);
       }
     })
+    .catch(error=>{
+      console.log('error in get notes count');
+      console.log(JSON.stringify(error));
+      reject(error);
+    })
   })
 }
 
-private getTagsCountAdvanced(userid: string):Promise<any>{
+private getTagsCountAdvanced(userid: string):Promise<number>{
   return new Promise<number>((resolve, reject)=>{
     this.db.executeSql(Query.GET_TAGS_COUNT, [userid])
     .then(result=>{
       if(result.rows.length <= 0){
-        reject(new Error(JSON.stringify(result)));
+        reject(new Error('empty result set'));
       }else{
         resolve(result.rows.item(0).count);
       }
     })
+    .catch(error=>{
+      console.log('error in get tags count');
+      console.log(JSON.stringify(error));
+      reject(error);
+    })
   })
 }
 
-private getLogsCountAdvanced(userid: string):Promise<any>{
+private getLogsCountAdvanced(userid: string):Promise<number>{
   return new Promise<number>((resolve, reject)=>{
     this.db.executeSql(Query.GET_LOGS_COUNT, [userid])
     .then(result=>{
       if(result.rows.length <= 0){
-        reject(new Error(JSON.stringify(result)));
+        reject(new Error('empty result set'));
       }else{
         resolve(result.rows.item(0).count);
       }
+    })
+    .catch(error=>{
+      console.log('error in get logs count');
+      console.log(JSON.stringify(error));
+      reject(error);
     })
   })
 }
@@ -2382,6 +2397,43 @@ public removeTagsFromNote(note: NoteFull, userid: string, tags: string[]):Promis
         console.log('txError');
         console.log(JSON.stringify(txError));
         reject(txError);
+      })
+    })
+  }
+
+
+  /*check count if it can be embedded into it.*/
+  isThereSomethingToSynch(userid: string):Promise<boolean>{
+    // return new Promise<boolean>((resolve, reject)=>{
+    //     this.db.executeSql(Query.GET_LOGS_COUNT, [userid])
+    //     .then(result=>{
+    //       if(result.rows.length>0){
+    //         let count:any = result.rows.item(0).c;
+    //         if(count==0){
+    //           resolve(false);
+    //         }else{
+    //           resolve(true);
+    //         }
+    //       }else{
+    //         resolve(false);
+    //       }
+    //     })
+    //     .catch(error=>{
+    //       console.log('error in getting logs_count');
+    //       console.log(JSON.stringify(error));
+    //       reject(error);
+    //     })
+    // })
+    return new Promise<boolean>((resolve, reject)=>{
+      this.getLogsCountAdvanced(userid)
+      .then(count=>{
+        if(count>0){resolve(true);}
+        else{resolve(false);}
+      })
+      .catch(error=>{
+        console.log('error in get things to synch');
+        console.log(JSON.stringify(error));
+        reject(error);
       })
     })
   }

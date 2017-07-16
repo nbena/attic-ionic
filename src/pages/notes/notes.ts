@@ -133,11 +133,25 @@ export class NotesPage {
   }
 
   private synchingTask(){
-    Utils.presentToast(this.toastCtrl, 'synching...');
-    this.synch.synch()
+    let isThereSomething:boolean = false;
+    this.synch.isThereSomethingToSynch()
+    .then(isThere=>{
+      if(isThere){
+        isThereSomething = isThere;
+        Utils.presentToast(this.toastCtrl, 'synching...');
+        return this.synch.synch()
+      }
+    })
     .then(synched=>{
-      Utils.presentToast(this.toastCtrl, 'synching done');
-    });
+      if(isThereSomething){
+        Utils.presentToast(this.toastCtrl, 'synching done');
+      }
+    })
+    .catch(error=>{
+      console.log('error in synch or in get things to synch');
+      console.log(JSON.stringify(error));
+    })
+
   }
 
   refresh(refresher){
