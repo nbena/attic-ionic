@@ -129,6 +129,11 @@ export class Query{
   static readonly INSERT_NOTE_MIN = 'insert into notes(title, json_object, userid) values (?,?,?)';
   static readonly INSERT_TAG_MIN = 'insert into tags(title, json_object, userid) values (?,?,?)';
 
+  static readonly INSERT_NOTE_MIN_2 = 'insert into notes(title, json_object, userid) values ';
+
+  static readonly SELECT_JUST_TITLE = 'select title from notes where userid=? order by notes';
+
+
   static readonly SELECT_NOTES_MIN = 'select json_object from notes where mustbedeleted=\'false\' and userid=? order by lastmodificationdate desc, title asc';
   static readonly SELECT_TAGS_MIN = 'select json_object from tags where mustbedeleted=\'false\' and userid=?';
 
@@ -266,6 +271,12 @@ export class Query{
   static readonly DELETE_DIRTY_NOTES = 'delete from notes as n1 where title not in (select title from notes_help as n2 where n1.userid=n2.userid) and title not in (select notetitle from logs_sequence as l1 where n1.userid=l1.userid) and n1.userid=?';
   static readonly DELETE_DIRTY_TAGS = 'delete from tags as t1 where title not in (select title from tags_help as t2 where t1.userid=t2.userid) and title not in (select tagtitle from logs_sequence as l1 where t1.userid=l1.userid) and t1.userid=?';
 
+  static readonly DELETE_NOTES_HELP = 'delete from notes_help where userid=?';
+  static readonly DELETE_TAGS_HELP = 'delete from tags_help where userid=?';
+
+
+  static readonly SMART_NOTES_MIN_INSERT = ' insert into notes(title, userid) select title, userid from notes_help as nh1 where title not in (select title from notes where nh1.userid=userid);';
+  static readonly SMART_NOTES_REMOVE_DIRTY = 'delete from notes where title  not in (select title from notes_help as nh1 where notes.userid=nh1.userid) and title not in (select notetitle from logs_sequence as l1 where l1.userid=notes.userid);'  
   //static readonly NEED_TO_SYNCH = 'select count(*) as c from logs_sequence where userid=?';
 
 

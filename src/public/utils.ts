@@ -365,4 +365,31 @@ static pushLink(alertCtrl:AlertController, cb: ((_: any)=>void) ){
    array.splice(current, 0, item);
    return array;
  }
+
+
+ public static binarySearch<T>(array: T[], item: T, cmp: ((a,b)=>number)):number{
+     let returned: T[];
+     let start: number, end: number, current:number, cmpValue;
+     start = 0;
+     end = array.length;
+     current = Math.floor((start+end)/2);
+     while(end>start){
+       cmpValue = cmp(item, array[current]);
+       if(cmpValue<0){
+         end = current;
+       }else if(cmpValue>0){
+         start = current+1;
+       }else{
+         break;
+       }
+       current = Math.floor((start+end)/2);
+   }
+   if(end<start || start>end){
+     return -1;
+   }
+   return current;
+ }
+
+
+
 }

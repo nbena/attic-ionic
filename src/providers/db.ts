@@ -133,6 +133,8 @@ export class Db {
                 tx.executeSql(Query.CREATE_NOTES_TAGS_TABLE,[]);
                 tx.executeSql(Query.CREATE_LOGS_TABLE,[]);
                 tx.executeSql(Query.CREATE_AUTH_TABLE,[]);
+                tx.executeSql(Query.CREATE_NOTES_HELP_TABLE,[]);
+                tx.executeSql(Query.CREATE_TAGS_HELP_TABLE,[]);
                 tx.executeSql(Query.CREATE_TRIGGER_DELETE_NOTE_COMPRESSION, []);
                 tx.executeSql(Query.CREATE_TRIGGER_DELETE_TAG_COMPRESSION, []);
               });
@@ -869,6 +871,36 @@ public insertNoteMinQuietly(note: NoteExtraMin, userid: string):Promise<any>{
     })
   })
 }
+
+private prepareQueryInsertNotesMinQuietly(length:number, userid:string):string{
+  let query:string = Query.INSERT_NOTE_MIN_2;
+  for(let i=0;i<length;i++){
+    query += '(?,?,'+userid+'),';
+  }
+  query = query.substr(0, query.length-1);
+  return query;
+}
+
+private expandArrayNotesMin(notes:NoteExtraMin[]):string[]{
+  let array:string[]=[];
+  notes.forEach((currentValue)=>{
+    array.push(currentValue.title);
+    array.push(JSON.stringify(currentValue));
+  });
+  return array;
+}
+
+// public insertNoteMinQuietlyAndDirtify(notes:NoteExtraMin[], userid: string):Promise<void>{
+//   notes.sort(NoteExtraMin.ascendingCompare);
+//   let toAdd:string[]=[];
+//   let toRemove
+//   return new Promise<void>((resolve, reject)=>{
+//     /*let query:string = this.prepareQueryInsertNotesMinQuietly(notes.length, userid);*/
+//     this.db.transaction(tx=>{
+//
+//     })
+//   })
+// }
 
 public getNotesMin(userid: string):Promise<NoteExtraMin[]>{
   return new Promise<NoteExtraMin[]>((resolve, reject)=>{
@@ -2468,15 +2500,78 @@ insertIntoNotesHelp(notes:NoteExtraMin[], userid: string):Promise<any>{
 }
 
 
-insertIntoTagsHelp(tags:TagAlmostMin[], userid: string):Promise<any>{
-  return new Promise<any>((resolve, reject)=>{
+insertIntoTagsHelp(tags:TagAlmostMin[], userid: string):Promise<void>{
+  return new Promise<void>((resolve, reject)=>{
     let query: string = this.prepareQueryInsertIntoHelp(Query.INSERT_INTO_TAGS_HELP, tags.length, userid);
     this.db.executeSql(query, tags.map((currentValue)=>{return currentValue.title}))
     .then(result=>{
-      resolve(true);
+      resolve();
     })
     .catch(error=>{
       console.log('error in tags help insert'),
+      console.log(JSON.stringify(error));
+      reject(error);
+    })
+  })
+}
+
+
+deleteDirtyNotes(userid: string):Promise<void>{
+  return new Promise<void>((resolve, reject)=>{
+    this.db.transaction(tx=>{
+      tx.executeSql(Query.DELETE_DIRTY_NOTES, [userid],
+        (tx:any, res:any)=>{console.log('delete dirty notes ok');},
+        (tx:any, error:any)=>{
+          console.log('error dirty notes');
+          console.log(JSON.stringify(error));
+        }
+      );
+      tx.executeSql(Query.DELETE_NOTES_HELP, [userid],
+        (tx:any, res:any)=>{console.log('delete help notes ok');},
+        (tx:any, error:any)=>{
+          console.log('error help notes');
+          console.log(JSON.stringify(error));
+        }
+      )
+    })
+    .then(txResult=>{
+      console.log('completed the dirty notes');
+      resolve();
+    })
+    .catch(error=>{
+      console.log('error in dirty notes');
+      console.log(JSON.stringify(error));
+      reject(error);
+    })
+  })
+}
+
+
+
+deleteDirtyTags(userid: string):Promise<void>{
+  return new Promise<void>((resolve, reject)=>{
+    this.db.transaction(tx=>{
+      tx.executeSql(Query.DELETE_DIRTY_TAGS, [userid],
+        (tx:any, res:any)=>{console.log('delete dirty tags ok');},
+        (tx:any, error:any)=>{
+          console.log('error tags notes');
+          console.log(JSON.stringify(error));
+        }
+      );
+      tx.executeSql(Query.DELETE_TAGS_HELP, [userid],
+        (tx:any, res:any)=>{console.log('delete help tags ok');},
+        (tx:any, error:any)=>{
+          console.log('error help tags');
+          console.log(JSON.stringify(error));
+        }
+      )
+    })
+    .then(txResult=>{
+      console.log('completed the dirty tags');
+      resolve();
+    })
+    .catch(error=>{
+      console.log('error in dirty tags');
       console.log(JSON.stringify(error));
       reject(error);
     })
