@@ -8,6 +8,16 @@ Here's the interface for the note API.
 /*the basically-iest API*/
 export class NoteExtraMin{
   title: string;
+
+
+  public static ascendingCompare(a: NoteExtraMin, b: NoteExtraMin):number{
+    return a.title.localeCompare(b.title);
+  }
+
+
+  public static descendingCompare(a: NoteExtraMin, b: NoteExtraMin):number{
+    return b.title.localeCompare(a.title);
+}
 }
 
 export class NoteBarebon extends NoteExtraMin{
@@ -59,6 +69,29 @@ export class NoteFull extends NoteBarebon{
     this.maintags = [];
     this.othertags = [];
   }
+
+  public static ascendingCompare(a: NoteFull, b: NoteFull):number{
+    let r:number;
+    if(a.lastmodificationdate.getTime()!=b.lastmodificationdate.getTime()){
+      r = ((a.lastmodificationdate>b.lastmodificationdate) ? 1: -1);
+    }else{
+      r = a.title.localeCompare(b.title);
+    }
+    return r;
+  }
+
+
+  public static descendingCompare(a: NoteFull, b: NoteFull):number{
+    let r:number;
+    if(a.lastmodificationdate.getTime()!=b.lastmodificationdate.getTime()){
+      r = ((a.lastmodificationdate>b.lastmodificationdate) ? -1: 1);
+    }else{
+      r = a.title.localeCompare(b.title);
+    }
+    return r;
+  }
+
+
 }
 export class NoteSQLite extends NoteFull{
   mainTagsToAdd: TagFull[];

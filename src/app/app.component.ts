@@ -5,8 +5,8 @@ import { Platform, MenuController, Nav } from 'ionic-angular';
 import { StatusBar, Splashscreen } from 'ionic-native';
 
 //mine
-import { NotesPage } from '../pages/notes/notes';
-import { TagsPage } from '../pages/tags/tags';
+// import { NotesPage } from '../pages/notes/notes';
+// import { TagsPage } from '../pages/tags/tags';
 
 import { LoginPage } from '../pages/login/login';
 
@@ -19,7 +19,7 @@ export class MyApp {
   @ViewChild(Nav) nav: Nav;
 
   rootPage: any = LoginPage;
-  pages: Array<{title: string, component: any}>;
+  // pages: Array<{title: string, component: any}>;
 
   constructor(
     public platform: Platform,
@@ -27,12 +27,12 @@ export class MyApp {
   ) {
     this.initializeApp();
 
-    // set our app's pages
-    this.pages = [
-    //   { title: 'Login', component: LoginPage },
-      { title: 'Notes', component: NotesPage },
-      { title: 'Tags', component: TagsPage }
-    ];
+    // // set our app's pages
+    // this.pages = [
+    // //   { title: 'Login', component: LoginPage },
+    //   { title: 'Notes', component: NotesPage },
+    //   { title: 'Tags', component: TagsPage }
+    // ];
 
 
   }

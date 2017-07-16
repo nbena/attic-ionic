@@ -68,10 +68,10 @@ export class Query{
   //TODO: look at queries and see when 'role is | is not null can be removed'
 
   static readonly CREATE_AUTH_TABLE = 'create table if not exists auth(token text default null, userid varchar(64), primary key(userid));';
-  static readonly CREATE_NOTES_TABLE ='create table if not exists notes(title varchar(64),userid varchar(64) default null,text text default null, links text default null, isdone boolean default false,creationdate date default (datetime(\'now\',\'localtime\')),local_lastmodificationdate date default (datetime(\'now\',\'localtime\')), remote_lastmodificationdate date default (datetime(\'now\',\'localtime\')),mustbedeleted boolean default false, json_object text default null,primary key(title, userid), foreign key(userid) references auth(userid) on update cascade on delete cascade);';
+  static readonly CREATE_NOTES_TABLE ='create table if not exists notes(title varchar(64),userid varchar(64) default null,text text default null, links text default null, isdone boolean default false,creationdate date default (strftime(\'%Y-%m-%d %H:%M:%f\', \'now\')), lastmodificationdate date default (strftime(\'%Y-%m-%d %H:%M:%f\', \'now\')),mustbedeleted boolean default false, json_object text default null,primary key(title, userid), foreign key(userid) references auth(userid) on update cascade on delete cascade);';
   static readonly CREATE_TAGS_TABLE = 'create table if not exists tags(title varchar(64),userid varchar(64) default null, mustbedeleted boolean default false, json_object text default null,primary key(title, userid), foreign key(userid) references auth(userid) on update cascade on delete cascade);';
   static readonly CREATE_NOTES_TAGS_TABLE ='create table if not exists notes_tags(notetitle varchar(64), userid varchar(64), tagtitle varchar(64),role varchar(9),mustbedeleted boolean default false,primary key(notetitle, tagtitle, userid),foreign key(notetitle) references notes(title) on update cascade on delete cascade,foreign key(tagtitle) references tags(title) on update cascade on delete cascade, foreign key(userid) references auth(userid) on update cascade on delete cascade,constraint role_check check (role = \'mainTags\' or role = \'otherTags\'));';
-  static readonly CREATE_LOGS_TABLE = 'create table if not exists logs_sequence(id integer primary key autoincrement,notetitle varchar(64) default null,oldtitle varchar(64),tagtitle varchar(64) default null,role varchar(9) default null,action varchar(64) not null, creationdate date default(datetime(\'now\',\'localtime\')), userid varchar(64), foreign key(notetitle) references notes(title) on update cascade on delete cascade,foreign key(tagtitle) references tags(title) on update cascade on delete cascade, foreign key(userid) references auth(userid) on update cascade on delete cascade, constraint action_check check(action=\'create\' or action=\'delete\' or action=\'change-title\' or action=\'change-text\' or action=\'add-tag\' or action=\'remove-tag\' or action =\'set-done\' or action=\'set-link\'),constraint role_check check (role =\'mainTags\' or role = \'otherTags\' or role is null),constraint if_all check ((role is not null and noteTitle is not null and tagTitle is not null or (noteTitle is not null) or (tagTitle is not null))));'
+  static readonly CREATE_LOGS_TABLE = 'create table if not exists logs_sequence(id integer primary key autoincrement,notetitle varchar(64) default null,oldtitle varchar(64),tagtitle varchar(64) default null,role varchar(9) default null,action varchar(64) not null, creationdate date default(strftime(\'%Y-%m-%d %H:%M:%f\', \'now\')), userid varchar(64), foreign key(notetitle) references notes(title) on update cascade on delete cascade,foreign key(tagtitle) references tags(title) on update cascade on delete cascade, foreign key(userid) references auth(userid) on update cascade on delete cascade, constraint action_check check(action=\'create\' or action=\'delete\' or action=\'change-title\' or action=\'change-text\' or action=\'add-tag\' or action=\'remove-tag\' or action =\'set-done\' or action=\'set-link\'),constraint role_check check (role =\'mainTags\' or role = \'otherTags\' or role is null),constraint if_all check ((role is not null and noteTitle is not null and tagTitle is not null or (noteTitle is not null) or (tagTitle is not null))));'
 
   static readonly CREATE_TRIGGER_DELETE_NOTE_COMPRESSION = 'create trigger if not exists deleteNoteCompression after update of mustbedeleted on notes for each row when exists ( select * from logs_sequence where action=\'create\' and notetitle = old.title and userid=old.userid) begin delete from logs_sequence where notetitle = old.title and userid=old.userid; delete from notes where title = old.title and userid=old.userid; end;';
   static readonly CREATE_TRIGGER_DELETE_TAG_COMPRESSION = 'create trigger if not exists deleteTagCompression after update of mustbedeleted on tags for each row when exists ( select * from logs_sequence where action=\'create\' and tagtitle = old.title and userid=old.userid) and not exists (select * from logs_sequence where action=\'add-tag\' and tagtitle=old.title and userid=old.userid)begin delete from logs_sequence where tagtitle = old.title and userid=old.userid; delete from tags where title=old.title and userid=old.userid; end;'
@@ -95,7 +95,7 @@ export class Query{
   /*here we use the json_obj.*/
   static readonly GET_TAG_FULL_JSON = 'select json_object from tags where mustbedeleted=\'false\' and title=? and userid=?';
 
-  static readonly INSERT_NOTE = 'insert into notes(title, userid, text, creationdate, remote_lastmodificationdate, isdone, links, json_object) values (?,?,?,?,?,?,?,?)';
+  static readonly INSERT_NOTE = 'insert into notes(title, userid, text, creationdate, lastmodificationdate, isdone, links, json_object) values (?,?,?,?,?,?,?,?)';
   //static readonly INSERT_NOTE_LOCAL = 'insert into notes(title, userid, text, creationdate, remote_lastmodificationdate, isdone, links, json_object) values (?,?,?,?,?,?,?,?,?)';
 
   //static readonly INSERT_CLIENT_CREATED_NOTE = 'insert into notes(title, text, links, isdone)';
@@ -115,7 +115,7 @@ export class Query{
   */
 
   // static readonly UPDATE_NOTE = 'update notes set title=?, userid=?, text=?, remote_lastmodificationdate=?, isdone=?, links=?, json_object=? where title=? and json_object <> ?';
-  static readonly UPDATE_NOTE_2 = 'update notes set text=?, remote_lastmodificationdate=?, creationdate=?, isdone=?, links=?, json_object=? where title=? and json_object <> ? and userid=?';
+  static readonly UPDATE_NOTE_2 = 'update notes set text=?, lastmodificationdate=?, creationdate=?, isdone=?, links=?, json_object=? where title=? and json_object <> ? and userid=?';
   // static readonly UPDATE_TAG = 'update tags set title=?, userid=?, json_obectj=? where title=?';
   static readonly UPDATE_TAG_2 = 'update tags set json_object=? where title=? and json_object <> ? and userid=?';
   // static readonly UPDATE_NOTES_TAGS = 'update notes_tags set notetitle=?, tagtitle=?, role=?, userid=?, where notetitle=? and tagtitle=?';
@@ -126,7 +126,7 @@ export class Query{
   static readonly INSERT_NOTE_MIN = 'insert into notes(title, json_object, userid) values (?,?,?)';
   static readonly INSERT_TAG_MIN = 'insert into tags(title, json_object, userid) values (?,?,?)';
 
-  static readonly SELECT_NOTES_MIN = 'select json_object from notes where mustbedeleted=\'false\' and userid=?';
+  static readonly SELECT_NOTES_MIN = 'select json_object from notes where mustbedeleted=\'false\' and userid=? order by lastmodificationdate desc, title asc';
   static readonly SELECT_TAGS_MIN = 'select json_object from tags where mustbedeleted=\'false\' and userid=?';
 
   // static readonly IS_NOTE_UP_TO_DATE = 'select title from notes where mustbedeleted=\'false\' and title=? and json_object=?';

@@ -20,7 +20,8 @@
 
 <ion-tabs>
   <!-- before it was tabIcon='home' -->
-  <ion-tab [root]="tab1Root" tabTitle="Notes" tabIcon="book"></ion-tab>
+  <!-- using messages just for the notes -->
+  <ion-tab [root]="tab1Root" tabTitle="Notes" [rootParams]="notesParams" tabIcon="book"></ion-tab>
   <ion-tab [root]="tab2Root" tabTitle="New note" tabIcon="create"></ion-tab>
   <ion-tab [root]="tab3Root" tabTitle="Tags" tabIcon="bookmark"></ion-tab>
 </ion-tabs>

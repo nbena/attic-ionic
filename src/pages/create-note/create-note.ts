@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, AlertController } from 'ionic-angular';
+import { NavController, NavParams, AlertController, Events } from 'ionic-angular';
 import { AtticNotes } from '../../providers/attic-notes';
 import { AtticTags } from '../../providers/attic-tags';
 import { NoteFull, NoteSmart, NoteMin, NoteExtraMin } from '../../models/notes';
@@ -35,7 +35,9 @@ export class CreateNotePage {
   constructor(public navCtrl: NavController, public navParams: NavParams,
     private alertCtrl: AlertController,
     private atticNotes: AtticNotes,
-    private atticTags: AtticTags) {
+    private atticTags: AtticTags,
+    private events: Events
+  ) {
 
       this.newNote = new NoteFull();
       this.newNote.isdone = false;
@@ -121,7 +123,8 @@ export class CreateNotePage {
     this.atticNotes.createNote2(this.newNote, this.mainTags.concat(this.otherTags))
       .then(result=>{
         console.log(result);
-        this.navCtrl.parent.select(0);
+        // this.navCtrl.parent.select(0);
+        this.events.publish('change-tab',0, this.newNote.title);
       })
       .catch(error=>{
         console.log('create note error');

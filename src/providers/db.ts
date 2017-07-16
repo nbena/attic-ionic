@@ -443,7 +443,7 @@ public insertOrUpdateNote(note: NoteFull, userid: string):Promise<any>{
       if(result.rows.length > 0){
         isPresent = true;
         console.log('yes');
-        /*  static readonly UPDATE_NOTE_2 = 'update notes set text=?, remote_lastmodificationdate=?, creationdate?, isdone=?, links=?, json_object=? where title=? and json_object <> ?';*/
+        /*static readonly UPDATE_NOTE_2 = 'update notes set text=?, remote_lastmodificationdate=?, creationdate=?, isdone=?, links=?, json_object=? where title=? and json_object <> ? and userid=?';*/
         p=this.db.executeSql(Query.UPDATE_NOTE_2,[note.text, note.lastmodificationdate, note.creationdate, note.isdone, note.links, JSON.stringify(note), note.title, JSON.stringify(note), userid]);
       }else{
         isPresent=false;
@@ -877,9 +877,13 @@ public getNotesMin(userid: string):Promise<NoteExtraMin[]>{
       let array:NoteExtraMin[] = [];
       for(let i=0;i<result.rows.length;i++){
         let rawResult:any=result.rows.item(i).json_object;
+        // let date:any = JSON.parse(rawResult).lastmodificationdate;
         let obj:NoteExtraMin = JSON.parse(rawResult);
         // console.log('object returned notes: ');
         // console.log(JSON.stringify(obj));
+        // if(date!=null){
+        //   let tObject1
+        // }
         array.push(obj);
       }
       // console.log('the array is:');
@@ -2438,5 +2442,6 @@ public removeTagsFromNote(note: NoteFull, userid: string, tags: string[]):Promis
     })
   }
 
+/*think about remove notes_tags.*/
 
 }

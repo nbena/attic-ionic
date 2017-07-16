@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, PopoverController, ToastController } from 'ionic-angular';
+import { NavController, NavParams, PopoverController, ToastController, Events } from 'ionic-angular';
 
 import { AtticNotes } from '../../providers/attic-notes';
 import { NoteExtraMin, NoteSmart, NoteMin, NoteFull } from '../../models/notes';
@@ -55,7 +55,10 @@ export class NotesPage {
 
   isFull: boolean;
 
+  eventualNote: string = null;
+
   constructor(public navCtrl: NavController, private navParams: NavParams,
+    private events: Events,
     private popoverCtrl: PopoverController,
     private atticNotes: AtticNotes, private db: Db,
     private toastCtrl: ToastController,
@@ -100,6 +103,25 @@ export class NotesPage {
         catch(e){
           console.log(e);
         }
+      }
+
+      this.eventualNote = this.navParams.get('note');
+      console.log('the eventual note from navParams');
+      console.log(JSON.stringify(this.eventualNote));
+
+      this.events.subscribe('change-tab', (tab, note)=>{
+        this.eventualNote = note;
+        console.log('the eventual note from events');
+        console.log(JSON.stringify(this.eventualNote));
+      })
+
+      if(this.eventualNote!=null){
+        let eventualNoteExtraMin: NoteExtraMin = new NoteExtraMin();
+        eventualNoteExtraMin.title=this.eventualNote;
+        //Utils.binaryArrayInsert(this.allNotes, eventualNoteExtraMin, NoteExtraMin.ascendingCompare);
+        //since notes are primarly sorted by their lastmodificationdate we add the new note on top.
+        this.allNotes.unshift(eventualNoteExtraMin);
+        this.shownNotes.unshift(eventualNoteExtraMin);
       }
   }
 
