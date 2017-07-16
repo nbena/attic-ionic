@@ -86,9 +86,10 @@ export class AtticNotes {
           /*inserting is available only if the locks are available*/
           if(!this.synch.isNoteFullyLocked()){
             notes = fetchingResult as NoteExtraMin[];
-            for(let i=notes.length-1;i>=0;i--){
-              this.db.insertNoteMinQuietly(notes[i], this.auth.userid);
-            }
+            // for(let i=notes.length-1;i>=0;i--){
+            //   this.db.insertNoteMinQuietly(notes[i], this.auth.userid);
+            // }
+            this.db.insertNotesMinSmartAndCleanify(notes, this.auth.userid);
             resolve(notes);
           }else{
             /*can't insert*/

@@ -881,26 +881,144 @@ private prepareQueryInsertNotesMinQuietly(length:number, userid:string):string{
   return query;
 }
 
-private expandArrayNotesMin(notes:NoteExtraMin[]):string[]{
+// private expandArrayNotesMinWithoutUserAndJson(notes:NoteExtraMin[]):string[]{
+//   let array:string[]=[];
+//   notes.forEach((currentValue)=>{
+//     array.push(currentValue.title);
+//     array.push(JSON.stringify(currentValue));
+//   });
+//   return array;
+// }
+
+// private expandArrayNotesMinWithoutJsonAndUser(notes:NoteExtraMin[], userid:string):string[]{
+//   let array:string[]=[];
+//   notes.forEach((currentValue)=>{
+//     array.push(currentValue.title);
+//     array.push(userid);
+//   });
+//   return array;
+// }
+
+private expandArrayNotesMinWithEverything(notes:NoteExtraMin[], userid:string):string[]{
   let array:string[]=[];
-  notes.forEach((currentValue)=>{
-    array.push(currentValue.title);
-    array.push(JSON.stringify(currentValue));
-  });
+  for(let i=notes.length-1;i>=0;i--){
+    array.push(notes[i].title);
+    array.push(JSON.stringify(notes[i]));
+    array.push(userid);
+  }
   return array;
 }
 
-// public insertNoteMinQuietlyAndDirtify(notes:NoteExtraMin[], userid: string):Promise<void>{
-//   notes.sort(NoteExtraMin.ascendingCompare);
-//   let toAdd:string[]=[];
-//   let toRemove
-//   return new Promise<void>((resolve, reject)=>{
-//     /*let query:string = this.prepareQueryInsertNotesMinQuietly(notes.length, userid);*/
-//     this.db.transaction(tx=>{
-//
-//     })
-//   })
-// }
+private expandArrayTagsMinWithEverything(tags:TagAlmostMin[], userid:string):string[]{
+  let array:string[]=[];
+  for(let i=tags.length-1;i>=0;i--){
+    array.push(tags[i].title);
+    array.push(JSON.stringify(tags[i]));
+    array.push(userid);
+  }
+  return array;
+}
+
+
+private prepareQueryInsertIntoHelp(baseQuery: string, length:number, userid:string):string{
+  for(let i=0;i<length;i++){
+    baseQuery += '(?,?,?),';
+  }
+  baseQuery = baseQuery.substr(0, baseQuery.length-1);
+  return baseQuery;
+}
+
+
+public insertNotesMinSmartAndCleanify(notes: NoteExtraMin[], userid: string):Promise<void>{
+  return new Promise<void>((resolve, reject)=>{
+    this.db.transaction(tx=>{
+      /*first insert into notes_help*/
+      let query:string = this.prepareQueryInsertIntoHelp(Query.INSERT_INTO_NOTES_HELP, notes.length, userid);
+      tx.executeSql(query, this.expandArrayNotesMinWithEverything(notes, userid),
+        (tx:any, res:any)=>{console.log('ok insert into notes_help');},
+        (tx:any, error:any)=>{
+          console.log('error in insert notes_help');
+          console.log(JSON.stringify(error));
+        }
+    );
+    tx.executeSql(Query.SMART_NOTES_MIN_INSERT, [userid],
+      (tx:any, res:any)=>{console.log('ok insert into notes_min');},
+      (tx:any, error:any)=>{
+        console.log('error in insert notes_min');
+        console.log(JSON.stringify(error));
+      }
+    );
+    tx.executeSql(Query.SMART_NOTES_REMOVE_DIRTY, [userid],
+      (tx:any, res:any)=>{console.log('ok insert into notes_min');},
+      (tx:any, error:any)=>{
+        console.log('error in notes remove dirty');
+        console.log(JSON.stringify(error));
+      }
+    );
+    tx.executeSql(Query.DELETE_NOTES_HELP, [userid],
+      (tx:any, res:any)=>{console.log('ok delete notes_help');},
+      (tx:any, error:any)=>{
+        console.log('error in delete notes_help');
+        console.log(JSON.stringify(error));
+      }
+    );
+    })
+    .then(tx=>{
+      console.log('insert notes complete');
+      resolve();
+    })
+    .catch(error=>{
+      console.log('error full note insert');
+      console.log(JSON.stringify(error));
+      reject(error);
+    })
+  })
+}
+
+public insertTagsMinSmartAndCleanify(tags: TagAlmostMin[], userid: string):Promise<void>{
+  return new Promise<void>((resolve, reject)=>{
+    this.db.transaction(tx=>{
+      let query:string = this.prepareQueryInsertIntoHelp(Query.INSERT_INTO_TAGS_HELP, tags.length, userid);
+      tx.executeSql(query, this.expandArrayTagsMinWithEverything(tags, userid),
+        (tx:any, res:any)=>{console.log('ok insert into tags_help');},
+        (tx:any, error:any)=>{
+          console.log('error in insert tags_help');
+          console.log(JSON.stringify(error));
+        }
+    );
+    tx.executeSql(Query.SMART_TAGS_MIN_INSERT, [userid],
+      (tx:any, res:any)=>{console.log('ok insert into tags_min');},
+      (tx:any, error:any)=>{
+        console.log('error in insert tags_min');
+        console.log(JSON.stringify(error));
+      }
+    );
+    tx.executeSql(Query.SMART_TAGS_REMOVE_DIRTY, [userid],
+      (tx:any, res:any)=>{console.log('ok insert into tags_min');},
+      (tx:any, error:any)=>{
+        console.log('error in tags remove dirty');
+        console.log(JSON.stringify(error));
+      }
+    );
+    tx.executeSql(Query.DELETE_TAGS_HELP, [userid],
+      (tx:any, res:any)=>{console.log('ok delete tags_help');},
+      (tx:any, error:any)=>{
+        console.log('error in delete tags_help');
+        console.log(JSON.stringify(error));
+      }
+    );
+    })
+    .then(tx=>{
+      console.log('insert tags complete');
+      resolve();
+    })
+    .catch(error=>{
+      console.log('error full tag insert');
+      console.log(JSON.stringify(error));
+      reject(error);
+    })
+  })
+}
 
 public getNotesMin(userid: string):Promise<NoteExtraMin[]>{
   return new Promise<NoteExtraMin[]>((resolve, reject)=>{
@@ -2440,26 +2558,6 @@ public removeTagsFromNote(note: NoteFull, userid: string, tags: string[]):Promis
 
   /*check count if it can be embedded into it.*/
   isThereSomethingToSynch(userid: string):Promise<boolean>{
-    // return new Promise<boolean>((resolve, reject)=>{
-    //     this.db.executeSql(Query.GET_LOGS_COUNT, [userid])
-    //     .then(result=>{
-    //       if(result.rows.length>0){
-    //         let count:any = result.rows.item(0).c;
-    //         if(count==0){
-    //           resolve(false);
-    //         }else{
-    //           resolve(true);
-    //         }
-    //       }else{
-    //         resolve(false);
-    //       }
-    //     })
-    //     .catch(error=>{
-    //       console.log('error in getting logs_count');
-    //       console.log(JSON.stringify(error));
-    //       reject(error);
-    //     })
-    // })
     return new Promise<boolean>((resolve, reject)=>{
       this.getLogsCountAdvanced(userid)
       .then(count=>{
@@ -2475,108 +2573,102 @@ public removeTagsFromNote(note: NoteFull, userid: string, tags: string[]):Promis
   }
 
 
-private prepareQueryInsertIntoHelp(baseQuery: string, length:number, userid:string):string{
-  for(let i=0;i<length;i++){
-    baseQuery += '(?,'+userid+'), ';
-  }
-  baseQuery = baseQuery.substr(0, baseQuery.length-2);
-  return baseQuery;
-}
-
-
-insertIntoNotesHelp(notes:NoteExtraMin[], userid: string):Promise<any>{
-  return new Promise<any>((resolve, reject)=>{
-    let query: string = this.prepareQueryInsertIntoHelp(Query.INSERT_INTO_NOTES_HELP, notes.length, userid);
-    this.db.executeSql(query, notes.map((currentValue)=>{return currentValue.title}))
-    .then(result=>{
-      resolve(true);
-    })
-    .catch(error=>{
-      console.log('error in notes help insert'),
-      console.log(JSON.stringify(error));
-      reject(error);
-    })
-  })
-}
-
-
-insertIntoTagsHelp(tags:TagAlmostMin[], userid: string):Promise<void>{
-  return new Promise<void>((resolve, reject)=>{
-    let query: string = this.prepareQueryInsertIntoHelp(Query.INSERT_INTO_TAGS_HELP, tags.length, userid);
-    this.db.executeSql(query, tags.map((currentValue)=>{return currentValue.title}))
-    .then(result=>{
-      resolve();
-    })
-    .catch(error=>{
-      console.log('error in tags help insert'),
-      console.log(JSON.stringify(error));
-      reject(error);
-    })
-  })
-}
-
-
-deleteDirtyNotes(userid: string):Promise<void>{
-  return new Promise<void>((resolve, reject)=>{
-    this.db.transaction(tx=>{
-      tx.executeSql(Query.DELETE_DIRTY_NOTES, [userid],
-        (tx:any, res:any)=>{console.log('delete dirty notes ok');},
-        (tx:any, error:any)=>{
-          console.log('error dirty notes');
-          console.log(JSON.stringify(error));
-        }
-      );
-      tx.executeSql(Query.DELETE_NOTES_HELP, [userid],
-        (tx:any, res:any)=>{console.log('delete help notes ok');},
-        (tx:any, error:any)=>{
-          console.log('error help notes');
-          console.log(JSON.stringify(error));
-        }
-      )
-    })
-    .then(txResult=>{
-      console.log('completed the dirty notes');
-      resolve();
-    })
-    .catch(error=>{
-      console.log('error in dirty notes');
-      console.log(JSON.stringify(error));
-      reject(error);
-    })
-  })
-}
 
 
 
-deleteDirtyTags(userid: string):Promise<void>{
-  return new Promise<void>((resolve, reject)=>{
-    this.db.transaction(tx=>{
-      tx.executeSql(Query.DELETE_DIRTY_TAGS, [userid],
-        (tx:any, res:any)=>{console.log('delete dirty tags ok');},
-        (tx:any, error:any)=>{
-          console.log('error tags notes');
-          console.log(JSON.stringify(error));
-        }
-      );
-      tx.executeSql(Query.DELETE_TAGS_HELP, [userid],
-        (tx:any, res:any)=>{console.log('delete help tags ok');},
-        (tx:any, error:any)=>{
-          console.log('error help tags');
-          console.log(JSON.stringify(error));
-        }
-      )
-    })
-    .then(txResult=>{
-      console.log('completed the dirty tags');
-      resolve();
-    })
-    .catch(error=>{
-      console.log('error in dirty tags');
-      console.log(JSON.stringify(error));
-      reject(error);
-    })
-  })
-}
+// insertIntoNotesHelp(notes:NoteExtraMin[], userid: string):Promise<any>{
+//   return new Promise<any>((resolve, reject)=>{
+//     let query: string = this.prepareQueryInsertIntoHelp(Query.INSERT_INTO_NOTES_HELP, notes.length, userid);
+//     this.db.executeSql(query, notes.map((currentValue)=>{return currentValue.title}))
+//     .then(result=>{
+//       resolve(true);
+//     })
+//     .catch(error=>{
+//       console.log('error in notes help insert'),
+//       console.log(JSON.stringify(error));
+//       reject(error);
+//     })
+//   })
+// }
+//
+//
+// insertIntoTagsHelp(tags:TagAlmostMin[], userid: string):Promise<void>{
+//   return new Promise<void>((resolve, reject)=>{
+//     let query: string = this.prepareQueryInsertIntoHelp(Query.INSERT_INTO_TAGS_HELP, tags.length, userid);
+//     this.db.executeSql(query, tags.map((currentValue)=>{return currentValue.title}))
+//     .then(result=>{
+//       resolve();
+//     })
+//     .catch(error=>{
+//       console.log('error in tags help insert'),
+//       console.log(JSON.stringify(error));
+//       reject(error);
+//     })
+//   })
+// }
+//
+//
+// deleteDirtyNotes(userid: string):Promise<void>{
+//   return new Promise<void>((resolve, reject)=>{
+//     this.db.transaction(tx=>{
+//       tx.executeSql(Query.DELETE_DIRTY_NOTES, [userid],
+//         (tx:any, res:any)=>{console.log('delete dirty notes ok');},
+//         (tx:any, error:any)=>{
+//           console.log('error dirty notes');
+//           console.log(JSON.stringify(error));
+//         }
+//       );
+//       tx.executeSql(Query.DELETE_NOTES_HELP, [userid],
+//         (tx:any, res:any)=>{console.log('delete help notes ok');},
+//         (tx:any, error:any)=>{
+//           console.log('error help notes');
+//           console.log(JSON.stringify(error));
+//         }
+//       )
+//     })
+//     .then(txResult=>{
+//       console.log('completed the dirty notes');
+//       resolve();
+//     })
+//     .catch(error=>{
+//       console.log('error in dirty notes');
+//       console.log(JSON.stringify(error));
+//       reject(error);
+//     })
+//   })
+// }
+//
+//
+//
+// deleteDirtyTags(userid: string):Promise<void>{
+//   return new Promise<void>((resolve, reject)=>{
+//     this.db.transaction(tx=>{
+//       tx.executeSql(Query.DELETE_DIRTY_TAGS, [userid],
+//         (tx:any, res:any)=>{console.log('delete dirty tags ok');},
+//         (tx:any, error:any)=>{
+//           console.log('error tags notes');
+//           console.log(JSON.stringify(error));
+//         }
+//       );
+//       tx.executeSql(Query.DELETE_TAGS_HELP, [userid],
+//         (tx:any, res:any)=>{console.log('delete help tags ok');},
+//         (tx:any, error:any)=>{
+//           console.log('error help tags');
+//           console.log(JSON.stringify(error));
+//         }
+//       )
+//     })
+//     .then(txResult=>{
+//       console.log('completed the dirty tags');
+//       resolve();
+//     })
+//     .catch(error=>{
+//       console.log('error in dirty tags');
+//       console.log(JSON.stringify(error));
+//       reject(error);
+//     })
+//   })
+// }
 
 
 

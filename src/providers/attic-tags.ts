@@ -72,9 +72,10 @@ export class AtticTags {
             /*fetchingResult = NoteMin[] from the network, need to insert.*/
             if(!this.synch.isTagLocked()){
               tags = fetchingResult as TagAlmostMin[];
-              for(let i=0;i<tags.length;i++){
-                this.db.insertTagMinQuietly(tags[i], this.auth.userid);
-              }
+              // for(let i=0;i<tags.length;i++){
+              //   this.db.insertTagMinQuietly(tags[i], this.auth.userid);
+              // }
+              this.db.insertTagsMinSmartAndCleanify(tags, this.auth.userid);
             }else{
               console.log('fetched tags by title but it is locked');
             }
