@@ -2712,6 +2712,17 @@ private getCounts(rows:any, summary:UserSummary):UserSummary{
       summary.data.isfree = rows.item(i).count;
     }
   }
+  if(summary.data.notescount == null){
+    summary.data.notescount=0;
+  }
+  if(summary.data.logscount == null){
+    summary.data.logscount=0;
+  }
+  if(summary.data.tagscount == null){
+    summary.data.tagscount=0;
+  }
+  console.log('the summary here'),
+  console.log(JSON.stringify(summary));
   return summary;
 }
 
@@ -2722,7 +2733,7 @@ getUserSummary(userid: string):Promise<UserSummary>{
     .then(result=>{
       let summary:UserSummary = new UserSummary();
       summary.userid=userid;
-      if(result.rows.length!=4){
+      if(result.rows.length>4){
         console.log('error in summary');
         reject(new Error('view is not as long as expected'));
       }else{

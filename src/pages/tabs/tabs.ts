@@ -4,6 +4,7 @@ import { /*NavController, NavParams,*/ Events, Tabs } from 'ionic-angular';
 import { NotesPage } from '../notes/notes';
 import { TagsPage } from '../tags/tags';
 import { CreateNotePage } from '../create-note/create-note';
+import { SummaryPage } from '../summary/summary';
 
 /*
   Generated class for the Tabs page.
@@ -25,6 +26,7 @@ export class TabsPage {
   tab1Root = NotesPage;
   tab2Root = CreateNotePage;
   tab3Root = TagsPage;
+  tab4Root = SummaryPage;
   notesParams = {};
 
   constructor(/*public navCtrl: NavController, public navParams: NavParams*/

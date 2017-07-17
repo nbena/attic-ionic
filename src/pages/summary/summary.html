@@ -6,13 +6,55 @@
 -->
 <ion-header>
 
-  <ion-navbar>
-    <ion-title>summary</ion-title>
+  <ion-navbar color='primary'>
+    <ion-title>About you</ion-title>
   </ion-navbar>
 
 </ion-header>
 
 
 <ion-content padding>
+
+  <ion-refresher (ionRefresh)="refresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <h4>Your information:</h4>
+
+  <ion-list>
+
+    <ion-list-header>
+      Items:
+    </ion-list-header>
+
+    <ion-item>
+      <!-- <ion-label>Notes:</ion-label> -->
+      Notes:
+      <ion-badge item-right> 10</ion-badge>
+    </ion-item>
+
+    <ion-item>
+      <ion-label>Tags:</ion-label>
+      <ion-badge item-right> {{summary?.data.tagscount}}</ion-badge>
+    </ion-item>
+
+  </ion-list>
+
+  <ion-list>
+
+    <ion-list-header>
+      Synchronization:
+    </ion-list-header>
+
+    <ion-item>
+      <ion-label>Notes:</ion-label>
+      <ion-badge item-right> {{summary?.data.logscount}}</ion-badge>
+    </ion-item>
+
+    <ion-item>
+      <ion-label> {{synchingMode}} </ion-label>
+    </ion-item>
+
+  </ion-list>
 
 </ion-content>

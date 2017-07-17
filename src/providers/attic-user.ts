@@ -3,6 +3,7 @@ import { Http } from '@angular/http';
 import { Auth } from './auth';
 import { NetManager } from './net-manager';
 import { UserSummary } from '../models/user_summary';
+import { Db } from './db';
 import 'rxjs/add/operator/map';
 
 /*
@@ -16,7 +17,8 @@ export class AtticUserProvider {
 
   constructor(public http: Http,
     private auth: Auth,
-    private netManager: NetManager
+    private netManager: NetManager,
+    private db: Db
   ) {
     console.log('Hello AtticUserProvider Provider');
   }
@@ -33,7 +35,7 @@ export class AtticUserProvider {
       if(!isNteworkAvailable){
         useDb = true;
       }
-      
+      return this.db.getUserSummary(this.auth.userid);
     })
   }
 
