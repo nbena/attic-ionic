@@ -4,6 +4,7 @@ import { Auth } from './auth';
 import { NetManager } from './net-manager';
 import { UserSummary } from '../models/user_summary';
 import { Db } from './db';
+import { Utils } from '../public/utils';
 import 'rxjs/add/operator/map';
 
 /*
@@ -27,14 +28,37 @@ export class AtticUserProvider {
   getUserSummary(force: boolean):Promise<UserSummary>{
     return new Promise<UserSummary>((resolve, reject)=>{
       let useForce: boolean = force;
-      let useDb: boolean = false;
+      let useDb: boolean = true;
       let isNteworkAvailable: boolean = this.netManager.isConnected;
+      // console.log('is connected');
+      // console.log(JSON.stringify(isNteworkAvailable));
       if(force){
         useDb=false;
       }
       if(!isNteworkAvailable){
         useDb = true;
       }
+      console.log('use db summary');
+      console.log(JSON.stringify(useDb));
+      let p;
+      let userSummary:UserSummary;
+      if(useDb){
+        // console.log('use db');
+        p=this.db.getUserSummary(this.auth.userid);
+      }else{
+        // console.log('not use db');
+        p=Utils.getBasic('/api/users/'+this.auth.userid, this.http, this.auth.token);
+      }
+      p.then(fetchingResult=>{
+        userSummary = fetchingResult as UserSummary;
+        if(useDb){
+          resolve(userSummary);
+        }else{
+          /*just set free*/
+          this.db.insertSetFree(userSummary.data.isfree, this.auth.userid);
+          resolve(userSummary);
+        }
+      })
       // return this.db.getUserSummary(this.auth.userid);
       this.db.getUserSummary(this.auth.userid)
       .then(summary=>{

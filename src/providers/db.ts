@@ -2757,6 +2757,20 @@ getUserSummary(userid: string):Promise<UserSummary>{
   })
 }
 
+insertSetFree(free:boolean, userid:string):Promise<void>{
+  return new Promise<void>((resolve, reject)=>{
+    this.db.executeSql(Query.INSERT_SET_FREE, [free, free, userid])
+    .then(result=>{
+      resolve();
+    })
+    .catch(error=>{
+      console.log('error in set free');
+      console.log(JSON.stringify(error));
+      reject(error);
+    })
+  })
+}
+
 
 
 /*think about remove notes_tags.*/

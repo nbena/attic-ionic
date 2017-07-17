@@ -32,7 +32,7 @@ export class SummaryPage {
      private synch: Synch
    ) {
 
-      this.load(false);
+      // this.load(false);
   }
 
   ionViewDidLoad() {
@@ -43,7 +43,7 @@ export class SummaryPage {
   }
 
   load(force: boolean){
-    this.atticUser.getUserSummary(false)
+    this.atticUser.getUserSummary(force)
     .then(summary=>{
       this.summary = summary;
       // console.log('summary is:');

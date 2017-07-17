@@ -295,6 +295,10 @@ export class Query{
   static readonly SMART_TAGS_MIN_INSERT = ' insert into tags(title, json_object, userid) select title,json_object, userid from tags_help as th1 where title not in (select title from tags where th1.userid=userid) and th1.userid=?;';
   static readonly SMART_TAGS_REMOVE_DIRTY = 'delete from tags where title  not in (select title from tags_help as th1 where tags.userid=th1.userid) and title not in (select tagtitle from logs_sequence as l1 where l1.userid=tags.userid) and userid=?;'
 
+
+  static readonly INSERT_SET_FREE = 'update auth set free=? where free <> ? and userid=?';
+
+
   //static readonly NEED_TO_SYNCH = 'select count(*) as c from logs_sequence where userid=?';
 
 
