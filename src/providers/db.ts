@@ -2699,6 +2699,17 @@ public removeTagsFromNote(note: NoteFull, userid: string, tags: string[]):Promis
 //   })
 // }
 
+private mkAvailable(summary: UserSummary):UserSummary{
+  if(summary.data.isfree){
+    summary.data.availablenotes = Const.NOTES_LIMIT-summary.data.notescount;
+    summary.data.availabletags = Const.TAGS_LIMIT-summary.data.tagscount;
+  }else{
+    summary.data.availablenotes = Number.POSITIVE_INFINITY;
+    summary.data.availabletags = Number.POSITIVE_INFINITY;
+  }
+  return summary;
+}
+
 private getCounts(rows:any, summary:UserSummary):UserSummary{
   for(let i=0;i<rows.length;i++){
     if(rows.item(i).type=='logs'){
@@ -2712,15 +2723,12 @@ private getCounts(rows:any, summary:UserSummary):UserSummary{
       summary.data.isfree = rows.item(i).count;
     }
   }
-  if(summary.data.notescount == null){
-    summary.data.notescount=0;
-  }
-  if(summary.data.logscount == null){
-    summary.data.logscount=0;
-  }
-  if(summary.data.tagscount == null){
-    summary.data.tagscount=0;
-  }
+  summary.data.notescount = ((summary.data.notescount)==null) ? 0 : summary.data.notescount;
+  summary.data.tagscount = ((summary.data.tagscount)==null) ? 0 : summary.data.tagscount;
+  summary.data.logscount = ((summary.data.logscount)==null) ? 0 : summary.data.logscount;
+
+  summary = this.mkAvailable(summary);
+
   console.log('the summary here'),
   console.log(JSON.stringify(summary));
   return summary;

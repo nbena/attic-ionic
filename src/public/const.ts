@@ -119,32 +119,11 @@ export class Const{
   public static readonly UNIQUE_FAILED = 'UNIQUE constraint failed';
   public static readonly SERVER_ERROR = 'server error';
 
-  // public static asDbActionString(action: DbAction){
-  //   let res: string = '';
-  //   switch(action){
-  //     case DbAction.add_tag:
-  //       res = 'add-tag';
-  //     case DbAction.change_text:
-  //       res = 'change-text';
-  //     case DbAction.remove_tag:
-  //       res = 'remove-tag';
-  //     case DbAction.set_done:
-  //       res = 'set-done';
-  //     case DbAction.set_link:
-  //       res = 'set-link';
-  //     default:
-  //       res = DbAction[action];
-  //   }
-  // }
+  public static readonly NOTES_LIMIT = 50;
+  public static readonly TAGS_LIMIT = 50;
 
-  // public static isNote(act: Action):boolean{
-  //   return act!=Action.CreateTag &&
-  //           act!=Action.DeleteTag &&
-  //           act!=Action.ChangeTagTitle
-  // }
+  public static readonly CURRENTLY_SYNCHING = 'Synching is in progress';
+  public static readonly CURRENTLY_NOT_SYNCHING = 'Nothing to synch';
 
-  // public static isTag(act: Action):boolean{
-  //   return !Const.isNote(act);
-  // }
 
 }

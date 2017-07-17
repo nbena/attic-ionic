@@ -19,40 +19,70 @@
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
 
-  <h4>Your information:</h4>
+  <!-- <h4>Your information</h4> -->
+
 
   <ion-list>
-
     <ion-list-header>
-      Items:
+      Account
     </ion-list-header>
 
     <ion-item>
-      <!-- <ion-label>Notes:</ion-label> -->
-      Notes:
-      <ion-badge item-right> 10</ion-badge>
+      <ion-label stacked color="primary">E-mail</ion-label>
+      <ion-label>{{summary?.userid}}</ion-label>
     </ion-item>
 
     <ion-item>
-      <ion-label>Tags:</ion-label>
-      <ion-badge item-right> {{summary?.data.tagscount}}</ion-badge>
+      <ion-label stacked color="primary">Profile type</ion-label>
+      <ion-label>{{profileType}}</ion-label>
     </ion-item>
 
   </ion-list>
 
+
   <ion-list>
 
     <ion-list-header>
-      Synchronization:
+      Items
     </ion-list-header>
 
     <ion-item>
-      <ion-label>Notes:</ion-label>
+      <ion-label>Notes</ion-label>
+      <ion-badge item-right> {{summary?.data.notescount}}</ion-badge>
+    </ion-item>
+
+    <ion-item>
+      <ion-label>Tags</ion-label>
+      <ion-badge item-right> {{summary?.data.tagscount}}</ion-badge>
+    </ion-item>
+
+    <ion-item>
+      <ion-label>Available notes</ion-label>
+      <ion-badge item-right> {{availableNotes}}</ion-badge>
+    </ion-item>
+
+    <ion-item>
+      <ion-label>Available tags</ion-label>
+      <ion-badge item-right> {{availableTags}}</ion-badge>
+    </ion-item>
+
+  </ion-list>
+
+
+  <ion-list>
+
+    <ion-list-header>
+      Synchronization
+    </ion-list-header>
+
+    <ion-item>
+      <ion-label>Modifications to apply</ion-label>
       <ion-badge item-right> {{summary?.data.logscount}}</ion-badge>
     </ion-item>
 
     <ion-item>
-      <ion-label> {{synchingMode}} </ion-label>
+      <ion-label stacked color="primary">Synching state</ion-label>
+      <ion-label> {{synchState}} </ion-label>
     </ion-item>
 
   </ion-list>

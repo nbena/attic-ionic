@@ -35,7 +35,16 @@ export class AtticUserProvider {
       if(!isNteworkAvailable){
         useDb = true;
       }
-      return this.db.getUserSummary(this.auth.userid);
+      // return this.db.getUserSummary(this.auth.userid);
+      this.db.getUserSummary(this.auth.userid)
+      .then(summary=>{
+        resolve(summary);
+      })
+      .catch(error=>{
+        console.log('error in get summary provider');
+        console.log(JSON.stringify(error));
+        reject(error);
+      })
     })
   }
 
