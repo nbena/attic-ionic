@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, LoadingController  } from 'ionic-angular';
+import { NavController/*, NavParams*/, LoadingController  } from 'ionic-angular';
 
 import { NotesPage } from '../notes/notes';
 

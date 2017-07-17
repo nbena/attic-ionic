@@ -29,6 +29,8 @@ export class Utils{
           }
           resolve(data.result);
         },(err)=>{
+          // console.log('get error');
+          // console.log(JSON.stringify(err));
           reject(err);
         })
     });
@@ -117,9 +119,12 @@ static shouldUseDb(newtorkAvailable:boolean, itemAvailable:boolean, force:boolea
   if (!itemAvailable){
     /*if there aren't item in the DB, I'm not going to use it.*/
     res = false;
-  }else{
-    res = true;
   }
+
+  // else{
+  //   res = true;
+  // }
+
   /*else is not needed.*/
   if (!newtorkAvailable){
     /*but if there is no network I'm force to use the DB.*/
@@ -199,50 +204,50 @@ static askConfirm(alertCtrl: AlertController, message: string, cb: ((_ :boolean)
   alert.present();
 }
 
-static arrayDiff(arg0: any[], arg1: any[]){
-  return arg0.filter(function(el){
-      return arg1.indexOf(el)<0;
-    })
-  }
-
-  static arrayDiff2(arg0: TagExtraMin[], arg1: TagExtraMin[]){
-    return arg0.filter(function(el){
-        return arg1.indexOf(el)<0;
-      })
-  }
-
-  static arrayDiff3(arg0: TagExtraMin[], arg1: TagExtraMin[]){
-    // let k=0;
-    let array: TagExtraMin[];
-    // for(let i=0;i<arg0.length;i++){
-    //   for(let j=0;j<arg1.length;j++){
-    //     console.log("matching: "+arg0[i]._id+" and "+arg1[j]._id, "? "+arg0[i]._id!=arg1[j]._id);
-    //     if(arg0[i]._id!=arg1[j]._id){
-    //       array.push(arg0[i]);
-    //
-    //     }
-
-console.log("arg0 length is "+arg0.length);
-console.log("arg1 length is "+arg1.length);
-for(let i=0;i<arg0.length;i++){
-  console.log(i);
-  //console.log(j);
-        let obj = arg0[i];
-        let bool = true;
-        for(let j=0;j<arg1.length;j++){
-                if(obj.title==arg1[j].title){
-                        bool=false;
-                }
-        }
-        if(bool){
-                array.push(obj);
-                bool = false;
-        }
-}
-console.log("the result is: ");
-console.log(array.length.toString());
-return array;
-      }
+// static arrayDiff(arg0: any[], arg1: any[]){
+//   return arg0.filter(function(el){
+//       return arg1.indexOf(el)<0;
+//     })
+//   }
+//
+//   static arrayDiff2(arg0: TagExtraMin[], arg1: TagExtraMin[]){
+//     return arg0.filter(function(el){
+//         return arg1.indexOf(el)<0;
+//       })
+//   }
+//
+//   static arrayDiff3(arg0: TagExtraMin[], arg1: TagExtraMin[]){
+//     // let k=0;
+//     let array: TagExtraMin[];
+//     // for(let i=0;i<arg0.length;i++){
+//     //   for(let j=0;j<arg1.length;j++){
+//     //     console.log("matching: "+arg0[i]._id+" and "+arg1[j]._id, "? "+arg0[i]._id!=arg1[j]._id);
+//     //     if(arg0[i]._id!=arg1[j]._id){
+//     //       array.push(arg0[i]);
+//     //
+//     //     }
+//
+// console.log("arg0 length is "+arg0.length);
+// console.log("arg1 length is "+arg1.length);
+// for(let i=0;i<arg0.length;i++){
+//   console.log(i);
+//   //console.log(j);
+//         let obj = arg0[i];
+//         let bool = true;
+//         for(let j=0;j<arg1.length;j++){
+//                 if(obj.title==arg1[j].title){
+//                         bool=false;
+//                 }
+//         }
+//         if(bool){
+//                 array.push(obj);
+//                 bool = false;
+//         }
+// }
+// console.log("the result is: ");
+// console.log(array.length.toString());
+// return array;
+//       }
     //}
     // return array;
 
@@ -250,13 +255,13 @@ return array;
     // return arg0.filter(x => arg1.indexOf(x) == -1);
   //}
 
-static pushAll(arg0: TagExtraMin[], arg1: TagExtraMin[]){
-  for(let i of arg1){
-    arg0.push(i);
-  }
-
-}
-
+// static pushAll(arg0: TagExtraMin[], arg1: TagExtraMin[]){
+//   for(let i of arg1){
+//     arg0.push(i);
+//   }
+//
+// }
+//
 static pushAllJSON(arg0: TagExtraMin[], arg1: string[]){
   for(let i of arg1){
     arg0.push(JSON.parse(i));
@@ -367,28 +372,28 @@ static pushLink(alertCtrl:AlertController, cb: ((_: any)=>void) ){
  }
 
 
- public static binarySearch<T>(array: T[], item: T, cmp: ((a,b)=>number)):number{
-     let returned: T[];
-     let start: number, end: number, current:number, cmpValue;
-     start = 0;
-     end = array.length;
-     current = Math.floor((start+end)/2);
-     while(end>start){
-       cmpValue = cmp(item, array[current]);
-       if(cmpValue<0){
-         end = current;
-       }else if(cmpValue>0){
-         start = current+1;
-       }else{
-         break;
-       }
-       current = Math.floor((start+end)/2);
-   }
-   if(end<start || start>end){
-     return -1;
-   }
-   return current;
- }
+ // public static binarySearch<T>(array: T[], item: T, cmp: ((a,b)=>number)):number{
+ //     let returned: T[];
+ //     let start: number, end: number, current:number, cmpValue;
+ //     start = 0;
+ //     end = array.length;
+ //     current = Math.floor((start+end)/2);
+ //     while(end>start){
+ //       cmpValue = cmp(item, array[current]);
+ //       if(cmpValue<0){
+ //         end = current;
+ //       }else if(cmpValue>0){
+ //         start = current+1;
+ //       }else{
+ //         break;
+ //       }
+ //       current = Math.floor((start+end)/2);
+ //   }
+ //   if(end<start || start>end){
+ //     return -1;
+ //   }
+ //   return current;
+ // }
 
 
 

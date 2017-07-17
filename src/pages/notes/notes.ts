@@ -2,15 +2,15 @@ import { Component } from '@angular/core';
 import { NavController, NavParams, PopoverController, ToastController, Events } from 'ionic-angular';
 
 import { AtticNotes } from '../../providers/attic-notes';
-import { NoteExtraMin, NoteSmart, NoteMin, NoteFull } from '../../models/notes';
+import { NoteExtraMin, /*NoteSmart, */NoteMin/*, NoteFull*/ } from '../../models/notes';
 
 import { NoteDetailsPage } from '../note-details/note-details';
 import { CreateNotePage } from '../create-note/create-note';
 
-import { Filter, Table } from '../../public/const';
+import { Filter/*, Table*/ } from '../../public/const';
 import { FormControl } from '@angular/forms';
 
-import { Db } from '../../providers/db';
+// import { Db } from '../../providers/db';
 
 import 'rxjs/add/operator/debounceTime';
 
@@ -60,7 +60,8 @@ export class NotesPage {
   constructor(public navCtrl: NavController, private navParams: NavParams,
     private events: Events,
     private popoverCtrl: PopoverController,
-    private atticNotes: AtticNotes, private db: Db,
+    private atticNotes: AtticNotes,
+    // private db: Db,
     private toastCtrl: ToastController,
     private synch: Synch) {
 
@@ -137,7 +138,7 @@ export class NotesPage {
     if(note!=null){
       let trueNote: NoteExtraMin = new NoteExtraMin();
       trueNote.title=note;
-      this.allNotes.unshift(trueNote);  
+      this.allNotes.unshift(trueNote);
     }
   }
 

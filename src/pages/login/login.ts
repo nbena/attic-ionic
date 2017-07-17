@@ -1,11 +1,11 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams } from 'ionic-angular';
+import { NavController/*, NavParams */} from 'ionic-angular';
 
 import { LoadingController, ToastController } from 'ionic-angular';
 
 import { User } from '../../models/user';
 import { Auth } from '../../providers/auth';
-import { NotesPage } from '../notes/notes';
+// import { NotesPage } from '../notes/notes';
 import { RegisterPage } from '../register/register';
 
 import { TabsPage } from '../tabs/tabs';
@@ -13,7 +13,7 @@ import { TabsPage } from '../tabs/tabs';
 import { Filter } from '../../public/const';
 import { Utils } from '../../public/utils';
 
-import { Db } from '../../providers/db'
+// import { Db } from '../../providers/db'
 
 /*
   Generated class for the Login page.
@@ -35,7 +35,7 @@ export class LoginPage {
   // constructor(public navCtrl: NavController, public navParams: NavParams) {}
   constructor(public navCtrl: NavController, private toastCtrl: ToastController,
     private auth: Auth,
-    public loadingCtrl: LoadingController, private db: Db,
+    public loadingCtrl: LoadingController/*, private db: Db,*/
   ){}
 
 

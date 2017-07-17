@@ -22,7 +22,7 @@ export class NotesPopoverPage {
 
 
 
-  constructor(public navCtrl: NavController, private navParams: NavParams,
+  constructor(public navCtrl: NavController, /*private navParams: NavParams,*/
     private alertCtrl: AlertController, private viewCtrl: ViewController,
   ) {
 
