@@ -46,7 +46,7 @@ export class AtticTags {
         let areThereTagsInTheDb: boolean;
         let tags:TagAlmostMin[]=[];
         let useDb: boolean;
-        this.db.getNumberOfTags(this.auth.userid)
+        this.db.getTagsCount(this.auth.userid)
         .then(number=>{
           areThereTagsInTheDb = (number > 0) ? true : false;
           console.log('the number of tags is');
@@ -111,7 +111,7 @@ export class AtticTags {
           /*===============================================*/
           /*tags are always min!!!! it just change the json_object*/
           if(!this.synch.isTagLocked()){
-            this.db.insertTagMinQuietly(tag, this.auth.userid); /*this will be done asynchronously?*/
+            this.db.insertTagsMinSmartAndCleanify([tag], this.auth.userid); /*this will be done asynchronously?*/
           }else{
             console.log('fetched tag by title but it is locked')
           }
@@ -135,7 +135,7 @@ export class AtticTags {
         let areThereTagsInTheDb: boolean;
         let useDb: boolean;
         let callNet: boolean;
-        this.db.getNumberOfTags(this.auth.userid)
+        this.db.getTagsCount(this.auth.userid)
         .then(number=>{
           areThereTagsInTheDb = (number > 0) ? true : false;
           useDb = Utils.shouldUseDb(this.netManager.isConnected, areThereTagsInTheDb, force/*, this.synch.isSynching()*/);

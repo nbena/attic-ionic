@@ -18,6 +18,7 @@ import { TagDetailsPopoverPage } from '../pages/tag-details-popover/tag-details-
 import { NotesPopoverPage } from '../pages/notes-popover/notes-popover';
 import { NoteEditTextPage } from '../pages/note-edit-text/note-edit-text';
 import { NotesByTagPage } from '../pages/notes-by-tag/notes-by-tag';
+import { SummaryPage } from '../pages/summary/summary';
 
 //login
 import { LoginPage } from '../pages/login/login';
@@ -32,8 +33,10 @@ import { Db } from '../providers/db';
 import { Synch } from '../providers/synch';
 import { Auth } from '../providers/auth';
 import { NetManager } from '../providers/net-manager';
+import { AtticUserProvider } from '../providers/attic-user';
 
 import { Network } from '@ionic-native/network';
+
 
 
 
@@ -52,7 +55,8 @@ import { Network } from '@ionic-native/network';
     TagDetailsPopoverPage,
     NotesPopoverPage,
     NotesByTagPage,
-    TabsPage
+    TabsPage,
+    SummaryPage
   ],
   imports: [
     IonicModule.forRoot(MyApp),
@@ -61,7 +65,7 @@ import { Network } from '@ionic-native/network';
     // IonicStorageModule.forRoot({
     //
     // })
-    IonicStorageModule.forRoot() 
+    IonicStorageModule.forRoot()
   ],
   bootstrap: [IonicApp],
   entryComponents: [
@@ -79,7 +83,8 @@ import { Network } from '@ionic-native/network';
     NotesPopoverPage,
     //NoteEditTagsPage
     NotesByTagPage,
-    TabsPage
+    TabsPage,
+    SummaryPage
   ],
   providers: [
     {provide: ErrorHandler, useClass: IonicErrorHandler},
@@ -90,7 +95,8 @@ import { Network } from '@ionic-native/network';
     Auth,
     Db,
     Synch,
-    NetManager
+    NetManager,
+    AtticUserProvider
     ]
 })
 export class AppModule {}

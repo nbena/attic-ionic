@@ -7,7 +7,7 @@ import { Table, Const, DbAction, WhichField } from '../public/const';
 import { Utils } from '../public/utils';
 import { NoteExtraMin, NoteFull, NoteSQLite,NoteMin } from '../models/notes';
 import { TagExtraMin, TagFull, /*TagMin,*/ TagAlmostMin, TagSQLite } from '../models/tags';
-import { Queue } from 'typescript-collections';
+import { UserSummary } from '../models/user_summary';
 //import * as Promise from 'bluebird';
 
 // import 'rxjs/add/operator/map';
@@ -109,8 +109,8 @@ export class Db {
   private notesCount: number = 0;
   private tagsCount: number = 0;
 
-  private userid: string = null;
-  private token: any = null;
+  // private userid: string = null;
+  // private token: any = null;
 
   private promise: Promise<SQLite>;
 
@@ -135,6 +135,7 @@ export class Db {
                 tx.executeSql(Query.CREATE_AUTH_TABLE,[]);
                 tx.executeSql(Query.CREATE_NOTES_HELP_TABLE,[]);
                 tx.executeSql(Query.CREATE_TAGS_HELP_TABLE,[]);
+                tx.executeSql(Query.CREATE_VIEW_COUNTS, []);
                 tx.executeSql(Query.CREATE_TRIGGER_DELETE_NOTE_COMPRESSION, []);
                 tx.executeSql(Query.CREATE_TRIGGER_DELETE_TAG_COMPRESSION, []);
               });
@@ -145,9 +146,9 @@ export class Db {
             .then(tokenResult=>{
               this.open = true;
               if(tokenResult.rows.length > 0){
-                this.token = tokenResult.rows.item(0).token;
-                this.userid = tokenResult.rows.item(0).userid;
-                return this.count(this.userid);
+                // this.token = tokenResult.rows.item(0).token;
+                // this.userid = tokenResult.rows.item(0).userid;
+                /*return this.count(this.userid);*/
               }else{
                 resolve(this.db);
               }
@@ -179,12 +180,14 @@ export class Db {
 //   return this.db.executeSql(Query.GET_TAGS_COUNT,[userid]);
 // }
 
-private getNotesCountAdvanced(userid: string):Promise<number>{
+public getNotesCount(userid: string):Promise<number>{
   return new Promise<number>((resolve, reject)=>{
-    this.db.executeSql(Query.GET_NOTES_COUNT, [userid])
+    this.promise.then(db=>{
+      return db.executeSql(Query.GET_NOTES_COUNT, [userid])
+    })
     .then(result=>{
       if(result.rows.length <= 0){
-        reject(new Error('empty result set'));
+        reject(new Error('empty result set notes count'));
       }else{
         resolve(result.rows.item(0).count);
       }
@@ -197,12 +200,14 @@ private getNotesCountAdvanced(userid: string):Promise<number>{
   })
 }
 
-private getTagsCountAdvanced(userid: string):Promise<number>{
+public getTagsCount(userid: string):Promise<number>{
   return new Promise<number>((resolve, reject)=>{
-    this.db.executeSql(Query.GET_TAGS_COUNT, [userid])
+    this.promise.then(db=>{
+      return db.executeSql(Query.GET_TAGS_COUNT, [userid]);
+    })
     .then(result=>{
       if(result.rows.length <= 0){
-        reject(new Error('empty result set'));
+        reject(new Error('empty result set tags count'));
       }else{
         resolve(result.rows.item(0).count);
       }
@@ -215,9 +220,11 @@ private getTagsCountAdvanced(userid: string):Promise<number>{
   })
 }
 
-private getLogsCountAdvanced(userid: string):Promise<number>{
+public getLogsCount(userid: string):Promise<number>{
   return new Promise<number>((resolve, reject)=>{
-    this.db.executeSql(Query.GET_LOGS_COUNT, [userid])
+    this.promise.then(db=>{
+      return this.db.executeSql(Query.GET_LOGS_COUNT, [userid]);
+    })
     .then(result=>{
       if(result.rows.length <= 0){
         reject(new Error('empty result set'));
@@ -310,40 +317,45 @@ private getLogsCountAdvanced(userid: string):Promise<number>{
 //     console.log(JSON.stringify(error));
 //   })
 // }
-private count(userid: string):Promise<any>{
-  return this.getLogsCountAdvanced(userid)
-    .then(count=>{
-      this.logsCount = count;
-      return this.getNotesCountAdvanced(userid);
-    })
-    .then(count=>{
-      this.notesCount = count;
-      return this.getTagsCountAdvanced(userid);
-    })
-    .then(count=>{
-      this.tagsCount = count;
-      console.log('counts:');
-      console.log(JSON.stringify([this.logsCount, this.notesCount, this.tagsCount]));
-    });
-}
+// private count(userid: string):Promise<any>{
+//   return this.getLogsCountAdvanced(userid)
+//     .then(count=>{
+//       this.logsCount = count;
+//       return this.getNotesCountAdvanced(userid);
+//     })
+//     .then(count=>{
+//       this.notesCount = count;
+//       return this.getTagsCountAdvanced(userid);
+//     })
+//     .then(count=>{
+//       this.tagsCount = count;
+//       console.log('counts:');
+//       console.log(JSON.stringify([this.logsCount, this.notesCount, this.tagsCount]));
+//     });
+// }
 
-public getNumberOfNotes(userid: string){
-  return this.promise.then(db=>{
-    return this.notesCount;
-  });
-}
-
-public getNumberOfTags(userid: string){
-  return this.promise.then(db=>{
-    return this.tagsCount;
-  });
-}
-
-public getNumberOfLogs(userid: string){
-  return this.promise.then(db=>{
-    return this.logsCount;
-  });
-}
+// public getNumberOfNotes(userid: string){
+//   // return this.promise.then(db=>{
+//   //   return this.notesCount;
+//   // });
+//   return new Promise<number>((resolve, reject)=>{
+//     this.promise.then(db=>{
+//       db.executeSql(Query.)
+//     })
+//   })
+// }
+//
+// public getNumberOfTags(userid: string){
+//   return this.promise.then(db=>{
+//     return this.tagsCount;
+//   });
+// }
+//
+// public getNumberOfLogs(userid: string){
+//   return this.promise.then(db=>{
+//     return this.logsCount;
+//   });
+// }
 
 // public setToken(token: any, userid: string):Promise<any>{
 //   return this.db.executeSql(Query.INSERT_TOKEN, [token, userid]);
@@ -373,26 +385,39 @@ public getNumberOfLogs(userid: string){
 /*JUST ONE TOKEN WILL BE IN THE DB.*/
 public getToken():Promise<any>{
   return new Promise<any>((resolve, reject)=>{
-    try{
+
       this.promise.then(db=>{
-        if(this.userid !=null && this.token!=null){
-          resolve({userid: this.userid, token: this.token});
+        // if(this.userid !=null && this.token!=null){
+        //   resolve({userid: this.userid, token: this.token});
+        // }else{
+        //   db.executeSql(Query.GET_TOKEN, [])
+        //   .then(result=>{
+        //     if(result.rows.length <= 0){
+        //       resolve(null);
+        //     }else{
+        //       this.userid = result.rows.item(0).userid;
+        //       this.token = result.rows.item(0).token;
+        //       resolve({userid: this.userid, token: this.token});
+        //     }
+        //   })
+        // }
+        return db.executeSql(Query.GET_TOKEN, []);
+      })
+      .then(result=>{
+        if(result.rows.length<=0){
+          resolve(null);
         }else{
-          db.executeSql(Query.GET_TOKEN, [])
-          .then(result=>{
-            if(result.rows.length <= 0){
-              resolve(null);
-            }else{
-              this.userid = result.rows.item(0).userid;
-              this.token = result.rows.item(0).token;
-              resolve({userid: this.userid, token: this.token});
-            }
-          })
+          resolve({userid: result.rows.item(0).userid,
+                  token: result.rows.item(0).token
+          });
         }
       })
-    }catch(e){
-      reject(e);
-    }
+      .catch(error=>{
+        console.log('fail to get token');
+        console.log(JSON.stringify(error));
+        reject(error);
+      })
+
   });
 }
 
@@ -435,7 +460,7 @@ static readonly UPDATE_NOTES_TAGS = 'update notes_tags set notetitle=?, tagtitle
 static readonly INSERT_NOTES_TAGS = 'insert into notes_tags(notetitle,tagtitle, role, userid) values(?,?,?,?)';
 */
 
-public insertOrUpdateNote(note: NoteFull, userid: string):Promise<any>{
+public insertOrUpdateNote(note: NoteFull, userid: string):Promise<void>{
   return new Promise<any>((resolve, reject)=>{
     let isPresent: boolean;
     this.db.executeSql(Query.NOTE_EXISTS, [note.title, userid])
@@ -495,20 +520,24 @@ public insertOrUpdateNote(note: NoteFull, userid: string):Promise<any>{
           })
         ])
       })
+      // .then(results=>{
+      //   return this.getNotesCountAdvanced(userid);
+      // })
+      // .then(notesCount=>{
+      //   this.notesCount = notesCount;
+      //   return this.getTagsCountAdvanced(userid);
+      // })
+      // .then(tagsCount=>{
+      //   this.tagsCount = tagsCount;
+      //   resolve(true);
+      // })
       .then(results=>{
-        return this.getNotesCountAdvanced(userid);
-      })
-      .then(notesCount=>{
-        this.notesCount = notesCount;
-        return this.getTagsCountAdvanced(userid);
-      })
-      .then(tagsCount=>{
-        this.tagsCount = tagsCount;
-        resolve(true);
+        resolve();
       })
       .catch(error=>{
         console.log('error:');
         console.log(JSON.stringify(error));
+        reject(error);
       })
 
     })
@@ -590,7 +619,7 @@ public insertOrUpdateNote(note: NoteFull, userid: string):Promise<any>{
 // }
 
 
-public createNewNote2(note:NoteFull, tags:TagAlmostMin[], userid: string):Promise<any>{
+public createNewNote2(note:NoteFull, tags:TagAlmostMin[], userid: string):Promise<void>{
   return new Promise<any>((resolve, reject)=>{
     this.db.transaction(tx=>{
       /*p=this.db.executeSql(Query.INSERT_NOTE, [note.title, note.userid, note.text, note.creationdate, note.lastmodificationdate, note.isdone, note.links, JSON.stringify(note)]);*/
@@ -667,14 +696,14 @@ public createNewNote2(note:NoteFull, tags:TagAlmostMin[], userid: string):Promis
       });
       //resolve(true);
   })
-  .then(txResult=>{
-    /*update the note count.*/
-    return this.getNotesCountAdvanced(userid);
-  })
+  // .then(txResult=>{
+  //   /*update the note count.*/
+  //   return this.getNotesCountAdvanced(userid);
+  // })
   .then(notesCount=>{
-    this.notesCount = notesCount;
-    console.log('tx completed, note created and count updated');
-    resolve(true);
+    // this.notesCount = notesCount;
+    console.log('tx completed, note created');
+    resolve();
   })
   .catch(error=>{
     console.log('transaction error:');
@@ -809,68 +838,68 @@ this differ form notesMin because when we download a tag from the server, the ti
 but the notesLength (and so the json_object) can be changed, so try to update it if it's different.
 Notes has not this problem because their json_object is made of the title and nothing more.
 */
-public insertTagMinQuietly(tag: TagAlmostMin, userid: string):Promise<any>{
-  return new Promise<any>((resolve, reject)=>{
-    this.db.executeSql(Query.INSERT_TAG_MIN,[tag.title, JSON.stringify(tag), userid])
-    .then(result=>{
-      /*nothing to do.*/
-      return this.getTagsCountAdvanced(userid);
-    })
-    .then(count=>{
-      this.tagsCount = count;
-      resolve(true);
-    })
-    .catch(error=>{
-      console.log('error in inserting tags: ');
-      console.log(JSON.stringify(error));
-      if(error.message.search(Const.UNIQUE_FAILED)>=0){
-        console.log('already there.');
-        /*ok, constraint violation, the note is already there.*/
-        /*maybe the json_object is changed, trying to update.*/
-        this.db.executeSql(Query.UPDATE_TAG_2, [JSON.stringify(tag), tag.title, JSON.stringify(tag), userid])
-        .then(result=>{
-          console.log('ok');
-          resolve(true);
-        })
-        .catch(error=>{
-          /*don't know if this catch is necessary...*/
-          console.log('error insert min tags');
-          reject(error);
-        })
+// public insertTagMinQuietly(tag: TagAlmostMin, userid: string):Promise<any>{
+//   return new Promise<any>((resolve, reject)=>{
+//     this.db.executeSql(Query.INSERT_TAG_MIN,[tag.title, JSON.stringify(tag), userid])
+//     .then(result=>{
+//       /*nothing to do.*/
+//       return this.getTagsCountAdvanced(userid);
+//     })
+//     .then(count=>{
+//       this.tagsCount = count;
+//       resolve(true);
+//     })
+//     .catch(error=>{
+//       console.log('error in inserting tags: ');
+//       console.log(JSON.stringify(error));
+//       if(error.message.search(Const.UNIQUE_FAILED)>=0){
+//         console.log('already there.');
+//         /*ok, constraint violation, the note is already there.*/
+//         /*maybe the json_object is changed, trying to update.*/
+//         this.db.executeSql(Query.UPDATE_TAG_2, [JSON.stringify(tag), tag.title, JSON.stringify(tag), userid])
+//         .then(result=>{
+//           console.log('ok');
+//           resolve(true);
+//         })
+//         .catch(error=>{
+//           /*don't know if this catch is necessary...*/
+//           console.log('error insert min tags');
+//           reject(error);
+//         })
+//
+//       }else{
+//         reject(error);
+//       }
+//     })
+//   })
+// }
 
-      }else{
-        reject(error);
-      }
-    })
-  })
-}
-
-public insertNoteMinQuietly(note: NoteExtraMin, userid: string):Promise<any>{
-  return new Promise<any>((resolve, reject)=>{
-    this.db.executeSql(Query.INSERT_NOTE_MIN,[note.title, JSON.stringify(note), userid])
-    .then(result=>{
-      /*nothing to do.*/
-      return this.getNotesCountAdvanced(userid);
-    })
-    .then(count=>{
-      this.notesCount = count;
-      resolve(true);
-    })
-    .catch(error=>{
-      console.log('error in inserting note min:'),
-      console.log(JSON.stringify(error));
-      if(error.message.search(Const.UNIQUE_FAILED)>=0){
-        /*ok, constraint violation, the note is already there.*/
-        console.log('already there.');
-        resolve(true);
-      }else{
-        console.log('error othe kind');
-        console.log(JSON.stringify(error));
-        reject(error);
-      }
-    })
-  })
-}
+// public insertNoteMinQuietly(note: NoteExtraMin, userid: string):Promise<any>{
+//   return new Promise<any>((resolve, reject)=>{
+//     this.db.executeSql(Query.INSERT_NOTE_MIN,[note.title, JSON.stringify(note), userid])
+//     .then(result=>{
+//       /*nothing to do.*/
+//       return this.getNotesCountAdvanced(userid);
+//     })
+//     .then(count=>{
+//       this.notesCount = count;
+//       resolve(true);
+//     })
+//     .catch(error=>{
+//       console.log('error in inserting note min:'),
+//       console.log(JSON.stringify(error));
+//       if(error.message.search(Const.UNIQUE_FAILED)>=0){
+//         /*ok, constraint violation, the note is already there.*/
+//         console.log('already there.');
+//         resolve(true);
+//       }else{
+//         console.log('error othe kind');
+//         console.log(JSON.stringify(error));
+//         reject(error);
+//       }
+//     })
+//   })
+// }
 
 private prepareQueryInsertNotesMinQuietly(length:number, userid:string):string{
   let query:string = Query.INSERT_NOTE_MIN_2;
@@ -2559,7 +2588,7 @@ public removeTagsFromNote(note: NoteFull, userid: string, tags: string[]):Promis
   /*check count if it can be embedded into it.*/
   isThereSomethingToSynch(userid: string):Promise<boolean>{
     return new Promise<boolean>((resolve, reject)=>{
-      this.getLogsCountAdvanced(userid)
+      this.getLogsCount(userid)
       .then(count=>{
         if(count>0){resolve(true);}
         else{resolve(false);}
@@ -2670,6 +2699,44 @@ public removeTagsFromNote(note: NoteFull, userid: string, tags: string[]):Promis
 //   })
 // }
 
+private getCounts(rows:any, summary:UserSummary):UserSummary{
+  for(let i=0;i<rows.length;i++){
+    if(rows.item(i).type=='logs'){
+      summary.data.logscount = rows.item(i).count;
+    }
+    else if(rows.item(i).type=='notes'){
+      summary.data.notescount = rows.item(i).count;
+    }else if(rows.item(i).type=='tags'){
+      summary.data.tagscount = rows.item(i).count;
+    }else{
+      summary.data.isfree = rows.item(i).count;
+    }
+  }
+  return summary;
+}
+
+
+getUserSummary(userid: string):Promise<UserSummary>{
+  return new Promise<UserSummary>((resolve, reject)=>{
+    this.db.executeSql(Query.GET_SMART_SUMMARY, [userid, userid])
+    .then(result=>{
+      let summary:UserSummary = new UserSummary();
+      summary.userid=userid;
+      if(result.rows.length!=4){
+        console.log('error in summary');
+        reject(new Error('view is not as long as expected'));
+      }else{
+        summary = this.getCounts(result.rows, summary);
+        resolve(summary);
+      }
+    })
+    .catch(error=>{
+      console.log('error in get summary'),
+      console.log(JSON.stringify(error));
+      reject(error);
+    })
+  })
+}
 
 
 

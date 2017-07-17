@@ -61,7 +61,7 @@ export class AtticNotes {
       let areThereNotesInTheDb: boolean;
       let notes:NoteExtraMin[]=[];
       let useDb: boolean;
-      this.db.getNumberOfNotes(this.auth.userid)
+      this.db.getNotesCount(this.auth.userid)
       .then(number=>{
         areThereNotesInTheDb = (number > 0) ? true : false;
         console.log('the numberof notes is');
@@ -153,7 +153,7 @@ export class AtticNotes {
       let areThereNotesInTheDb: boolean;
       let useDb: boolean;
       let callNet: boolean;
-      this.db.getNumberOfNotes(this.auth.userid)
+      this.db.getNotesCount(this.auth.userid)
       .then(number=>{
         areThereNotesInTheDb = (number > 0) ? true : false;
         useDb = Utils.shouldUseDb(this.netManager.isConnected, areThereNotesInTheDb, force/*, this.synch.isSynching()*/);
@@ -267,7 +267,8 @@ export class AtticNotes {
           parsedResult.push(note);
           /*note.userid = result[i].userid;*/
           if(!this.synch.isNoteFullyLocked()){
-            this.db.insertNoteMinQuietly(note, this.auth.userid);
+            // this.db.insertNoteMinQuietly(note, this.auth.userid);
+            this.db.insertNotesMinSmartAndCleanify([note], this.auth.userid);
           }else{
             console.log('fetched notes by tags but it is locked');
           }
@@ -293,7 +294,7 @@ export class AtticNotes {
       if(expectedResult == 0){
         resolve([]);
       }
-      this.db.getNumberOfNotes(this.auth.userid)
+      this.db.getNotesCount(this.auth.userid)
       .then(number=>{
         areThereNotesInTheDb = (number > 0) ? true : false;
         console.log('the numberof notes is');
@@ -389,7 +390,7 @@ return this.items.filter((item) => {
       let areThereNotesInTheDb: boolean;
       let notes:NoteExtraMin[]=[];
       let useDb: boolean;
-      this.db.getNumberOfNotes(this.auth.userid)
+      this.db.getNotesCount(this.auth.userid)
       .then(number=>{
         areThereNotesInTheDb = (number > 0) ? true : false;
         console.log('the numberof notes is');
