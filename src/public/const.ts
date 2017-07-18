@@ -116,7 +116,7 @@ export class Const{
   public static readonly ERR_NOTE_NOT_FULL ='The note is not full';
   public static readonly ERR_TOKEN_NOT_FOUND = 'token not found';
 
-  public static readonly UNIQUE_FAILED = 'UNIQUE constraint failed';
+  // public static readonly UNIQUE_FAILED = 'UNIQUE constraint failed';
   public static readonly SERVER_ERROR = 'server error';
 
   public static readonly NOTES_LIMIT = 50;
@@ -124,6 +124,21 @@ export class Const{
 
   public static readonly CURRENTLY_SYNCHING = 'Synching is in progress';
   public static readonly CURRENTLY_NOT_SYNCHING = 'Nothing to synch';
+}
 
+export class PostgresError{
+  public static readonly DUPLICATE_KEY_NOTES:string = 'DbError another note with the same title';
+  public static readonly DUPLICATE_KEY_TAGS:string = 'DbError another tag with the same title';
+  public static readonly DUPLICATE_KEY_NOTES_TAGS:string = 'DbError the tag is already with this note';
+  public static readonly USER_REACHED_MAX_NOTES:string = 'DbError a free user cannot have more than 50 notes';
+  public static readonly USER_REACHED_MAX_TAGS:string = 'DbError a free user cannot have more than 50 tags';
+  public static readonly MAINTAGS_LIMIT:string = 'DbError maintags cannot be more than 3';
+  public static readonly OTHERTAGS_LIMIT:string = 'DbError othetags cannot be more than 15';
+  public static readonly FINAL_TAGS_FKEY:string = 'DbError tags not found';
+}
 
+export class SqliteError{
+  public static readonly DUPLICATE_KEY_NOTES:string = 'UNIQUE constraint failed: notes.title, notes.userid, notes.mustbedeleted';
+  public static readonly DUPLICATE_KEY_TAGS:string = 'UNIQUE constraint failed: tags.title, tags.userid, tags.mustbedeleted';
+  public static readonly DUPLICATE_KEY_AUTH:string = 'UNIQUE constraint failed: auth.userid';
 }

@@ -249,6 +249,7 @@ export class Synch {
 
   public sendNotesToSave():Promise<any>{
     let correctResult:string[] = [];
+    let current:string = null;
     return new Promise<any>((resolve, reject)=>{
       this.db.getObjectNotesToSave(this.auth.userid)
       .then(objs=>{
@@ -260,6 +261,7 @@ export class Synch {
           return Promise.all(objs.map((obj, index)=>{
             console.log('the current obj');
             console.log(JSON.stringify(obj.note));
+            current = obj.note.title;
             return Utils.putBasic('/api/notes/create', JSON.stringify({note: obj.note}),this.http, this.auth.token)
             /*
               .catch(err=>{
@@ -290,6 +292,11 @@ export class Synch {
     })
       .catch(error=>{
         console.log('error in processing notes-to-save');
+        // if(current!=null && error){
+        //
+        // }
+        console.log('the note error is: ');
+        console.log(current);
         console.log(JSON.stringify(error));
         reject(error);
       })

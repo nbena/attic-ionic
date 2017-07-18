@@ -3,7 +3,7 @@ import { Http } from '@angular/http';
 import { SQLite } from 'ionic-native';
 import { Platform } from 'ionic-angular';
 import { Query } from '../public/query';
-import { Table, Const, DbAction, WhichField } from '../public/const';
+import { Table, Const, DbAction, WhichField, SqliteError } from '../public/const';
 import { Utils } from '../public/utils';
 import { NoteExtraMin, NoteFull, NoteSQLite,NoteMin } from '../models/notes';
 import { TagExtraMin, TagFull, /*TagMin,*/ TagAlmostMin, TagSQLite } from '../models/tags';
@@ -431,7 +431,7 @@ public setToken(token: any, userid: string):Promise<any>{
         })
       })
     }catch(e){
-      if(e.message.search(Const.UNIQUE_FAILED) >= 0){
+      if(e.message == SqliteError.DUPLICATE_KEY_AUTH){
         //user is already there.
         this.db.executeSql(Query.INSERT_ONLY_TOKEN, [token, userid])
         .then(result=>{
