@@ -147,6 +147,10 @@ export class TagsPage {
         // this.shownTags.push(<TagFull>tag);
       })
       .catch(error=>{
+        console.log('error create new tag');
+        console.log(JSON.stringify(error));
+        // console.log(error);
+        // console.log('better error');
         let alert = this.alertCtrl.create({
           title: error,
           buttons: ['OK']

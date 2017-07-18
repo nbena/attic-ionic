@@ -132,8 +132,15 @@ export class CreateNotePage {
         this.events.publish('change-tab',0, title);
       })
       .catch(error=>{
-        console.log('create note error');
-        console.log(error);
+        console.log('error create new note');
+        console.log(JSON.stringify(error));
+        // console.log(error);
+        // console.log('better error');
+        let alert = this.alertCtrl.create({
+          title: error,
+          buttons: ['OK']
+        });
+        alert.present();
       })
   }
 

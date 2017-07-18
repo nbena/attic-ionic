@@ -27,7 +27,6 @@ export class AtticUserProvider {
 
   getUserSummary(force: boolean):Promise<UserSummary>{
     return new Promise<UserSummary>((resolve, reject)=>{
-      let useForce: boolean = force;
       let useDb: boolean = true;
       let isNteworkAvailable: boolean = this.netManager.isConnected;
       // console.log('is connected');

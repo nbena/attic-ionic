@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Http, Headers } from '@angular/http';
 /* importing auth because I need the token. */
 import { Auth } from './auth';
-import { DbAction, Const } from '../public/const';
+import { DbAction, Const, SqliteError } from '../public/const';
 import { NoteExtraMin/*, NoteSmart,*/, NoteFull,NoteMin, NoteBarebon } from '../models/notes';
 import { Utils } from '../public/utils';
 import { Db/*, LogObject*/ } from './db';
@@ -237,8 +237,23 @@ export class AtticNotes {
   //   //return Utils.putBasic('/api/notes/create', JSON.stringify({note:note}), this.http, this.auth.token);
   // }
 
-  createNote2(note: NoteFull, tags: TagAlmostMin[]):Promise<any>{
-    return this.db.createNewNote2(note, tags, this.auth.userid);
+  createNote2(note: NoteFull, tags: TagAlmostMin[]):Promise<void>{
+    // return this.db.createNewNote2(note, tags, this.auth.userid);
+    return new Promise<void>((resolve, reject)=>{
+      if(!this.synch.isSynching()){
+        this.db.createNewNote2(note, tags, this.auth.userid)
+        .then(result=>{
+          resolve();
+        })
+        .catch(error=>{
+          error = SqliteError.getBetterSqliteError(error.message as string);
+          reject(error);
+        })
+      }else{
+        console.log('trying to create note but it is locked');
+        reject(new Error('synching'));
+      }
+    })
   }
 
   // notesByTag(tags: string[], force: boolean){

@@ -12,6 +12,7 @@ import { TagExtraMin, TagAlmostMin, TagFull } from '../models/tags';
 import { Db } from './db';
 import { NetManager } from './net-manager';
 import { Synch } from './synch';
+import { SqliteError } from '../public/const';
 
 /*
   Generated class for the AtticTags provider.
@@ -176,16 +177,32 @@ export class AtticTags {
   /*
   * create a new tag.
   */
-  createTag(tag: TagFull):Promise<any>{
-    // return Utils.putBasic('/api/tags/'+title, '', this.http, this.auth.token);
-    if(!this.synch.isTagLocked()){
-      return this.db.createTag(tag, this.auth.userid);
-    }else{
-      return new Promise<any>((resolve, reject)=>{
+  createTag(tag: TagFull):Promise<void>{
+    return new Promise<void>((resolve, reject)=>{
+      if(!this.synch.isTagLocked()){
+        this.db.createTag(tag, this.auth.userid)
+        .then(result=>{
+          resolve();
+        })
+        .catch(error=>{
+          error = SqliteError.getBetterSqliteError(error.message as string);
+          reject(error);
+        })
+      }
+      else{
         console.log('trying to create tag but it is locked');
         reject(new Error('synching'));
-      })
-    }
+      }
+    })
+    // return Utils.putBasic('/api/tags/'+title, '', this.http, this.auth.token);
+    // if(!this.synch.isTagLocked()){
+    //   return this.db.createTag(tag, this.auth.userid);
+    // }else{
+    //   return new Promise<any>((resolve, reject)=>{
+    //     console.log('trying to create tag but it is locked');
+    //     reject(new Error('synching'));
+    //   })
+    // }
   }
 
   // tagsByTitle(title: string){
