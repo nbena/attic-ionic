@@ -2776,7 +2776,79 @@ insertSetFree(free:boolean, userid:string):Promise<void>{
 //but if it is without net it won't work......
 deleteForceNote(note:NoteFull, userid:string):Promise<void>{
   return new Promise<void>((resolve,reject)=>{
-    
+    this.db.transaction(tx=>{
+      tx.executeSql(Query.REMOVE_NOTES_FROM_TAGS_SMART_REPLACE, [userid],
+        (tx:any, res:any)=>{console.log('remove notes smart replace ok');},
+        (tx:any, error:any)=>{console.log('error in smart replace');
+          console.log(JSON.stringify(error));}
+      );
+      tx.executeSql(Query.REMOVE_NOTES_FROM_TAGS_CLEANUP_ONE, [userid],
+        (tx:any, res:any)=>{console.log('remove notes tags cleanup one ok');},
+        (tx:any, error:any)=>{console.log('error remove notes tags cleanup one ok');
+          console.log(JSON.stringify(error));}
+      );
+      tx.executeSql(Query.REMOVE_NOTES_FROM_TAGS_CLEANUP_TWO, [userid],
+        (tx:any, res:any)=>{console.log('remove notes tags cleanup two ok');},
+        (tx:any, error:any)=>{console.log('error remove notes tags cleanup two ok');
+          console.log(JSON.stringify(error));}
+      );
+      tx.executeSql(Query.REMOVE_NOTES_FROM_TAGS_CLEANUP_THREE, [userid],
+        (tx:any, res:any)=>{console.log('remove notes tags cleanup three ok');},
+        (tx:any, error:any)=>{console.log('error remove notes tags cleanup three ok');
+          console.log(JSON.stringify(error));}
+      );
+      tx.executeSql(Query.REDUCE_NOTES_LENGTH, [userid],
+        (tx:any, res:any)=>{console.log('remove notes reduce notes length ok');},
+        (tx:any, error:any)=>{console.log('error remove notes reduce notes length ok');
+          console.log(JSON.stringify(error));}
+      );
+    })
+    .then(txResult=>{
+      console.log('note force deleted');
+      resolve();
+    })
+    .catch(error=>{
+      console.log('error in delete force note');
+      console.log(JSON.stringify(error));
+      reject(error);
+    })
+  })
+}
+
+
+deleteForceTag(tag:string, userid:string):Promise<void>{
+  return new Promise<void>((resolve,reject)=>{
+    this.db.transaction(tx=>{
+      tx.executeSql(Query.REMOVE_TAGS_FROM_NOTES_SMART_REPLACE, [userid],
+        (tx:any, res:any)=>{console.log('remove tags smart replace ok');},
+        (tx:any, error:any)=>{console.log('error in smart replace');
+          console.log(JSON.stringify(error));}
+      );
+      tx.executeSql(Query.REMOVE_TAGS_FROM_NOTES_CLEANUP_ONE, [userid],
+        (tx:any, res:any)=>{console.log('remove tags tags cleanup one ok');},
+        (tx:any, error:any)=>{console.log('error remove tags tags cleanup one ok');
+          console.log(JSON.stringify(error));}
+      );
+      tx.executeSql(Query.REMOVE_TAGS_FROM_NOTES_CLEANUP_TWO, [userid],
+        (tx:any, res:any)=>{console.log('remove tags tags cleanup two ok');},
+        (tx:any, error:any)=>{console.log('error remove tags tags cleanup two ok');
+          console.log(JSON.stringify(error));}
+      );
+      tx.executeSql(Query.REMOVE_TAGS_FROM_NOTES_CLEANUP_THREE, [userid],
+        (tx:any, res:any)=>{console.log('remove tags tags cleanup three ok');},
+        (tx:any, error:any)=>{console.log('error remove tags tags cleanup three ok');
+          console.log(JSON.stringify(error));}
+      );
+    })
+    .then(txResult=>{
+      console.log('tag force deleted');
+      resolve();
+    })
+    .catch(error=>{
+      console.log('error in delete force tag');
+      console.log(JSON.stringify(error));
+      reject(error);
+    })
   })
 }
 

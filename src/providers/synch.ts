@@ -221,10 +221,22 @@ export class Synch {
         })
         .then(notesChangedLinks=>{
           console.log('everything is done');
+          //console.log('links changed');
+          // return this.removeNoteBecauseOfError();
           this.isStarted = false;
           this.makeAllFalse();
           resolve(true);
         })
+        // .then(removedNote=>{
+        //   console.log('removed note with error');
+        //   return this.removeTagBecauseOfError();
+        // })
+        // .then(removedTag=>{
+        //   console.log('removed tag with error');
+        //   console.log('everything is done');
+        //   this.makeAllFalse();
+        //   resolve(true);
+        // })
         .catch(error=>{
           console.log('sent error:');
           console.log(JSON.stringify(error));
@@ -670,6 +682,14 @@ export class Synch {
         reject(error);
       })
     })
+  }
+
+  private removeTagBecauseOfError():Promise<void>{
+    return this.db.deleteForceTag(this.tagToDeleteBecauseOfAnError, this.auth.userid);
+  }
+
+  private removeNoteBecauseOfError():Promise<void>{
+    return this.db.deleteForceNote(this.noteToDeleteBecauseOfAnError, this.auth.userid);
   }
 
 

@@ -306,8 +306,12 @@ export class Query{
   static readonly REMOVE_NOTES_FROM_TAGS_CLEANUP_ONE = 'update tags set json_object = replace(json_object, \'[,\', \'[\') where title=? and userid=?';
   static readonly REMOVE_NOTES_FROM_TAGS_CLEANUP_TWO = 'update tags set json_object = replace(json_object, \'},,{\', \'},{\') where title=? and userid=?';
   static readonly REMOVE_NOTES_FROM_TAGS_CLEANUP_THREE = 'update tags set json_object = replace(json_object, \'],\', \']\') where title=? and userid=?';
+  static readonly REDUCE_NOTES_LENGTH = 'currently i am working on this';
 
-
+  static readonly REMOVE_TAGS_FROM_NOTES_SMART_REPLACE = 'sill i have to do this';
+  static readonly REMOVE_TAGS_FROM_NOTES_CLEANUP_ONE = 'idem';
+  static readonly REMOVE_TAGS_FROM_NOTES_CLEANUP_TWO = 'idem';
+  static readonly REMOVE_TAGS_FROM_NOTES_CLEANUP_THREE = 'idem';
 
 
   //static readonly NEED_TO_SYNCH = 'select count(*) as c from logs_sequence where userid=?';
