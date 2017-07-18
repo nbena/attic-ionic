@@ -48,7 +48,8 @@ export class Synch {
   private lockTagCreate: boolean = false;
   private lockTagDelete: boolean = false;
 
-
+  private noteToDeleteBecauseOfAnError:NoteFull  = null; /*just one because Promise.all is rejected as soon ONE is rejected.*/
+  private tagToDeleteBecauseOfAnError: string = null;
 
   constructor(private network: Network, private db: Db,
     private netManager: NetManager,
@@ -249,7 +250,7 @@ export class Synch {
 
   public sendNotesToSave():Promise<any>{
     let correctResult:string[] = [];
-    let current:string = null;
+    let current:NoteFull = null;
     return new Promise<any>((resolve, reject)=>{
       this.db.getObjectNotesToSave(this.auth.userid)
       .then(objs=>{
@@ -261,7 +262,7 @@ export class Synch {
           return Promise.all(objs.map((obj, index)=>{
             console.log('the current obj');
             console.log(JSON.stringify(obj.note));
-            current = obj.note.title;
+            current = obj.note;
             return Utils.putBasic('/api/notes/create', JSON.stringify({note: obj.note}),this.http, this.auth.token)
             /*
               .catch(err=>{
@@ -292,12 +293,14 @@ export class Synch {
     })
       .catch(error=>{
         console.log('error in processing notes-to-save');
-        // if(current!=null && error){
-        //
-        // }
+        console.log(JSON.stringify(error));
+        console.log(error);
+        if(Utils.isPostgresError(error) || Utils.isPostgresError(error.message)){
+          console.log('postgres error!');
+          this.noteToDeleteBecauseOfAnError = current;
+        }
         console.log('the note error is: ');
         console.log(current);
-        console.log(JSON.stringify(error));
         reject(error);
       })
     })
@@ -307,6 +310,7 @@ export class Synch {
   public sendTagsToSave():Promise<any>{
     return new Promise<any>((resolve, reject)=>{
       let correctResult:string[]=[];
+      let current:string;
       this.db.getObjectTagsToSave(this.auth.userid)
       .then(objs=>{
         console.log('the tags to save:');
@@ -315,6 +319,7 @@ export class Synch {
           resolve(true);
         }else{
           return Promise.all(objs.map((obj)=>{
+            current = obj.tag.title;
             return Utils.putBasic('/api/tags/'+obj.tag.title, {}, this.http, this.auth.token)
             .then(res=>{
               correctResult.push(obj.tag.title);
@@ -339,6 +344,13 @@ export class Synch {
       .catch(error=>{
         console.log('error in processing tags-to-save');
         console.log(JSON.stringify(error));
+        console.log(error);
+        if(Utils.isPostgresError(error) || Utils.isPostgresError(error.message)){
+          console.log('postgres error!');
+          this.tagToDeleteBecauseOfAnError = current;
+        }
+        console.log('the tag error is: ');
+        console.log(current);
         reject(error);
       })
     })

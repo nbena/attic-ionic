@@ -2772,6 +2772,15 @@ insertSetFree(free:boolean, userid:string):Promise<void>{
 }
 
 
+//force now I decide to not touch tags, user will do a refresh...
+//but if it is without net it won't work......
+deleteForceNote(note:NoteFull, userid:string):Promise<void>{
+  return new Promise<void>((resolve,reject)=>{
+    
+  })
+}
+
+
 
 /*think about remove notes_tags.*/
 

@@ -298,6 +298,17 @@ export class Query{
 
   static readonly INSERT_SET_FREE = 'update auth set free=? where free <> ? and userid=?';
 
+  static readonly FORCE_DELETE_NOTE = 'delete from notes where title=? and userid=?';
+  static readonly FORCE_DELETE_TAG = 'delete from tags where title=? and userid=?';
+
+  //probably not need both json_object and tagtitle
+  static readonly REMOVE_NOTES_FROM_TAGS_SMART_REPLACE = 'update tags set json_object = replace(json_object, ?, \'\')  where json_object like ? and tagtitle=? and userid=?';
+  static readonly REMOVE_NOTES_FROM_TAGS_CLEANUP_ONE = 'update tags set json_object = replace(json_object, \'[,\', \'[\') where title=? and userid=?';
+  static readonly REMOVE_NOTES_FROM_TAGS_CLEANUP_TWO = 'update tags set json_object = replace(json_object, \'},,{\', \'},{\') where title=? and userid=?';
+  static readonly REMOVE_NOTES_FROM_TAGS_CLEANUP_THREE = 'update tags set json_object = replace(json_object, \'],\', \']\') where title=? and userid=?';
+
+
+
 
   //static readonly NEED_TO_SYNCH = 'select count(*) as c from logs_sequence where userid=?';
 
