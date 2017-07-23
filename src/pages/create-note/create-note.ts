@@ -130,6 +130,7 @@ export class CreateNotePage {
         this.makeAllNull();
         /*it doesn't work.*/
         this.events.publish('change-tab',0, title);
+        //error here...
       })
       .catch(error=>{
         console.log('error create new note');

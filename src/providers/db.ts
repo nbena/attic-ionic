@@ -2793,31 +2793,45 @@ insertSetFree(free:boolean, userid:string):Promise<void>{
 deleteForceNote(note:NoteFull, userid:string):Promise<void>{
   return new Promise<void>((resolve,reject)=>{
     this.db.transaction(tx=>{
-      tx.executeSql(Query.REMOVE_NOTES_FROM_TAGS_SMART_REPLACE, [userid],
+      let minNote:NoteExtraMin = new NoteExtraMin();
+      minNote.title = note.title;
+      let jsonNote:string = JSON.stringify(minNote); /*need to do this because 'as NoteExtraMin'
+       when jsoning keeps the child object*/
+      tx.executeSql(Query.REMOVE_NOTES_FROM_TAGS_SMART_REPLACE, [jsonNote, jsonNote, userid],
         (tx:any, res:any)=>{console.log('remove notes smart replace ok');},
         (tx:any, error:any)=>{console.log('error in smart replace');
           console.log(JSON.stringify(error));}
       );
       tx.executeSql(Query.REMOVE_NOTES_FROM_TAGS_CLEANUP_ONE, [userid],
         (tx:any, res:any)=>{console.log('remove notes tags cleanup one ok');},
-        (tx:any, error:any)=>{console.log('error remove notes tags cleanup one ok');
+        (tx:any, error:any)=>{console.log('error remove notes tags cleanup one');
           console.log(JSON.stringify(error));}
       );
       tx.executeSql(Query.REMOVE_NOTES_FROM_TAGS_CLEANUP_TWO, [userid],
         (tx:any, res:any)=>{console.log('remove notes tags cleanup two ok');},
-        (tx:any, error:any)=>{console.log('error remove notes tags cleanup two ok');
+        (tx:any, error:any)=>{console.log('error remove notes tags cleanup two');
           console.log(JSON.stringify(error));}
       );
       tx.executeSql(Query.REMOVE_NOTES_FROM_TAGS_CLEANUP_THREE, [userid],
         (tx:any, res:any)=>{console.log('remove notes tags cleanup three ok');},
-        (tx:any, error:any)=>{console.log('error remove notes tags cleanup three ok');
+        (tx:any, error:any)=>{console.log('error remove notes tags cleanup three');
           console.log(JSON.stringify(error));}
       );
-      tx.executeSql(Query.REDUCE_NOTES_LENGTH, [userid],
-        (tx:any, res:any)=>{console.log('remove notes reduce notes length ok');},
-        (tx:any, error:any)=>{console.log('error remove notes reduce notes length ok');
-          console.log(JSON.stringify(error));}
-      );
+      let tags:TagExtraMin[]=note.maintags.concat(note.othertags);
+      for(let i=0;i<note.maintags.length+note.othertags.length;i++){
+        tx.executeSql(Query.REDUCE_NOTES_LENGTH, [tags[i].title, userid],
+          (tx:any, res:any)=>{console.log('remove notes reduce notes length ok');},
+          (tx:any, error:any)=>{console.log('error remove notes reduce notes length');
+            console.log('error in tag:');
+            console.log(JSON.stringify(tags[i]));
+            console.log(JSON.stringify(error));}
+        );
+      }
+      // tx.executeSql(Query.REDUCE_NOTES_LENGTH, [userid],
+      //   (tx:any, res:any)=>{console.log('remove notes reduce notes length ok');},
+      //   (tx:any, error:any)=>{console.log('error remove notes reduce notes length ok');
+      //     console.log(JSON.stringify(error));}
+      // );
     })
     .then(txResult=>{
       console.log('note force deleted');
@@ -2835,7 +2849,10 @@ deleteForceNote(note:NoteFull, userid:string):Promise<void>{
 deleteForceTag(tag:string, userid:string):Promise<void>{
   return new Promise<void>((resolve,reject)=>{
     this.db.transaction(tx=>{
-      tx.executeSql(Query.REMOVE_TAGS_FROM_NOTES_SMART_REPLACE, [userid],
+      let minTag:TagExtraMin = new TagExtraMin();
+      minTag.title=tag;
+      let jsonTag: string = JSON.stringify(minTag);
+      tx.executeSql(Query.REMOVE_TAGS_FROM_NOTES_SMART_REPLACE, [jsonTag, jsonTag, userid],
         (tx:any, res:any)=>{console.log('remove tags smart replace ok');},
         (tx:any, error:any)=>{console.log('error in smart replace');
           console.log(JSON.stringify(error));}
