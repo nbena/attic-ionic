@@ -1790,6 +1790,17 @@ public removeTagsFromNote(note: NoteFull, userid: string, tags: string[]):Promis
                 obj.note = JSON.parse(res.rows.item(i).json_object);
                 // console.log('obj is:');
                 // console.log(JSON.stringify(obj.note));
+                //modify note.
+                let mainTags:string[]=[];
+                let otherTags:string[]=[];
+                for(let i=0;i<obj.note.maintags;i++){
+                  mainTags.push(obj.note.maintags[i].title);
+                }
+                for(let i=0;i<obj.note.othertags;i++){
+                  mainTags.push(obj.note.othertags[i].title);
+                }
+                obj.note.maintags=mainTags;
+                obj.note.othertags =otherTags;
                 obj.action = DbAction.DbAction.create;
                 obj.userid = userid;
                 results.push(obj);

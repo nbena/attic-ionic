@@ -96,9 +96,11 @@ export class SummaryPage {
       .catch(error=>{
         console.log('error in synch');
         console.log(JSON.stringify(error));
+        this.synchingEnabled = true;
+        this.synchState = Const.CURRENTLY_NOT_SYNCHING;
       })
       this.synchState = Const.CURRENTLY_SYNCHING;
-      this.synchingEnabled = false;      
+      this.synchingEnabled = false;
     }
   }
 
