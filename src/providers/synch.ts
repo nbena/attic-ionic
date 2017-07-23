@@ -260,22 +260,37 @@ export class Synch {
 
   /*TODO: write a method that absorbs the modification also to the title, to put to 'clean up series'.*/
 
-  public sendNotesToSave():Promise<any>{
+  public sendNotesToSave():Promise<void>{
     let correctResult:string[] = [];
     let current:NoteFull = null;
-    return new Promise<any>((resolve, reject)=>{
+    return new Promise<void>((resolve, reject)=>{
       this.db.getObjectNotesToSave(this.auth.userid)
       .then(objs=>{
         console.log('the objs notes:');
         console.log(JSON.stringify(objs));
         if(objs == null){
-          resolve(true);
+          resolve();
         }else{
-          return Promise.all(objs.map((obj, index)=>{
-            console.log('the current obj');
-            console.log(JSON.stringify(obj.note));
-            current = obj.note;
-            return Utils.putBasic('/api/notes/create', JSON.stringify({note: obj.note}),this.http, this.auth.token)
+          let promises:Promise<any>[] = [];
+          objs.forEach(obj=>{
+            promises.push(
+              new Promise<void>((resolve, reject)=>{
+                Utils.putBasic('/api/notes/create', JSON.stringify({note: obj.note}),this.http, this.auth.token)
+                .then(result=>{
+                  correctResult.push(obj.note.title);
+                })
+                .catch(error=>{
+                  reject(error);
+                })
+              })
+            );
+          });
+          // return Promise.all(objs.map((obj, index)=>{
+          //   console.log('the current obj');
+          //   console.log(JSON.stringify(obj.note));
+          //   current = obj.note;
+          //   return Utils.putBasic('/api/notes/create', JSON.stringify({note: obj.note}),this.http, this.auth.token)
+          return Promise.all(promises)
             /*
               .catch(err=>{
                 err.index = index;
@@ -283,10 +298,9 @@ export class Synch {
               })
               */
               //have to see if it works.
-              .then(res=>{
-                correctResult.push(obj.note.title);
-              })
-          }))
+              // .then(res=>{
+              //   correctResult.push(obj.note.title);
+              // })
         }
       })
       .then(results=>{
@@ -294,15 +308,17 @@ export class Synch {
         console.log('results:');
         console.log(JSON.stringify(results));
       /*  only if the result is correct*/
-      if(results!=null){
-        return this.db.deleteNoteToCreateFromLogsMultiVersion(correctResult, this.auth.userid);
-      }else{
-        resolve(true);
-      }
+    //   if(results!=null){
+    //     //return this.db.deleteNoteToCreateFromLogsMultiVersion(correctResult, this.auth.userid);
+    //   }else{
+    //     resolve();
+    //   }
+    //   })
+    //   .then(dbResult=>{
+    //     resolve();
+    // })
+    resolve();
       })
-      .then(dbResult=>{
-        resolve(true);
-    })
       .catch(error=>{
         console.log('error in processing notes-to-save');
         console.log(JSON.stringify(error));

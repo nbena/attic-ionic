@@ -21,7 +21,7 @@ export class Utils{
         .subscribe(res=>{
 
           if(res.status!=200){
-            throw new Error(res.statusText);
+            reject(res.statusText);
           }
           let data = res.json();
           if(data.ok==false){
@@ -52,12 +52,17 @@ static putBasic(uriFinal: string, body: any, http: Http, token: any){
 
         let data = res.json();
         if(data.ok==false){
-          throw new Error(data.msg);
+          reject(data.msg);
         }
-        resolve(data.result);
+        if(data.result){
+          resolve(data.result);
+        }else{
+          resolve(true);
+        }
+
       },(err)=>{
         console.log('err in put');
-        console.log(err);
+        console.log(JSON.stringify(err));
         reject(err);
       })
   });
@@ -79,9 +84,13 @@ static postBasic(uriFinal: string, body: any, http: Http, token: any):Promise<an
 
         let data = res.json();
         if(data.ok==false){
-          throw new Error(data.msg);
+          reject(data.msg);
         }
-        resolve(data.result);
+        if(data.result){
+          resolve(data.result);
+        }else{
+          resolve(true);
+        }
       },(err)=>{
         reject(err);
       })
@@ -101,9 +110,13 @@ static deleteBasic(uriFinal: string, http: Http, token: any){
 
         let data = res.json();
         if(data.ok==false){
-          throw new Error(data.msg);
+          reject(data.msg);
         }
-        resolve(data.result);
+        if(data.result){
+          resolve(data.result);
+        }else{
+          resolve(true);
+        }
       },(err)=>{
         reject(err);
       })
@@ -401,6 +414,7 @@ static pushLink(alertCtrl:AlertController, cb: ((_: any)=>void) ){
      || error==PostgresError.DUPLICATE_KEY_TAGS || error==PostgresError.FINAL_TAGS_FKEY
      || error==PostgresError.MAINTAGS_LIMIT || error==PostgresError.OTHERTAGS_LIMIT
      || error==PostgresError.USER_REACHED_MAX_NOTES || error==PostgresError.USER_REACHED_MAX_TAGS
+     || error.startsWith('JsonError')
    ){
      ret=true;
    }
