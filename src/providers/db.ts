@@ -1004,6 +1004,22 @@ public insertNotesMinSmartAndCleanify(notes: NoteExtraMin[], userid: string):Pro
   })
 }
 
+public insertTag(tag:TagAlmostMin, userid:string):Promise<void>{
+  return new Promise<void>((resolve, reject)=>{
+    let json:string=JSON.stringify(tag);
+    this.db.executeSql(Query.UPDATE_TAG_2, [json, tag.title, json, userid])
+    .then(result=>{
+      console.log('tag updated');
+      resolve();
+    })
+    .catch(error=>{
+      console.log('error update tag');
+      console.log(JSON.stringify(error));
+      reject(error);
+    })
+  })
+}
+
 public insertTagsMinSmartAndCleanify(tags: TagAlmostMin[], userid: string):Promise<void>{
   return new Promise<void>((resolve, reject)=>{
     this.db.transaction(tx=>{

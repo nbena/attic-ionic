@@ -111,8 +111,10 @@ export class AtticTags {
           /*inserting in the DB.*/
           /*===============================================*/
           /*tags are always min!!!! it just change the json_object*/
+          /*no it's false ahah*/
           if(!this.synch.isTagLocked()){
-            this.db.insertTagsMinSmartAndCleanify([tag], this.auth.userid); /*this will be done asynchronously?*/
+            //this.db.insertTagsMinSmartAndCleanify([tag], this.auth.userid); /*this will be done asynchronously?*/
+            this.db.insertTag(tag, this.auth.userid);
           }else{
             console.log('fetched tag by title but it is locked')
           }
