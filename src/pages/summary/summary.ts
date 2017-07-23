@@ -27,6 +27,8 @@ export class SummaryPage {
   availableNotes: string;
   availableTags: string;
 
+  synchingEnabled: boolean = false;
+
    constructor(/*public navCtrl: NavController, public navParams: NavParams*/
      private atticUser: AtticUserProvider,
      private synch: Synch
@@ -58,6 +60,12 @@ export class SummaryPage {
       }else{
         this.synchState = Const.CURRENTLY_NOT_SYNCHING;
       }
+      //
+      // if(!this.synch.isSynching() && this.summary.data.logscount > 0){
+      //   this.synchingEnabled = true;
+      // }
+      this.canISynch();
+
     })
     .catch(error=>{
       console.log('summary error');
@@ -71,6 +79,27 @@ export class SummaryPage {
     setTimeout(()=>{
       refresher.complete();
     },2000);
+  }
+
+  canISynch(){
+    if(!this.synch.isSynching() && this.summary.data.logscount > 0){
+      this.synchingEnabled = true;
+    }
+  }
+
+  startSynching(){
+    if(this.synchingEnabled){
+      this.synch.synch()
+      .then(synched=>{
+        console.log('synching done');
+      })
+      .catch(error=>{
+        console.log('error in synch');
+        console.log(JSON.stringify(error));
+      })
+      this.synchState = Const.CURRENTLY_SYNCHING;
+      this.synchingEnabled = false;      
+    }
   }
 
 }
