@@ -55,16 +55,17 @@ export class SummaryPage {
       this.availableNotes = (this.summary.data.isfree) ? this.summary.data.availablenotes.toString() : 'Unlimited';
       this.availableTags = (this.summary.data.isfree) ? this.summary.data.availabletags.toString() : 'Unlimited';
 
-      if(this.synch.isSynching()){
-        this.synchState = Const.CURRENTLY_SYNCHING;
-      }else{
-        this.synchState = Const.CURRENTLY_NOT_SYNCHING;
-      }
-      //
-      // if(!this.synch.isSynching() && this.summary.data.logscount > 0){
-      //   this.synchingEnabled = true;
+      // if(this.synch.isSynching()){
+      //   this.synchState = Const.CURRENTLY_SYNCHING;
+      // }else{
+      //   this.synchState = Const.CURRENTLY_NOT_SYNCHING;
       // }
-      this.canISynch();
+      // //
+      // // if(!this.synch.isSynching() && this.summary.data.logscount > 0){
+      // //   this.synchingEnabled = true;
+      // // }
+      // this.canISynch();
+      this.setSynchState();
 
     })
     .catch(error=>{
@@ -81,9 +82,18 @@ export class SummaryPage {
     },2000);
   }
 
-  canISynch(){
+  setSynchingEnabled(){
     if(!this.synch.isSynching() && this.summary.data.logscount > 0){
       this.synchingEnabled = true;
+    }
+  }
+
+  setSynchState(){
+    this.setSynchingEnabled();
+    if(this.synch.isSynching()){
+      this.synchState = Const.CURRENTLY_SYNCHING;
+    }else{
+      this.synchState = Const.CURRENTLY_NOT_SYNCHING;
     }
   }
 
@@ -92,13 +102,16 @@ export class SummaryPage {
       this.synch.synch()
       .then(synched=>{
         console.log('synching done');
+        this.setSynchState();
       })
       .catch(error=>{
         console.log('error in synch');
         console.log(JSON.stringify(error));
-        this.synchingEnabled = true;
-        this.synchState = Const.CURRENTLY_NOT_SYNCHING;
+        // this.synchingEnabled = true;
+        // this.synchState = Const.CURRENTLY_NOT_SYNCHING;
+        this.setSynchState();
       })
+      //please note that this is not done AFTER, but it's call when promise starts.
       this.synchState = Const.CURRENTLY_SYNCHING;
       this.synchingEnabled = false;
     }

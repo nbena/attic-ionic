@@ -123,7 +123,7 @@ export class Const{
   public static readonly TAGS_LIMIT = 50;
 
   public static readonly CURRENTLY_SYNCHING = 'Synching is in progress';
-  public static readonly CURRENTLY_NOT_SYNCHING = 'Nothing to synch';
+  public static readonly CURRENTLY_NOT_SYNCHING = 'No synching now';
 }
 
 export class PostgresError{

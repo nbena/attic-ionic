@@ -153,9 +153,9 @@ export class Synch {
 
 
 
-  public synch():Promise<any>{
+  public synch():Promise<void>{
     console.log('is started?'); console.log(JSON.stringify(this.isStarted));
-    return new Promise<any>((resolve, reject)=>{
+    return new Promise<void>((resolve, reject)=>{
       if(!this.isStarted){
         this.isStarted = true;
         this.makeAllTrue();
@@ -225,7 +225,7 @@ export class Synch {
           // return this.removeNoteBecauseOfError();
           this.isStarted = false;
           this.makeAllFalse();
-          resolve(true);
+          resolve();
         })
         // .then(removedNote=>{
         //   console.log('removed note with error');
@@ -333,7 +333,7 @@ export class Synch {
     /*resolve();*/
       })
       .then(dbResult=>{
-        console.log('things deleted from logs');
+        console.log('notes-to-create deleted from logs');
         resolve();
       })
       .catch(error=>{
@@ -353,7 +353,7 @@ export class Synch {
 
 
   public sendTagsToSave():Promise<any>{
-    return new Promise<any>((resolve, reject)=>{
+    return new Promise<void>((resolve, reject)=>{
       let correctResult:string[]=[];
       let current:string;
       this.db.getObjectTagsToSave(this.auth.userid)
@@ -361,7 +361,7 @@ export class Synch {
         console.log('the tags to save:');
         console.log(JSON.stringify(objs));
         if(objs == null){
-          resolve(true);
+          resolve();
         }else{
           // return Promise.all(objs.map((obj)=>{
           //   current = obj.tag.title;
@@ -373,10 +373,11 @@ export class Synch {
           let promises:Promise<any>[] = [];
           objs.forEach(obj=>{
             promises.push(
-              new Promise<void>((resolve, reject)=>{
+              new Promise<any>((resolve, reject)=>{
                 Utils.putBasic('/api/tags/'+obj.tag.title, {}, this.http, this.auth.token)
                 .then(result=>{
                   correctResult.push(obj.tag.title);
+                  resolve(result);
                 })
                 .catch(error=>{
                   reject(error);
@@ -392,14 +393,15 @@ export class Synch {
         console.log('results:');
         console.log(JSON.stringify(results));
       /*  only if the result is correct*/
-      if(results!=null){
+      if(correctResult.length>0){
         return this.db.deleteTagToCreateFromLogsMultiVersion(correctResult, this.auth.userid);
       }else{
-        resolve(true);
+        resolve();
       }
       })
       .then(dbResult=>{
-        resolve(true);
+        console.log('tags-to-create deleted from logs');
+        resolve();
     })
       .catch(error=>{
         console.log('error in processing tags-to-save');
