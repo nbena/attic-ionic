@@ -104,34 +104,53 @@ export class NoteFull extends NoteBarebon{
     return str;
   }
 
-  public removeTag(ind:IndexTagType):void{
-    if(ind.type==TagType.MAIN){
-      this.maintags=this.maintags.splice(ind.index, 1);
+
+  public removeTag(ind:IndexTagType | TagExtraMin):void{
+    if(ind instanceof IndexTagType){
+      if(ind.type==TagType.MAIN){
+        this.maintags=this.maintags.splice(ind.index, 1);
+      }else{
+        this.othertags=this.othertags.splice(ind.index, 1);
+      }
     }else{
-      this.othertags=this.othertags.splice(ind.index, 1);
+      let index = this.getTagIndex(ind);
+      this.removeTag(index);
     }
   }
 
-  public getTagIndex(tag:TagExtraMin):IndexTagType{
+  private getMainTagsIndex(tag:TagExtraMin):IndexTagType{
     let result:IndexTagType = new IndexTagType();
-    let index:number=-1;
+    result.type = TagType.MAIN;
     for(let i=0;i<this.maintags.length;i++){
       if(this.maintags[i].title==tag.title){
-        index=i;
+        result.index=i;
         i=this.maintags.length;
-        result.type=TagType.MAIN;
       }
     }
-    if(index==-1){
-      for(let i=0;i<this.othertags.length;i++){
-        if(this.othertags[i].title==tag.title){
-          index=i;
-          i=this.othertags.length;
-          result.type=TagType.OTEHR;
-        }
+    return result;
+  }
+
+  private getOtherTagsIndex(tag:TagExtraMin):IndexTagType{
+    let result:IndexTagType = new IndexTagType();
+    result.type = TagType.OTHER;
+    for(let i=0;i<this.othertags.length;i++){
+      if(this.othertags[i].title==tag.title){
+        result.index=i;
+        i=this.othertags.length;
       }
     }
-    result.index = index;
+    return result;
+  }
+
+
+  public getTagIndex(tag:TagExtraMin, type?:TagType):IndexTagType{
+    let result:IndexTagType = new IndexTagType();
+    if(type==null || type==TagType.MAIN){
+      result = this.getMainTagsIndex(tag);
+      if(type==TagType.OTHER || (type==null && result.index==-1)){
+        result = this.getOtherTagsIndex(tag);
+      }
+    }
     return result;
   }
 

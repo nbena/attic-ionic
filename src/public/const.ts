@@ -94,7 +94,7 @@ export namespace DbAction {
 
 export enum TagType{
   MAIN,
-  OTEHR
+  OTHER
 }
 
 export class IndexTagType{

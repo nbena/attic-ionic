@@ -90,6 +90,26 @@ export class TagFull extends TagAlmostMin{
     this.notes =[];
   }
   userid: string;
+
+  public getNoteIndex(note: NoteExtraMin):number{
+    let result:number = -1;
+    for(let i=0;i<this.notes.length;i++){
+      if(this.notes[i].title == note.title){
+        result = i;
+        i=this.notes.length;
+      }
+    }
+    return result;
+  }
+
+  public removeNote(ind:NoteExtraMin|Number){
+    if(ind instanceof Number){
+      this.notes.splice(ind as number, 1);
+    }else{
+      this.removeNote(this.getNoteIndex(ind));
+    }
+  }
+
 }
 
 export class TagSQLite extends TagFull {
