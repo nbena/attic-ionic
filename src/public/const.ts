@@ -92,6 +92,16 @@ export namespace DbAction {
   }
 }
 
+export enum TagType{
+  MAIN,
+  OTEHR
+}
+
+export class IndexTagType{
+  index:number;
+  type:TagType
+}
+
 
 
 export enum WhichField{

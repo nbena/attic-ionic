@@ -254,6 +254,7 @@ export class Query{
   */
 
   //tags-to-add and tags-to-remove
+  static readonly DELETE_FROM_LOGS_TAGS_TO_ADD_TO_NOTE_WHERE_NOTE_AND_TAG = 'delete from logs_sequence where tagtitle is not null and role is not null and action=\'add-tag\' and notetitle=? and tagtitle=? and userid=?';
   static readonly DELETE_FROM_LOGS_TAGS_TO_ADD_TO_NOTE_WHERE_NOTE = 'delete from logs_sequence where userid=? and tagtitle is not null and role is not null and action=\'add-tag\' and (notetitle=?)';
   static readonly DELETE_FROM_LOGS_TAGS_TO_DELETE_FROM_NOTE_WHERE_NOTE = 'delete from logs_sequence where userid=? and tagtitle is not null and role is not null and action=\'remove-tag\' and (notetitle=?)';
 
@@ -301,12 +302,10 @@ export class Query{
   static readonly FORCE_DELETE_NOTE = 'delete from notes where title=? and userid=?';
   static readonly FORCE_DELETE_TAG = 'delete from tags where title=? and userid=?';
 
-  //probably not need both json_object and tagtitle
-  //query a bit slower but they will cleanup everything. Considering an index.
   static readonly REMOVE_NOTES_FROM_TAGS_SMART_REPLACE = 'update tags set json_object = replace(json_object, ?, \'\')  where instr(json_object, ?) <> 0 and userid=?';
   static readonly REMOVE_NOTES_FROM_TAGS_CLEANUP_ONE = 'update tags set json_object = replace(json_object, \'[,\', \'[\') where instr(json_object, \'[,\') <> 0 and userid=?';
   static readonly REMOVE_NOTES_FROM_TAGS_CLEANUP_TWO = 'update tags set json_object = replace(json_object, \'},,{\', \'},{\') where instr(json_object, \'},,{\') <> 0 and userid=?';
-  static readonly REMOVE_NOTES_FROM_TAGS_CLEANUP_THREE = 'update tags set json_object = replace(json_object, \'],\', \']\') where instr(json_object, \'],\') and userid=?';
+  static readonly REMOVE_NOTES_FROM_TAGS_CLEANUP_THREE = 'update tags set json_object = replace(json_object, \'],\', \']\') where instr(json_object, \'],\') <> 0 and userid=?';
   static readonly REDUCE_NOTES_LENGTH = 'with involved_tag(title, json_object) as'+
 '	(select title, json_object from tags where title=? and userid=?)'+
 'update tags set json_object=('+
@@ -346,7 +345,7 @@ export class Query{
   static readonly REMOVE_TAGS_FROM_NOTES_SMART_REPLACE = 'update notes set json_object = replace(json_object, ?) where instr(json_object, ?) <> 0 and userid=?';
   static readonly REMOVE_TAGS_FROM_NOTES_CLEANUP_ONE = 'update notes set json_object = replace(json_object, \'[,\', \'[\') where instr(json_object, \'[,\') <> 0 and userid=?';
   static readonly REMOVE_TAGS_FROM_NOTES_CLEANUP_TWO = 'update notes set json_object = replace(json_object, \'},,{\', \'},{\') where instr(json_object, \'},,{\') <> 0 and userid=?';
-  static readonly REMOVE_TAGS_FROM_NOTES_CLEANUP_THREE = 'update tags set json_object = replace(json_object, \'],\', \']\') where instr(json_object, \'],\') and userid=?';
+  static readonly REMOVE_TAGS_FROM_NOTES_CLEANUP_THREE = 'update notes set json_object = replace(json_object, \'],\', \']\') where instr(json_object, \'],\') and userid=?';
 
 
   //static readonly NEED_TO_SYNCH = 'select count(*) as c from logs_sequence where userid=?';

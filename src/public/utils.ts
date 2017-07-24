@@ -281,6 +281,7 @@ static pushAllJSON(arg0: TagExtraMin[], arg1: string[]){
   }
 }
 
+//TODO delete this and use the one in notes.
 static myIndexOf(arg0: TagExtraMin[], arg1: TagExtraMin): number{
   // console.log('the first string is');
   // console.log(JSON.stringify(arg0));

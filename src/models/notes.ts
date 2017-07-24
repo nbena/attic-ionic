@@ -1,4 +1,5 @@
 import { TagFull, TagExtraMin } from './tags';
+import { IndexTagType, TagType } from '../public/const';
 /*
 Defining interface for note API.
 Here's the interface for the note API.
@@ -89,6 +90,49 @@ export class NoteFull extends NoteBarebon{
       r = a.title.localeCompare(b.title);
     }
     return r;
+  }
+
+  public getTagsAsTagsExtraMinArray():TagExtraMin[]{
+    return this.maintags.concat(this.othertags);
+  }
+
+  public getTagsAsStringArray():string[]{
+    let str:string[]=[];
+    this.getTagsAsTagsExtraMinArray().forEach(obj=>{
+      str.push(obj.title);
+    })
+    return str;
+  }
+
+  public removeTag(ind:IndexTagType):void{
+    if(ind.type==TagType.MAIN){
+      this.maintags=this.maintags.splice(ind.index, 1);
+    }else{
+      this.othertags=this.othertags.splice(ind.index, 1);
+    }
+  }
+
+  public getTagIndex(tag:TagExtraMin):IndexTagType{
+    let result:IndexTagType = new IndexTagType();
+    let index:number=-1;
+    for(let i=0;i<this.maintags.length;i++){
+      if(this.maintags[i].title==tag.title){
+        index=i;
+        i=this.maintags.length;
+        result.type=TagType.MAIN;
+      }
+    }
+    if(index==-1){
+      for(let i=0;i<this.othertags.length;i++){
+        if(this.othertags[i].title==tag.title){
+          index=i;
+          i=this.othertags.length;
+          result.type=TagType.OTEHR;
+        }
+      }
+    }
+    result.index = index;
+    return result;
   }
 
 
