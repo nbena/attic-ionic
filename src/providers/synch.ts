@@ -241,6 +241,7 @@ export class Synch {
           console.log('sent error:');
           console.log(JSON.stringify(error));
           this.isStarted = false;
+          reject(error);
         })
       }
     });
@@ -274,10 +275,13 @@ export class Synch {
           let promises:Promise<any>[] = [];
           objs.forEach(obj=>{
             promises.push(
-              new Promise<void>((resolve, reject)=>{
+              new Promise<any>((resolve, reject)=>{
                 Utils.putBasic('/api/notes/create', JSON.stringify({note: obj.note}),this.http, this.auth.token)
                 .then(result=>{
+                  console.log('done with');
+                  console.log(JSON.stringify(obj.note));
                   correctResult.push(obj.note.title);
+                  resolve(result);
                 })
                 .catch(error=>{
                   reject(error);
@@ -307,7 +311,16 @@ export class Synch {
         /*according to MDN, it returns the values of each promise.*/
         console.log('results:');
         console.log(JSON.stringify(results));
+
+        console.log('the correctResult');
+        console.log(JSON.stringify(correctResult));
+        /*it's an array of the created notes.*/
       /*  only if the result is correct*/
+      if(correctResult.length>0){
+        return this.db.deleteNoteToCreateFromLogsMultiVersion(correctResult, this.auth.userid);
+      }else{
+        resolve();
+      }
     //   if(results!=null){
     //     //return this.db.deleteNoteToCreateFromLogsMultiVersion(correctResult, this.auth.userid);
     //   }else{
@@ -317,7 +330,11 @@ export class Synch {
     //   .then(dbResult=>{
     //     resolve();
     // })
-    resolve();
+    /*resolve();*/
+      })
+      .then(dbResult=>{
+        console.log('things deleted from logs');
+        resolve();
       })
       .catch(error=>{
         console.log('error in processing notes-to-save');
@@ -329,7 +346,7 @@ export class Synch {
         }
         console.log('the note error is: ');
         console.log(current);
-        reject(error);
+        reject(error); /*error is correctly rejected.*/
       })
     })
   }
@@ -346,13 +363,28 @@ export class Synch {
         if(objs == null){
           resolve(true);
         }else{
-          return Promise.all(objs.map((obj)=>{
-            current = obj.tag.title;
-            return Utils.putBasic('/api/tags/'+obj.tag.title, {}, this.http, this.auth.token)
-            .then(res=>{
-              correctResult.push(obj.tag.title);
-            })
-          }))
+          // return Promise.all(objs.map((obj)=>{
+          //   current = obj.tag.title;
+          //   return Utils.putBasic('/api/tags/'+obj.tag.title, {}, this.http, this.auth.token)
+          //   .then(res=>{
+          //     correctResult.push(obj.tag.title);
+          //   })
+          // }))
+          let promises:Promise<any>[] = [];
+          objs.forEach(obj=>{
+            promises.push(
+              new Promise<void>((resolve, reject)=>{
+                Utils.putBasic('/api/tags/'+obj.tag.title, {}, this.http, this.auth.token)
+                .then(result=>{
+                  correctResult.push(obj.tag.title);
+                })
+                .catch(error=>{
+                  reject(error);
+                })
+              })
+            );
+          });
+          return Promise.all(promises);
         }
       })
       .then(results=>{
