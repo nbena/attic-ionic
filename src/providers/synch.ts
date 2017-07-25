@@ -51,7 +51,7 @@ export class Synch {
   // private noteToDeleteBecauseOfAnError:NoteFull  = null; /*just one because Promise.all is rejected as soon ONE is rejected.*/
   // private tagToDeleteBecauseOfAnError: string = null;
 
-  private objRemoveTagToNoteToDeleteBecaseOfAnError:LogObjSmart = null;
+  private objRemoveTagFromNoteToDeleteBecaseOfAnError:LogObjSmart = null;
   private objAddTagToNoteToDeleteBecaseOfAnError:LogObjSmart = null;
   private objChangeTextToDeleteBecaseOfAnError:LogObjSmart = null;
   private objSetDoneToDeleteBecaseOfAnError:LogObjSmart = null;
@@ -157,7 +157,6 @@ export class Synch {
     this.makeAllTagTrue();
     this.makeAllTagFalse();
   }
-
 
 
 
@@ -767,6 +766,179 @@ export class Synch {
   // private removeNoteBecauseOfError():Promise<void>{
   //   return this.db.deleteForceNote(this.noteToDeleteBecauseOfAnError, this.auth.userid);
   // }
+  private removeBadNotesToSetDone():Promise<void>{
+    return new Promise<void>((resolve, reject)=>{
+      if(this.objSetDoneToDeleteBecaseOfAnError!=null){
+        this.db.rollbackModification(this.objSetDoneToDeleteBecaseOfAnError, this.auth.userid)
+        .then(()=>{
+          console.log('ok removed bad notes-to-set-done');
+          resolve();
+        })
+        .catch(error=>{
+          console.log('error remove bad notes-to-set-done');
+          console.log(JSON.stringify(error));
+          reject(error);
+        })
+      }else{
+        resolve();
+        }
+    })
+  }
+
+  private removeBadNotesToSetLink():Promise<void>{
+    return new Promise<void>((resolve, reject)=>{
+      if(this.objSetLinkToDeleteBecaseOfAnError!=null){
+        this.db.rollbackModification(this.objSetLinkToDeleteBecaseOfAnError, this.auth.userid)
+        .then(()=>{
+          console.log('ok removed bad notes-to-set-link');
+          resolve();
+        })
+        .catch(error=>{
+          console.log('error remove bad notes-to-set-link');
+          console.log(JSON.stringify(error));
+          reject(error);
+        })
+      }else{
+        resolve();
+        }
+    })
+  }
+
+  private removeBadNotesToSetChangeText():Promise<void>{
+    return new Promise<void>((resolve, reject)=>{
+      if(this.objChangeTextToDeleteBecaseOfAnError!=null){
+        this.db.rollbackModification(this.objChangeTextToDeleteBecaseOfAnError, this.auth.userid)
+        .then(()=>{
+          console.log('ok removed bad notes-to-change-text');
+          resolve();
+        })
+        .catch(error=>{
+          console.log('error remove bad notes-to-change-text');
+          console.log(JSON.stringify(error));
+          reject(error);
+        })
+      }else{
+        resolve();
+        }
+    })
+  }
+
+  private removeBadNotesToCreate():Promise<void>{
+    return new Promise<void>((resolve, reject)=>{
+      if(this.objCreateNoteToDeleteBecaseOfAnError!=null){
+        this.db.rollbackModification(this.objCreateNoteToDeleteBecaseOfAnError, this.auth.userid)
+        .then(()=>{
+          console.log('ok removed bad notes-to-create');
+          resolve();
+        })
+        .catch(error=>{
+          console.log('error remove bad notes-to-create');
+          console.log(JSON.stringify(error));
+          reject(error);
+        })
+      }else{
+        resolve();
+        }
+    })
+  }
+
+  private removeBadTagsToAddToNotes():Promise<void>{
+    return new Promise<void>((resolve, reject)=>{
+      if(this.objAddTagToNoteToDeleteBecaseOfAnError!=null){
+        this.db.rollbackModification(this.objAddTagToNoteToDeleteBecaseOfAnError, this.auth.userid)
+        .then(()=>{
+          console.log('ok removed bad tags-to-add-to');
+          resolve();
+        })
+        .catch(error=>{
+          console.log('error remove bad tags-to-add-to');
+          console.log(JSON.stringify(error));
+          reject(error);
+        })
+      }else{
+        resolve();
+        }
+    })
+  }
+
+  private removeBadTagsToRemoveFromNotes():Promise<void>{
+    return new Promise<void>((resolve, reject)=>{
+      if(this.objRemoveTagFromNoteToDeleteBecaseOfAnError!=null){
+        this.db.rollbackModification(this.objRemoveTagFromNoteToDeleteBecaseOfAnError, this.auth.userid)
+        .then(()=>{
+          console.log('ok removed bad tags-to-remove-from');
+          resolve();
+        })
+        .catch(error=>{
+          console.log('error remove bad tags-to-remove-from');
+          console.log(JSON.stringify(error));
+          reject(error);
+        })
+      }else{
+        resolve();
+        }
+    })
+  }
+
+
+  private removeBadTagsToCreate():Promise<void>{
+    return new Promise<void>((resolve, reject)=>{
+      if(this.objCreateTagToDeleteBecaseOfAnError!=null){
+        this.db.rollbackModification(this.objCreateTagToDeleteBecaseOfAnError, this.auth.userid)
+        .then(()=>{
+          console.log('ok removed bad tags-to-create');
+          resolve();
+        })
+        .catch(error=>{
+          console.log('error remove bad tags-to-create');
+          console.log(JSON.stringify(error));
+          reject(error);
+        })
+      }else{
+        resolve();
+        }
+    })
+  }
+
+  private removeBadThings():Promise<void>{
+    return new Promise<void>((resolve, reject)=>{
+      this.removeBadTagsToCreate()
+      .then(()=>{
+        console.log('done removed bad tags to created');
+        return this.removeBadNotesToCreate()
+      })
+      .then(()=>{
+        console.log('done removed bad notes to create');
+        return this.removeBadNotesToSetDone();
+      })
+      .then(()=>{
+        console.log('done removed bad notes to set done');
+        return this.removeBadNotesToSetLink();
+      })
+      .then(()=>{
+        console.log('done removed bad notes to set link');
+        return this.removeBadTagsToAddToNotes();
+      })
+      .then(()=>{
+        console.log('done removed bad tags to add to notes');
+        return this.removeBadNotesToSetChangeText();
+      })
+      .then(()=>{
+        console.log('done removed notes to change text');
+        return this.removeBadTagsToRemoveFromNotes();
+      })
+      .then(()=>{
+        console.log('done removed bad tags to remove to notes');
+        console.log('every bad things removed');
+        resolve();
+      })
+      .catch(error=>{
+        console.log('error in removing bad things');
+        console.log(JSON.stringify(error));
+        reject(error);
+      })
+    })
+  }
 
 
   public isThereSomethingToSynch(){
