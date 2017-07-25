@@ -2592,14 +2592,15 @@ public removeTagsFromNote(note: NoteFull, userid: string, tags: string[]):Promis
   deleteNoteFromLogsSetLinkMultiVersion(noteTitles: string[], userid: string):Promise<any>{
     return new Promise<any>((resolve, reject)=>{
       this.db.transaction(tx=>{
-        let query = this.prepareNotesMultiVersion(noteTitles, Query.DELETE_FROM_LOGS_NOTE_SET_LINK_WHERE_NOTE);
-        tx.executeSql(query, [userid, noteTitles],
-          (tx:any, res:any)=>{console.log('delete notes-set-link ok.')},
-          (tx: any, err:any)=>{
-            console.log('error in deleting notes-set-link.');
-            console.log(JSON.stringify(err));
-          }
-        )
+        // let query = this.prepareNotesMultiVersion(noteTitles, Query.DELETE_FROM_LOGS_NOTE_SET_LINK_WHERE_NOTE);
+        // tx.executeSql(query, [userid, noteTitles],
+        //   (tx:any, res:any)=>{console.log('delete notes-set-link ok.')},
+        //   (tx: any, err:any)=>{
+        //     console.log('error in deleting notes-set-link.');
+        //     console.log(JSON.stringify(err));
+        //   }
+        // )
+        this.deleteSetLinksFromLogsSequence(tx, noteTitles, userid);
       })
       .then(txResult=>{
         console.log('tx completed');
@@ -2616,14 +2617,15 @@ public removeTagsFromNote(note: NoteFull, userid: string, tags: string[]):Promis
   deleteNoteFromLogsSetDoneMultiVersion(noteTitles: string[], userid: string):Promise<any>{
     return new Promise<any>((resolve, reject)=>{
       this.db.transaction(tx=>{
-        let query = this.prepareNotesMultiVersion(noteTitles, Query.DELETE_FROM_LOGS_NOTE_SET_DONE_WHERE_NOTE);
-        tx.executeSql(query, [userid, noteTitles],
-          (tx:any, res:any)=>{console.log('delete notes-set-done ok.')},
-          (tx: any, err:any)=>{
-            console.log('error in deleting notes-set-done.');
-            console.log(JSON.stringify(err));
-          }
-        )
+        // let query = this.prepareNotesMultiVersion(noteTitles, Query.DELETE_FROM_LOGS_NOTE_SET_DONE_WHERE_NOTE);
+        // tx.executeSql(query, [userid, noteTitles],
+        //   (tx:any, res:any)=>{console.log('delete notes-set-done ok.')},
+        //   (tx: any, err:any)=>{
+        //     console.log('error in deleting notes-set-done.');
+        //     console.log(JSON.stringify(err));
+        //   }
+        // )
+        this.deleteSetDoneFromLogsSequence(tx, noteTitles, userid);
       })
       .then(txResult=>{
         console.log('tx completed');
@@ -2640,14 +2642,15 @@ public removeTagsFromNote(note: NoteFull, userid: string, tags: string[]):Promis
   deleteNoteFromLogsChangeTextMultiVersion(noteTitles: string[], userid: string):Promise<any>{
     return new Promise<any>((resolve, reject)=>{
       this.db.transaction(tx=>{
-        let query = this.prepareNotesMultiVersion(noteTitles, Query.DELETE_FROM_LOGS_NOTE_CHANGE_TEXT_WHERE_NOTE);
-        tx.executeSql(query, [userid, noteTitles],
-          (tx:any, res:any)=>{console.log('delete notes-change-text ok.')},
-          (tx: any, err:any)=>{
-            console.log('error in deleting notes-to-create.');
-            console.log(JSON.stringify(err));
-          }
-        )
+        // let query = this.prepareNotesMultiVersion(noteTitles, Query.DELETE_FROM_LOGS_NOTE_CHANGE_TEXT_WHERE_NOTE);
+        // tx.executeSql(query, [userid, noteTitles],
+        //   (tx:any, res:any)=>{console.log('delete notes-change-text ok.')},
+        //   (tx: any, err:any)=>{
+        //     console.log('error in deleting notes-to-create.');
+        //     console.log(JSON.stringify(err));
+        //   }
+        // )
+        this.deleteChangeTextFromLogsSequence(tx, noteTitles, userid);
       })
       .then(txResult=>{
         console.log('tx completed');
@@ -3026,7 +3029,7 @@ deleteForceTag(tag:string, userid:string):Promise<void>{
 
 private updateJsonObjNote(tx:any, fullNote:NoteFull, userid:string):void{
   let json:string = JSON.stringify(fullNote);
-  tx.executeSql(Query.UPDATE_JSON_OBJ_NOTE, [json, fullNote.title, userid, json],
+  tx.executeSql(Query.UPDATE_JSON_OBJ_NOTE, [json, fullNote.title, userid],
     (tx:any, res:any)=>{
       console.log('updated json obj note');
     },
@@ -3037,7 +3040,7 @@ private updateJsonObjNote(tx:any, fullNote:NoteFull, userid:string):void{
 
 private updateJsonObjTag(tx:any, fullTag:TagFull, userid:string):void{
   let json:string =JSON.stringify(fullTag);
-  tx.executeSql(Query.UPDATE_JSON_OBJ_TAG, [json, fullTag.title, userid, json],
+  tx.executeSql(Query.UPDATE_JSON_OBJ_TAG, [json, fullTag.title, userid],
     (tx:any, res:any)=>{
       console.log('updated json obj tag');
     },
@@ -3176,7 +3179,112 @@ private rollbackDeleteTag(note: NoteExtraMin, tag: TagExtraMin, userid:string):P
   })
 }
 
+private deleteChangeTextFromLogsSequence(tx:any, noteTitles:string[], userid:string):void{
+  let query:string = this.prepareNotesMultiVersion(noteTitles, Query.DELETE_FROM_LOGS_NOTE_CHANGE_TEXT_WHERE_NOTE);
+  tx.executeSql(query, [userid].concat(noteTitles),
+    (tx:any, res:any)=>{
+      console.log('delete notes-to-change-text')
+    },
+    (tx:any, error:any)=>{
+      console.log('error delete notes-to-change-text');
+      console.log(JSON.stringify(error));
+    }
+  )
+}
 
+private deleteSetDoneFromLogsSequence(tx:any, noteTitles:string[], userid:string):void{
+  let query:string = this.prepareNotesMultiVersion(noteTitles, Query.DELETE_FROM_LOGS_NOTE_SET_DONE_WHERE_NOTE);
+  tx.executeSql(query, [userid].concat(noteTitles),
+    (tx:any, res:any)=>{
+      console.log('delete notes-to-set-done')
+    },
+    (tx:any, error:any)=>{
+      console.log('error delete notes-to-set-done');
+      console.log(JSON.stringify(error));
+    }
+  )
+}
+
+private deleteSetLinksFromLogsSequence(tx:any, noteTitles:string[], userid:string):void{
+  let query:string = this.prepareNotesMultiVersion(noteTitles, Query.DELETE_FROM_LOGS_NOTE_SET_LINK_WHERE_NOTE);
+  tx.executeSql(query, [userid].concat(noteTitles),
+    (tx:any, res:any)=>{
+      console.log('delete notes-to-set-link')
+    },
+    (tx:any, error:any)=>{
+      console.log('error delete notes-to-set-link');
+      console.log(JSON.stringify(error));
+    }
+  )
+}
+
+private rollbackChangeText(note:NoteExtraMin, userid:string):Promise<void>{
+  return new Promise<void>((resolve, reject)=>{
+    this.db.transaction(tx=>{
+      this.deleteChangeTextFromLogsSequence(tx, [note.title], userid);
+    })
+    .then(txResult=>{
+      console.log('tx ok: delete notes-to-change-text');
+      resolve();
+    })
+    .catch(error=>{
+      console.log('error in tx: delete notes-to-change-text');
+      console.log(JSON.stringify(error));
+      reject(error);
+    })
+  })
+}
+
+
+private rollbackSetDone(note:NoteExtraMin, userid:string):Promise<void>{
+  return new Promise<void>((resolve, reject)=>{
+    this.db.transaction(tx=>{
+      this.deleteSetDoneFromLogsSequence(tx, [note.title], userid);
+    })
+    .then(txResult=>{
+      console.log('tx ok: delete notes-to-set-done');
+      resolve();
+    })
+    .catch(error=>{
+      console.log('error in tx: delete notes-to-set-done');
+      console.log(JSON.stringify(error));
+      reject(error);
+    })
+  })
+}
+
+private rollbackSetLink(note:NoteExtraMin, userid:string):Promise<void>{
+  return new Promise<void>((resolve, reject)=>{
+    this.db.transaction(tx=>{
+      this.deleteSetLinksFromLogsSequence(tx, [note.title], userid);
+    })
+    .then(txResult=>{
+      console.log('tx ok: delete notes-to-set-link');
+      resolve();
+    })
+    .catch(error=>{
+      console.log('error in tx: delete notes-to-set-link');
+      console.log(JSON.stringify(error));
+      reject(error);
+    })
+  })
+}
+
+
+
+/*
+how rollback works:
+problems are only when:
+- add/remove tag
+  addtag:
+    the json object of the involved note and tag are updated by
+    removing that tag.
+    the log object is removed from the logs_sequence.
+  removetag
+    I use the cleanup with json.
+    the log object is removed from the logs_sequence.
+for the other I just remove the log object from the logs_sequence.
+*/
 public rollbackModification(logObj: LogObjSmart, userid:string):Promise<void>{
   return new Promise<void>((resolve, reject)=>{
 

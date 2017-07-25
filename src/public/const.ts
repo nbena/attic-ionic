@@ -80,6 +80,13 @@ export namespace DbAction {
     return res;
   }
 
+  /*
+  add tag and remove tag are problems.
+  delete will never be a problem because it's always ok.
+  change title is done only directly.
+  set done, set link are not big problems.
+  for that, we just remove it from the logs.
+  */
   export enum DbAction{
     create,
     delete,
