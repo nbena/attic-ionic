@@ -415,7 +415,7 @@ static pushLink(alertCtrl:AlertController, cb: ((_: any)=>void) ){
      || error==PostgresError.DUPLICATE_KEY_TAGS || error==PostgresError.FINAL_TAGS_FKEY
      || error==PostgresError.MAINTAGS_LIMIT || error==PostgresError.OTHERTAGS_LIMIT
      || error==PostgresError.USER_REACHED_MAX_NOTES || error==PostgresError.USER_REACHED_MAX_TAGS
-     || error.startsWith('JsonError')
+     //|| error.startsWith('JsonError') no thins because is a paramter that should NEVER happen.
    ){
      ret=true;
    }

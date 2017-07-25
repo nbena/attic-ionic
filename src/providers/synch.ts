@@ -169,17 +169,17 @@ export class Synch {
         /*first thing to do is cleaning up.*/
         console.log('cleaning up');
         this.cleanUp()
-        .then(cleanUp=>{
+        .then(()=>{
           console.log('starting sending things');
           this.makeAllNoteTrue();
           return this.sendTagsToSave();
         })
-        .then(tagsSent=>{
+        .then(()=>{
           console.log('tags sent');
           this.makeAllTagTrue();
           return this.sendNotesToSave();
         })
-        .then(notesSent=>{
+        .then(()=>{
           console.log('notes sent');
           this.lockNoteDone = false;
           this.lockNoteText = false;
@@ -191,22 +191,22 @@ export class Synch {
           // this.lockNoteRemoveTags = true;
           return this.sendTagsToAddToNotes();
         })
-        .then(tagsAddedToNotes=>{
+        .then(()=>{
           console.log('tags added');
           /*use the same lock as before*/
           return this.sendTagsToRemoveFromNotes();
         })
-        .then(tagsDeleteFromNotes=>{
+        .then(()=>{
           console.log('tags added');
           /*the previuos locks are ok.*/
           return this.sendTagsToDelete();
         })
-        .then(tagsDeleted=>{
+        .then(()=>{
           console.log('tags deleted');
           this.makeAllTrue();
           return this.sendNotesToDelete();
         })
-        .then(notesDeleted=>{
+        .then(()=>{
           console.log('notes deleted');
           //this.lockNoteDone = true; already done
           this.lockNoteText = false;
@@ -214,36 +214,35 @@ export class Synch {
           this.makeAllTagFalse();
           return this.sendNotesToChangeDone();
         })
-        .then(notesSetDone=>{
+        .then(()=>{
           console.log('set done');
           this.lockNoteDone = false;
           this.lockNoteText = true;
           return this.sendNotesToChangeText();
         })
-        .then(notesChangedText=>{
+        .then(()=>{
           console.log('text changed');
           this.lockNoteText = false;
           this.lockNoteLinks = true;
           return this.sendNotesToChangeLinks();
         })
-        .then(notesChangedLinks=>{
-          console.log('everything is done');
-          //console.log('links changed');
+        .then(()=>{
+          // console.log('everything is done');
+          console.log('links changed');
           // return this.removeNoteBecauseOfError();
-          this.isStarted = false;
-          this.makeAllFalse();
-          resolve();
+
+          return this.removeBadThings();
+
+          // this.isStarted = false;
+          // this.makeAllFalse();
+          // resolve();
         })
-        // .then(removedNote=>{
-        //   console.log('removed note with error');
-        //   return this.removeTagBecauseOfError();
-        // })
-        // .then(removedTag=>{
-        //   console.log('removed tag with error');
-        //   console.log('everything is done');
-        //   this.makeAllFalse();
-        //   resolve(true);
-        // })
+        .then(()=>{
+          console.log('bad things removed');
+          console.log('everything is done');
+          this.isStarted=false;
+          this.makeAllFalse();
+        })
         .catch(error=>{
           console.log('sent error:');
           console.log(JSON.stringify(error));
@@ -303,7 +302,7 @@ export class Synch {
           //   console.log(JSON.stringify(obj.note));
           //   current = obj.note;
           //   return Utils.putBasic('/api/notes/create', JSON.stringify({note: obj.note}),this.http, this.auth.token)
-          return Promise.all(promises)
+          return Promise.all(promises);
             /*
               .catch(err=>{
                 err.index = index;
@@ -348,24 +347,23 @@ export class Synch {
       .catch(error=>{
         console.log('error in processing notes-to-save');
         console.log(JSON.stringify(error));
-        console.log(error);
         if(Utils.isPostgresError(error) || Utils.isPostgresError(error.message)){
           console.log('postgres error!');
           //this.noteToDeleteBecauseOfAnError = current;
           this.objCreateNoteToDeleteBecaseOfAnError = currentLog;
         }
-        console.log('the note error is: ');
-        console.log(current);
+        console.log('the current error object is: ');
+        console.log(currentLog);
         reject(error); /*error is correctly rejected.*/
       })
     })
   }
 
 
-  public sendTagsToSave():Promise<any>{
+  public sendTagsToSave():Promise<void>{
     return new Promise<void>((resolve, reject)=>{
       let correctResult:string[]=[];
-      let current:string;
+      // let current:string;
       let currentLog:LogObjSmart;
       this.db.getObjectTagsToSave(this.auth.userid)
       .then(objs=>{
@@ -417,14 +415,13 @@ export class Synch {
       .catch(error=>{
         console.log('error in processing tags-to-save');
         console.log(JSON.stringify(error));
-        console.log(error);
         if(Utils.isPostgresError(error) || Utils.isPostgresError(error.message)){
           console.log('postgres error!');
           //this.tagToDeleteBecauseOfAnError = current;
           this.objCreateTagToDeleteBecaseOfAnError = currentLog;
         }
-        console.log('the tag error is: ');
-        console.log(current);
+        console.log('the current error object is: ');
+        console.log(currentLog);
         reject(error);
       })
     })
@@ -437,31 +434,61 @@ export class Synch {
   obj.note.maintags AS STRING[]
   obj.note.othertags AS STRING[]
   */
-  public sendTagsToAddToNotes():Promise<any>{
+  public sendTagsToAddToNotes():Promise<void>{
     let correctResult:string[]=[];
     let currentLog:LogObjSmart;
-    return new Promise<any>((resolve, reject)=>{
+    return new Promise<void>((resolve, reject)=>{
       this.db.getObjectTagsToAddToNotes(this.auth.userid)
       .then(objs=>{
         if(objs == null){
-          resolve(true);
+          resolve();
         }else{
-          return Promise.all(objs.map((obj)=>{
-            let reqBody: any ;
-            reqBody = {
-              title: obj.note.title
-            }
-            if(obj.note.maintags.length>0){
-              reqBody.maintags = obj.note.maintags;
-            }
-            if(obj.note.othertags.length>0){
-              reqBody.othertags = obj.note.othertags;
-            }
-            return Utils.postBasic('/api/notes/mod/add-tags', JSON.stringify({note: reqBody}), this.http, this.auth.token)
-            .then(res=>{
-              correctResult.push(obj.note.title);
-            })
-          }))
+          // return Promise.all(objs.map((obj)=>{
+          //   let reqBody: any ;
+          //   reqBody = {
+          //     title: obj.note.title
+          //   }
+          //   if(obj.note.maintags.length>0){
+          //     reqBody.maintags = obj.note.maintags;
+          //   }
+          //   if(obj.note.othertags.length>0){
+          //     reqBody.othertags = obj.note.othertags;
+          //   }
+          //   return Utils.postBasic('/api/notes/mod/add-tags', JSON.stringify({note: reqBody}), this.http, this.auth.token)
+          //   .then(res=>{
+          //     correctResult.push(obj.note.title);
+          //   })
+          // }))
+          let promises:Promise<any>[]=[];
+          objs.forEach(obj=>{
+            promises.push(
+              new Promise<any>((resolve, reject)=>{
+                currentLog = obj;
+                let reqBody:any;
+                reqBody = {
+                  title: obj.note.title
+                }
+                if(obj.note.maintags.length>0){
+                  reqBody.maintags = obj.note.maintags;
+                }
+                if(obj.note.othertags.length>0){
+                  reqBody.othertags = obj.note.othertags;
+                }
+                Utils.postBasic('/api/notes/mod/add-tags', JSON.stringify({note:reqBody}), this.http, this.auth.userid)
+                .then(result=>{
+                  correctResult.push(obj.note.title);
+                  // console.log('ok tags-to-add-to');
+                  resolve(result);
+                })
+                .catch(error=>{
+                  // console.log('error in send tags-to-add-to');
+                  // console.log(JSON.stringify(error));
+                  reject(error);
+                })
+              })
+            )
+          })
+          return Promise.all(promises);
         }
       })
       .then(results=>{
@@ -472,39 +499,70 @@ export class Synch {
       if(results!=null){
         return this.db.deleteTagsToAddToSpecificNoteFromLogs(correctResult, this.auth.userid);
       }else{
-        resolve(true);
+        resolve();
       }
       })
       .then(dbResult=>{
-        resolve(true);
+        resolve();
     })
       .catch(error=>{
         console.log('error in processing notes (tags-to-add-to)');
         console.log(JSON.stringify(error));
+        if(Utils.isPostgresError(error) || Utils.isPostgresError(error.message)){
+          console.log('postgres error!');
+          //this.noteToDeleteBecauseOfAnError = current;
+          this.objAddTagToNoteToDeleteBecaseOfAnError = currentLog;
+        }
+        console.log('the current error object is: ');
+        console.log(currentLog);
         reject(error);
       })
     })
   }
 
 
-  public sendTagsToRemoveFromNotes():Promise<any>{
+  public sendTagsToRemoveFromNotes():Promise<void>{
     let correctResult:string[]=[];
     let currentLog:LogObjSmart;
-    return new Promise<any>((resolve, reject)=>{
+    return new Promise<void>((resolve, reject)=>{
       this.db.getObjectTagsToRemoveFromNotes(this.auth.userid)
       .then(objs=>{
         if(objs == null){
-          resolve(true);
+          resolve();
         }else{
-          return Promise.all(objs.map((obj)=>{
-            let reqBody: any ;
-            reqBody.note.title=obj.note.title;
-            reqBody.note.tags = obj.note.maintags;
-            return Utils.postBasic('/api/notes/mod/remove-tags', JSON.stringify({note: reqBody.note}), this.http, this.auth.token)
-            .then(res=>{
-              correctResult.push(obj.note.title);
-            })
-          }))
+          // return Promise.all(objs.map((obj)=>{
+          //   let reqBody: any ;
+          //   reqBody.note.title=obj.note.title;
+          //   reqBody.note.tags = obj.note.maintags;
+          //   return Utils.postBasic('/api/notes/mod/remove-tags', JSON.stringify({note: reqBody.note}), this.http, this.auth.token)
+          //   .then(res=>{
+          //     correctResult.push(obj.note.title);
+          //   })
+          // }))
+          let promises:Promise<any>[]=[];
+          objs.forEach(obj=>{
+            promises.push(
+              new Promise<any>((resolve, reject)=>{
+                currentLog = obj;
+                let note:any={
+                  title:obj.note.title,
+                  tags:obj.note.maintags
+                }
+                Utils.postBasic('/api/notes/mod/remove-tags', JSON.stringify({note:note}), this.http, this.auth.userid)
+                .then(result=>{
+                  correctResult.push(obj.note.title);
+                  // console.log('ok in send tags-to-remove-from');
+                  resolve(result);
+                })
+                .catch(error=>{
+                  // console.log('error in send tags-to-remove-from');
+                  // console.log(JSON.stringify(error));
+                  reject(error);
+                })
+              })
+            )
+          })
+          return Promise.all(promises);
         }
       })
       .then(results=>{
@@ -515,15 +573,22 @@ export class Synch {
       if(results!=null){
         return this.db.deleteTagsToRemoveFromSpecificNoteFromLogs(correctResult, this.auth.userid);
       }else{
-        resolve(true);
+        resolve();
       }
       })
       .then(dbResult=>{
-        resolve(true);
+        resolve();
     })
       .catch(error=>{
         console.log('error in processing notes (tags-to-remove-from)');
         console.log(JSON.stringify(error));
+        if(Utils.isPostgresError(error) || Utils.isPostgresError(error.message)){
+          console.log('postgres error!');
+          //this.noteToDeleteBecauseOfAnError = current;
+          this.objRemoveTagFromNoteToDeleteBecaseOfAnError = currentLog;
+        }
+        console.log('the current error object is: ');
+        console.log(currentLog);
         reject(error);
       })
     })
@@ -531,21 +596,41 @@ export class Synch {
 
 
 
-  public sendNotesToDelete():Promise<any>{
+  public sendNotesToDelete():Promise<void>{
     let correctResult:string[]=[];
     let currentLog:LogObjSmart;
-    return new Promise<any>((resolve, reject)=>{
+    return new Promise<void>((resolve, reject)=>{
       this.db.getObjectNotesToDelete(this.auth.userid)
       .then(objs=>{
         if(objs == null){
-          resolve(true);
+          resolve();
         }else{
-          return Promise.all(objs.map((obj)=>{
-            return Utils.deleteBasic('/api/notes/'+obj.note.title, this.http, this.auth.token)
-            .then(res=>{
-              correctResult.push(obj.note.title);
-            })
-          }))
+          // return Promise.all(objs.map((obj)=>{
+          //   return Utils.deleteBasic('/api/notes/'+obj.note.title, this.http, this.auth.token)
+          //   .then(res=>{
+          //     correctResult.push(obj.note.title);
+          //   })
+          // }))
+          let promises:Promise<any>[]=[];
+          objs.forEach(obj=>{
+            promises.push(
+              new Promise<any>((resolve, reject)=>{
+                currentLog = obj;
+                Utils.deleteBasic('/api/notes/'+obj.note.title, this.http, this.auth.token)
+                .then(result=>{
+                  correctResult.push(obj.note.title);
+                  // console.log('ok send note to delete');
+                  resolve(result);
+                })
+                .catch(error=>{
+                  // console.log('error in send to note to delete');
+                  // console.log(JSON.stringify(error));
+                  reject(error);
+                })
+              })
+            )
+          })
+          return Promise.all(promises);
         }
       })
       .then(results=>{
@@ -556,15 +641,23 @@ export class Synch {
       if(results!=null){
         return this.db.deleteNotesToDeleteMultiVersion(correctResult, this.auth.userid);
       }else{
-        resolve(true);
+        resolve();
       }
       })
       .then(dbResult=>{
-        resolve(true);
+        resolve();
     })
       .catch(error=>{
         console.log('error in processing notes-to-delete');
         console.log(JSON.stringify(error));
+        if(Utils.isPostgresError(error) || Utils.isPostgresError(error.message)){
+          console.log('postgres error!');
+          //this.noteToDeleteBecauseOfAnError = current;
+          //this.objNoteTo = currentLog; unnecessary, delete is always ok unless there is
+          //a big server error.
+        }
+        console.log('the current error object is: ');
+        console.log(currentLog);
         reject(error);
       })
     })
@@ -572,23 +665,23 @@ export class Synch {
 
 
 
-  public sendTagsToDelete():Promise<any>{
+  public sendTagsToDelete():Promise<void>{
     let correctResult:string[]=[];
     let currentLog:LogObjSmart;
-    return new Promise<any>((resolve, reject)=>{
+    return new Promise<void>((resolve, reject)=>{
       this.db.getObjectTagsToDelete(this.auth.userid)
       .then(objs=>{
         console.log('objs:');
         console.log(JSON.stringify(objs));
         if(objs == null){
-          resolve(true);
+          resolve();
         }else{
-          return Promise.all(objs.map((obj)=>{
-            return Utils.deleteBasic('/api/tags/'+obj.tag.title, this.http, this.auth.token)
-            .then(res=>{
-              correctResult.push(obj.tag.title);
-            })
-          }))
+          // return Promise.all(objs.map((obj)=>{
+          //   return Utils.deleteBasic('/api/tags/'+obj.tag.title, this.http, this.auth.token)
+          //   .then(res=>{
+          //     correctResult.push(obj.tag.title);
+          //   })
+          // }))
           //THIS IS POSSIBLE AND IT'S GOOD BECAUSE THERE'S NO NEED FOR THE IF BUT
           //I DO NOT WANT TO NEST PROMISE!
           // .then(results=>{
@@ -599,12 +692,32 @@ export class Synch {
           //   /*must go here because promise is not correctly resolved.*/
           //   return this.db.deleteTagsToDeleteMultiVersion(correctResult, this.auth.userid);
           // }else{
-          //   resolve(true);
+          //   resolve();
           // }
           // })
           // .then(dbResult=>{
-          //   resolve(true);
+          //   resolve();
           // })
+          let promises:Promise<any>[]=[];
+          objs.forEach(obj=>{
+            promises.push(
+              new Promise<any>((resolve, reject)=>{
+                currentLog = obj;
+                Utils.deleteBasic('/api/tags/'+obj.tag.title, this.http, this.auth.token)
+                .then(result=>{
+                  correctResult.push(obj.tag.title);
+                  // console.log('ok send tags-to-delete');
+                  resolve(result);
+                })
+                .catch(error=>{
+                  // console.log('error in send tags-to-delete');
+                  // console.log(JSON.stringify(error));
+                  reject(error);
+                })
+              })
+            )
+          })
+          return Promise.all(promises);
         }
       })
       .then(results=>{
@@ -615,15 +728,23 @@ export class Synch {
         /*must go here because promise is not correctly resolved.*/
         return this.db.deleteTagsToDeleteMultiVersion(correctResult, this.auth.userid);
       }else{
-        resolve(true);
+        resolve();
       }
       })
       .then(dbResult=>{
-        resolve(true);
+        resolve();
     })
       .catch(error=>{
         console.log('error in processing tags-to-delete');
         console.log(JSON.stringify(error));
+        if(Utils.isPostgresError(error) || Utils.isPostgresError(error.message)){
+          console.log('postgres error!');
+          //this.noteToDeleteBecauseOfAnError = current;
+          //this.objRemov = currentLog; unnecessary: delete is always ok unless there is a
+          //server error.
+        }
+        console.log('the current error object is: ');
+        console.log(currentLog);
         reject(error);
       })
     })
@@ -631,24 +752,47 @@ export class Synch {
 
 
 
-  public sendNotesToChangeText():Promise<any>{
+  public sendNotesToChangeText():Promise<void>{
     let correctResult:string[]=[];
     let currentLog:LogObjSmart;
-    return new Promise<any>((resolve, reject)=>{
+    return new Promise<void>((resolve, reject)=>{
       this.db.getObjectNotesToChangeText(this.auth.userid)
       .then(objs=>{
         if(objs == null){
-          resolve(true);
+          resolve();
         }else{
-          return Promise.all(objs.map((obj)=>{
-            return Utils.postBasic('/api/mod/change-text/', JSON.stringify({note:
-              {title:obj.note.tile,
-                text:obj.note.text
-              }}), this.http, this.auth.token)
-            .then(res=>{
-              correctResult.push(obj.note.title);
-            })
-          }))
+          // return Promise.all(objs.map((obj)=>{
+          //   return Utils.postBasic('/api/mod/change-text/', JSON.stringify({note:
+          //     {title:obj.note.tile,
+          //       text:obj.note.text
+          //     }}), this.http, this.auth.token)
+          //   .then(res=>{
+          //     correctResult.push(obj.note.title);
+          //   })
+          // }))
+          let promises:Promise<any>[]=[];
+          objs.forEach(obj=>{
+            promises.push(
+              new Promise<any>((resolve, reject)=>{
+                currentLog = obj;
+                Utils.postBasic('/api/mod/change-text/', JSON.stringify({note:
+                  {title:obj.note.tile,
+                    text:obj.note.text
+                  }}), this.http, this.auth.token)
+                .then(result=>{
+                  correctResult.push(obj.note.title);
+                  // console.log();
+                  resolve(result);
+                })
+                .catch(error=>{
+                  // console.log('error in');
+                  // console.log(JSON.stringify(error));
+                  reject(error);
+                })
+              })
+            )
+          })
+          return Promise.all(promises);
         }
       })
       .then(results=>{
@@ -659,15 +803,22 @@ export class Synch {
       if(results!=null){
         return this.db.deleteNoteFromLogsChangeTextMultiVersion(correctResult, this.auth.userid);
       }else{
-        resolve(true);
+        resolve();
       }
       })
       .then(dbResult=>{
-        resolve(true);
+        resolve();
     })
       .catch(error=>{
         console.log('error in processing notes-to-change-text.');
         console.log(JSON.stringify(error));
+        if(Utils.isPostgresError(error) || Utils.isPostgresError(error.message)){
+          console.log('postgres error!');
+          //this.noteToDeleteBecauseOfAnError = current;
+          this.objChangeTextToDeleteBecaseOfAnError = currentLog;
+        }
+        console.log('the current error object is: ');
+        console.log(currentLog);
         reject(error);
       })
     })
@@ -681,17 +832,40 @@ export class Synch {
       this.db.getObjectNotesToChangeLinks(this.auth.userid)
       .then(objs=>{
         if(objs == null){
-          resolve(true);
+          resolve();
         }else{
-          return Promise.all(objs.map((obj)=>{
-            return Utils.postBasic('/api/mod/change-links/', JSON.stringify({note:
-              {title:obj.note.tile,
-              links: obj.note.links
-              }}), this.http, this.auth.token)
-            .then(res=>{
-              correctResult.push(obj.note.title);
-            })
-          }))
+          // return Promise.all(objs.map((obj)=>{
+            // return Utils.postBasic('/api/mod/change-links/', JSON.stringify({note:
+            //   {title:obj.note.tile,
+            //   links: obj.note.links
+            //   }}), this.http, this.auth.token)
+          //   .then(res=>{
+          //     correctResult.push(obj.note.title);
+          //   })
+          // }))
+          let promises:Promise<any>[]=[];
+          objs.forEach(obj=>{
+            promises.push(
+              new Promise<any>((resolve, reject)=>{
+                currentLog = obj;
+                Utils.postBasic('/api/mod/change-links/', JSON.stringify({note:
+                  {title:obj.note.tile,
+                  links: obj.note.links
+                  }}), this.http, this.auth.token)
+                .then(result=>{
+                  correctResult.push(obj.note.title);
+                  // console.log('ok in send notes-to-change-links');
+                  resolve(result);
+                })
+                .catch(error=>{
+                  // console.log('error in send notes-to-change-links');
+                  // console.log(JSON.stringify(error));
+                  reject(error);
+                })
+              })
+            )
+          })
+          return Promise.all(promises);
         }
       })
       .then(results=>{
@@ -702,39 +876,69 @@ export class Synch {
       if(results!=null){
         return this.db.deleteNoteFromLogsSetLinkMultiVersion(correctResult, this.auth.userid);
       }else{
-        resolve(true);
+        resolve();
       }
       })
       .then(dbResult=>{
-        resolve(true);
+        resolve();
     })
       .catch(error=>{
         console.log('error in processing notes-to-change-links.');
         console.log(JSON.stringify(error));
+        if(Utils.isPostgresError(error) || Utils.isPostgresError(error.message)){
+          console.log('postgres error!');
+          //this.noteToDeleteBecauseOfAnError = current;
+          this.objSetLinkToDeleteBecaseOfAnError = currentLog;
+        }
+        console.log('the current error object is: ');
+        console.log(currentLog);
         reject(error);
       })
     })
   }
 
 
-  public sendNotesToChangeDone():Promise<any>{
+  public sendNotesToChangeDone():Promise<void>{
     let correctResult:string[]=[];
     let currentLog:LogObjSmart;
-    return new Promise<any>((resolve, reject)=>{
+    return new Promise<void>((resolve, reject)=>{
       this.db.getObjectNotesToSetDone(this.auth.userid)
       .then(objs=>{
         if(objs == null){
-          resolve(true);
+          resolve();
         }else{
-          return Promise.all(objs.map((obj)=>{
-            return Utils.postBasic('/api/mod/set-done/', JSON.stringify({note:
-              {title:obj.note.tile,
-                isdone: obj.note.isdone
-              }}), this.http, this.auth.token)
-            .then(res=>{
-              correctResult.push(obj.note.title);
-            })
-          }))
+          // return Promise.all(objs.map((obj)=>{
+          //   return Utils.postBasic('/api/mod/set-done/', JSON.stringify({note:
+          //     {title:obj.note.tile,
+          //       isdone: obj.note.isdone
+          //     }}), this.http, this.auth.token)
+          //   .then(res=>{
+          //     correctResult.push(obj.note.title);
+          //   })
+          // }))
+          let promises:Promise<any>[]=[];
+          objs.forEach(obj=>{
+            promises.push(
+              new Promise<any>((resolve, reject)=>{
+                currentLog = obj;
+                  Utils.postBasic('/api/mod/set-done/', JSON.stringify({note:
+                    {title:obj.note.tile,
+                      isdone: obj.note.isdone
+                    }}), this.http, this.auth.token)
+                .then(result=>{
+                  correctResult.push(obj.note.title);
+                  // console.log('ok send notes-to-set-done');
+                  resolve(result);
+                })
+                .catch(error=>{
+                  // console.log('error in send notes-to-set-done');
+                  // console.log(JSON.stringify(error));
+                  reject(error);
+                })
+              })
+            )
+          })
+          return Promise.all(promises);
         }
       })
       .then(results=>{
@@ -745,15 +949,22 @@ export class Synch {
       if(results!=null){
         return this.db.deleteNoteFromLogsSetDoneMultiVersion(correctResult, this.auth.userid);
       }else{
-        resolve(true);
+        resolve();
       }
       })
       .then(dbResult=>{
-        resolve(true);
+        resolve();
     })
       .catch(error=>{
         console.log('error in processing notes-to-set-done.');
         console.log(JSON.stringify(error));
+        if(Utils.isPostgresError(error) || Utils.isPostgresError(error.message)){
+          console.log('postgres error!');
+          //this.noteToDeleteBecauseOfAnError = current;
+          this.objSetDoneToDeleteBecaseOfAnError = currentLog;
+        }
+        console.log('the current error object is: ');
+        console.log(currentLog);
         reject(error);
       })
     })
