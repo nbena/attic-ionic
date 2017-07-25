@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Http } from '@angular/http';
 import 'rxjs/add/operator/map';
-import { Db/*, LogObject */} from './db';
+import { Db/*, LogObject */, LogObjSmart} from './db';
 import { Auth } from './auth';
 import { AtticTags } from './attic-tags';
 import { AtticNotes } from './attic-notes';
@@ -48,8 +48,16 @@ export class Synch {
   private lockTagCreate: boolean = false;
   private lockTagDelete: boolean = false;
 
-  private noteToDeleteBecauseOfAnError:NoteFull  = null; /*just one because Promise.all is rejected as soon ONE is rejected.*/
-  private tagToDeleteBecauseOfAnError: string = null;
+  // private noteToDeleteBecauseOfAnError:NoteFull  = null; /*just one because Promise.all is rejected as soon ONE is rejected.*/
+  // private tagToDeleteBecauseOfAnError: string = null;
+
+  private objRemoveTagToNoteToDeleteBecaseOfAnError:LogObjSmart = null;
+  private objAddTagToNoteToDeleteBecaseOfAnError:LogObjSmart = null;
+  private objChangeTextToDeleteBecaseOfAnError:LogObjSmart = null;
+  private objSetDoneToDeleteBecaseOfAnError:LogObjSmart = null;
+  private objSetLinkToDeleteBecaseOfAnError:LogObjSmart = null;
+  private objCreateNoteToDeleteBecaseOfAnError:LogObjSmart = null;
+  private objCreateTagToDeleteBecaseOfAnError:LogObjSmart = null;
 
   constructor(private network: Network, private db: Db,
     private netManager: NetManager,
@@ -264,6 +272,7 @@ export class Synch {
   public sendNotesToSave():Promise<void>{
     let correctResult:string[] = [];
     let current:NoteFull = null;
+    let currentLog:LogObjSmart;
     return new Promise<void>((resolve, reject)=>{
       this.db.getObjectNotesToSave(this.auth.userid)
       .then(objs=>{
@@ -276,6 +285,7 @@ export class Synch {
           objs.forEach(obj=>{
             promises.push(
               new Promise<any>((resolve, reject)=>{
+                currentLog = obj;
                 Utils.putBasic('/api/notes/create', JSON.stringify({note: obj.note}),this.http, this.auth.token)
                 .then(result=>{
                   console.log('done with');
@@ -342,7 +352,8 @@ export class Synch {
         console.log(error);
         if(Utils.isPostgresError(error) || Utils.isPostgresError(error.message)){
           console.log('postgres error!');
-          this.noteToDeleteBecauseOfAnError = current;
+          //this.noteToDeleteBecauseOfAnError = current;
+          this.objCreateNoteToDeleteBecaseOfAnError = currentLog;
         }
         console.log('the note error is: ');
         console.log(current);
@@ -356,6 +367,7 @@ export class Synch {
     return new Promise<void>((resolve, reject)=>{
       let correctResult:string[]=[];
       let current:string;
+      let currentLog:LogObjSmart;
       this.db.getObjectTagsToSave(this.auth.userid)
       .then(objs=>{
         console.log('the tags to save:');
@@ -409,7 +421,8 @@ export class Synch {
         console.log(error);
         if(Utils.isPostgresError(error) || Utils.isPostgresError(error.message)){
           console.log('postgres error!');
-          this.tagToDeleteBecauseOfAnError = current;
+          //this.tagToDeleteBecauseOfAnError = current;
+          this.objCreateTagToDeleteBecaseOfAnError = currentLog;
         }
         console.log('the tag error is: ');
         console.log(current);
@@ -427,6 +440,7 @@ export class Synch {
   */
   public sendTagsToAddToNotes():Promise<any>{
     let correctResult:string[]=[];
+    let currentLog:LogObjSmart;
     return new Promise<any>((resolve, reject)=>{
       this.db.getObjectTagsToAddToNotes(this.auth.userid)
       .then(objs=>{
@@ -476,6 +490,7 @@ export class Synch {
 
   public sendTagsToRemoveFromNotes():Promise<any>{
     let correctResult:string[]=[];
+    let currentLog:LogObjSmart;
     return new Promise<any>((resolve, reject)=>{
       this.db.getObjectTagsToRemoveFromNotes(this.auth.userid)
       .then(objs=>{
@@ -519,6 +534,7 @@ export class Synch {
 
   public sendNotesToDelete():Promise<any>{
     let correctResult:string[]=[];
+    let currentLog:LogObjSmart;
     return new Promise<any>((resolve, reject)=>{
       this.db.getObjectNotesToDelete(this.auth.userid)
       .then(objs=>{
@@ -559,6 +575,7 @@ export class Synch {
 
   public sendTagsToDelete():Promise<any>{
     let correctResult:string[]=[];
+    let currentLog:LogObjSmart;
     return new Promise<any>((resolve, reject)=>{
       this.db.getObjectTagsToDelete(this.auth.userid)
       .then(objs=>{
@@ -617,6 +634,7 @@ export class Synch {
 
   public sendNotesToChangeText():Promise<any>{
     let correctResult:string[]=[];
+    let currentLog:LogObjSmart;
     return new Promise<any>((resolve, reject)=>{
       this.db.getObjectNotesToChangeText(this.auth.userid)
       .then(objs=>{
@@ -659,6 +677,7 @@ export class Synch {
 
   public sendNotesToChangeLinks():Promise<any>{
     let correctResult:string[]=[];
+    let currentLog:LogObjSmart;
     return new Promise<any>((resolve, reject)=>{
       this.db.getObjectNotesToChangeLinks(this.auth.userid)
       .then(objs=>{
@@ -701,6 +720,7 @@ export class Synch {
 
   public sendNotesToChangeDone():Promise<any>{
     let correctResult:string[]=[];
+    let currentLog:LogObjSmart;
     return new Promise<any>((resolve, reject)=>{
       this.db.getObjectNotesToSetDone(this.auth.userid)
       .then(objs=>{
@@ -740,13 +760,13 @@ export class Synch {
     })
   }
 
-  private removeTagBecauseOfError():Promise<void>{
-    return this.db.deleteForceTag(this.tagToDeleteBecauseOfAnError, this.auth.userid);
-  }
-
-  private removeNoteBecauseOfError():Promise<void>{
-    return this.db.deleteForceNote(this.noteToDeleteBecauseOfAnError, this.auth.userid);
-  }
+  // private removeTagBecauseOfError():Promise<void>{
+  //   return this.db.deleteForceTag(this.tagToDeleteBecauseOfAnError, this.auth.userid);
+  // }
+  //
+  // private removeNoteBecauseOfError():Promise<void>{
+  //   return this.db.deleteForceNote(this.noteToDeleteBecauseOfAnError, this.auth.userid);
+  // }
 
 
   public isThereSomethingToSynch(){
