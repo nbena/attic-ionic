@@ -16,6 +16,11 @@ export class TagExtraMin {
   // toStringId(): string{
   //   return this._id;
   // }
+  public static NewTag(title:string):TagExtraMin{
+    let tag:TagExtraMin = new TagExtraMin();
+    tag.title=title;
+    return tag;
+  }
 
 }
 

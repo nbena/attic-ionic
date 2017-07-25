@@ -52,6 +52,19 @@ export class NoteMin extends NoteBarebon{
     this.othertags = [];
   }
 
+  public getTagsAsStringArray():string[]{
+    let array:string[]=[];
+    array = array.concat(this.maintags, this.othertags);
+    return array;
+  }
+
+  public getTagsAsTagsExtraMinArray():TagExtraMin[]{
+    let array:TagExtraMin[]=[];
+    let arrayStr:string[]=this.getTagsAsStringArray();
+    array=arrayStr.map(obj=>{return TagExtraMin.NewTag(obj)})
+    return array;
+  }
+
 }
 
 // export class NoteFull extends NoteBarebon{

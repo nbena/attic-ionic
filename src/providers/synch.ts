@@ -419,6 +419,12 @@ export class Synch {
   }
 
 
+  /*
+  NOTE IS NOTE MIN
+  obj.note.title
+  obj.note.maintags AS STRING[]
+  obj.note.othertags AS STRING[]
+  */
   public sendTagsToAddToNotes():Promise<any>{
     let correctResult:string[]=[];
     return new Promise<any>((resolve, reject)=>{
@@ -479,7 +485,7 @@ export class Synch {
           return Promise.all(objs.map((obj)=>{
             let reqBody: any ;
             reqBody.note.title=obj.note.title;
-            reqBody.note.tags = obj.note.mainTags;
+            reqBody.note.tags = obj.note.maintags;
             return Utils.postBasic('/api/notes/mod/remove-tags', JSON.stringify({note: reqBody.note}), this.http, this.auth.token)
             .then(res=>{
               correctResult.push(obj.note.title);
