@@ -91,6 +91,11 @@ export class LogObjSmart{
   tag: any;
   action: DbAction.DbAction;
   role: string;
+
+  // constructor(){
+  //
+  // }
+
 }
 
 /*
@@ -1795,8 +1800,8 @@ public removeTagsFromNote(note: NoteFull, userid: string, tags: string[]):Promis
 }
 
 
-  public cleanUpEverything(userid: string):Promise<any>{
-    return new Promise<any>((resolve, reject)=>{
+  public cleanUpEverything(userid: string):Promise<void>{
+    return new Promise<void>((resolve, reject)=>{
       this.db.transaction(tx=>{
         /*the first two are now done by two triggers.*/
         // tx.executeSql(Query.CLEAN_UP_NOTES_CREATE, [userid, userid]);
@@ -1808,7 +1813,7 @@ public removeTagsFromNote(note: NoteFull, userid: string, tags: string[]):Promis
       .then(txResult=>{
         console.log('cleanup completed');
         console.log(JSON.stringify(txResult));
-        resolve(true);
+        resolve();
       })
       .catch(error=>{
         console.log('error in clean up');
@@ -1820,7 +1825,7 @@ public removeTagsFromNote(note: NoteFull, userid: string, tags: string[]):Promis
 
   /**
   return an array of LogObjSmart.
-  Each object is the result of JSON.parse(db_row.json_object)
+  Each object is the result of JSON.parse(db_row.json_object) as NoteExtraMin
   */
   public getObjectNotesToSave(userid: string):Promise<LogObjSmart[]>{
     // console.log('userid: '+userid);
@@ -1837,20 +1842,25 @@ public removeTagsFromNote(note: NoteFull, userid: string, tags: string[]):Promis
               let results:LogObjSmart[]=[];
               for(let i=0;i<res.rows.length;i++){
                 let obj: LogObjSmart = new LogObjSmart();
-                obj.note = JSON.parse(res.rows.item(i).json_object);
+                let tmpNote: any;
+                //obj.note = JSON.parse(res.rows.item(i).json_object);
+                tmpNote = JSON.parse(res.rows.item(i).json_object);
                 // console.log('obj is:');
                 // console.log(JSON.stringify(obj.note));
                 //modify note.
                 let mainTags:string[]=[];
                 let otherTags:string[]=[];
-                for(let i=0;i<obj.note.maintags;i++){
-                  mainTags.push(obj.note.maintags[i].title);
+                for(let i=0;i<tmpNote.maintags;i++){
+                  mainTags.push(tmpNote.maintags[i].title);
                 }
-                for(let i=0;i<obj.note.othertags;i++){
-                  mainTags.push(obj.note.othertags[i].title);
+                for(let i=0;i<tmpNote.othertags;i++){
+                  otherTags.push(tmpNote.othertags[i].title);
                 }
-                obj.note.maintags=mainTags;
-                obj.note.othertags =otherTags;
+                let note:NoteMin = new NoteMin();
+                note = tmpNote as NoteMin;
+                note.maintags=mainTags;
+                note.othertags =otherTags;
+                obj.note = note;
                 obj.action = DbAction.DbAction.create;
                 obj.userid = userid;
                 results.push(obj);
@@ -2875,12 +2885,27 @@ private prepareQueryDeleteForceNote(query:string, length:number):string{
   return result;
 }
 
-
+private getUglyNoteMinFromObject(obj:any):NoteMin{
+  let note:NoteMin = new NoteMin();
+  note.title=obj.title;
+  note.text=obj.text;
+  note.creationdate=obj.creationdate;
+  note.lastmodificationdate=obj.lastmodificationdate;
+  note.isdone=obj.isdone;
+  note.maintags=obj.maintags;
+  note.othertags=obj.othertags;
+  return note;
+}
 //force now I decide to not touch tags, user will do a refresh...
 //but if it is without net it won't work......
-deleteForceNote(note:NoteFull, userid:string):Promise<void>{
+deleteForceNote(noteObj:NoteMin, userid:string):Promise<void>{
   return new Promise<void>((resolve,reject)=>{
     this.db.transaction(tx=>{
+      console.log('the note im going to delete is');
+      console.log(JSON.stringify(noteObj));
+      let note:NoteMin = this.getUglyNoteMinFromObject(noteObj);
+      console.log(note instanceof NoteMin);
+      console.log(typeof note);
       let minNote:NoteExtraMin = new NoteExtraMin();
       minNote.title = note.title;
       let jsonNote:string = JSON.stringify(minNote); /*need to do this because 'as NoteExtraMin'
@@ -2914,7 +2939,7 @@ deleteForceNote(note:NoteFull, userid:string):Promise<void>{
         (tx:any, error:any)=>{console.log('error remove notes tags cleanup three');
           console.log(JSON.stringify(error));}
       );
-      let tags:TagExtraMin[]=note.maintags.concat(note.othertags);
+      let tags:TagExtraMin[]=note.getTagsAsTagsExtraMinArray();
       for(let i=0;i<note.maintags.length+note.othertags.length;i++){
         tx.executeSql(Query.REDUCE_NOTES_LENGTH, [tags[i].title, userid],
           (tx:any, res:any)=>{console.log('remove notes reduce notes length ok');},
@@ -2936,7 +2961,7 @@ deleteForceNote(note:NoteFull, userid:string):Promise<void>{
     })
     .catch(error=>{
       console.log('error in delete force note');
-      console.log(JSON.stringify(error));
+      console.log(JSON.stringify(error.message));
       reject(error);
     })
   })
@@ -3320,7 +3345,7 @@ public rollbackModification(logObj: LogObjSmart, userid:string):Promise<void>{
         break;
       case DbAction.DbAction.create:
         if(logObj.note!=null){
-          p=this.deleteForceNote(logObj.note as NoteFull, userid);
+          p=this.deleteForceNote(logObj.note as NoteMin, userid);
         }else{
           p=this.deleteForceTag(logObj.tag.title, userid);
         }

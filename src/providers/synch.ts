@@ -59,6 +59,8 @@ export class Synch {
   private objCreateNoteToDeleteBecaseOfAnError:LogObjSmart = null;
   private objCreateTagToDeleteBecaseOfAnError:LogObjSmart = null;
 
+  private someSynchError:boolean = false;
+
   constructor(private network: Network, private db: Db,
     private netManager: NetManager,
     // private atticNotes: AtticNotes,
@@ -227,31 +229,86 @@ export class Synch {
           return this.sendNotesToChangeLinks();
         })
         .then(()=>{
-          // console.log('everything is done');
-          console.log('links changed');
-          // return this.removeNoteBecauseOfError();
-
-          return this.removeBadThings();
-
-          // this.isStarted = false;
-          // this.makeAllFalse();
-          // resolve();
-        })
-        .then(()=>{
-          console.log('bad things removed');
-          console.log('everything is done');
-          this.isStarted=false;
-          this.makeAllFalse();
-        })
+        //   // console.log('everything is done');
+        //   console.log('links changed');
+        //   // return this.removeNoteBecauseOfError();
+        //
+        //   return this.removeBadThings();
+        //
+        //   // this.isStarted = false;
+        //   // this.makeAllFalse();
+        //   // resolve();
+        // })
+        // .then(()=>{
+        //   console.log('bad things removed');
+        //   console.log('everything is done');
+        //   this.isStarted=false;
+        //   this.makeAllFalse();
+        console.log('links changed');
+        console.log('everything is done');
+        resolve();
+      })
         .catch(error=>{
           console.log('sent error:');
           console.log(JSON.stringify(error));
-          this.isStarted = false;
+          if(this.someSynchError){
+            return this.removeBadThings();
+          }else{
+            this.isStarted = false;
+            reject(error);
+          }
+        })
+        .then(()=>{
+          console.log('bad things removed');
+          resolve();
+        })
+        .catch(error=>{
+          console.log('error in removing bad things');
+          console.log(JSON.stringify(error));
           reject(error);
         })
       }
     });
   }
+
+  // private mkPromise():Promise<void>[]{
+  //   let promises:Promise<void>[]=[];
+  //
+  //     // new Promise<void>((resolve, reject)=>{
+  //     //   this.makeAllTrue();
+  //     //   console.log('start cleanup');
+  //     //   this.cleanUp().then(()=>{console.log('cleanup ok');})
+  //     //     .catch(error=>{reject(error);})
+  //     // })
+  //
+  //   promises = [this.cleanUp(), this.sendTagsToSave(), this.sendNotesToSave(),
+  //     this.sendTagsToAddToNotes(), this.sendTagsToRemoveFromNotes(), this.sendTagsToDelete(),
+  //     this.sendNotesToChangeDone(), this.sendNotesToChangeText(), this.sendNotesToChangeLinks()
+  //   ]
+  //   return promises;
+  // }
+
+  // public synch():Promise<void>{
+  //   return new Promise<void>((resolve, reject)=>{
+  //     if(!this.isStarted){
+  //       this.makeAllTrue();
+  //       this.isStarted = true;
+  //       Promise.all(this.mkPromise())
+  //       .then(()=>{
+  //         console.log('everything is done');
+  //         resolve();
+  //       })
+  //       .catch(error=>{
+  //         console.log('sent error');
+  //         console.log(JSON.stringify(error));
+  //         reject(error);
+  //       })
+  //     }else{
+  //       console.log('already in progess');
+  //       resolve();
+  //     }
+  //   })
+  // }
 
 
   //basically just a wrapper.
@@ -267,10 +324,13 @@ export class Synch {
 
   /*TODO: write a method that absorbs the modification also to the title, to put to 'clean up series'.*/
 
+  //note is NOTEEXTRAMIN!
   public sendNotesToSave():Promise<void>{
     let correctResult:string[] = [];
     let current:NoteFull = null;
     let currentLog:LogObjSmart;
+    // this.makeAllTagTrue();
+    // console.log('start sending notes-to-create');
     return new Promise<void>((resolve, reject)=>{
       this.db.getObjectNotesToSave(this.auth.userid)
       .then(objs=>{
@@ -281,9 +341,9 @@ export class Synch {
         }else{
           let promises:Promise<any>[] = [];
           objs.forEach(obj=>{
+            currentLog = obj;
             promises.push(
               new Promise<any>((resolve, reject)=>{
-                currentLog = obj;
                 Utils.putBasic('/api/notes/create', JSON.stringify({note: obj.note}),this.http, this.auth.token)
                 .then(result=>{
                   console.log('done with');
@@ -341,7 +401,8 @@ export class Synch {
     /*resolve();*/
       })
       .then(dbResult=>{
-        console.log('notes-to-create deleted from logs');
+        // console.log('ok notes-to-create deleted from logs');
+        // console.log('ok notes-to-create');
         resolve();
       })
       .catch(error=>{
@@ -351,9 +412,10 @@ export class Synch {
           console.log('postgres error!');
           //this.noteToDeleteBecauseOfAnError = current;
           this.objCreateNoteToDeleteBecaseOfAnError = currentLog;
+          this.someSynchError = true;
         }
         console.log('the current error object is: ');
-        console.log(currentLog);
+        console.log(JSON.stringify(currentLog));
         reject(error); /*error is correctly rejected.*/
       })
     })
@@ -362,6 +424,8 @@ export class Synch {
 
   public sendTagsToSave():Promise<void>{
     return new Promise<void>((resolve, reject)=>{
+      // this.makeAllNoteTrue();
+      // console.log('sending tags to save');
       let correctResult:string[]=[];
       // let current:string;
       let currentLog:LogObjSmart;
@@ -381,6 +445,7 @@ export class Synch {
           // }))
           let promises:Promise<any>[] = [];
           objs.forEach(obj=>{
+            currentLog = obj;
             promises.push(
               new Promise<any>((resolve, reject)=>{
                 Utils.putBasic('/api/tags/'+obj.tag.title, {}, this.http, this.auth.token)
@@ -409,7 +474,8 @@ export class Synch {
       }
       })
       .then(dbResult=>{
-        console.log('tags-to-create deleted from logs');
+        // console.log('tags-to-create deleted from logs');
+        // console.log('ok tags-to-create');
         resolve();
     })
       .catch(error=>{
@@ -419,9 +485,10 @@ export class Synch {
           console.log('postgres error!');
           //this.tagToDeleteBecauseOfAnError = current;
           this.objCreateTagToDeleteBecaseOfAnError = currentLog;
+          this.someSynchError = true;
         }
         console.log('the current error object is: ');
-        console.log(currentLog);
+        console.log(JSON.stringify(currentLog));
         reject(error);
       })
     })
@@ -437,6 +504,12 @@ export class Synch {
   public sendTagsToAddToNotes():Promise<void>{
     let correctResult:string[]=[];
     let currentLog:LogObjSmart;
+    // this.lockNoteDone = false;
+    // this.lockNoteText = false;
+    // this.lockNoteLinks = false;
+    // this.lockTagCreate = true;
+    // this.lockTagDelete = true;
+    // console.log('sending tags-to-add-to');
     return new Promise<void>((resolve, reject)=>{
       this.db.getObjectTagsToAddToNotes(this.auth.userid)
       .then(objs=>{
@@ -461,9 +534,9 @@ export class Synch {
           // }))
           let promises:Promise<any>[]=[];
           objs.forEach(obj=>{
+            currentLog = obj;
             promises.push(
               new Promise<any>((resolve, reject)=>{
-                currentLog = obj;
                 let reqBody:any;
                 reqBody = {
                   title: obj.note.title
@@ -499,10 +572,12 @@ export class Synch {
       if(results!=null){
         return this.db.deleteTagsToAddToSpecificNoteFromLogs(correctResult, this.auth.userid);
       }else{
+        // console.log('ok tags-to-add-to');
         resolve();
       }
       })
       .then(dbResult=>{
+        // console.log('ok tags-to-add-to');
         resolve();
     })
       .catch(error=>{
@@ -512,9 +587,10 @@ export class Synch {
           console.log('postgres error!');
           //this.noteToDeleteBecauseOfAnError = current;
           this.objAddTagToNoteToDeleteBecaseOfAnError = currentLog;
+          this.someSynchError = true;
         }
         console.log('the current error object is: ');
-        console.log(currentLog);
+        console.log(JSON.stringify(currentLog));
         reject(error);
       })
     })
@@ -541,9 +617,9 @@ export class Synch {
           // }))
           let promises:Promise<any>[]=[];
           objs.forEach(obj=>{
+            currentLog = obj;
             promises.push(
               new Promise<any>((resolve, reject)=>{
-                currentLog = obj;
                 let note:any={
                   title:obj.note.title,
                   tags:obj.note.maintags
@@ -586,9 +662,10 @@ export class Synch {
           console.log('postgres error!');
           //this.noteToDeleteBecauseOfAnError = current;
           this.objRemoveTagFromNoteToDeleteBecaseOfAnError = currentLog;
+          this.someSynchError = true;
         }
         console.log('the current error object is: ');
-        console.log(currentLog);
+        console.log(JSON.stringify(currentLog));
         reject(error);
       })
     })
@@ -613,9 +690,9 @@ export class Synch {
           // }))
           let promises:Promise<any>[]=[];
           objs.forEach(obj=>{
+            currentLog = obj;
             promises.push(
               new Promise<any>((resolve, reject)=>{
-                currentLog = obj;
                 Utils.deleteBasic('/api/notes/'+obj.note.title, this.http, this.auth.token)
                 .then(result=>{
                   correctResult.push(obj.note.title);
@@ -653,11 +730,13 @@ export class Synch {
         if(Utils.isPostgresError(error) || Utils.isPostgresError(error.message)){
           console.log('postgres error!');
           //this.noteToDeleteBecauseOfAnError = current;
-          //this.objNoteTo = currentLog; unnecessary, delete is always ok unless there is
+          //this.objNoteTo = currentLog;
+          //this.someSynchError = true;
+          //unnecessary, delete is always ok unless there is
           //a big server error.
         }
         console.log('the current error object is: ');
-        console.log(currentLog);
+        console.log(JSON.stringify(currentLog));
         reject(error);
       })
     })
@@ -700,9 +779,9 @@ export class Synch {
           // })
           let promises:Promise<any>[]=[];
           objs.forEach(obj=>{
+            currentLog = obj;
             promises.push(
               new Promise<any>((resolve, reject)=>{
-                currentLog = obj;
                 Utils.deleteBasic('/api/tags/'+obj.tag.title, this.http, this.auth.token)
                 .then(result=>{
                   correctResult.push(obj.tag.title);
@@ -740,11 +819,13 @@ export class Synch {
         if(Utils.isPostgresError(error) || Utils.isPostgresError(error.message)){
           console.log('postgres error!');
           //this.noteToDeleteBecauseOfAnError = current;
-          //this.objRemov = currentLog; unnecessary: delete is always ok unless there is a
+          //this.objRemov = currentLog;
+          //this.someSynchError = true;
+          //unnecessary: delete is always ok unless there is a
           //server error.
         }
         console.log('the current error object is: ');
-        console.log(currentLog);
+        console.log(JSON.stringify(currentLog));
         reject(error);
       })
     })
@@ -772,9 +853,9 @@ export class Synch {
           // }))
           let promises:Promise<any>[]=[];
           objs.forEach(obj=>{
+            currentLog = obj;
             promises.push(
               new Promise<any>((resolve, reject)=>{
-                currentLog = obj;
                 Utils.postBasic('/api/mod/change-text/', JSON.stringify({note:
                   {title:obj.note.tile,
                     text:obj.note.text
@@ -816,19 +897,20 @@ export class Synch {
           console.log('postgres error!');
           //this.noteToDeleteBecauseOfAnError = current;
           this.objChangeTextToDeleteBecaseOfAnError = currentLog;
+          this.someSynchError = true;
         }
         console.log('the current error object is: ');
-        console.log(currentLog);
+        console.log(JSON.stringify(currentLog));
         reject(error);
       })
     })
   }
 
 
-  public sendNotesToChangeLinks():Promise<any>{
+  public sendNotesToChangeLinks():Promise<void>{
     let correctResult:string[]=[];
     let currentLog:LogObjSmart;
-    return new Promise<any>((resolve, reject)=>{
+    return new Promise<void>((resolve, reject)=>{
       this.db.getObjectNotesToChangeLinks(this.auth.userid)
       .then(objs=>{
         if(objs == null){
@@ -845,9 +927,9 @@ export class Synch {
           // }))
           let promises:Promise<any>[]=[];
           objs.forEach(obj=>{
+            currentLog = obj;
             promises.push(
               new Promise<any>((resolve, reject)=>{
-                currentLog = obj;
                 Utils.postBasic('/api/mod/change-links/', JSON.stringify({note:
                   {title:obj.note.tile,
                   links: obj.note.links
@@ -889,9 +971,10 @@ export class Synch {
           console.log('postgres error!');
           //this.noteToDeleteBecauseOfAnError = current;
           this.objSetLinkToDeleteBecaseOfAnError = currentLog;
+          this.someSynchError = true;
         }
         console.log('the current error object is: ');
-        console.log(currentLog);
+        console.log(JSON.stringify(currentLog));
         reject(error);
       })
     })
@@ -918,9 +1001,9 @@ export class Synch {
           // }))
           let promises:Promise<any>[]=[];
           objs.forEach(obj=>{
+            currentLog = obj;
             promises.push(
               new Promise<any>((resolve, reject)=>{
-                currentLog = obj;
                   Utils.postBasic('/api/mod/set-done/', JSON.stringify({note:
                     {title:obj.note.tile,
                       isdone: obj.note.isdone
@@ -962,9 +1045,10 @@ export class Synch {
           console.log('postgres error!');
           //this.noteToDeleteBecauseOfAnError = current;
           this.objSetDoneToDeleteBecaseOfAnError = currentLog;
+          this.someSynchError = true;
         }
         console.log('the current error object is: ');
-        console.log(currentLog);
+        console.log(JSON.stringify(currentLog));
         reject(error);
       })
     })
@@ -980,6 +1064,8 @@ export class Synch {
   private removeBadNotesToSetDone():Promise<void>{
     return new Promise<void>((resolve, reject)=>{
       if(this.objSetDoneToDeleteBecaseOfAnError!=null){
+        console.log('the bad notes-to-set-done to remove');
+        console.log(JSON.stringify(this.objSetDoneToDeleteBecaseOfAnError));
         this.db.rollbackModification(this.objSetDoneToDeleteBecaseOfAnError, this.auth.userid)
         .then(()=>{
           console.log('ok removed bad notes-to-set-done');
@@ -991,6 +1077,7 @@ export class Synch {
           reject(error);
         })
       }else{
+        console.log('no bad notes-to-set-done to remove');
         resolve();
         }
     })
@@ -999,6 +1086,8 @@ export class Synch {
   private removeBadNotesToSetLink():Promise<void>{
     return new Promise<void>((resolve, reject)=>{
       if(this.objSetLinkToDeleteBecaseOfAnError!=null){
+        console.log('the bad notes-to-set-link to remove');
+        console.log(JSON.stringify(this.objSetLinkToDeleteBecaseOfAnError));
         this.db.rollbackModification(this.objSetLinkToDeleteBecaseOfAnError, this.auth.userid)
         .then(()=>{
           console.log('ok removed bad notes-to-set-link');
@@ -1010,6 +1099,7 @@ export class Synch {
           reject(error);
         })
       }else{
+        console.log('no bad notes-to-set-link to remove');
         resolve();
         }
     })
@@ -1018,6 +1108,8 @@ export class Synch {
   private removeBadNotesToSetChangeText():Promise<void>{
     return new Promise<void>((resolve, reject)=>{
       if(this.objChangeTextToDeleteBecaseOfAnError!=null){
+        console.log('the bad notes-to-change-texto remove');
+        console.log(JSON.stringify(this.objChangeTextToDeleteBecaseOfAnError));
         this.db.rollbackModification(this.objChangeTextToDeleteBecaseOfAnError, this.auth.userid)
         .then(()=>{
           console.log('ok removed bad notes-to-change-text');
@@ -1029,6 +1121,7 @@ export class Synch {
           reject(error);
         })
       }else{
+        console.log('no bad notes-to-change-text to remove');
         resolve();
         }
     })
@@ -1037,6 +1130,8 @@ export class Synch {
   private removeBadNotesToCreate():Promise<void>{
     return new Promise<void>((resolve, reject)=>{
       if(this.objCreateNoteToDeleteBecaseOfAnError!=null){
+        console.log('the bad notes-to-create to remove');
+        console.log(JSON.stringify(this.objCreateNoteToDeleteBecaseOfAnError));
         this.db.rollbackModification(this.objCreateNoteToDeleteBecaseOfAnError, this.auth.userid)
         .then(()=>{
           console.log('ok removed bad notes-to-create');
@@ -1044,10 +1139,11 @@ export class Synch {
         })
         .catch(error=>{
           console.log('error remove bad notes-to-create');
-          console.log(JSON.stringify(error));
+          console.log(JSON.stringify(error.message));
           reject(error);
         })
       }else{
+        console.log('no bad notes-to-create to remove');
         resolve();
         }
     })
@@ -1056,6 +1152,8 @@ export class Synch {
   private removeBadTagsToAddToNotes():Promise<void>{
     return new Promise<void>((resolve, reject)=>{
       if(this.objAddTagToNoteToDeleteBecaseOfAnError!=null){
+        console.log('the bad tags-to-add-to to remove');
+        console.log(JSON.stringify(this.objAddTagToNoteToDeleteBecaseOfAnError));
         this.db.rollbackModification(this.objAddTagToNoteToDeleteBecaseOfAnError, this.auth.userid)
         .then(()=>{
           console.log('ok removed bad tags-to-add-to');
@@ -1067,6 +1165,7 @@ export class Synch {
           reject(error);
         })
       }else{
+        console.log('no bad tags-to-add-to to remove');
         resolve();
         }
     })
@@ -1075,6 +1174,8 @@ export class Synch {
   private removeBadTagsToRemoveFromNotes():Promise<void>{
     return new Promise<void>((resolve, reject)=>{
       if(this.objRemoveTagFromNoteToDeleteBecaseOfAnError!=null){
+        console.log('the bad tags-to-remove-from to remove');
+        console.log(JSON.stringify(this.objRemoveTagFromNoteToDeleteBecaseOfAnError));
         this.db.rollbackModification(this.objRemoveTagFromNoteToDeleteBecaseOfAnError, this.auth.userid)
         .then(()=>{
           console.log('ok removed bad tags-to-remove-from');
@@ -1086,6 +1187,7 @@ export class Synch {
           reject(error);
         })
       }else{
+        console.log('no bad tags-to-remove-from to remove');
         resolve();
         }
     })
@@ -1095,6 +1197,8 @@ export class Synch {
   private removeBadTagsToCreate():Promise<void>{
     return new Promise<void>((resolve, reject)=>{
       if(this.objCreateTagToDeleteBecaseOfAnError!=null){
+        console.log('the bad tags-to-create to remove');
+        console.log(JSON.stringify(this.objCreateTagToDeleteBecaseOfAnError));
         this.db.rollbackModification(this.objCreateTagToDeleteBecaseOfAnError, this.auth.userid)
         .then(()=>{
           console.log('ok removed bad tags-to-create');
@@ -1106,6 +1210,7 @@ export class Synch {
           reject(error);
         })
       }else{
+        console.log('no bad tags-to-create to remove');
         resolve();
         }
     })
@@ -1113,6 +1218,7 @@ export class Synch {
 
   private removeBadThings():Promise<void>{
     return new Promise<void>((resolve, reject)=>{
+      console.log('start removing bad things');
       this.removeBadTagsToCreate()
       .then(()=>{
         console.log('done removed bad tags to created');
