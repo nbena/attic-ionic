@@ -305,7 +305,7 @@ export class Query{
   static readonly REMOVE_NOTES_FROM_TAGS_SMART_REPLACE = 'update tags set json_object = replace(json_object, ?, \'\')  where instr(json_object, ?) <> 0 and userid=?';
   static readonly REMOVE_NOTES_FROM_TAGS_CLEANUP_ONE = 'update tags set json_object = replace(json_object, \'[,\', \'[\') where instr(json_object, \'[,\') <> 0 and userid=?';
   static readonly REMOVE_NOTES_FROM_TAGS_CLEANUP_TWO = 'update tags set json_object = replace(json_object, \'},,{\', \'},{\') where instr(json_object, \'},,{\') <> 0 and userid=?';
-  static readonly REMOVE_NOTES_FROM_TAGS_CLEANUP_THREE = 'update tags set json_object = replace(json_object, \'],\', \']\') where instr(json_object, \'],\') <> 0 and userid=?';
+  static readonly REMOVE_NOTES_FROM_TAGS_CLEANUP_THREE = 'update tags set json_object = replace(json_object, \',]\', \']\') where instr(json_object, \'],\') <> 0 and userid=?';
   static readonly REDUCE_NOTES_LENGTH = 'with involved_tag(title, json_object) as'+
 '	(select title, json_object from tags where title=? and userid=?)'+
 'update tags set json_object=('+
@@ -345,7 +345,7 @@ export class Query{
   static readonly REMOVE_TAGS_FROM_NOTES_SMART_REPLACE = 'update notes set json_object = replace(json_object, ?) where instr(json_object, ?) <> 0 and userid=?';
   static readonly REMOVE_TAGS_FROM_NOTES_CLEANUP_ONE = 'update notes set json_object = replace(json_object, \'[,\', \'[\') where instr(json_object, \'[,\') <> 0 and userid=?';
   static readonly REMOVE_TAGS_FROM_NOTES_CLEANUP_TWO = 'update notes set json_object = replace(json_object, \'},,{\', \'},{\') where instr(json_object, \'},,{\') <> 0 and userid=?';
-  static readonly REMOVE_TAGS_FROM_NOTES_CLEANUP_THREE = 'update notes set json_object = replace(json_object, \'],\', \']\') where instr(json_object, \'],\') and userid=?';
+  static readonly REMOVE_TAGS_FROM_NOTES_CLEANUP_THREE = 'update notes set json_object = replace(json_object, \',]\', \']\') where instr(json_object, \'],\') and userid=?';
 
 
   //static readonly NEED_TO_SYNCH = 'select count(*) as c from logs_sequence where userid=?';

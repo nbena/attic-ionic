@@ -237,11 +237,20 @@ export class AtticNotes {
   //   //return Utils.putBasic('/api/notes/create', JSON.stringify({note:note}), this.http, this.auth.token);
   // }
 
+  private minifyNoteFullForCration(note:NoteFull):NoteFull{
+    let noteRes:NoteFull = note;
+    let maintags:TagExtraMin[]=noteRes.maintags.map(obj=>{return TagExtraMin.NewTag(obj.title)});
+    let othertags:TagExtraMin[]=noteRes.othertags.map(obj=>{return TagExtraMin.NewTag(obj.title)});
+    noteRes.maintags = maintags;
+    noteRes.othertags = othertags;
+    return noteRes;
+  }
+
   createNote2(note: NoteFull, tags: TagAlmostMin[]):Promise<void>{
     // return this.db.createNewNote2(note, tags, this.auth.userid);
     return new Promise<void>((resolve, reject)=>{
       if(!this.synch.isSynching()){
-        this.db.createNewNote2(note, tags, this.auth.userid)
+        this.db.createNewNote2(this.minifyNoteFullForCration(note), tags, this.auth.userid)
         .then(result=>{
           resolve();
         })
