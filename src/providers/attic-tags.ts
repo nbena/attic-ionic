@@ -85,7 +85,7 @@ export class AtticTags {
         })
         .catch(error=>{
           console.log('error tags:');
-          console.log(JSON.stringify(error));
+          console.log(JSON.stringify(error.message));
         })
       })
     }

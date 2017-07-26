@@ -2954,6 +2954,17 @@ deleteForceNote(noteObj:NoteMin, userid:string):Promise<void>{
       //   (tx:any, error:any)=>{console.log('error remove notes reduce notes length ok');
       //     console.log(JSON.stringify(error));}
       // );
+    tx.executeSql(Query.FORCE_DELETE_NOTE, [note.title, userid],
+      (tx:any, res:any)=>{console.log('remove note from notes ok');},
+      (tx:any, error:any)=>{console.log('error in remove note from notes');
+      console.log(JSON.stringify(error));}
+      /*this should delete note from logs too, let's see. No unfortunately, don't know why.*/
+    );
+    tx.executeSql(Query.DELETE_FROM_LOGS_NOTE_CREATED_WHERE_NOTE, [userid, note.title],
+      (tx:any, res:any)=>{console.log('ok remove notes from logs');},
+      (tx:any, error:any)=>{console.log('error in remove notes from logs');
+        console.log(JSON.stringify(error));}
+      );
     })
     .then(txResult=>{
       console.log('note force deleted');
