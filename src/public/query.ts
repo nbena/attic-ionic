@@ -342,7 +342,7 @@ export class Query{
 'where title = (select title from involved_tag);'
 
 
-  static readonly REMOVE_TAGS_FROM_NOTES_SMART_REPLACE = 'update notes set json_object = replace(json_object, ?) where instr(json_object, ?) <> 0 and userid=?';
+  static readonly REMOVE_TAGS_FROM_NOTES_SMART_REPLACE = 'update notes set json_object = replace(json_object, ?, \'\') where instr(json_object, ?) <> 0 and userid=?';
   static readonly REMOVE_TAGS_FROM_NOTES_CLEANUP_ONE = 'update notes set json_object = replace(json_object, \'[,\', \'[\') where instr(json_object, \'[,\') <> 0 and userid=?';
   static readonly REMOVE_TAGS_FROM_NOTES_CLEANUP_TWO = 'update notes set json_object = replace(json_object, \'},,{\', \'},{\') where instr(json_object, \'},,{\') <> 0 and userid=?';
   static readonly REMOVE_TAGS_FROM_NOTES_CLEANUP_THREE = 'update notes set json_object = replace(json_object, \',]\', \']\') where instr(json_object, \'],\') and userid=?';

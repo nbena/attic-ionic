@@ -164,7 +164,7 @@ export class Db {
             .catch(error=>{
               this.open=false;
               console.log('error in creating tables.');
-              console.log(JSON.stringify(error));
+              console.log(JSON.stringify(error.message));
               reject(error);
             })
       });
@@ -3008,9 +3008,15 @@ deleteForceTag(tag:string, userid:string):Promise<void>{
           console.log(JSON.stringify(error));}
       );
       //TODO check if it is removed from logs too.
+      //no it isn't!!!
       tx.executeSql(Query.FORCE_DELETE_TAG, [tag, userid],
         (tx:any, res:any)=>{console.log('final remove tags ok');},
         (tx:any, error:any)=>{console.log('error final remove tags');
+          console.log(JSON.stringify(error));}
+      );
+      tx.executeSql(Query.DELETE_FROM_LOGS_TAG_CREATED_WHERE_TAG, [userid, tag],
+        (tx:any, res:any)=>{console.log('ok emove tags from logs ok');},
+        (tx:any, error:any)=>{console.log('error remove tags from logs');
           console.log(JSON.stringify(error));}
       );
     })
