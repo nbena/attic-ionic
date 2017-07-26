@@ -348,6 +348,10 @@ export class Query{
   static readonly REMOVE_TAGS_FROM_NOTES_CLEANUP_THREE = 'update notes set json_object = replace(json_object, \',]\', \']\') where instr(json_object, \'],\') and userid=?';
 
 
+  static readonly DELETE_EVERYTHING_FROM_NOTES = 'delete from notes where userid=?';
+  static readonly DELETE_EVERYTHING_FROM_TAGS = 'delete from tags where userid=?';
+  static readonly DELETE_EVERYTHING_FROM_LOGS  = 'delete from logs_sequence where userid=?';
+
   //static readonly NEED_TO_SYNCH = 'select count(*) as c from logs_sequence where userid=?';
 
 

@@ -1,9 +1,10 @@
 import { Component } from '@angular/core';
-// import { IonicPage, NavController, NavParams } from 'ionic-angular';
+ import { /*IonicPage, NavController, NavParams*/ToastController, AlertController } from 'ionic-angular';
 import { AtticUserProvider } from '../../providers/attic-user';
 import { Synch } from '../../providers/synch';
 import { UserSummary } from '../../models/user_summary';
 import { Const } from '../../public/const';
+import { Utils } from '../../public/utils';
 
 /**
  * Generated class for the SummaryPage page.
@@ -30,6 +31,8 @@ export class SummaryPage {
   synchingEnabled: boolean = false;
 
    constructor(/*public navCtrl: NavController, public navParams: NavParams*/
+     private toastCtrl: ToastController,
+     private alertCtrl: AlertController,
      private atticUser: AtticUserProvider,
      private synch: Synch
    ) {
@@ -99,9 +102,11 @@ export class SummaryPage {
 
   startSynching(){
     if(this.synchingEnabled){
+      Utils.presentToast(this.toastCtrl, 'synching...');
       this.synch.synch()
       .then(synched=>{
         console.log('synching done');
+        Utils.presentToast(this.toastCtrl, 'synching done');
         this.setSynchState();
       })
       .catch(error=>{
@@ -115,6 +120,31 @@ export class SummaryPage {
       this.synchState = Const.CURRENTLY_SYNCHING;
       this.synchingEnabled = false;
     }
+  }
+
+  empty(){
+    Utils.askConfirm(this.alertCtrl, 'Be sure to have everything synched before, '+
+    'if not you\'ll loose changes; consider that cache can speed up app\'s performance. '+
+    'Are you sure?',(confirmed : boolean)=>{
+      if(confirmed){
+        this.emptyAPI();
+      }/*else{
+        nothing to do.
+      }*/
+    });
+  }
+
+  emptyAPI(){
+    this.atticUser.deleteEverything()
+    .then(()=>{
+      console.log('ok everything deleted');
+      Utils.presentToast(this.toastCtrl, 'everything deleted');
+    })
+    .catch(error=>{
+      console.log('error in delete everything');
+      console.log(JSON.stringify(error));
+    })
+    // console.log('looooser');
   }
 
 }

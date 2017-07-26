@@ -71,4 +71,9 @@ export class AtticUserProvider {
     })
   }
 
+
+  public deleteEverything():Promise<void>{
+    return this.db.empty(this.auth.userid);
+  }
+
 }

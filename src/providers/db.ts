@@ -3383,6 +3383,38 @@ public rollbackModification(logObj: LogObjSmart, userid:string):Promise<void>{
 }
 
 
+  public empty(userid:string):Promise<void>{
+    return new Promise<void>((resolve, reject)=>{
+      this.db.transaction(tx=>{
+        tx.executeSql(Query.DELETE_EVERYTHING_FROM_NOTES, [userid],
+          (tx:any, res:any)=>{console.log('ok delete everything from notes')},
+          (tx:any, error:any)=>{console.log('error delete everything from notes');
+            console.log(JSON.stringify(error));}
+        );
+        tx.executeSql(Query.DELETE_EVERYTHING_FROM_TAGS, [userid],
+          (tx:any, res:any)=>{console.log('ok delete everything from tags')},
+          (tx:any, error:any)=>{console.log('error delete everything from tags');
+            console.log(JSON.stringify(error));}
+        );
+        tx.executeSql(Query.DELETE_EVERYTHING_FROM_LOGS, [userid],
+          (tx:any, res:any)=>{console.log('ok delete everything from logs')},
+          (tx:any, error:any)=>{console.log('error delete everything from logs');
+            console.log(JSON.stringify(error));}
+        );
+      })
+      .then(txResult=>{
+        console.log('ok delete everything');
+        resolve();
+      })
+      .catch(error=>{
+        console.log('error delete everything');
+        console.log(JSON.stringify(error.message));
+        reject(error);
+      })
+    })
+  }
+
+
 
 /*think about remove notes_tags.*/
 
