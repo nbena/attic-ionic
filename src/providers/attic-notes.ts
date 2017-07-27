@@ -23,6 +23,9 @@ import 'rxjs/add/operator/map';
 @Injectable()
 export class AtticNotes {
 
+  private cachedExtraMinNote: NoteExtraMin[] = null;
+  private cachedFullNote: NoteFull[] = null;
+
   constructor(public http: Http, public auth: Auth,
     private db: Db, private netManager: NetManager,
     private synch: Synch
@@ -71,15 +74,28 @@ export class AtticNotes {
         console.log('usedb note: ');
         console.log(JSON.stringify(useDb));
         if(useDb){
-          return this.db.getNotesMin(this.auth.userid);
+          // if(this.cachedExtraMinNote!=null){
+          //   resolve(this.cachedExtraMinNote);
+          // }else{
+          //   return this.db.getNotesMin(this.auth.userid);
+          // }
+          let p:Promise<NoteExtraMin[]>;
+          if(this.cachedExtraMinNote!=null){
+            console.log('using cache');
+            p = new Promise<NoteExtraMin[]>((resolve, reject)=>{resolve(this.cachedExtraMinNote)});
+          }else{
+            p = this.db.getNotesMin(this.auth.userid);
+          }
+          return p;
         }else{
-          console.log('no notes, using the network');
+          console.log('using the network');
           return Utils.getBasic('/api/notes/all/min', this.http, this.auth.token);
         }
       })
       .then(fetchingResult=>{
         if(useDb){
           /*fetchingResult = NoteMin[] from the DB.*/
+          this.cachedExtraMinNote = fetchingResult;
           resolve(fetchingResult);
         }else{
           /*fetchingResult = NoteMin[] from the network, need to insert.*/
@@ -90,6 +106,7 @@ export class AtticNotes {
             //   this.db.insertNoteMinQuietly(notes[i], this.auth.userid);
             // }
             this.db.insertNotesMinSmartAndCleanify(notes, this.auth.userid);
+            this.cachedExtraMinNote = fetchingResult as NoteExtraMin[];
             resolve(notes);
           }else{
             /*can't insert*/
