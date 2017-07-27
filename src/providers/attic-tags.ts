@@ -24,7 +24,7 @@ import { SqliteError } from '../public/const';
 export class AtticTags {
 
   private cachedAlmostMinTag:TagAlmostMin[]=null;
-  private cachedFullTag:TagAlmostMin[]=null;
+  private cachedFullTag:TagFull[]=null;
 
   constructor(public http: Http, public auth: Auth,
     private db: Db, private netManager: NetManager,
@@ -160,7 +160,22 @@ export class AtticTags {
           useDb = Utils.shouldUseDb(this.netManager.isConnected, areThereTagsInTheDb, force/*, this.synch.isSynching()*/);
           callNet = !useDb;
           if(useDb){
-            return this.db.getTagFull(title, this.auth.userid)
+            let p:Promise<TagFull>;
+            let res:number=-1;
+            if(this.cachedFullTag!=null){
+              //i can use a tag extra min because the tag is loaded only if
+              //it's fulll.
+              res = Utils.binarySearch(this.cachedFullTag, TagExtraMin.NewTag(title),TagExtraMin.ascendingCompare)
+            }
+            if(res!=-1){
+              console.log('the tag is in the cache');
+              p=new Promise<TagFull>((resolve, reject)=>{resolve(this.cachedFullTag[res])});
+            }else{
+              console.log('using the db for full tag');
+              p=this.db.getTagFull(title, this.auth.userid);
+            }
+            // return this.db.getTagFull(title, this.auth.userid)
+            return p;
           }else{
             return this.tagByTitle_loadFromNetworkAndInsert(title);
           }
@@ -171,15 +186,21 @@ export class AtticTags {
             if(tagFull==null){
               return this.tagByTitle_loadFromNetworkAndInsert(title);
             }else{
-              resolve(tagFull);
+              //resolve(tagFull);
+              return new Promise<TagFull>((resolve, reject)=>{resolve(tagFull)});
             }
           }else{
             /*we have the note and it has been inserted into the DB*/
-            resolve(tagFull);
+            //resolve(tagFull);
+            return new Promise<TagFull>((resolve, reject)=>{resolve(tagFull)});
           }
         })
         .then(fromNet=>{
           /*if here the note is not in the DB.*/
+          if(this.cachedFullTag==null){
+            this.cachedFullTag = [];
+          }
+          this.cachedFullTag = Utils.binaryArrayInsert(this.cachedFullTag, fromNet, TagExtraMin.ascendingCompare);
           resolve(fromNet);
         })
         .catch(error=>{

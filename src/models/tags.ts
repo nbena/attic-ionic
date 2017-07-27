@@ -22,6 +22,14 @@ export class TagExtraMin {
     return tag;
   }
 
+  public static ascendingCompare(a:TagExtraMin, b:TagAlmostMin):number{
+    return a.title.localeCompare(b.title);
+  }
+
+  public static descendingCompare(a:TagExtraMin, b:TagAlmostMin):number{
+    return b.title.localeCompare(a.title);
+  }
+
 }
 
 export class TagAlmostMin extends TagExtraMin{
