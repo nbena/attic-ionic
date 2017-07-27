@@ -188,7 +188,7 @@ export class AtticNotes {
             console.log('the note is in the cache');
             p = new Promise<NoteFull>((resolve, reject)=>{resolve(this.cachedFullNote[res])});
           }else{
-            console.log('using the db');
+            console.log('using the db for full note');
             p=this.db.getNoteFull(title, this.auth.userid);
           }
           return p;
