@@ -3415,6 +3415,43 @@ public rollbackModification(logObj: LogObjSmart, userid:string):Promise<void>{
   }
 
 
+  selectTitleFromNotes(title:string, userid:string):Promise<string>{
+    return new Promise<string>((resolve, reject)=>{
+      this.db.executeSql(Query.SELECT_TITLE_FROM_NOTES, [title, userid])
+      .then(result=>{
+        if(result.rows.length <= 0){
+          resolve(null);
+        }else{
+          resolve(result.rows.item(0).title as string);
+        }
+      })
+      .catch(error=>{
+        console.log('error in title from notes');
+        console.log(JSON.stringify(error.message));
+        reject(error);
+      })
+    })
+  }
+
+  selectTitleFromTags(title:string, userid:string):Promise<string>{
+    return new Promise<string>((resolve, reject)=>{
+      this.db.executeSql(Query.SELECT_TITLE_FROM_TAGS, [title, userid])
+      .then(result=>{
+        if(result.rows.length <= 0){
+          resolve(null);
+        }else{
+          resolve(result.rows.item(0).title as string);
+        }
+      })
+      .catch(error=>{
+        console.log('error in title from tags');
+        console.log(JSON.stringify(error.message));
+        reject(error);
+      })
+    })
+  }
+
+
 
 /*think about remove notes_tags.*/
 

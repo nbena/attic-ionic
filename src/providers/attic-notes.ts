@@ -296,12 +296,11 @@ export class AtticNotes {
           resolve();
         })
         .catch(error=>{
-          error = SqliteError.getBetterSqliteError(error.message as string);
-          reject(error);
+          reject(SqliteError.getBetterSqliteError(error.message as string));
         })
       }else{
         console.log('trying to create note but it is locked');
-        reject(new Error('synching'));
+        reject(Utils.getSynchingError(DbAction.DbAction.create));
       }
     })
   }
@@ -482,37 +481,70 @@ return this.items.filter((item) => {
     })
   }
 
+  isTitleModificationAllowed(title:string):Promise<boolean>{
+    return new Promise<boolean>((resolve, reject)=>{
+      this.db.selectTitleFromNotes(title, this.auth.userid)
+      .then(result=>{
+        if(result==null){
+          resolve(true);
+        }else{
+          resolve(false);
+        }
+      })
+      .catch(error=>{
+        console.log('error in select title from notes');
+        console.log(JSON.stringify(error.message));
+        resolve(false);
+      })
+    })
+  }
 
-  changeTitle(note: NoteFull, newTitle: string){
+
+  changeTitle(note: NoteFull, newTitle: string):Promise<void>{
     // return Utils.postBasic('/api/notes/mod/title', JSON.stringify({note:
     //   {title: noteTitle, newTitle: newTitle}}), this.http, this.auth.token);
+    let isAllowed: boolean = false;
     if(!this.synch.isNoteFullyLocked()){
-      return new Promise<any>((resolve, reject)=>{
-        Utils.postBasic('/api/notes/mod/change-title', JSON.stringify({
-          note:{
-            title: note.title,
-            newtitle: newTitle
+      return new Promise<void>((resolve, reject)=>{
+        this.isTitleModificationAllowed(newTitle)
+        .then(result=>{
+          isAllowed = result;
+          if(result){
+            return Utils.postBasic('/api/notes/mod/change-title', JSON.stringify({
+              note:{
+                title: note.title,
+                newtitle: newTitle
+              }
+            }),
+            this.http,
+            this.auth.token
+          )
+          }else{
+            reject(new Error(Const.NOTE_TITLE_IMPOSSIBLE));
           }
-        }),
-        this.http,
-        this.auth.token
-      )
+        })
+
       .then(sentTitle=>{
         /*pushsing data to db*/
-        return this.db.setNoteTitle(note, newTitle, this.auth.userid);
+        if(isAllowed){
+          return this.db.setNoteTitle(note, newTitle, this.auth.userid);
+        }
+
       })
       .then(changedLocally=>{
-        resolve(true);
+        if(isAllowed){
+          resolve();
+        }
       })
       .catch(error=>{
         console.log('error in changing title');
-        reject(error);
+        reject(SqliteError.getBetterSqliteError(error.message as string));;
       })
       })
     }else{
-      return new Promise<any>((resolve, reject)=>{
+      return new Promise<void>((resolve, reject)=>{
         console.log('trying to change title but it is locked');
-        reject(new Error('synching'));
+        reject(Utils.getSynchingError(DbAction.DbAction.change_title));
       });
     }
   }
@@ -527,9 +559,9 @@ return this.items.filter((item) => {
     if(!this.synch.isNoteFullyLocked()){
       return this.db.addTags(note, this.auth.userid, mainTags, otherTags);
     }else{
-      return new Promise<any>((resolve, reject)=>{
+      return new Promise<void>((resolve, reject)=>{
         console.log('trying to add tags but it is locked');
-        reject(new Error('synching'));
+        reject(Utils.getSynchingError(DbAction.DbAction.add_tag));
       })
     }
   }
@@ -543,9 +575,9 @@ return this.items.filter((item) => {
     if(!this.synch.isNoteFullyLocked()){
       return this.db.addTags(note, this.auth.userid, mainTags);
     }else{
-      return new Promise<any>((resolve, reject)=>{
+      return new Promise<void>((resolve, reject)=>{
         console.log('trying to add main tags but it is locked');
-        reject(new Error('synching'));
+        reject(Utils.getSynchingError(DbAction.DbAction.add_tag));
       })
     }
   }
@@ -558,9 +590,9 @@ return this.items.filter((item) => {
     if(!this.synch.isNoteFullyLocked()){
       return this.db.addTags(note, this.auth.userid, null, otherTags);
     }else{
-      return new Promise<any>((resolve, reject)=>{
+      return new Promise<void>((resolve, reject)=>{
         console.log('trying to add other tags but it is locked');
-        reject(new Error('synching'));
+        reject(Utils.getSynchingError(DbAction.DbAction.add_tag));
       })
     }
   }
@@ -580,7 +612,7 @@ return this.items.filter((item) => {
     }else{
       return new Promise<any>((resolve, reject)=>{
         console.log('trying to remove tags but it is locked');
-        reject(new Error('synching'));
+        reject(Utils.getSynchingError(DbAction.DbAction.remove_tag));
       })
     }
   }
@@ -602,7 +634,7 @@ return this.items.filter((item) => {
     }else{
       return new Promise<any>((resolve, reject)=>{
         console.log('trying to change links but it is locked');
-        reject(new Error('synching'));
+        reject(Utils.getSynchingError(DbAction.DbAction.set_link));
       })
     }
   }
@@ -615,7 +647,7 @@ return this.items.filter((item) => {
     }else{
       return new Promise<any>((resolve, reject)=>{
         console.log('trying to change text but it is locked');
-        reject(new Error('synching'));
+        reject(Utils.getSynchingError(DbAction.DbAction.change_text));
       })
     }
   }
@@ -628,7 +660,7 @@ return this.items.filter((item) => {
     }else{
       return new Promise<any>((resolve, reject)=>{
         console.log('trying to set done but it is locked');
-        reject(new Error('synching'));
+        reject(Utils.getSynchingError(DbAction.DbAction.set_done));
       })
     }
   }
@@ -647,7 +679,7 @@ return this.items.filter((item) => {
     }else{
       return new Promise<any>((resolve, reject)=>{
         console.log('trying to delete but it is locked');
-        reject(new Error('synching'));
+        reject(Utils.getSynchingError(DbAction.DbAction.delete));
       })
     }
   }

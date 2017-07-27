@@ -112,6 +112,7 @@ export class NoteDetailsPopoverPage {
     //     this.viewCtrl.dismiss();
     //   })
       .catch(error=>{
+        Utils.showErrorAlert(this.alertCtrl, error);
         console.log(JSON.stringify(error));
       });
   }

@@ -68,8 +68,9 @@ export class TagDetailsPopoverPage {
       return Utils.presentToast(this.toastCtrl, 'Title updated');
     })
     .catch(error=>{
-      console.log('some errors happen');
-      console.log(JSON.stringify(error))
+      // console.log('some errors happen');
+      // console.log(JSON.stringify(error))
+      Utils.showErrorAlert(this.alertCtrl, error);
     })
   }
 

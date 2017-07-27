@@ -6,6 +6,7 @@ import { Const, PostgresError, SqliteError } from '../public/const';
 import { NoteBarebon, NoteFull, NoteMin, NoteSQLite } from '../models/notes';
 import { TagExtraMin, TagFull, TagSQLite } from '../models/tags';
 import { ToastController, AlertController } from 'ionic-angular';
+import { DbAction } from './const';
 
 
 
@@ -336,6 +337,14 @@ static pushLink(alertCtrl:AlertController, cb: ((_: any)=>void) ){
     prompt.present();
   }
 
+  public static showErrorAlert(alertCtrl:AlertController, error:any):void{
+    let alert = alertCtrl.create({
+      title: error,
+      buttons: ['OK']
+    });
+    alert.present();
+  }
+
 //   static getEffectiveTagsFromNotes(note: NoteFull):TagFull[]{
 //     let array: TagFull[];
 //     if(note== 'NoteFull'){
@@ -441,6 +450,14 @@ static pushLink(alertCtrl:AlertController, cb: ((_: any)=>void) ){
      ret=true;
    }
    return ret;
+ }
+
+
+ public static getSynchingError(action:DbAction.DbAction):string{
+   let result:string = 'cannot ';
+   result+=DbAction.getHumandReadableAction(action);
+   result+='while there is synching in action';
+   return result;
  }
 
 

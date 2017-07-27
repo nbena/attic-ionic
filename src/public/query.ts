@@ -352,6 +352,10 @@ export class Query{
   static readonly DELETE_EVERYTHING_FROM_TAGS = 'delete from tags where userid=?';
   static readonly DELETE_EVERYTHING_FROM_LOGS  = 'delete from logs_sequence where userid=?';
 
+
+  static readonly SELECT_TITLE_FROM_NOTES = 'select title from notes where title=? and userid=?';
+  static readonly SELECT_TITLE_FROM_TAGS = 'select title from tags where title=? and userid=?';
+
   //static readonly NEED_TO_SYNCH = 'select count(*) as c from logs_sequence where userid=?';
 
 

@@ -12,7 +12,7 @@ import { TagExtraMin, TagAlmostMin, TagFull } from '../models/tags';
 import { Db } from './db';
 import { NetManager } from './net-manager';
 import { Synch } from './synch';
-import { SqliteError } from '../public/const';
+import { SqliteError, DbAction, Const } from '../public/const';
 
 /*
   Generated class for the AtticTags provider.
@@ -230,7 +230,7 @@ export class AtticTags {
       }
       else{
         console.log('trying to create tag but it is locked');
-        reject(new Error('synching'));
+        reject(Utils.getSynchingError(DbAction.DbAction.create));
       }
     })
     // return Utils.putBasic('/api/tags/'+title, '', this.http, this.auth.token);
@@ -260,40 +260,73 @@ export class AtticTags {
     });
   }
 
-  changeTitle(tag: TagExtraMin, newTitle: string):Promise<any>{
+  isTitleModificationAllowed(title:string):Promise<boolean>{
+    return new Promise<boolean>((resolve, reject)=>{
+      this.db.selectTitleFromTags(title, this.auth.userid)
+      .then(result=>{
+        if(result==null){
+          resolve(true);
+        }else{
+          resolve(false);
+        }
+      })
+      .catch(error=>{
+        console.log('error in select title from tags');
+        console.log(JSON.stringify(error.message));
+        resolve(false);
+      })
+    })
+  }
+  //the allow is done in order to avoid situation such as:
+    //ok update on the server but not on the local db
+  changeTitle(tag: TagExtraMin, newTitle: string):Promise<void>{
+    let isAllowed: boolean = false;
     if( (!this.synch.isNoteFullyLocked()) && (!this.synch.isTagLocked()) ){
-      return new Promise<any>((resolve, reject)=>{
-        console.log('going to send');
-        console.log(JSON.stringify({
-          tag:{
-            title: tag.title,
-            newtitle: newTitle
-          }
-        }));
-        Utils.postBasic('/api/tags/mod/change-title', JSON.stringify({
-          tag:{
-            title: tag.title,
-            newtitle: newTitle
-          }
-        }),
-        this.http,this.auth.token
-      )
+      return new Promise<void>((resolve, reject)=>{
+        this.isTitleModificationAllowed(newTitle)
+        .then(result=>{
+          isAllowed = result;
+          if(result){
+            return Utils.postBasic('/api/tags/mod/change-title', JSON.stringify({
+              tag:{
+                title: tag.title,
+                newtitle: newTitle
+              }
+            }),
+            this.http,this.auth.token
+          )
+        }else{
+          reject(new Error(Const.TAG_TITLE_IMPOSSIBLE));
+        }
+        })
+        // console.log('going to send');
+        // console.log(JSON.stringify({
+        //   tag:{
+        //     title: tag.title,
+        //     newtitle: newTitle
+        //   }
+        // }));
+
       .then(sentTitle=>{
         /*pushsing data to db*/
-        return this.db.setTagTitle(tag, newTitle, this.auth.userid);
+        if(isAllowed){
+          return this.db.setTagTitle(tag, newTitle, this.auth.userid);
+        }
       })
       .then(changedLocally=>{
-        resolve(true);
+        if(isAllowed){
+          resolve();
+        }
       })
       .catch(error=>{
         console.log('error in changing title');
-        reject(error);
+        reject(SqliteError.getBetterSqliteError(error.message as string));
       })
       })
     }else{
-      return new Promise<any>((resolve, reject)=>{
+      return new Promise<void>((resolve, reject)=>{
         console.log('trying to change title but it is locked');
-        reject(new Error('synching'));
+        reject(Utils.getSynchingError(DbAction.DbAction.change_title));
       });
     }
   }
@@ -305,7 +338,7 @@ export class AtticTags {
     }else{
       return new Promise<any>((resolve, reject)=>{
         console.log('trying to delete tag but it is locked');
-        reject(new Error('synching'));
+        reject(Utils.getSynchingError(DbAction.DbAction.delete));
       })
     }
   }

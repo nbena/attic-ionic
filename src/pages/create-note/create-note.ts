@@ -137,11 +137,12 @@ export class CreateNotePage {
         console.log(JSON.stringify(error));
         // console.log(error);
         // console.log('better error');
-        let alert = this.alertCtrl.create({
-          title: error,
-          buttons: ['OK']
-        });
-        alert.present();
+        // let alert = this.alertCtrl.create({
+        //   title: error,
+        //   buttons: ['OK']
+        // });
+        // alert.present();
+        Utils.showErrorAlert(this.alertCtrl, error);
       })
   }
 

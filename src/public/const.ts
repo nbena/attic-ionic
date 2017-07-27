@@ -80,6 +80,35 @@ export namespace DbAction {
     return res;
   }
 
+  export function getHumandReadableAction(action: DbAction):string{
+    let result:string;
+    switch (action){
+      case DbAction.remove_tag:
+        /*the note to delete are in the maintags of the note.*/
+        result = 'remove tag ';
+        break;
+      case DbAction.add_tag:
+        result= 'add tag';
+        break;
+      case DbAction.change_text:
+        result='change text';
+        break;
+      case DbAction.set_done:
+        result='change set-done';
+        break;
+      case DbAction.set_link:
+        result='change links';
+        break;
+      case DbAction.create:
+      result='create items'
+        break;
+      case DbAction.delete:
+        result='delete items';
+        break;
+    }
+    return result;
+  }
+
   /*
   add tag and remove tag are problems.
   delete will never be a problem because it's always ok.
@@ -96,7 +125,10 @@ export namespace DbAction {
     set_link,
     add_tag,
     remove_tag
+
   }
+
+
 }
 
 export enum TagType{
@@ -118,41 +150,6 @@ export enum WhichField{
   TagsToSave
 }
 
-export class Const{
-  public static readonly API_URI = 'https://nb-attic.herokuapp.com';
-//   /*public static */static enum NoteFilter {
-//   TAGS, MAIN_TAGS, OTHER_TAGS
-// }
-
-  public static readonly ERR_NOTE_NOT_FOUND = 'Note not found';
-  public static readonly ERR_TAG_NOT_FOUND = 'Tag not found';
-  public static readonly ERR_MISMATCH = 'terrible error';
-  public static readonly ERR_NO_NOTE_TO_PUBLISH = 'no note to publish';
-  public static readonly ERR_NO_TAG_TO_PUBLISH = 'no tag to publish';
-  public static readonly ERR_NO_LOG = 'no things to do';
-  public static readonly ERR_NOTE_NOT_FULL ='The note is not full';
-  public static readonly ERR_TOKEN_NOT_FOUND = 'token not found';
-
-  // public static readonly UNIQUE_FAILED = 'UNIQUE constraint failed';
-  public static readonly SERVER_ERROR = 'server error';
-
-  public static readonly NOTES_LIMIT = 50;
-  public static readonly TAGS_LIMIT = 50;
-
-  public static readonly CURRENTLY_SYNCHING = 'Synching is in progress';
-  public static readonly CURRENTLY_NOT_SYNCHING = 'No synching now';
-}
-
-export class PostgresError{
-  public static readonly DUPLICATE_KEY_NOTES:string = 'DbError another note with the same title';
-  public static readonly DUPLICATE_KEY_TAGS:string = 'DbError another tag with the same title';
-  public static readonly DUPLICATE_KEY_NOTES_TAGS:string = 'DbError the tag is already with this note';
-  public static readonly USER_REACHED_MAX_NOTES:string = 'DbError a free user cannot have more than 50 notes';
-  public static readonly USER_REACHED_MAX_TAGS:string = 'DbError a free user cannot have more than 50 tags';
-  public static readonly MAINTAGS_LIMIT:string = 'DbError maintags cannot be more than 3';
-  public static readonly OTHERTAGS_LIMIT:string = 'DbError othetags cannot be more than 15';
-  public static readonly FINAL_TAGS_FKEY:string = 'DbError tags not found';
-}
 
 export class SqliteError{
   //public static readonly DUPLICATE_KEY_NOTES:string = 'UNIQUE constraint failed: notes.title, notes.userid, notes.mustbedeleted';
@@ -180,4 +177,43 @@ export class SqliteError{
   }
 
 
+}
+
+export class Const{
+  public static readonly API_URI = 'https://nb-attic.herokuapp.com';
+//   /*public static */static enum NoteFilter {
+//   TAGS, MAIN_TAGS, OTHER_TAGS
+// }
+
+  public static readonly ERR_NOTE_NOT_FOUND = 'Note not found';
+  public static readonly ERR_TAG_NOT_FOUND = 'Tag not found';
+  public static readonly ERR_MISMATCH = 'terrible error';
+  public static readonly ERR_NO_NOTE_TO_PUBLISH = 'no note to publish';
+  public static readonly ERR_NO_TAG_TO_PUBLISH = 'no tag to publish';
+  public static readonly ERR_NO_LOG = 'no things to do';
+  public static readonly ERR_NOTE_NOT_FULL ='The note is not full';
+  public static readonly ERR_TOKEN_NOT_FOUND = 'token not found';
+
+  // public static readonly UNIQUE_FAILED = 'UNIQUE constraint failed';
+  public static readonly SERVER_ERROR = 'server error';
+
+  public static readonly NOTES_LIMIT = 50;
+  public static readonly TAGS_LIMIT = 50;
+
+  public static readonly CURRENTLY_SYNCHING = 'Synching is in progress';
+  public static readonly CURRENTLY_NOT_SYNCHING = 'No synching now';
+
+  public static readonly TAG_TITLE_IMPOSSIBLE = SqliteError.FINAL_DUPLICATE_KEY_TAGS;
+  public static readonly NOTE_TITLE_IMPOSSIBLE = SqliteError.FINAL_DUPLICATE_KEY_NOTES;
+}
+
+export class PostgresError{
+  public static readonly DUPLICATE_KEY_NOTES:string = 'DbError another note with the same title';
+  public static readonly DUPLICATE_KEY_TAGS:string = 'DbError another tag with the same title';
+  public static readonly DUPLICATE_KEY_NOTES_TAGS:string = 'DbError the tag is already with this note';
+  public static readonly USER_REACHED_MAX_NOTES:string = 'DbError a free user cannot have more than 50 notes';
+  public static readonly USER_REACHED_MAX_TAGS:string = 'DbError a free user cannot have more than 50 tags';
+  public static readonly MAINTAGS_LIMIT:string = 'DbError maintags cannot be more than 3';
+  public static readonly OTHERTAGS_LIMIT:string = 'DbError othetags cannot be more than 15';
+  public static readonly FINAL_TAGS_FKEY:string = 'DbError tags not found';
 }
