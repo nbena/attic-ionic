@@ -385,6 +385,27 @@ static pushLink(alertCtrl:AlertController, cb: ((_: any)=>void) ){
    return array;
  }
 
+ public static binarySearch<T>(array: T[], item: T, cmp: ((a:T,b:T)=>number)):number{
+   let returned:number=-1;
+   let start:number, end:number, current:number, cmpValue;
+   start = 0;
+   end = array.length;
+   current = Math.floor((start+end)/2);
+   while(end>start){
+     cmpValue=cmp(item, array[current]);
+     if(cmpValue==0){
+       returned = current;
+       start = end+1;
+     }else if(cmpValue<0){
+       end=current;
+     }else{
+       start = current+1;
+     }
+     current = Math.floor((start+end)/2);
+   }
+   return returned;
+ }
+
 
  // public static binarySearch<T>(array: T[], item: T, cmp: ((a,b)=>number)):number{
  //     let returned: T[];

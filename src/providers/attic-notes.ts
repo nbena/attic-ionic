@@ -97,7 +97,7 @@ export class AtticNotes {
         if(useDb){
           /*fetchingResult = NoteMin[] from the DB.*/
           if(this.cachedExtraMinNote==null){
-            this.cachedExtraMinNote = fetchingResult;  
+            this.cachedExtraMinNote = fetchingResult;
           }
           resolve(fetchingResult);
         }else{
@@ -179,7 +179,19 @@ export class AtticNotes {
         useDb = Utils.shouldUseDb(this.netManager.isConnected, areThereNotesInTheDb, force/*, this.synch.isSynching()*/);
         callNet = !useDb;
         if(useDb){
-          return this.db.getNoteFull(title, this.auth.userid)
+          let p:Promise<NoteFull>;
+          let res:number=-1;
+          if(this.cachedFullNote!=null){
+            res = Utils.binarySearch(this.cachedFullNote, NoteExtraMin.NewNoteExtraMin(title), NoteExtraMin.ascendingCompare);
+          }
+          if(res!=-1){
+            console.log('the note is in the cache');
+            p = new Promise<NoteFull>((resolve, reject)=>{resolve(this.cachedFullNote[res])});
+          }else{
+            console.log('using the db');
+            p=this.db.getNoteFull(title, this.auth.userid);
+          }
+          return p;
         }else{
           return this.noteByTitle_loadFromNetworkAndInsert(title);
         }
@@ -188,17 +200,26 @@ export class AtticNotes {
         if(useDb){
           /*we have the note and nothing more should have done.*/
           if(noteFull==null){
+            /*if it's not in the db.*/
             return this.noteByTitle_loadFromNetworkAndInsert(title);
           }else{
-            resolve(noteFull);
+            //resolve(noteFull);
+            return new Promise<NoteFull>((resolve, reject)=>{resolve(noteFull)})
+            //resolve a bit in late but so I leave a unique exit point.
           }
         }else{
           /*we have the note and it has been inserted into the DB*/
-          resolve(noteFull);
+          //resolve(noteFull);
+          return new Promise<NoteFull>((resolve, reject)=>{resolve(noteFull)});
         }
       })
       .then(fromNet=>{
-        /*if here the note is not in the DB.*/
+        /*if here the note is not in the DB.*/ /*--> no longer*/
+        //resolve(fromNet);
+        if(this.cachedFullNote==null){
+          this.cachedFullNote=[];
+        }
+        this.cachedFullNote = Utils.binaryArrayInsert(this.cachedFullNote, fromNet, NoteExtraMin.ascendingCompare);
         resolve(fromNet);
       })
       .catch(error=>{

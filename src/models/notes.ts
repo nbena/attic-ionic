@@ -19,6 +19,13 @@ export class NoteExtraMin{
   public static descendingCompare(a: NoteExtraMin, b: NoteExtraMin):number{
     return b.title.localeCompare(a.title);
 }
+
+  public static NewNoteExtraMin(title:string):NoteExtraMin{
+    let returned:NoteExtraMin = new NoteExtraMin();
+    returned.title = title;
+    return returned;
+  }
+
 }
 
 export class NoteBarebon extends NoteExtraMin{
