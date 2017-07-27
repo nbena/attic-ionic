@@ -84,6 +84,7 @@ export class AtticNotes {
             console.log('using cache');
             p = new Promise<NoteExtraMin[]>((resolve, reject)=>{resolve(this.cachedExtraMinNote)});
           }else{
+            console.log('no cache using db');
             p = this.db.getNotesMin(this.auth.userid);
           }
           return p;
@@ -95,7 +96,9 @@ export class AtticNotes {
       .then(fetchingResult=>{
         if(useDb){
           /*fetchingResult = NoteMin[] from the DB.*/
-          this.cachedExtraMinNote = fetchingResult;
+          if(this.cachedExtraMinNote==null){
+            this.cachedExtraMinNote = fetchingResult;  
+          }
           resolve(fetchingResult);
         }else{
           /*fetchingResult = NoteMin[] from the network, need to insert.*/

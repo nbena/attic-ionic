@@ -23,6 +23,9 @@ import { SqliteError } from '../public/const';
 @Injectable()
 export class AtticTags {
 
+  private cachedAlmostMinTag:TagAlmostMin[]=null;
+  private cachedFullTag:TagAlmostMin[]=null;
+
   constructor(public http: Http, public auth: Auth,
     private db: Db, private netManager: NetManager,
     private synch: Synch
@@ -56,8 +59,17 @@ export class AtticTags {
           useDb = Utils.shouldUseDb(isNteworkAvailable, areThereTagsInTheDb, force/*, this.synch.isSynching()*/);
           console.log('usedb tag: ');
           console.log(JSON.stringify(useDb));
+          //   return this.db.getTagsMin(this.auth.userid);
           if(useDb){
-            return this.db.getTagsMin(this.auth.userid);
+            let p:Promise<TagAlmostMin[]>;
+            if(this.cachedAlmostMinTag!=null){
+              console.log('using cache');
+              p = new Promise<TagAlmostMin[]>((resolve, reject)=>{resolve(this.cachedAlmostMinTag)});
+            }else{
+              console.log('no cache using db');
+              p = this.db.getTagsMin(this.auth.userid);
+            }
+            return p;
           }else{
             console.log('no tags, using the network');
             return Utils.getBasic('/api/tags/all/min', this.http, this.auth.token);
@@ -68,6 +80,9 @@ export class AtticTags {
           console.log(JSON.stringify(fetchingResult));
           if(useDb){
             /*fetchingResult = NoteMin[] from the DB.*/
+            if(this.cachedAlmostMinTag==null){
+              this.cachedAlmostMinTag = fetchingResult;
+            }
             resolve(fetchingResult);
           }else{
             /*fetchingResult = NoteMin[] from the network, need to insert.*/
@@ -77,6 +92,7 @@ export class AtticTags {
               //   this.db.insertTagMinQuietly(tags[i], this.auth.userid);
               // }
               this.db.insertTagsMinSmartAndCleanify(tags, this.auth.userid);
+              this.cachedAlmostMinTag = fetchingResult as TagAlmostMin[];
             }else{
               console.log('fetched tags by title but it is locked');
             }

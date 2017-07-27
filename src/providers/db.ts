@@ -1109,7 +1109,7 @@ public getTagsMin(userid: string):Promise<TagAlmostMin[]>{
         let rawResult:any = result.rows.item(i).json_object;
         let obj:TagAlmostMin = JSON.parse(rawResult);
         if(obj.noteslength == null){
-          obj.noteslength=0;
+          obj.noteslength=0; //good!
         }
 
         console.log('object returned tags: ');
