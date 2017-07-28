@@ -218,6 +218,23 @@ static askConfirm(alertCtrl: AlertController, message: string, cb: ((_ :boolean)
   alert.present();
 }
 
+public static arrayDiff<T>(arg0:T[], arg1:T[], cmp:(a:T, b:T)=>number):T[]{
+  return arg0.filter(item=>{
+    return Utils.indexOfCmp(arg1, item, cmp);
+  })
+}
+
+public static indexOfCmp<T>(arg0:T[], b:T, cmp:(a:T, b:T)=>number):number{
+  let index:number = -1;
+  for(let i=0;i<arg0.length;i++){
+    if(cmp(arg0[i], b)==0){
+      index=i;
+      i=arg0.length;
+    }
+  }
+  return index;
+}
+
 // static arrayDiff(arg0: any[], arg1: any[]){
 //   return arg0.filter(function(el){
 //       return arg1.indexOf(el)<0;
@@ -414,6 +431,7 @@ static pushLink(alertCtrl:AlertController, cb: ((_: any)=>void) ){
    }
    return returned;
  }
+
 
 
  // public static binarySearch<T>(array: T[], item: T, cmp: ((a,b)=>number)):number{

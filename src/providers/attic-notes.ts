@@ -9,8 +9,8 @@ import { Db/*, LogObject*/ } from './db';
 import { NetManager } from './net-manager';
 
 import { Synch } from './synch';
-
-import { TagAlmostMin, TagExtraMin } from '../models/tags';
+import { AtticTags } from './attic-tags';
+import { TagAlmostMin, TagExtraMin, TagFull } from '../models/tags';
 
 import 'rxjs/add/operator/map';
 
@@ -27,6 +27,7 @@ export class AtticNotes {
   private cachedFullNote: NoteFull[] = null;
 
   constructor(public http: Http, public auth: Auth,
+    private atticTags: AtticTags,
     private db: Db, private netManager: NetManager,
     private synch: Synch
   ) {
@@ -287,11 +288,25 @@ export class AtticNotes {
     return noteRes;
   }
 
-  createNote2(note: NoteFull, tags: TagAlmostMin[]):Promise<void>{
+  private reget(arg0:TagFull[], arg1:TagExtraMin[]):TagFull[]{
+    let array:TagFull[]=[];
+    arg1.map(obj=>{
+      let index:number;
+      index=Utils.indexOfCmp(arg0, obj, TagExtraMin.ascendingCompare);
+      return arg0[index];
+    })
+    return array;
+  }
+
+  createNote2(note: NoteFull/*, tags: TagAlmostMin[]*/):Promise<void>{
     // return this.db.createNewNote2(note, tags, this.auth.userid);
     return new Promise<void>((resolve, reject)=>{
       if(!this.synch.isSynching()){
-        this.db.createNewNote2(this.minifyNoteFullForCration(note), tags, this.auth.userid)
+        // let tags:TagExtraMin[]=note.getTagsAsTagsExtraMinArray();
+        let cachedTags:TagFull[]=this.atticTags.getFullCachedTags();
+        // let diffTags:TagExtraMin[] = Utils.arrayDiff(cachedTags as TagExtraMin[], tags, TagExtraMin.ascendingCompare);
+        let necessaryTags:TagFull[]=this.reget(cachedTags, note.getTagsAsTagsExtraMinArray());
+        this.db.createNewNote2(this.minifyNoteFullForCration(note), /*tags, */this.auth.userid, necessaryTags)
         .then(result=>{
           resolve();
         })

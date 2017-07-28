@@ -331,6 +331,10 @@ export class AtticTags {
     }
   }
 
+  public getFullCachedTags():TagFull[]{
+    return this.cachedFullTag;
+  }
+
   deleteTag(tag: TagExtraMin):Promise<any>{
     // return Utils.deleteBasic('/api/tags/'+tag.title, this.http, this.auth.token);
     if(!this.synch.isTagLocked()){

@@ -122,7 +122,7 @@ export class CreateNotePage {
     // console.log(JSON.stringify({note:this.newNote}));
     this.mainTags.forEach((tag)=>{tag.noteslength++});
     this.otherTags.forEach((tag)=>{tag.noteslength++});
-    this.atticNotes.createNote2(this.newNote, this.mainTags.concat(this.otherTags))
+    this.atticNotes.createNote2(this.newNote/*, this.mainTags.concat(this.otherTags)*/)
       .then(result=>{
         console.log(result);
         // this.navCtrl.parent.select(0);

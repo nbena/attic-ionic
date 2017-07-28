@@ -139,6 +139,9 @@ export class Query{
 
   static readonly NOTE_EXISTS_AND_IS_FULL = 'select text from notes where mustbedeleted=\'false\' and title=? and userid=?';
   static readonly TAG_EXISTS_AND_IS_FULL = 'select json_object from tags where mustbedeleted=\'false\' and title=? and userid=?';
+  static readonly TAGS_EXIST_AND_ARE_FULL =  'select json_object from tags where mustbedeleted=\'false\' and userid=? and (title=?';
+
+
 
   static readonly INSERT_NOTE_MIN = 'insert into notes(title, json_object, userid) values (?,?,?)';
   static readonly INSERT_TAG_MIN = 'insert into tags(title, json_object, userid) values (?,?,?)';
@@ -358,6 +361,14 @@ export class Query{
 
   //static readonly NEED_TO_SYNCH = 'select count(*) as c from logs_sequence where userid=?';
 
+
+  static readonly UPDATE_JSON_OBJ_NOTE_IF_NECESSARY = 'update notes set json_object=? where length(json_object) < length(?) and title=? and userid=?';
+  static readonly INSERT_INTO_NOTES_2 = 'insert into notes(title, json_object, text, lastmodificationdate,userid) values (?,?,?,?,?)';
+
+  static readonly EMPTY_RESULT_SET ='with a(b) as (select \'true\') select b from a where b=\'false\'';
+  static readonly INSERT_MULTI_TAGS ='insert into tags(title, json_object, userid) values ';
+
+  static readonly INSERT_NOTE_2 = 'insert into notes(title, text, lastmodificationdate, json_object, userid) values (?,?,?,?,?)';
 
   /*
   tag and notes in the db just memorize an array of ids.
