@@ -175,6 +175,11 @@ export class NoteFull extends NoteBarebon{
   }
 
 
+  public getNoteExtraMin():NoteExtraMin{
+    return NoteExtraMin.NewNoteExtraMin(this.title);
+  }
+
+
 }
 export class NoteSQLite extends NoteFull{
   mainTagsToAdd: TagFull[];

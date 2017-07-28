@@ -302,10 +302,12 @@ export class AtticNotes {
     // return this.db.createNewNote2(note, tags, this.auth.userid);
     return new Promise<void>((resolve, reject)=>{
       if(!this.synch.isSynching()){
-        // let tags:TagExtraMin[]=note.getTagsAsTagsExtraMinArray();
+
+        //try to provide to the db more fulltag as possible.
+
         let cachedTags:TagFull[]=this.atticTags.getFullCachedTags();
-        // let diffTags:TagExtraMin[] = Utils.arrayDiff(cachedTags as TagExtraMin[], tags, TagExtraMin.ascendingCompare);
         let necessaryTags:TagFull[]=this.reget(cachedTags, note.getTagsAsTagsExtraMinArray());
+
         this.db.createNewNote2(this.minifyNoteFullForCration(note), /*tags, */this.auth.userid, necessaryTags)
         .then(result=>{
           resolve();
