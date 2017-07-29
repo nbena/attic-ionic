@@ -70,14 +70,18 @@ export class Query{
   static readonly CREATE_AUTH_TABLE = 'create table if not exists auth(token text default null, userid varchar(64), free boolean default true, primary key(userid));';
   // static readonly CREATE_NOTES_TABLE ='create table if not exists notes(title varchar(64),userid varchar(64) default null,text text default null, links text default null, isdone boolean default false,creationdate date default (strftime(\'%Y-%m-%d %H:%M:%f\', \'now\')), lastmodificationdate date default (strftime(\'%Y-%m-%d %H:%M:%f\', \'now\')),mustbedeleted boolean default false, json_object text default null,primary key(title, userid, mustbedeleted), foreign key(userid) references auth(userid) on update cascade on delete cascade);';
   static readonly CREATE_NOTES_TABLE = 'create table if not exists notes(title varchar(64), userid varchar(64) default null, text text default null,'+
-    'json_object text default null, lastmodificationdate date default (strftime(\'%Y-%m-%d %H:%M:%f\', \'now\')), mustbedeleted boolean default false, '+
+    //'json_object text default null, lastmodificationdate date default (strftime(\'%Y-%m-%d %H:%M:%f\', \'now\')), mustbedeleted boolean default false, '+
+    'json_object text default null, lastmodificationdate text default null, mustbedeleted boolean default false, '+
     'primary key(title, userid, mustbedeleted), foreign key(userid) references auth(userid) on update cascade on delete cascade)';
   static readonly CREATE_TAGS_TABLE = 'create table if not exists tags(title varchar(64),userid varchar(64) default null, mustbedeleted boolean default false, json_object text default null,primary key(title, userid, mustbedeleted), foreign key(userid) references auth(userid) on update cascade on delete cascade);';
   // static readonly CREATE_NOTES_TAGS_TABLE ='create table if not exists notes_tags(notetitle varchar(64), userid varchar(64), tagtitle varchar(64),role varchar(9),mustbedeleted boolean default false,primary key(notetitle, tagtitle, userid, mustbedeleted),foreign key(notetitle) references notes(title) on update cascade on delete cascade,foreign key(tagtitle) references tags(title) on update cascade on delete cascade, foreign key(userid) references auth(userid) on update cascade on delete cascade,constraint role_check check (role = \'mainTags\' or role = \'otherTags\'));';
   static readonly CREATE_LOGS_TABLE = 'create table if not exists logs_sequence(id integer primary key autoincrement,notetitle varchar(64) default null,oldtitle varchar(64),tagtitle varchar(64) default null,role varchar(9) default null,action varchar(64) not null, creationdate date default(strftime(\'%Y-%m-%d %H:%M:%f\', \'now\')), userid varchar(64), foreign key(notetitle) references notes(title) on update cascade on delete cascade,foreign key(tagtitle) references tags(title) on update cascade on delete cascade, foreign key(userid) references auth(userid) on update cascade on delete cascade, constraint action_check check(action=\'create\' or action=\'delete\' or action=\'change-title\' or action=\'change-text\' or action=\'add-tag\' or action=\'remove-tag\' or action =\'set-done\' or action=\'set-link\'),constraint role_check check (role =\'mainTags\' or role = \'otherTags\' or role is null),constraint if_all check ((role is not null and noteTitle is not null and tagTitle is not null or (noteTitle is not null) or (tagTitle is not null))));'
 
   static readonly CREATE_TAGS_HELP_TABLE = 'create table if not exists tags_help(title varchar(64), userid varchar(64), json_object text default null, primary key(title, userid));';
-  static readonly CREATE_NOTES_HELP_TABLE = 'create table if not exists notes_help(title varchar(64), userid varchar(64), json_object text default null, primary key(title, userid));';
+  //static readonly CREATE_NOTES_HELP_TABLE = 'create table if not exists notes_help(title varchar(64), userid varchar(64), json_object text default null, primary key(title, userid));';
+    static readonly CREATE_NOTES_HELP_TABLE = 'create table if not exists notes_help(title varchar(64), userid varchar(64), json_object text default null,lastmodificationdate text default null, primary key(title, userid));';
+
+
 
   static readonly CREATE_TRIGGER_DELETE_NOTE_COMPRESSION = 'create trigger if not exists deleteNoteCompression after update of mustbedeleted on notes for each row when exists ( select * from logs_sequence where action=\'create\' and notetitle = old.title and userid=old.userid) begin delete from logs_sequence where notetitle = old.title and userid=old.userid; delete from notes where title = old.title and userid=old.userid; end;';
   static readonly CREATE_TRIGGER_DELETE_TAG_COMPRESSION = 'create trigger if not exists deleteTagCompression after update of mustbedeleted on tags for each row when exists ( select * from logs_sequence where action=\'create\' and tagtitle = old.title and userid=old.userid) and not exists (select * from logs_sequence where action=\'add-tag\' and tagtitle=old.title and userid=old.userid)begin delete from logs_sequence where tagtitle = old.title and userid=old.userid; delete from tags where title=old.title and userid=old.userid; end;'
@@ -286,7 +290,7 @@ export class Query{
   static readonly DELETE_FROM_TAGS_TAGS_TO_DELETE_WHERE_TAG = 'delete from tags where userid=? and mustbedeleted=\'true\' and (title=?)';
 
 
-  static readonly INSERT_INTO_NOTES_HELP = 'insert into notes_help(title, json_object, userid) values ';
+  static readonly INSERT_INTO_NOTES_HELP = 'insert into notes_help(title, json_object, lastmodificationdate, userid) values ';
   static readonly INSERT_INTO_TAGS_HELP = 'insert into tags_help(title, json_object, userid) values ';
 
   static readonly DELETE_DIRTY_NOTES = 'delete from notes as n1 where title not in (select title from notes_help as n2 where n1.userid=n2.userid) and title not in (select notetitle from logs_sequence as l1 where n1.userid=l1.userid) and n1.userid=?';
@@ -296,7 +300,7 @@ export class Query{
   static readonly DELETE_TAGS_HELP = 'delete from tags_help where userid=?';
 
 
-  static readonly SMART_NOTES_MIN_INSERT = ' insert into notes(title, json_object, userid) select title,json_object, userid from notes_help as nh1 where title not in (select title from notes where nh1.userid=userid) and nh1.userid=?;';
+  static readonly SMART_NOTES_MIN_INSERT = ' insert into notes(title, json_object, lastmodificationdate, userid) select title,json_object, lastmodificationdate, userid from notes_help as nh1 where title not in (select title from notes where nh1.userid=userid) and nh1.userid=? order by lastmodificationdate desc, title asc;';
   static readonly SMART_NOTES_REMOVE_DIRTY = 'delete from notes where title  not in (select title from notes_help as nh1 where notes.userid=nh1.userid) and title not in (select notetitle from logs_sequence as l1 where l1.userid=notes.userid) and userid=?;'
 
   static readonly SMART_TAGS_MIN_INSERT = ' insert into tags(title, json_object, userid) select title,json_object, userid from tags_help as th1 where title not in (select title from tags where th1.userid=userid) and th1.userid=?;';

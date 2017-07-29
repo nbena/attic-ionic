@@ -3,7 +3,7 @@ import { Http, Headers } from '@angular/http';
 /* importing auth because I need the token. */
 import { Auth } from './auth';
 import { DbAction, Const, SqliteError } from '../public/const';
-import { NoteExtraMin/*, NoteSmart,*/, NoteFull,NoteMin, NoteBarebon } from '../models/notes';
+import { NoteExtraMin/*, NoteSmart,*/, NoteFull,NoteMin, NoteBarebon, NoteExtraMinWithDate } from '../models/notes';
 import { Utils } from '../public/utils';
 import { Db/*, LogObject*/ } from './db';
 import { NetManager } from './net-manager';
@@ -58,12 +58,12 @@ export class AtticNotes {
   /*
   can be rewritten: an error will force a call to the network.
   */
-  loadNotesMin(force: boolean):Promise<any>{
-    return new Promise<any>((resolve, reject)=>{
+  loadNotesMin(force: boolean):Promise<NoteExtraMin[]>{
+    return new Promise<NoteExtraMin[]>((resolve, reject)=>{
       let useForce: boolean = force;
       let isNteworkAvailable: boolean = this.netManager.isConnected;
       let areThereNotesInTheDb: boolean;
-      let notes:NoteExtraMin[]=[];
+      let notes:NoteExtraMinWithDate[]=[];
       let useDb: boolean;
       this.db.getNotesCount(this.auth.userid)
       .then(number=>{
@@ -91,7 +91,7 @@ export class AtticNotes {
           return p;
         }else{
           console.log('using the network');
-          return Utils.getBasic('/api/notes/all/min', this.http, this.auth.token);
+          return Utils.getBasic('/api/notes/all/min/with-date', this.http, this.auth.token);
         }
       })
       .then(fetchingResult=>{
@@ -105,12 +105,12 @@ export class AtticNotes {
           /*fetchingResult = NoteMin[] from the network, need to insert.*/
           /*inserting is available only if the locks are available*/
           if(!this.synch.isNoteFullyLocked()){
-            notes = fetchingResult as NoteExtraMin[];
+            notes = fetchingResult as NoteExtraMinWithDate[];
             // for(let i=notes.length-1;i>=0;i--){
             //   this.db.insertNoteMinQuietly(notes[i], this.auth.userid);
             // }
             this.db.insertNotesMinSmartAndCleanify(notes, this.auth.userid);
-            this.cachedExtraMinNote = fetchingResult as NoteExtraMin[];
+            this.cachedExtraMinNote = fetchingResult as NoteExtraMinWithDate[];
             resolve(notes);
           }else{
             /*can't insert*/
@@ -334,33 +334,33 @@ export class AtticNotes {
   The downloaded notes will be kept (TODO) and then fully downloaded.
   */
 
-  notesByTags_loadFromNetworkAndInsert(tags: TagAlmostMin[]):Promise<NoteExtraMin[]>{
-    return new Promise<NoteExtraMin[]>((resolve, reject)=>{
-      Utils.postBasic('/api/notes/by-tags-no-role', JSON.stringify({tags: tags.map((tag)=>{return tag.title})}), this.http, this.auth.token)
-      .then(result=>{
-        let parsedResult:NoteExtraMin[] = [];
-        console.log('data from network is:');
-        console.log(JSON.stringify(result));
-        /*need to parse, it will be changed (maybe)*/
-        for(let i=0;i<result.length;i++){
-          let note:NoteExtraMin = new NoteExtraMin();
-          note.title = result[i].title;
-          parsedResult.push(note);
-          /*note.userid = result[i].userid;*/
-          if(!this.synch.isNoteFullyLocked()){
-            // this.db.insertNoteMinQuietly(note, this.auth.userid);
-            this.db.insertNotesMinSmartAndCleanify([note], this.auth.userid);
-          }else{
-            console.log('fetched notes by tags but it is locked');
-          }
-        }
-        resolve(parsedResult);
-      })
-      .catch(error=>{
-        reject(error);
-      })
-    })
-  }
+  // notesByTags_loadFromNetworkAndInsert(tags: TagAlmostMin[]):Promise<NoteExtraMin[]>{
+  //   return new Promise<NoteExtraMin[]>((resolve, reject)=>{
+  //     Utils.postBasic('/api/notes/by-tags-no-role', JSON.stringify({tags: tags.map((tag)=>{return tag.title})}), this.http, this.auth.token)
+  //     .then(result=>{
+  //       let parsedResult:NoteExtraMin[] = [];
+  //       console.log('data from network is:');
+  //       console.log(JSON.stringify(result));
+  //       /*need to parse, it will be changed (maybe)*/
+  //       for(let i=0;i<result.length;i++){
+  //         let note:NoteExtraMin = new NoteExtraMin();
+  //         note.title = result[i].title;
+  //         parsedResult.push(note);
+  //         /*note.userid = result[i].userid;*/
+  //         if(!this.synch.isNoteFullyLocked()){
+  //           // this.db.insertNoteMinQuietly(note, this.auth.userid);
+  //           this.db.insertNotesMinSmartAndCleanify([note], this.auth.userid);
+  //         }else{
+  //           console.log('fetched notes by tags but it is locked');
+  //         }
+  //       }
+  //       resolve(parsedResult);
+  //     })
+  //     .catch(error=>{
+  //       reject(error);
+  //     })
+  //   })
+  // }
 
   notesByTag2(tags:TagAlmostMin[], force: boolean):Promise<any>{
     return new Promise<any>((resolve, reject)=>{
@@ -388,42 +388,16 @@ export class AtticNotes {
           return this.db.getNotesByTags(tags, this.auth.userid)
         }else{
           console.log('no notes, using the network');
-          return this.notesByTags_loadFromNetworkAndInsert(tags);
+          return Utils.postBasic('/api/notes/by-tags-no-role', JSON.stringify({tags: tags.map((tag)=>{return tag.title})}), this.http, this.auth.token)
         }
       })
       .then(fetchingResult=>{
-        if(useDb){
-          /*fetchingResult = NoteMin[] from the DB.*/
-          fetchingResult = fetchingResult as NoteExtraMin[];
-          if(expectedResult == fetchingResult.length){
-            /*ok, nothing to do.*/
-            resolve(fetchingResult);
-          }
-          else{
-            /*error*/
-            console.log('there is an error, need to fetch data from the network.')
-            if(isNteworkAvailable==false){
-              resolve([]);
-            }else{
-              /*TODO , saving the title of note returned here, it will fully downloaded.*/
-              return this.notesByTags_loadFromNetworkAndInsert(tags);
-            }
-          }/*end of useDb*/
-        }else{
-          /*fetchingResult from first network calling.*/
-          // notes = fetchingResult as NoteExtraMin[];
-          // for(let i=0;i<notes.length;i++){
-          //   this.db.insertNoteMinQuietly(notes[i]);
-          // }
-          // resolve(notes);
-          /*the data are already fetched from the network, and started to be inserted in the DB*/
-          resolve(fetchingResult);
-        }
+        resolve(fetchingResult as NoteExtraMin[])
       })
-      .then(secondFetch=>{
-        /*just the one from the network*/
-        resolve(secondFetch);
-      })
+      // .then(secondFetch=>{
+      //   /*just the one from the network*/
+      //   resolve(secondFetch);
+      // })
       .catch(error=>{
         console.log('error notes:');
         console.log(JSON.stringify(error));
@@ -432,6 +406,77 @@ export class AtticNotes {
     });
     // return Utils.getBasic('/api/notes/all/min', this.http, this.auth.token);
   }
+
+  // notesByTag2(tags:TagAlmostMin[], force: boolean):Promise<any>{
+  //   return new Promise<any>((resolve, reject)=>{
+  //     let useForce: boolean = force;
+  //     let isNteworkAvailable: boolean = this.netManager.isConnected;
+  //     let areThereNotesInTheDb: boolean;
+  //     let notes:NoteExtraMin[]=[];
+  //     let useDb: boolean;
+  //     let expectedResult: number = 0;
+  //     tags.forEach((tag)=>{expectedResult+=tag.noteslength});
+  //     /*doing this to avoid useless queries*/
+  //     if(expectedResult == 0){
+  //       resolve([]);
+  //     }
+  //     this.db.getNotesCount(this.auth.userid)
+  //     .then(number=>{
+  //       areThereNotesInTheDb = (number > 0) ? true : false;
+  //       console.log('the numberof notes is');
+  //       console.log(number);
+  //       // let useDb = !isNteworkAvailable || areThereNotesInTheDb || !force;
+  //       useDb = Utils.shouldUseDb(isNteworkAvailable, areThereNotesInTheDb, force/*, this.synch.isSynching()*/);
+  //       console.log('usedb note: ');
+  //       console.log(JSON.stringify(useDb));
+  //       if(useDb){
+  //         return this.db.getNotesByTags(tags, this.auth.userid)
+  //       }else{
+  //         console.log('no notes, using the network');
+  //         return this.notesByTags_loadFromNetworkAndInsert(tags);
+  //       }
+  //     })
+  //     .then(fetchingResult=>{
+  //       if(useDb){
+  //         /*fetchingResult = NoteMin[] from the DB.*/
+  //         fetchingResult = fetchingResult as NoteExtraMin[];
+  //         if(expectedResult == fetchingResult.length){
+  //           /*ok, nothing to do.*/
+  //           resolve(fetchingResult);
+  //         }
+  //         else{
+  //           /*error*/
+  //           console.log('there is an error, need to fetch data from the network.')
+  //           if(isNteworkAvailable==false){
+  //             resolve([]);
+  //           }else{
+  //             /*TODO , saving the title of note returned here, it will fully downloaded.*/
+  //             return this.notesByTags_loadFromNetworkAndInsert(tags);
+  //           }
+  //         }/*end of useDb*/
+  //       }else{
+  //         /*fetchingResult from first network calling.*/
+  //         // notes = fetchingResult as NoteExtraMin[];
+  //         // for(let i=0;i<notes.length;i++){
+  //         //   this.db.insertNoteMinQuietly(notes[i]);
+  //         // }
+  //         // resolve(notes);
+  //         /*the data are already fetched from the network, and started to be inserted in the DB*/
+  //         resolve(fetchingResult);
+  //       }
+  //     })
+  //     .then(secondFetch=>{
+  //       /*just the one from the network*/
+  //       resolve(secondFetch);
+  //     })
+  //     .catch(error=>{
+  //       console.log('error notes:');
+  //       console.log(JSON.stringify(error));
+  //     })
+  //
+  //   });
+  //   // return Utils.getBasic('/api/notes/all/min', this.http, this.auth.token);
+  // }
   //
   // notesByMainTag(tags: string[]){
   //   return Utils.postBasic('/api/notes/by-tag/unpop', JSON.stringify({mainTags: tags}), this.http, this.auth.token);

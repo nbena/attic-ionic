@@ -5,9 +5,10 @@ import { Platform } from 'ionic-angular';
 import { Query } from '../public/query';
 import { Table, Const, DbAction, WhichField, SqliteError, IndexTagType, TagType } from '../public/const';
 import { Utils } from '../public/utils';
-import { NoteExtraMin, NoteFull, NoteSQLite,NoteMin } from '../models/notes';
+import { NoteExtraMin, NoteFull, NoteSQLite,NoteMin, NoteExtraMinWithDate } from '../models/notes';
 import { TagExtraMin, TagFull, /*TagMin,*/ TagAlmostMin, TagSQLite } from '../models/tags';
 import { UserSummary } from '../models/user_summary';
+import * as micro from 'microseconds';
 //import * as Promise from 'bluebird';
 
 // import 'rxjs/add/operator/map';
@@ -557,6 +558,8 @@ public insertOrUpdateNote(note:NoteFull, userid:string):Promise<void>{
           selectedTags.push(t as TagExtraMin);
         }
         diffTags = Utils.arrayDiff(tags,selectedTags, TagExtraMin.ascendingCompare);
+        console.log('diff is:');
+        console.log(JSON.stringify(diffTags));
         let query:string = this.prepareQueryInsertMultiTags(diffTags.length);
         p=this.db.executeSql(query, this.expandArrayTagsMinWithEverything(diffTags, userid));
       }
@@ -1118,11 +1121,12 @@ private prepareQueryInsertNotesMinQuietly(length:number, userid:string):string{
 //   return array;
 // }
 
-private expandArrayNotesMinWithEverything(notes:NoteExtraMin[], userid:string):string[]{
+private expandArrayNotesMinWithEverything(notes:NoteExtraMinWithDate[], userid:string):string[]{
   let array:string[]=[];
   for(let i=notes.length-1;i>=0;i--){
     array.push(notes[i].title);
     array.push(JSON.stringify(notes[i]));
+    array.push(JSON.stringify(notes[i].lastmodificationdate));
     array.push(userid);
   }
   return array;
@@ -1141,14 +1145,14 @@ private expandArrayTagsMinWithEverything(tags:TagExtraMin[], userid:string):stri
 
 private prepareQueryInsertIntoHelp(baseQuery: string, length:number, userid:string):string{
   for(let i=0;i<length;i++){
-    baseQuery += '(?,?,?),';
+    baseQuery += '(?,?,?,?),';
   }
   baseQuery = baseQuery.substr(0, baseQuery.length-1);
   return baseQuery;
 }
 
 
-public insertNotesMinSmartAndCleanify(notes: NoteExtraMin[], userid: string):Promise<void>{
+public insertNotesMinSmartAndCleanify(notes: NoteExtraMinWithDate[], userid: string):Promise<void>{
   return new Promise<void>((resolve, reject)=>{
     this.db.transaction(tx=>{
       /*first insert into notes_help*/

@@ -28,13 +28,20 @@ export class NoteExtraMin{
 
 }
 
-export class NoteBarebon extends NoteExtraMin{
+export class NoteExtraMinWithDate extends NoteExtraMin{
+  lastmodificationdate: Date;
+  constructor(){
+    super();
+  }
+}
+
+export class NoteBarebon extends NoteExtraMinWithDate{
   text: string;
   userid: string;
   isdone: boolean;
   links: string[];
   creationdate: Date;
-  lastmodificationdate: Date;
+  //lastmodificationdate: Date;
 
   // constructor(title: string, text: string){
   //   super();
