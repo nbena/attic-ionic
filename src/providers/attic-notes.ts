@@ -666,13 +666,13 @@ return this.items.filter((item) => {
   // removeOtherTags(noteId: string, tagIds: string[]){
   //   return Utils.postBasic('/api/notes/mod/removetags', JSON.stringify({id: noteId, otherTags: tagIds }), this.http, this.auth.token);
   // }
-  removeTags(note: NoteFull, tags: string[]){
+  removeTags(note: NoteFull, tags: TagExtraMin[]){
     // return Utils.postBasic('/api/notes/mod/removetags',JSON.stringify({note:
     //   {title:noteTitle, tags:tags}}), this.http, this.auth.token );
     if(!this.synch.isNoteFullyLocked()){
       return this.db.removeTagsFromNote(note, this.auth.userid, tags);
     }else{
-      return new Promise<any>((resolve, reject)=>{
+      return new Promise<void>((resolve, reject)=>{
         console.log('trying to remove tags but it is locked');
         reject(Utils.getSynchingError(DbAction.DbAction.remove_tag));
       })

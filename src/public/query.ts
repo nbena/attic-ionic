@@ -381,6 +381,8 @@ export class Query{
 
 
   static readonly INSERT_NOTE_TAG_INTO_LOGS_2 = 'insert into logs_sequence(notetitle, tagtitle, role, action, userid) values ';
+  static readonly INSERT_NOTE_TAG_INTO_LOGS_2_NO_ROLE = 'insert into logs_sequence(notetitle, tagtitle, action, userid) values ';
+
 
   /*
   tag and notes in the db just memorize an array of ids.
