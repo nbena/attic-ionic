@@ -142,7 +142,7 @@ export class Query{
 
   static readonly NOTE_EXISTS_AND_IS_FULL = 'select text from notes where mustbedeleted=\'false\' and title=? and userid=?';
   static readonly TAG_EXISTS_AND_IS_FULL = 'select json_object from tags where mustbedeleted=\'false\' and title=? and userid=?';
-  static readonly TAGS_EXIST_AND_ARE_FULL =  'select json_object from tags where mustbedeleted=\'false\' and userid=? and (title=?';
+  static readonly TAGS_EXIST_AND_ARE_FULL =  'select json_object from tags where mustbedeleted=\'false\' and userid=? and (';
 
 
 

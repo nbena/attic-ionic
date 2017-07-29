@@ -133,16 +133,44 @@ export class Db {
             .then(db=>{
               return this.db.transaction(tx=>{
                 tx.executeSql('pragma foreign_keys = ON;',[]);
-                tx.executeSql(Query.CREATE_NOTES_TABLE,[]);
-                tx.executeSql(Query.CREATE_TAGS_TABLE,[]);
+                tx.executeSql(Query.CREATE_AUTH_TABLE,[]
+                  ,(tx:any,res:any)=>{console.log('ok auth');},
+                  (tx:any, error:any)=>{console.log(JSON.stringify(error))}
+                );
+                tx.executeSql(Query.CREATE_NOTES_TABLE,[]
+                  ,(tx:any,res:any)=>{console.log('ok notes');},
+                  (tx:any, error:any)=>{console.log(JSON.stringify(error))}
+                )
+                tx.executeSql(Query.CREATE_TAGS_TABLE,[]
+                  ,(tx:any,res:any)=>{console.log('ok tags');},
+                  (tx:any, error:any)=>{console.log(JSON.stringify(error))}
+                );
                 //tx.executeSql(Query.CREATE_NOTES_TAGS_TABLE,[]);
-                tx.executeSql(Query.CREATE_LOGS_TABLE,[]);
-                tx.executeSql(Query.CREATE_AUTH_TABLE,[]);
-                tx.executeSql(Query.CREATE_NOTES_HELP_TABLE,[]);
-                tx.executeSql(Query.CREATE_TAGS_HELP_TABLE,[]);
-                tx.executeSql(Query.CREATE_VIEW_COUNTS, []);
-                tx.executeSql(Query.CREATE_TRIGGER_DELETE_NOTE_COMPRESSION, []);
-                tx.executeSql(Query.CREATE_TRIGGER_DELETE_TAG_COMPRESSION, []);
+                tx.executeSql(Query.CREATE_LOGS_TABLE,[]
+                  ,(tx:any,res:any)=>{console.log('ok logs');},
+                  (tx:any, error:any)=>{console.log(JSON.stringify(error))}
+                );
+
+                tx.executeSql(Query.CREATE_NOTES_HELP_TABLE,[]
+                  ,(tx:any,res:any)=>{console.log('ok notes_help');},
+                  (tx:any, error:any)=>{console.log(JSON.stringify(error))}
+                );
+                tx.executeSql(Query.CREATE_TAGS_HELP_TABLE,[]
+                  ,(tx:any,res:any)=>{console.log('ok tags_help');},
+                  (tx:any, error:any)=>{console.log(JSON.stringify(error))}
+                );
+                tx.executeSql(Query.CREATE_VIEW_COUNTS, []
+                  ,(tx:any,res:any)=>{console.log('ok view');},
+                  (tx:any, error:any)=>{console.log(JSON.stringify(error))}
+                );
+                tx.executeSql(Query.CREATE_TRIGGER_DELETE_NOTE_COMPRESSION, []
+                  ,(tx:any,res:any)=>{console.log('ok trigger1');},
+                  (tx:any, error:any)=>{console.log(JSON.stringify(error))}
+                );
+                tx.executeSql(Query.CREATE_TRIGGER_DELETE_TAG_COMPRESSION, []
+                  ,(tx:any,res:any)=>{console.log('ok trigger2');},
+                  (tx:any, error:any)=>{console.log(JSON.stringify(error))}
+                );
               });
             })
             .then(transactionResult=>{
@@ -475,6 +503,7 @@ private prepareQueryTagExistAndAreFull(length:number):string{
   if(length==0){
     result=Query.EMPTY_RESULT_SET;
   }
+  console.log('result is '+result);
   return result;
 }
 
@@ -511,11 +540,13 @@ public insertOrUpdateNote(note:NoteFull, userid:string):Promise<void>{
       return p;
     })
     .then(result=>{
+      console.log('executed the update of json');
       let p:Promise<TagAlmostMin[][]>;
       let query:string = this.prepareQueryTagExistAndAreFull(tags.length);
       return this.db.executeSql(query, [userid].concat(tags.map(obj=>{return obj.title})));
     })
     .then(result=>{
+      console.log('get the tag full');
       let p:Promise<void>;
       if(result.rows.length<=0){
         console.log('this note has no tags');
