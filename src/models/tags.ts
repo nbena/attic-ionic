@@ -1,4 +1,5 @@
 import { NoteExtraMin, NoteFull } from './notes'
+//import {TagType } from '../public/const';
 /*
 Defining interfaces for the API.
 Here's the interface for the tags.
@@ -29,6 +30,7 @@ export class TagExtraMin {
   public static descendingCompare(a:TagExtraMin, b:TagAlmostMin):number{
     return b.title.localeCompare(a.title);
   }
+
 
 }
 

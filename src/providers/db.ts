@@ -736,6 +736,50 @@ public insertOrUpdateNote(note:NoteFull, userid:string):Promise<void>{
 // })
 // }
 
+private addTagsToNote(tx:any, extraMin:NoteExtraMin, userid:string,tags:TagExtraMin[], usedTag?:TagFull[]){
+  let tmpTag:TagExtraMin[]=Utils.arrayDiff(tags, ((usedTag)==null) ? [] : usedTag, TagExtraMin.ascendingCompare);
+  let updatedTag:TagFull[]=[];
+  if(usedTag!=null){
+    updatedTag=usedTag.map(obj=>{
+      let tag:TagFull =obj;
+      tag.notes.push(extraMin);
+      tag.noteslength++;
+      return tag;
+    })
+  }
+  if(tmpTag.length>0){//get full_tag from the db.
+    let query:string = this.prepareQueryTagExistAndAreFull(tmpTag.length);
+    tx.executeSql(query, [userid].concat(tmpTag.map(obj=>{return obj.title}))
+      ,(tx:any, res:any)=>{
+        if(usedTag==null){usedTag=[];}
+        for(let i=0;i<res.rows.length;i++){
+          let rawTag:any = JSON.parse(res.rows.item(i).json_object);
+          if(rawTag.notes == null){rawTag.notes=[];}
+          if(rawTag.noteslength ==  null){rawTag.noteslength=0;}
+          let tag:TagFull = rawTag as TagFull;
+          usedTag.push(tag);
+        }
+      }, (tx:any, error:any)=>{console.log('error in get tag full to update');console.log(JSON.stringify(error));}
+  );
+  }
+  if(usedTag!=null && usedTag.length>0){
+    //update each object;
+    usedTag.forEach(obj=>{
+      let tag:TagFull =  obj;
+      tag.notes.push(extraMin);
+      tag.noteslength++;
+      updatedTag.push(tag);
+    })
+  }
+  if(updatedTag.length>0){
+    let query:string = this.prepareQueryInsertMultiTags(updatedTag.length);
+    tx.executeSql(query, this.expandArrayTagsMinWithEverything(updatedTag, userid),
+      (tx:any, res:any)=>{console.log('ok updated full tags too');},
+      (tx:any, error:any)=>{console.log('error in update full tags');console.log(JSON.stringify(error));}
+  );
+  }
+}
+
 
 //usedTag contains the tagfull found in the cache, so I just have to update and not get from the db.
 public createNewNote2(note:NoteFull, userid:string, usedTag?:TagFull[]):Promise<void>{
@@ -756,47 +800,48 @@ public createNewNote2(note:NoteFull, userid:string, usedTag?:TagFull[]):Promise<
         (tx:any, error:any)=>{console.log('error in insert new note');console.log(JSON.stringify(error))}
       );
       //now get tags to update.
-      let tmpTag:TagExtraMin[]=Utils.arrayDiff(tags, ((usedTag)==null) ? [] : usedTag, TagExtraMin.ascendingCompare);
-      let updatedTag:TagFull[]=[];
-      if(usedTag!=null){
-        updatedTag=usedTag.map(obj=>{
-          let tag:TagFull =obj;
-          tag.notes.push(extraMin);
-          tag.noteslength++;
-          return tag;
-        })
-      }
-      if(tmpTag.length>0){//get full_tag from the db.
-        let query:string = this.prepareQueryTagExistAndAreFull(tmpTag.length);
-        tx.executeSql(query, [userid].concat(tmpTag.map(obj=>{return obj.title}))
-          ,(tx:any, res:any)=>{
-            if(usedTag==null){usedTag=[];}
-            for(let i=0;i<res.rows.length;i++){
-              let rawTag:any = JSON.parse(res.rows.item(i).json_object);
-              if(rawTag.notes == null){rawTag.notes=[];}
-              if(rawTag.noteslength ==  null){rawTag.noteslength=0;}
-              let tag:TagFull = rawTag as TagFull;
-              usedTag.push(tag);
-            }
-          }, (tx:any, error:any)=>{console.log('error in get tag full to update');console.log(JSON.stringify(error));}
-      );
-      }
-      if(usedTag!=null && usedTag.length>0){
-        //update each object;
-        usedTag.forEach(obj=>{
-          let tag:TagFull =  obj;
-          tag.notes.push(extraMin);
-          tag.noteslength++;
-          updatedTag.push(tag);
-        })
-      }
-      if(updatedTag.length>0){
-        let query:string = this.prepareQueryInsertMultiTags(updatedTag.length);
-        tx.executeSql(query, this.expandArrayTagsMinWithEverything(updatedTag, userid),
-          (tx:any, res:any)=>{console.log('ok updated full tags too');},
-          (tx:any, error:any)=>{console.log('error in update full tags');console.log(JSON.stringify(error));}
-      );
-      }
+      // let tmpTag:TagExtraMin[]=Utils.arrayDiff(tags, ((usedTag)==null) ? [] : usedTag, TagExtraMin.ascendingCompare);
+      // let updatedTag:TagFull[]=[];
+      // if(usedTag!=null){
+      //   updatedTag=usedTag.map(obj=>{
+      //     let tag:TagFull =obj;
+      //     tag.notes.push(extraMin);
+      //     tag.noteslength++;
+      //     return tag;
+      //   })
+      // }
+      // if(tmpTag.length>0){//get full_tag from the db.
+      //   let query:string = this.prepareQueryTagExistAndAreFull(tmpTag.length);
+      //   tx.executeSql(query, [userid].concat(tmpTag.map(obj=>{return obj.title}))
+      //     ,(tx:any, res:any)=>{
+      //       if(usedTag==null){usedTag=[];}
+      //       for(let i=0;i<res.rows.length;i++){
+      //         let rawTag:any = JSON.parse(res.rows.item(i).json_object);
+      //         if(rawTag.notes == null){rawTag.notes=[];}
+      //         if(rawTag.noteslength ==  null){rawTag.noteslength=0;}
+      //         let tag:TagFull = rawTag as TagFull;
+      //         usedTag.push(tag);
+      //       }
+      //     }, (tx:any, error:any)=>{console.log('error in get tag full to update');console.log(JSON.stringify(error));}
+      // );
+      // }
+      // if(usedTag!=null && usedTag.length>0){
+      //   //update each object;
+      //   usedTag.forEach(obj=>{
+      //     let tag:TagFull =  obj;
+      //     tag.notes.push(extraMin);
+      //     tag.noteslength++;
+      //     updatedTag.push(tag);
+      //   })
+      // }
+      // if(updatedTag.length>0){
+      //   let query:string = this.prepareQueryInsertMultiTags(updatedTag.length);
+      //   tx.executeSql(query, this.expandArrayTagsMinWithEverything(updatedTag, userid),
+      //     (tx:any, res:any)=>{console.log('ok updated full tags too');},
+      //     (tx:any, error:any)=>{console.log('error in update full tags');console.log(JSON.stringify(error));}
+      // );
+      // }
+      this.addTagsToNote(tx, extraMin, userid, tags, usedTag); //test-this.
     })
     .then(result=>{
       console.log('ok new note created');
@@ -1771,147 +1816,96 @@ public setTagTitle(tag: TagExtraMin, newTitle: string, userid: string):Promise<a
     })
   }
 
+  private expandInsertNoteTagsIntoLogs(title:string, userid:string, tags:TagExtraMin[]):string[]{
+    let array:string[]=[];
+    for(let i=0;i<tags.length;i++){
+      array.push(title);
+      array.push(tags[i].title);
+      array.push(userid);
+    }
+    return array;
+  }
+
+  private expandTagType(tags:TagExtraMin[], type:TagType):TagType[]{
+    return tags.map(obj=>{
+      return type;
+    })
+  }
+
+  private prepareQueryInsertNotesTagsIntoLogs(tags:TagExtraMin[], roles: TagType[]):string{
+    if(roles.length != tags.length){
+      throw new Error('error length must be the same');
+    }
+    let result:string = Query.INSERT_NOTE_TAG_INTO_LOGS_2;
+    for(let i=0;i<tags.length;i++){
+      if(roles[i]==TagType.MAIN){
+        result+='(?,?,\'mainTags\',\'add-tag\', ?),';
+      }else{
+        result+='(?,?,\'otherTags\',\'add-tag\', ?),';
+      }
+      result=result.substr(0, result.length-1);
+    }
+    return result;
+  }
 
   public addTags(note: NoteFull,  userid: string, mainTags? :  TagExtraMin[], otherTags?: TagExtraMin[]):Promise<any>{
     return new Promise<any>((resolve, reject)=>{
       this.db.transaction(tx=>{
-      //   /*first update note with a new json_object*/
-      //   tx.executeSql(Query.UPDATE_JSON_OBJ_NOTE,[JSON.stringify(note), note.title, userid],
-      //     (tx: any, res: any)=>{/*nothing*/console.log('updated json_obj note');},
-      //     (tx: any, error: any)=>{
-      //       console.log('error in update JSON object.');
-      //       console.log(JSON.stringify(error));
-      //     }
-      // );
       this.updateJsonObjNote(tx, note, userid);
-      if(mainTags!=null){
-        for(let i=0;i<mainTags.length;i++){
-          tx.executeSql(Query.INSERT_NOTES_TAGS, [note.title, mainTags[i].title, 'mainTags', userid],
-            (tx: any, res: any)=>{/*nothing*/console.log('update notes_tags main');},
-            (tx: any, error: any)=>{
-              console.log('error in inserting main tags in notes_tags');
-              console.log(JSON.stringify(error));
-            }
-        );
-        tx.executeSql(Query.INSERT_NOTE_TAG_INTO_LOGS, [note.title, note.title, mainTags[i].title, 'mainTags', 'add-tag', userid],
-          (tx: any, res: any)=>{/*nothing*/console.log('insert into logs ok');},
+      let roles:TagType[]=[];
+      let tags:TagExtraMin[]=[];
+      if(mainTags==null){mainTags=[];}
+      if(otherTags==null){otherTags=[];}
+      tags = mainTags.concat(otherTags);
+
+      roles =this.expandTagType(mainTags, TagType.MAIN);
+      roles = roles.concat(this.expandTagType(otherTags, TagType.OTHER));
+
+
+
+      let query:string = this.prepareQueryInsertNotesTagsIntoLogs(tags, roles);
+
+        tx.executeSql(query, this.expandInsertNoteTagsIntoLogs(note.title, userid, tags),
+          (tx: any, res: any)=>{/*nothing*/console.log('insert notes-tags into logs ok');},
           (tx: any, error: any)=>{
-            console.log('error in inserting main tags in logs');
+            console.log('error in inserting notes-tags');
             console.log(JSON.stringify(error))
           }
         );
-        tx.executeSql(Query.GET_TAG_FULL_JSON, [mainTags[i].title, userid],
-          (tx: any, res: any)=>{
-            if(res.rows.length>0){
-                let tag:any = JSON.parse(res.rows.item(0).json_object);
-                console.log('the tag is:');
-                console.log(JSON.stringify(tag));
 
-                let tagFull:TagFull = new TagFull();
-                tagFull.title  = tag.title;
+        this.addTagsToNote(tx, note.getNoteExtraMin(), userid, tags);
 
-                if(tag.notes){
-                  tagFull.notes = tag.notes;
-                }
 
-                tagFull.noteslength = tag.noteslength+1;
-                // if(tag.notes!=null && tag.notes != undefined){
-                //   tagFull.notes=tag.notes;
-                // }
-                let noteExtraMin:NoteExtraMin = new NoteExtraMin();
-                noteExtraMin.title = note.title;
-                tagFull.notes.push(noteExtraMin);
-                tagFull.userid=userid;
-              //   tx.executeSql(Query.UPDATE_JSON_OBJ_TAG, [JSON.stringify(tagFull), tagFull.title, userid],
-              //     (tx: any, res: any)=>{},
-              //     (tx: any, error: any)=>{
-              //       console.log('error in updating the single tag');
-              //       console.log(JSON.stringify(error));
-              //     }
-              // );
-              this.updateJsonObjTag(tx, tagFull,userid);
-            }
-          },
-          (tx: any, error: any)=>{
-            console.log('error in the select');
-            console.log(JSON.stringify(error));
-          }
-        );
-        }
-      }
-      if(otherTags!=null){
-        for(let i=0;i<otherTags.length;i++){
-          // tx.executeSql(Query.INSERT_NOTES_TAGS, [note.title, otherTags[i].title, 'otherTags', userid],
-          //   (tx: any, res: any)=>{/*nothing*/},
-          //   (tx: any, error: any)=>{
-          //     console.log('error in inserting other tags in notes_tags');
-          //     console.log(JSON.stringify(error));
-          //   }
-          // );
-        tx.executeSql(Query.INSERT_NOTE_TAG_INTO_LOGS, [note.title, note.title, otherTags[i].title, 'otherTags', 'add-tag', userid],
-          (tx: any, res: any)=>{/*nothing*/},
-          (tx: any, error: any)=>{
-            console.log('error in inserting other tags in logs');
-            console.log(JSON.stringify(error))
-          }
-        );
-        tx.executeSql(Query.GET_TAG_FULL_JSON, [otherTags[i].title, userid],
-          (tx: any, res: any)=>{
-            // if(res.rows.length>0){
-            //     let tag:any = JSON.parse(res.rows.item(0).json_object);
-            //     let tagFull:TagFull = new TagFull();
-            //     tagFull.title  = tag.title;
-            //     tagFull.noteslength = tag.noteslength+1;
-            //     if(tag.notes!=null && tag.notes != undefined){
-            //       tagFull.notes=tag.notes;
-            //     }
-            //     let noteExtraMin:NoteExtraMin = new NoteExtraMin();
-            //     noteExtraMin.title = note.title;
-            //     tagFull.notes.push(noteExtraMin);
-            //     tagFull.userid=userid;
-            //     tx.executeSql(Query.UPDATE_JSON_OBJ_TAG, [JSON.stringify(tagFull), tagFull.title, userid],
-            //       (tx: any, res: any)=>{},
-            //       (tx: any, error: any)=>{
-            //         console.log('error in updating the single tag');
-            //         console.log(JSON.stringify(error));
-            //       }
-            //   );
-            // }
-            let tag:any = JSON.parse(res.rows.item(0).json_object);
-            console.log('the tag is:');
-            console.log(JSON.stringify(tag));
 
-            let tagFull:TagFull = new TagFull();
-            tagFull.title  = tag.title;
+        //   (tx: any, res: any)=>{
+        //     if(res.rows.length>0){
+        //         let tag:any = JSON.parse(res.rows.item(0).json_object);
+        //         console.log('the tag is:');
+        //         console.log(JSON.stringify(tag));
+        //
+        //         let tagFull:TagFull = new TagFull();
+        //         tagFull.title  = tag.title;
+        //
+        //         if(tag.notes){
+        //           tagFull.notes = tag.notes;
+        //         }
+        //
+        //         tagFull.noteslength = tag.noteslength+1;
+        //         let noteExtraMin:NoteExtraMin = new NoteExtraMin();
+        //         noteExtraMin.title = note.title;
+        //         tagFull.notes.push(noteExtraMin);
+        //         tagFull.userid=userid;
+        //       this.updateJsonObjTag(tx, tagFull,userid);
+        //     }
+        //   },
+        //   (tx: any, error: any)=>{
+        //     console.log('error in the select');
+        //     console.log(JSON.stringify(error));
+        //   }
+        // );
 
-            if(tag.notes){
-              tagFull.notes = tag.notes;
-            }
 
-            tagFull.noteslength = tag.noteslength+1;
-            // if(tag.notes!=null && tag.notes != undefined){
-            //   tagFull.notes=tag.notes;
-            // }
-            let noteExtraMin:NoteExtraMin = new NoteExtraMin();
-            noteExtraMin.title = note.title;
-            tagFull.notes.push(noteExtraMin);
-            tagFull.userid=userid;
-          //   tx.executeSql(Query.UPDATE_JSON_OBJ_TAG, [JSON.stringify(tagFull), tagFull.title, userid],
-          //     (tx: any, res: any)=>{},
-          //     (tx: any, error: any)=>{
-          //       console.log('error in updating the single tag');
-          //       console.log(JSON.stringify(error));
-          //     }
-          // );
-          this.updateJsonObjTag(tx, tagFull,userid);
-          },
-          (tx: any, error: any)=>{
-            console.log('error in the select');
-            console.log(JSON.stringify(error));
-          }
-        );
-        }
-      }
+
       })
       .then(txResult=>{
         console.log('add tags ok');
@@ -1925,6 +1919,161 @@ public setTagTitle(tag: TagExtraMin, newTitle: string, userid: string):Promise<a
       })
     });
   }
+
+
+  // public addTags(note: NoteFull,  userid: string, mainTags? :  TagExtraMin[], otherTags?: TagExtraMin[]):Promise<any>{
+  //   return new Promise<any>((resolve, reject)=>{
+  //     this.db.transaction(tx=>{
+  //     //   /*first update note with a new json_object*/
+  //     //   tx.executeSql(Query.UPDATE_JSON_OBJ_NOTE,[JSON.stringify(note), note.title, userid],
+  //     //     (tx: any, res: any)=>{/*nothing*/console.log('updated json_obj note');},
+  //     //     (tx: any, error: any)=>{
+  //     //       console.log('error in update JSON object.');
+  //     //       console.log(JSON.stringify(error));
+  //     //     }
+  //     // );
+  //     this.updateJsonObjNote(tx, note, userid);
+  //     if(mainTags!=null){
+  //       for(let i=0;i<mainTags.length;i++){
+  //         tx.executeSql(Query.INSERT_NOTES_TAGS, [note.title, mainTags[i].title, 'mainTags', userid],
+  //           (tx: any, res: any)=>{/*nothing*/console.log('update notes_tags main');},
+  //           (tx: any, error: any)=>{
+  //             console.log('error in inserting main tags in notes_tags');
+  //             console.log(JSON.stringify(error));
+  //           }
+  //       );
+  //       tx.executeSql(Query.INSERT_NOTE_TAG_INTO_LOGS, [note.title, note.title, mainTags[i].title, 'mainTags', 'add-tag', userid],
+  //         (tx: any, res: any)=>{/*nothing*/console.log('insert into logs ok');},
+  //         (tx: any, error: any)=>{
+  //           console.log('error in inserting main tags in logs');
+  //           console.log(JSON.stringify(error))
+  //         }
+  //       );
+  //       tx.executeSql(Query.GET_TAG_FULL_JSON, [mainTags[i].title, userid],
+  //         (tx: any, res: any)=>{
+  //           if(res.rows.length>0){
+  //               let tag:any = JSON.parse(res.rows.item(0).json_object);
+  //               console.log('the tag is:');
+  //               console.log(JSON.stringify(tag));
+  //
+  //               let tagFull:TagFull = new TagFull();
+  //               tagFull.title  = tag.title;
+  //
+  //               if(tag.notes){
+  //                 tagFull.notes = tag.notes;
+  //               }
+  //
+  //               tagFull.noteslength = tag.noteslength+1;
+  //               // if(tag.notes!=null && tag.notes != undefined){
+  //               //   tagFull.notes=tag.notes;
+  //               // }
+  //               let noteExtraMin:NoteExtraMin = new NoteExtraMin();
+  //               noteExtraMin.title = note.title;
+  //               tagFull.notes.push(noteExtraMin);
+  //               tagFull.userid=userid;
+  //             //   tx.executeSql(Query.UPDATE_JSON_OBJ_TAG, [JSON.stringify(tagFull), tagFull.title, userid],
+  //             //     (tx: any, res: any)=>{},
+  //             //     (tx: any, error: any)=>{
+  //             //       console.log('error in updating the single tag');
+  //             //       console.log(JSON.stringify(error));
+  //             //     }
+  //             // );
+  //             this.updateJsonObjTag(tx, tagFull,userid);
+  //           }
+  //         },
+  //         (tx: any, error: any)=>{
+  //           console.log('error in the select');
+  //           console.log(JSON.stringify(error));
+  //         }
+  //       );
+  //       }
+  //     }
+  //     if(otherTags!=null){
+  //       for(let i=0;i<otherTags.length;i++){
+  //         // tx.executeSql(Query.INSERT_NOTES_TAGS, [note.title, otherTags[i].title, 'otherTags', userid],
+  //         //   (tx: any, res: any)=>{/*nothing*/},
+  //         //   (tx: any, error: any)=>{
+  //         //     console.log('error in inserting other tags in notes_tags');
+  //         //     console.log(JSON.stringify(error));
+  //         //   }
+  //         // );
+  //       tx.executeSql(Query.INSERT_NOTE_TAG_INTO_LOGS, [note.title, note.title, otherTags[i].title, 'otherTags', 'add-tag', userid],
+  //         (tx: any, res: any)=>{/*nothing*/},
+  //         (tx: any, error: any)=>{
+  //           console.log('error in inserting other tags in logs');
+  //           console.log(JSON.stringify(error))
+  //         }
+  //       );
+  //       tx.executeSql(Query.GET_TAG_FULL_JSON, [otherTags[i].title, userid],
+  //         (tx: any, res: any)=>{
+  //           // if(res.rows.length>0){
+  //           //     let tag:any = JSON.parse(res.rows.item(0).json_object);
+  //           //     let tagFull:TagFull = new TagFull();
+  //           //     tagFull.title  = tag.title;
+  //           //     tagFull.noteslength = tag.noteslength+1;
+  //           //     if(tag.notes!=null && tag.notes != undefined){
+  //           //       tagFull.notes=tag.notes;
+  //           //     }
+  //           //     let noteExtraMin:NoteExtraMin = new NoteExtraMin();
+  //           //     noteExtraMin.title = note.title;
+  //           //     tagFull.notes.push(noteExtraMin);
+  //           //     tagFull.userid=userid;
+  //           //     tx.executeSql(Query.UPDATE_JSON_OBJ_TAG, [JSON.stringify(tagFull), tagFull.title, userid],
+  //           //       (tx: any, res: any)=>{},
+  //           //       (tx: any, error: any)=>{
+  //           //         console.log('error in updating the single tag');
+  //           //         console.log(JSON.stringify(error));
+  //           //       }
+  //           //   );
+  //           // }
+  //           let tag:any = JSON.parse(res.rows.item(0).json_object);
+  //           console.log('the tag is:');
+  //           console.log(JSON.stringify(tag));
+  //
+  //           let tagFull:TagFull = new TagFull();
+  //           tagFull.title  = tag.title;
+  //
+  //           if(tag.notes){
+  //             tagFull.notes = tag.notes;
+  //           }
+  //
+  //           tagFull.noteslength = tag.noteslength+1;
+  //           // if(tag.notes!=null && tag.notes != undefined){
+  //           //   tagFull.notes=tag.notes;
+  //           // }
+  //           let noteExtraMin:NoteExtraMin = new NoteExtraMin();
+  //           noteExtraMin.title = note.title;
+  //           tagFull.notes.push(noteExtraMin);
+  //           tagFull.userid=userid;
+  //         //   tx.executeSql(Query.UPDATE_JSON_OBJ_TAG, [JSON.stringify(tagFull), tagFull.title, userid],
+  //         //     (tx: any, res: any)=>{},
+  //         //     (tx: any, error: any)=>{
+  //         //       console.log('error in updating the single tag');
+  //         //       console.log(JSON.stringify(error));
+  //         //     }
+  //         // );
+  //         this.updateJsonObjTag(tx, tagFull,userid);
+  //         },
+  //         (tx: any, error: any)=>{
+  //           console.log('error in the select');
+  //           console.log(JSON.stringify(error));
+  //         }
+  //       );
+  //       }
+  //     }
+  //     })
+  //     .then(txResult=>{
+  //       console.log('add tags ok');
+  //       console.log(JSON.stringify(txResult));
+  //       resolve(true);
+  //     })
+  //     .catch(error=>{
+  //       console.log('error in adding tags');
+  //       console.log(JSON.stringify(error));
+  //       reject(error);
+  //     })
+  //   });
+  // }
 
 /*I'm sorry.*/
 private prepareQueryRemoveTagsFromNotesLogs(noteTitle: string, userid: string, tags:string[]):string{

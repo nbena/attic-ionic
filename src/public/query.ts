@@ -380,6 +380,8 @@ export class Query{
   static readonly INSERT_NOTE_2 = 'insert into notes(title, text, json_object, userid) values (?,?,?,?)';
 
 
+  static readonly INSERT_NOTE_TAG_INTO_LOGS_2 = 'insert into logs_sequence(notetitle, tagtitle, role, action, userid) values ';
+
   /*
   tag and notes in the db just memorize an array of ids.
   */

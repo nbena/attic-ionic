@@ -186,6 +186,20 @@ export class NoteFull extends NoteBarebon{
     return NoteExtraMin.NewNoteExtraMin(this.title);
   }
 
+  public getTagTypeAsArray(type:TagType):TagType[]{
+    let array:TagType[]=[];
+    if(type==TagType.MAIN){
+      this.maintags.map(obj=>{return TagType.MAIN});
+    }else{
+      this.othertags.map(obj=>{return TagType.OTHER});
+    }
+    return array;
+  }
+
+  public getAllTagsType():TagType[]{
+    return this.getTagTypeAsArray(TagType.MAIN).concat(this.getTagTypeAsArray(TagType.OTHER));
+  }
+
 
 }
 export class NoteSQLite extends NoteFull{
