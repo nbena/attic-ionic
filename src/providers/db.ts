@@ -739,7 +739,7 @@ public insertOrUpdateNote(note:NoteFull, userid:string):Promise<void>{
 //tx: the transaction
 //extraMin: the note from which the tag have to be removed
 //userid: the userid
-//tags: the tags to remove
+//tags: the tags to remove the note from.
 //usedTags: the tags full found in the cache (it won't be got from the db)
 //it:
 /*
@@ -1045,6 +1045,8 @@ public isTagFull(title: string, userid: string):Promise<boolean>{
     })
   });
 }
+
+
 
 /*
 if not full, I will return null.
@@ -1741,12 +1743,49 @@ public setTagTitle(tag: TagExtraMin, newTitle: string, userid: string):Promise<a
   }
 
 
-  deleteNote(note: NoteExtraMin, userid: string):Promise<any>{
+  deleteNote(note: NoteExtraMin, userid: string, usedTag?:TagFull[]):Promise<any>{
     return new Promise<any>((resolve, reject)=>{
       this.db.transaction(tx=>{
-        tx.executeSql(Query.INSERT_NOTE_OLDTITLE_INTO_LOGS, [note.title, note.title, 'delete', userid]);
-        tx.executeSql(Query.SET_NOTE_DELETED, [note.title, userid]);
+        tx.executeSql(Query.INSERT_NOTE_OLDTITLE_INTO_LOGS, [note.title, note.title, 'delete', userid],
+        (tx:any, res:any)=>{console.log('ok set note deleted in logs');},
+        (tx:any, error:any)=>{console.log('error in set note deleted in logs');console.log(JSON.stringify(error));}
+      );
         //tx.executeSql(Query.SET_NOTE_DELETED_NOTES_TAGS, [note.title, userid]);
+        let noteFull:NoteFull=null;
+        let tags:TagExtraMin[]=[];
+        if(note instanceof NoteFull){
+          tags=note.getTagsAsTagsExtraMinArray();
+        }else{
+          //get the note full from the db.
+          // tx.executeSql(Query.GET_NOTE_FULL_JSON, [note.title, userid],
+          //   (tx:any, res:any)=>{
+          //     if(res.rows.length<=0){
+          //       console.log('error');
+          //     }else{
+          //       let raw:any = JSON.parse(res.rows.item(0).json_object);
+          //       if(raw.text!=null && raw.text!=undefined){
+          //         console.log('ok the note is full');
+          //         noteFull = raw as NoteFull;
+          //       }
+          //     }
+          //   },
+          //   (tx:any, error:any)=>{console.log('error in get full note');console.log(JSON.stringify(error));}
+          // )
+          this.getNoteFull(note.title, userid)
+          .then(eventualNote=>{
+            if(eventualNote!=null){
+              noteFull = eventualNote;
+              tags=noteFull.getTagsAsTagsExtraMinArray();
+            }
+          })
+        }
+        if(noteFull!=null){
+          this.removeTagsFromNoteCore(tx, note, userid, tags, usedTag);
+        }
+        tx.executeSql(Query.SET_NOTE_DELETED, [note.title, userid],
+          (tx:any, res:any)=>{console.log('ok set note deleted');},
+          (tx:any, error:any)=>{console.log('error in set note deleted');console.log(JSON.stringify(error));}
+        );
       })
       .then(txResult=>{
         console.log('tx completed, result:');
@@ -1765,122 +1804,142 @@ public setTagTitle(tag: TagExtraMin, newTitle: string, userid: string):Promise<a
     return new Promise<any>((resolve , reject)=>{
       this.db.transaction(tx=>{
         tx.executeSql(Query.INSERT_TAG, [tag.title, userid, JSON.stringify(tag)],
-        (tx: any, res: any)=>{/*nothing*/},
-        (tx: any, error: any)=>{
-          console.log('error in insert tag');
-          console.log(JSON.stringify(error));
-        }
+        (tx: any, res: any)=>{console.log('ok insert tag')},
+        (tx: any, error: any)=>{console.log('error in insert tag');console.log(JSON.stringify(error));}
       );
       tx.executeSql(Query.INSERT_TAG_OLDTITLE_INTO_LOGS, [tag.title, tag.title, 'create', userid],
-      (tx: any, res: any)=>{/*nothing*/},
-      (tx: any, error: any)=>{
-        console.log('error in insert tag in logs');
-        console.log(JSON.stringify(error));
-      }
-    )
+        (tx: any, res: any)=>{console.log('ok insert tag into logs')},
+        (tx: any, error: any)=>{console.log('error in insert tag in logs');console.log(JSON.stringify(error));}
+      )
       })
       .then(txResult=>{
         console.log('tag creation completed');
         resolve(true);
       })
       .catch(error=>{
-        console.log('tag creation error');
-        console.log(JSON.stringify(error));
+        console.log('tag creation error'); console.log(JSON.stringify(error));
         reject(error);
       })
     });
   }
 
-//TODO rewrite a bit the modificationof the json object.
-  deleteTag(tag: TagExtraMin, userid: string):Promise<any>{
+
+  deleteTag(tag: TagExtraMin, userid: string, usedNote?:NoteFull[]):Promise<any>{
     return new Promise<any>((resolve, reject)=>{
       this.db.transaction(tx=>{
         tx.executeSql(Query.INSERT_TAG_OLDTITLE_INTO_LOGS, [tag.title, tag.title, 'delete', userid]);
-        //,
-          // (tx:any, res:any)=>{},
-          // (tx:any, error:any)=>{
-          //   console.log('first insert error');
-          //   console.log(JSON.stringify(error));
-          // });
         /*now update the json_object of eventual full notes.*/
-        tx.executeSql(Query.GET_TITLE_AND_JSON_OF_NOTES_TO_UPDATE, [tag.title, userid],
-          (tx: any, res: any)=>{ /*result callback*/
-            // console.log('select result');
-            // console.log(JSON.stringify(res));
-            if(res.rows.length <= 0){
-              console.log('no note to update');
-              /*return;*/
-            }else{
-              for(let i=0;i<res.rows.length;i++){
-                console.log('I have to update:');
-                console.log(JSON.stringify(res.rows.length));
-                let json_object:any = JSON.parse(res.rows.item(i).json_object);
-                // console.log('item(i):');
-                // console.log(JSON.stringify(res.rows.item(i)));
-                // console.log('parsed is:');
-                // console.log(JSON.stringify(json_object));
-                let role:string = res.rows.item(i).role;
-                let title: string = res.rows.item(i).title;
-                // if(role == 'mainTags'){
-                //   json_object.maintags.splice(Utils.myIndexOf(json_object.maintags, tag),1);
-                //   console.log('removed maintag:');
-                // }else{
-                //   json_object.othertags.splice(Utils.myIndexOf(json_object.othertags, tag),1);
-                //   console.log('removed othertag:');
-                // }
-                let note:NoteFull;
-                if(!json_object.maintags && !json_object.othertags){
-                  console.log('tag is not full, nothing to do.');
-                }else{
-                  note= json_object as NoteFull;
-                  if(role=='mainTags'){
-                    note.removeTag(note.getTagIndex(tag, TagType.MAIN));
-                  }else{
-                    note.removeTag(note.getTagIndex(tag, TagType.OTHER));
+        tx.executeSql(Query.SET_TAG_DELETED, [tag.title, userid ],
+          (tx:any, res:any)=>{console.log('set tag deleted ok');},
+          (tx:any, error:any)=>{console.log('error in set tag deleted');console.log(JSON.stringify(error));}
+        );
+        let tagFull:TagFull=null;
+        let notesMin:NoteExtraMin[]=null;
+        let notesFull:NoteFull[]=null;
+        if(tag instanceof TagFull){
+          tagFull=tag;
+          notesMin = tagFull.notes;
+          //get notefull by title which is better.
+          if(notesMin.length>0){
+            let query:string=this.prepareQueryDeleteForceNote(Query.SELECT_NOTES_FULL_BASE, notesMin.length);
+            tx.executeSql(query, [userid].concat(notesMin.map(obj=>{return obj.title})),
+              (tx:any, res:any)=>{
+                for(let i=0;i<res.rows.length;i++){
+                  let raw = JSON.parse(res.rows.item(i).json_object);
+                  if(raw.text!=null && raw.text!=undefined){
+                    notesFull.push(raw as NoteFull);
                   }
                 }
-                console.log(JSON.stringify(note));
-                //tx.executeSql(Query.UPDATE_JSON_OBJ_NOTE, [JSON.stringify(json_object),title,userid]);
-                this.updateJsonObjNote(note, userid,tx);
-              }
-            }
-          },
-          (tx: any, error: any)=>{ /*error callback*/
-            console.log('error in select:');
-            console.log(JSON.stringify(error));
+              },(tx:any, error:any)=>{console.log('error in get notes to update');console.log(JSON.stringify(error));}
+            )
           }
-        )
-        tx.executeSql(Query.SET_TAG_DELETED, [tag.title, userid ],
-          (tx:any, res:any)=>{
-            console.log('set tag deleted ok');
-          },
-          (tx:any, error:any)=>{
-            console.log('error in set tag deleted');
-            console.log(JSON.stringify(error));
+
+        }else{
+          this.getNotesByTags([tag as TagAlmostMin], userid)
+          .then(notes=>{
+            notesFull = notes as NoteFull[];
+          })
+        }
+        if(notesFull!=null && notesFull.length>0){
+          for(let i=0;i<notesFull.length;i++){
+            notesFull[i].removeTag(notesFull[i].getTagIndex(tag));
+            this.updateJsonObjNote(notesFull[i], userid, tx);
           }
-        );
-        // tx.executeSql(Query.SET_TAG_DELETED_IN_ALL_NOTES_TAGS, [tag.title, userid],
-        //   (tx:any, res:any)=>{
-        //     console.log('set tag deleted notes tags ok');
-        //   },
-        //   (tx:any, error:any)=>{
-        //     console.log('error in set tag deleted notes tags');
-        //     console.log(JSON.stringify(error));
-        //   }
-        // )
-    })
+        }
+
+      })
       .then(txResult=>{
-        console.log('tx completed, result:');
-        console.log(JSON.stringify(txResult));
+        console.log('ok tag is deleted');
         resolve(true);
       })
       .catch(error=>{
-        console.log('tx error');
-        console.log(JSON.stringify(error));
+        console.log('error in delete tag');console.log(JSON.stringify(error.message));
         reject(error);
       })
     })
   }
+
+//TODO rewrite a bit the modificationof the json object.
+  // deleteTag(tag: TagExtraMin, userid: string):Promise<any>{
+  //   return new Promise<any>((resolve, reject)=>{
+  //     this.db.transaction(tx=>{
+  //       tx.executeSql(Query.INSERT_TAG_OLDTITLE_INTO_LOGS, [tag.title, tag.title, 'delete', userid]);
+  //       /*now update the json_object of eventual full notes.*/
+  //       tx.executeSql(Query.GET_TITLE_AND_JSON_OF_NOTES_TO_UPDATE, [tag.title, userid],
+  //         (tx: any, res: any)=>{
+  //           if(res.rows.length <= 0){
+  //             console.log('no note to update');
+  //             /*return;*/
+  //           }else{
+  //             for(let i=0;i<res.rows.length;i++){
+  //               console.log('I have to update:');
+  //               console.log(JSON.stringify(res.rows.length));
+  //               let json_object:any = JSON.parse(res.rows.item(i).json_object);
+  //               let role:string = res.rows.item(i).role;
+  //               let title: string = res.rows.item(i).title;
+  //               let note:NoteFull;
+  //               if(!json_object.maintags && !json_object.othertags){
+  //                 console.log('tag is not full, nothing to do.');
+  //               }else{
+  //                 note= json_object as NoteFull;
+  //                 if(role=='mainTags'){
+  //                   note.removeTag(note.getTagIndex(tag, TagType.MAIN));
+  //                 }else{
+  //                   note.removeTag(note.getTagIndex(tag, TagType.OTHER));
+  //                 }
+  //               }
+  //               console.log(JSON.stringify(note));
+  //               this.updateJsonObjNote(note, userid,tx);
+  //             }
+  //           }
+  //         },
+  //         (tx: any, error: any)=>{
+  //           console.log('error in select:');
+  //           console.log(JSON.stringify(error));
+  //         }
+  //       )
+  //       tx.executeSql(Query.SET_TAG_DELETED, [tag.title, userid ],
+  //         (tx:any, res:any)=>{
+  //           console.log('set tag deleted ok');
+  //         },
+  //         (tx:any, error:any)=>{
+  //           console.log('error in set tag deleted');
+  //           console.log(JSON.stringify(error));
+  //         }
+  //       );
+  //   })
+  //     .then(txResult=>{
+  //       console.log('tx completed, result:');
+  //       console.log(JSON.stringify(txResult));
+  //       resolve(true);
+  //     })
+  //     .catch(error=>{
+  //       console.log('tx error');
+  //       console.log(JSON.stringify(error));
+  //       reject(error);
+  //     })
+  //   })
+  // }
 
   private expandInsertNoteTagsIntoLogs(title:string, userid:string, tags:TagExtraMin[]):string[]{
     let array:string[]=[];

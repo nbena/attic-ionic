@@ -383,7 +383,10 @@ export class Query{
   static readonly INSERT_NOTE_TAG_INTO_LOGS_2 = 'insert into logs_sequence(notetitle, tagtitle, role, action, userid) values ';
   static readonly INSERT_NOTE_TAG_INTO_LOGS_2_NO_ROLE = 'insert into logs_sequence(notetitle, tagtitle, action, userid) values ';
 
+  static readonly SELECT_NOTE_TITLE_BY_TAGS_NO_ROLE = 'select title from notes where json_object like ? and userid=?';
+  static readonly SELECT_NOTE_TITLE_JSON_BY_TAGS_NO_ROLE = 'select title, json_object from notes where json_object like ? and userid=?'
 
+  static readonly SELECT_NOTES_FULL_BASE ='select json_object from notes where userid=? '
   /*
   tag and notes in the db just memorize an array of ids.
   */

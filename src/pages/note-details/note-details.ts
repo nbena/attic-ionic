@@ -201,8 +201,9 @@ export class NoteDetailsPage {
   }
 
   refresh(refresher){
-    this.noteByTitle(true);
-    this.loadTags(true);
+    // this.noteByTitle(true);
+    // this.loadTags(true);
+    Promise.all([this.noteByTitle(true), this.loadTags(true)])
     setTimeout(()=>{
       refresher.complete();
     },2000);
