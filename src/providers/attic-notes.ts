@@ -12,6 +12,8 @@ import { Synch } from './synch';
 import { AtticTags } from './attic-tags';
 import { TagAlmostMin, TagExtraMin, TagFull } from '../models/tags';
 
+import { AtticCache } from './attic-cache';
+
 import 'rxjs/add/operator/map';
 
 /*
@@ -23,11 +25,12 @@ import 'rxjs/add/operator/map';
 @Injectable()
 export class AtticNotes {
 
-  private cachedExtraMinNote: NoteExtraMin[] = null;
-  private cachedFullNote: NoteFull[] = null;
+  // private cachedExtraMinNote: NoteExtraMin[] = null;
+  // private cachedFullNote: NoteFull[] = null;
 
   constructor(public http: Http, public auth: Auth,
     private atticTags: AtticTags,
+    private atticCache: AtticCache,
     private db: Db, private netManager: NetManager,
     private synch: Synch
   ) {
@@ -81,9 +84,9 @@ export class AtticNotes {
           //   return this.db.getNotesMin(this.auth.userid);
           // }
           let p:Promise<NoteExtraMin[]>;
-          if(this.cachedExtraMinNote!=null){
+          if(this.atticCache.cachedExtraMinNotes!=null){
             console.log('using cache');
-            p = new Promise<NoteExtraMin[]>((resolve, reject)=>{resolve(this.cachedExtraMinNote)});
+            p = new Promise<NoteExtraMin[]>((resolve, reject)=>{resolve(this.atticCache.cachedExtraMinNotes)});
           }else{
             console.log('no cache using db');
             p = this.db.getNotesMin(this.auth.userid);
@@ -97,8 +100,8 @@ export class AtticNotes {
       .then(fetchingResult=>{
         if(useDb){
           /*fetchingResult = NoteMin[] from the DB.*/
-          if(this.cachedExtraMinNote==null){
-            this.cachedExtraMinNote = fetchingResult;
+          if(this.atticCache.cachedExtraMinNotes==null){
+            this.atticCache.cachedExtraMinNotes = fetchingResult;
           }
           resolve(fetchingResult);
         }else{
@@ -110,7 +113,7 @@ export class AtticNotes {
             //   this.db.insertNoteMinQuietly(notes[i], this.auth.userid);
             // }
             this.db.insertNotesMinSmartAndCleanify(notes, this.auth.userid);
-            this.cachedExtraMinNote = fetchingResult as NoteExtraMinWithDate[];
+            this.atticCache.cachedExtraMinNotes = fetchingResult as NoteExtraMinWithDate[];
             resolve(notes);
           }else{
             /*can't insert*/
@@ -182,12 +185,12 @@ export class AtticNotes {
         if(useDb){
           let p:Promise<NoteFull>;
           let res:number=-1;
-          if(this.cachedFullNote!=null){
-            res = Utils.binarySearch(this.cachedFullNote, NoteExtraMin.NewNoteExtraMin(title), NoteExtraMin.ascendingCompare);
+          if(this.atticCache.cachedFullNotes!=null){
+            res = Utils.binarySearch(this.atticCache.cachedFullNotes, NoteExtraMin.NewNoteExtraMin(title), NoteExtraMin.ascendingCompare);
           }
           if(res!=-1){
             console.log('the note is in the cache');
-            p = new Promise<NoteFull>((resolve, reject)=>{resolve(this.cachedFullNote[res])});
+            p = new Promise<NoteFull>((resolve, reject)=>{resolve(this.atticCache.cachedFullNotes[res])});
           }else{
             console.log('using the db for full note');
             p=this.db.getNoteFull(title, this.auth.userid);
@@ -217,10 +220,10 @@ export class AtticNotes {
       .then(fromNet=>{
         /*if here the note is not in the DB.*/ /*--> no longer*/
         //resolve(fromNet);
-        if(this.cachedFullNote==null){
-          this.cachedFullNote=[];
+        if(this.atticCache.cachedFullNotes==null){
+          this.atticCache.cachedFullNotes=[];
         }
-        this.cachedFullNote = Utils.binaryArrayInsert(this.cachedFullNote, fromNet, NoteExtraMin.ascendingCompare);
+        this.atticCache.cachedFullNotes = Utils.binaryArrayInsert(this.atticCache.cachedFullNotes, fromNet, NoteExtraMin.ascendingCompare);
         resolve(fromNet);
       })
       .catch(error=>{
@@ -288,15 +291,15 @@ export class AtticNotes {
     return noteRes;
   }
 
-  private reget(arg0:TagFull[], arg1:TagExtraMin[]):TagFull[]{
-    let array:TagFull[]=[];
-    arg1.map(obj=>{
-      let index:number;
-      index=Utils.indexOfCmp(arg0, obj, TagExtraMin.ascendingCompare);
-      return arg0[index];
-    })
-    return array;
-  }
+  // private reget(arg0:TagFull[], arg1:TagExtraMin[]):TagFull[]{
+  //   let array:TagFull[]=[];
+  //   arg1.map(obj=>{
+  //     let index:number;
+  //     index=Utils.indexOfCmp(arg0, obj, TagExtraMin.ascendingCompare);
+  //     return arg0[index];
+  //   })
+  //   return array;
+  // }
 
   createNote2(note: NoteFull/*, tags: TagAlmostMin[]*/):Promise<void>{
     // return this.db.createNewNote2(note, tags, this.auth.userid);
@@ -305,8 +308,8 @@ export class AtticNotes {
 
         //try to provide to the db more fulltag as possible.
 
-        let cachedTags:TagFull[]=this.atticTags.getFullCachedTags();
-        let necessaryTags:TagFull[]=this.reget(cachedTags, note.getTagsAsTagsExtraMinArray());
+        let cachedTags:TagFull[]=this.atticCache.cachedFullTags;
+        let necessaryTags:TagFull[]=Utils.getFullObjectTag(cachedTags, note.getTagsAsTagsExtraMinArray());
 
         this.db.createNewNote2(this.minifyNoteFullForCration(note), /*tags, */this.auth.userid, necessaryTags)
         .then(result=>{
@@ -321,6 +324,7 @@ export class AtticNotes {
       }
     })
   }
+
 
   // notesByTag(tags: string[], force: boolean){
   //   // return Utils.postBasic('/api/notes/by-tags-no-role', JSON.stringify({tags: tags}), this.http, this.auth.token);
@@ -385,13 +389,15 @@ export class AtticNotes {
         console.log('usedb note: ');
         console.log(JSON.stringify(useDb));
         if(useDb){
-          return this.db.getNotesByTags(tags, this.auth.userid)
+          return this.db.getNotesByTags(tags, this.auth.userid);
         }else{
           console.log('no notes, using the network');
           return Utils.postBasic('/api/notes/by-tags-no-role', JSON.stringify({tags: tags.map((tag)=>{return tag.title})}), this.http, this.auth.token)
         }
       })
       .then(fetchingResult=>{
+        console.log('fetchingResult is');
+        console.log(JSON.stringify(fetchingResult));
         resolve(fetchingResult as NoteExtraMin[])
       })
       // .then(secondFetch=>{
@@ -401,6 +407,7 @@ export class AtticNotes {
       .catch(error=>{
         console.log('error notes:');
         console.log(JSON.stringify(error));
+        reject(error);
       })
 
     });
@@ -737,7 +744,13 @@ return this.items.filter((item) => {
     //   return this.db.transactionDeleteNoteFromNotes(<string>_id);
     // }
     if(!this.synch.isNoteFullyLocked()){
-      return this.db.deleteNote(note, this.auth.userid);
+
+      let cachedTags:TagFull[]=this.atticCache.cachedFullTags;
+      let necessaryTags:TagFull[]=null;
+      if(note instanceof NoteFull){
+        necessaryTags=Utils.getFullObjectTag(cachedTags, (note as NoteFull).getTagsAsTagsExtraMinArray());
+      }
+      return this.db.deleteNote(note, this.auth.userid, necessaryTags);
     }else{
       return new Promise<any>((resolve, reject)=>{
         console.log('trying to delete but it is locked');

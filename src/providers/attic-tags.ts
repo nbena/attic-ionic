@@ -9,10 +9,13 @@ import { Auth } from './auth';
 import { Utils } from '../public/utils';
 
 import { TagExtraMin, TagAlmostMin, TagFull } from '../models/tags';
+import {NoteExtraMin, NoteFull} from '../models/notes';
 import { Db } from './db';
 import { NetManager } from './net-manager';
 import { Synch } from './synch';
 import { SqliteError, DbAction, Const } from '../public/const';
+
+import { AtticCache } from './attic-cache';
 
 /*
   Generated class for the AtticTags provider.
@@ -28,7 +31,8 @@ export class AtticTags {
 
   constructor(public http: Http, public auth: Auth,
     private db: Db, private netManager: NetManager,
-    private synch: Synch
+    private synch: Synch,
+    private atticCache: AtticCache
   ) {
     console.log('Hello AtticTags Provider');
   }
@@ -331,14 +335,28 @@ export class AtticTags {
     }
   }
 
-  public getFullCachedTags():TagFull[]{
-    return this.cachedFullTag;
-  }
+
+
+  // private reget(arg0:NoteFull[], arg1:NoteExtraMin[]):NoteFull[]{
+  //   let array:NoteFull[]=[];
+  //   arg1.map(obj=>{
+  //     let index:number;
+  //     index=Utils.indexOfCmp(arg0, obj, NoteExtraMin.ascendingCompare);
+  //     return arg0[index];
+  //   })
+  //   return array;
+  // }
 
   deleteTag(tag: TagExtraMin):Promise<any>{
     // return Utils.deleteBasic('/api/tags/'+tag.title, this.http, this.auth.token);
     if(!this.synch.isTagLocked()){
-      return this.db.deleteTag(tag, this.auth.userid);
+
+      let cachedNotes:NoteFull[]=this.atticCache.cachedFullNotes;
+      let necessaryNotes:NoteFull[]=null;
+      if(tag instanceof TagFull){
+        necessaryNotes=Utils.getFullObjectNote(cachedNotes, (tag as TagFull).notes);
+      }
+      return this.db.deleteTag(tag, this.auth.userid, necessaryNotes);
     }else{
       return new Promise<any>((resolve, reject)=>{
         console.log('trying to delete tag but it is locked');

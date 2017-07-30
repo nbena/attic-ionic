@@ -3,7 +3,7 @@ import { Http, Headers } from '@angular/http';
 /* importing auth because I need the token. */
 // import { Auth } from '../providers/auth';
 import { Const, PostgresError, SqliteError } from '../public/const';
-import { NoteBarebon, NoteFull, NoteMin, NoteSQLite } from '../models/notes';
+import { NoteBarebon, NoteFull, NoteMin, NoteExtraMin } from '../models/notes';
 import { TagExtraMin, TagFull, TagSQLite } from '../models/tags';
 import { ToastController, AlertController } from 'ionic-angular';
 import { DbAction } from './const';
@@ -477,6 +477,28 @@ static pushLink(alertCtrl:AlertController, cb: ((_: any)=>void) ){
    result+='while there is synching in action';
    return result;
  }
+
+ public static getFullObjectNote(arg0:NoteFull[], arg1:NoteExtraMin[]):NoteFull[]{
+   let array:NoteFull[]=[];
+   arg1.map(obj=>{
+     let index:number;
+     index=Utils.indexOfCmp(arg0, obj, NoteExtraMin.ascendingCompare);
+     return arg0[index];
+   })
+   return array;
+ }
+
+ public static getFullObjectTag(arg0:TagFull[], arg1:NoteExtraMin[]):TagFull[]{
+   let array:TagFull[]=[];
+   arg1.map(obj=>{
+     let index:number;
+     index=Utils.indexOfCmp(arg0, obj, TagExtraMin.ascendingCompare);
+     return arg0[index];
+   })
+   return array;
+ }
+
+
 
 
 }

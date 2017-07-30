@@ -1678,44 +1678,134 @@ public setTagTitle(tag: TagExtraMin, newTitle: string, userid: string):Promise<a
   return this.db.executeSql(Query.UPDATE_TAG_SET_TITLE, [newTitle, JSON.stringify(tag), oldTitle, userid]);
 }
 
+// privateQueryNotesByTags(base:string, length:number):string{
+//   let result:string = Query.SELECT_NOTE_TITLE_BY_TAGS_NO_ROLE;
+//   for(let i=0;i<length;i++){
+//     result+='json_object like '
+//   }
+//   return result;
+// }
 
+private expandTagsRegex(tags:TagAlmostMin[]):string{
+  let result:string ='%';
+  tags.forEach(obj=>{
+    let t:TagExtraMin = TagExtraMin.NewTag(obj.title);
+    let json:string=JSON.stringify(t);
+    json+='+';
+    result+=json;
+  })
+  result=result.substr(0, result.length-1);
+  result+='%';
+  console.log('query is:'+result);
+  return result;
+}
 
-  public getNotesByTags(tags: TagAlmostMin[], userid: string):Promise<NoteExtraMin[]>{
-    return new Promise<NoteExtraMin[]>((resolve, reject)=>{
-      let queryString: string = Query.SELECT_NOTES_MIN_BY_TAGS;
-      if(tags.length!=1){
-        /*have to prepare it, if not, it is already ready for query.*/
-        for(let i=1;i<tags.length;i++){
-          queryString = queryString.concat(' or tagtitle=?');
-        }
-      }
-      // console.log('the query is:');
-      // console.log(queryString);
-      this.db.executeSql(queryString, [userid].concat(tags.map((tag)=>{return tag.title})))
-      .then(result=>{
-        let notes:NoteExtraMin[] = [];
-        console.log('db result is:');
-        console.log(JSON.stringify(result));
-        if(result.rows.length > 0){
-          for(let i=0;i<result.rows.length;i++){
-            // console.log('result.rows.item(i)');
-            // console.log(JSON.stringify(result.rows.item(i)));
-            // console.log(JSON.stringify(result.rows));
-            let noteTitle:string = result.rows.item(i).notetitle;
-            let note: NoteExtraMin = new NoteExtraMin();
-            note.title = noteTitle;
-            notes.push(note);
-          }
-        }
-        resolve(notes);
-      })
-      .catch(error=>{
-        console.log('error in getting notes by tags');
-        console.log(JSON.stringify(error));
-        reject(error);
-      })
-    })
+private getArrayOfNotexExtraMin(res:any):NoteExtraMin[]{
+  let array:NoteExtraMin[]=[];
+  console.log('res is');
+  console.log(JSON.stringify(res));
+  for(let i=0;i<res.rows.length;i++){
+    array.push(NoteExtraMin.NewNoteExtraMin(res.rows.item(i).title));
   }
+  console.log('the array');
+  console.log(JSON.stringify(array));
+  return array;
+}
+
+private getNotesByTagsNoRoleCoreNoTx(tags:TagAlmostMin[], userid:string):Promise<NoteExtraMin[]>{
+  let secondParam:string =this.expandTagsRegex(tags);
+  return new Promise<NoteExtraMin[]>((resolve, reject)=>{
+    console.log('2');
+    this.db.executeSql(Query.SELECT_NOTE_TITLE_BY_TAGS_NO_ROLE,[userid, secondParam])
+    .then(res=>{
+      resolve(this.getArrayOfNotexExtraMin(res));
+    })
+    .catch(error=>{
+      console.log('error in get notes by tags'); console.log(JSON.stringify(error));
+      reject(error);
+    })
+  });
+}
+
+private getNotesByTagsNoRoleCoreTx(tags:TagAlmostMin[], userid:string, tx:any):NoteExtraMin[]{
+  let secondParam:string =this.expandTagsRegex(tags);
+    console.log('1');
+    let result:NoteExtraMin[];
+    tx.executeSql(Query.SELECT_NOTE_TITLE_BY_TAGS_NO_ROLE, [userid, secondParam],
+      (tx:any, res:any)=>{
+        result=this.getArrayOfNotexExtraMin(res);
+      },(tx:any, error:any)=>{console.log('error in get notes by tags'); console.log(JSON.stringify(error));}
+    )
+    return result;
+}
+
+// private getNotesByTagsNoRoleCore(tags:TagAlmostMin[],userid:string, tx?:any):Promise<NoteExtraMin[]>|NoteExtraMin[]{
+//   let secondParam:string =this.expandTagsRegex(tags);
+//   if(tx!=null){
+//     console.log('1');
+//     let result:NoteExtraMin[];
+//     tx.executeSql(Query.SELECT_NOTE_TITLE_BY_TAGS_NO_ROLE, [userid, secondParam],
+//       (tx:any, res:any)=>{
+//         result=this.getArrayOfNotexExtraMin(res);
+//       },(tx:any, error:any)=>{console.log('error in get notes by tags'); console.log(JSON.stringify(error));}
+//     )
+//   }else{
+//     return new Promise<NoteExtraMin[]>((resolve, reject)=>{
+//       console.log('2');
+//       this.db.executeSql(Query.SELECT_NOTE_TITLE_BY_TAGS_NO_ROLE,[userid, secondParam])
+//       .then(res=>{
+//         resolve(this.getArrayOfNotexExtraMin(res));
+//       })
+//       .catch(error=>{
+//         console.log('error in get notes by tags'); console.log(JSON.stringify(error));
+//         reject(error);
+//       })
+//     });
+//   }
+// }
+
+
+public getNotesByTags(tags: TagAlmostMin[], userid: string):Promise<NoteExtraMin[]>{
+  return this.getNotesByTagsNoRoleCoreNoTx(tags, userid);
+}
+
+
+  // public getNotesByTags(tags: TagAlmostMin[], userid: string):Promise<NoteExtraMin[]>{
+  //   return new Promise<NoteExtraMin[]>((resolve, reject)=>{
+  //     let queryString: string = Query.SELECT_NOTES_MIN_BY_TAGS;
+  //     if(tags.length!=1){
+  //       /*have to prepare it, if not, it is already ready for query.*/
+  //       for(let i=1;i<tags.length;i++){
+  //         queryString = queryString.concat(' or tagtitle=?');
+  //       }
+  //     }
+  //     // console.log('the query is:');
+  //     // console.log(queryString);
+  //     this.db.executeSql(queryString, [userid].concat(tags.map((tag)=>{return tag.title})))
+  //     .then(result=>{
+  //       let notes:NoteExtraMin[] = [];
+  //       console.log('db result is:');
+  //       console.log(JSON.stringify(result));
+  //       if(result.rows.length > 0){
+  //         for(let i=0;i<result.rows.length;i++){
+  //           // console.log('result.rows.item(i)');
+  //           // console.log(JSON.stringify(result.rows.item(i)));
+  //           // console.log(JSON.stringify(result.rows));
+  //           let noteTitle:string = result.rows.item(i).notetitle;
+  //           let note: NoteExtraMin = new NoteExtraMin();
+  //           note.title = noteTitle;
+  //           notes.push(note);
+  //         }
+  //       }
+  //       resolve(notes);
+  //     })
+  //     .catch(error=>{
+  //       console.log('error in getting notes by tags');
+  //       console.log(JSON.stringify(error));
+  //       reject(error);
+  //     })
+  //   })
+  // }
 
   getNotesByText(text: string, userid: string):Promise<NoteExtraMin[]>{
     return new Promise<NoteExtraMin[]>((resolve, reject)=>{

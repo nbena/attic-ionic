@@ -36,6 +36,7 @@ import { NetManager } from '../providers/net-manager';
 import { AtticUserProvider } from '../providers/attic-user';
 
 import { Network } from '@ionic-native/network';
+import { AtticCache } from '../providers/attic-cache';
 
 
 
@@ -96,7 +97,8 @@ import { Network } from '@ionic-native/network';
     Db,
     Synch,
     NetManager,
-    AtticUserProvider
+    AtticUserProvider,
+    AtticCache
     ]
 })
 export class AppModule {}
