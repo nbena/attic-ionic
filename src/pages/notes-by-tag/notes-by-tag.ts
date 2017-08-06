@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams } from 'ionic-angular';
+import { NavController, NavParams, ViewController } from 'ionic-angular';
 import { AtticTags } from '../../providers/attic-tags';
 import { TagAlmostMin, TagExtraMin } from '../../models/tags';
 import { FormControl } from '@angular/forms';
@@ -30,7 +30,8 @@ export class NotesByTagPage {
   checkedCount: number = 0;
 
   constructor(public navCtrl: NavController, public navParams: NavParams,
-    private atticTags: AtticTags
+    private atticTags: AtticTags,
+    private viewCtrl: ViewController
   ) {
     if(this.allTags==null){
       this.loadAlmostMin(false);
@@ -119,7 +120,11 @@ export class NotesByTagPage {
     // console.log('passed:');
     // console.log(JSON.stringify(passed));
     if(passed.length>0){
-      this.navCtrl.push(NotesPage, {filterType: Filter.Tags, filterValue: passed});
+      this.navCtrl.push(NotesPage, {filterType: Filter.Tags, filterValue: passed})
+      //see if works.
+      .then(()=>{
+        this.viewCtrl.dismiss();
+      })
     }
   }
 
