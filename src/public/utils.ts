@@ -2,127 +2,126 @@ import { Injectable } from '@angular/core';
 import { Http, Headers } from '@angular/http';
 /* importing auth because I need the token. */
 // import { Auth } from '../providers/auth';
-import { Const, PostgresError, SqliteError } from '../public/const';
+import { Const, PostgresError, SqliteError, DbAction } from '../public/const';
 import { NoteBarebon, NoteFull, NoteMin, NoteExtraMin } from '../models/notes';
 import { TagExtraMin, TagFull, TagSQLite } from '../models/tags';
 import { ToastController, AlertController } from 'ionic-angular';
-import { DbAction } from './const';
 
 
 
 export class Utils{
-  static getBasic(uriFinal: string, http: Http, token: any):Promise<any>{
-    return new Promise((resolve, reject)=>{
-
-      let headers = new Headers();
-      headers.append('Authorization', token);
-
-      let uri = Const.API_URI+uriFinal;
-      http.get(uri, {headers: headers})
-        .subscribe(res=>{
-
-          if(res.status!=200){
-            reject(res.statusText);
-          }
-          let data = res.json();
-          if(data.ok==false){
-            throw new Error(data.msg);
-          }
-          resolve(data.result);
-        },(err)=>{
-          // console.log('get error');
-          // console.log(JSON.stringify(err));
-          reject(err);
-        })
-    });
-  }
-
-static putBasic(uriFinal: string, body: any, http: Http, token: any){
-  return new Promise((resolve, reject)=>{
-
-    let headers = new Headers();
-    headers.append('Authorization', token);
-
-    if(body!=null && body!=""){
-      headers.append('Content-type', 'application/json');
-    }
-
-    let uri = Const.API_URI+uriFinal;
-    http.put(uri, body, {headers: headers})
-      .subscribe(res=>{
-
-        let data = res.json();
-        if(data.ok==false){
-          reject(data.msg);
-        }
-        if(data.result){
-          resolve(data.result);
-        }else{
-          resolve(true);
-        }
-
-      },(err)=>{
-        console.log('err in put');
-        console.log(JSON.stringify(err));
-        reject(err);
-      })
-  });
-}
-
-static postBasic(uriFinal: string, body: any, http: Http, token: any):Promise<any>{
-  return new Promise((resolve, reject)=>{
-
-    let headers = new Headers();
-    headers.append('Authorization', token);
-
-    if(body!=null && body!=""){
-      headers.append('Content-type', 'application/json');
-    }
-
-    let uri = Const.API_URI+uriFinal;
-    http.post(uri, body, {headers: headers})
-      .subscribe(res=>{
-
-        let data = res.json();
-        if(data.ok==false){
-          reject(data.msg);
-        }
-        if(data.result){
-          resolve(data.result);
-        }else{
-          resolve(true);
-        }
-      },(err)=>{
-        reject(err);
-      })
-  });
-}
-
-
-static deleteBasic(uriFinal: string, http: Http, token: any){
-  return new Promise((resolve, reject)=>{
-
-    let headers = new Headers();
-    headers.append('Authorization', token);
-
-    let uri = Const.API_URI+uriFinal;
-    http.delete(uri, {headers: headers})
-      .subscribe(res=>{
-
-        let data = res.json();
-        if(data.ok==false){
-          reject(data.msg);
-        }
-        if(data.result){
-          resolve(data.result);
-        }else{
-          resolve(true);
-        }
-      },(err)=>{
-        reject(err);
-      })
-  });
-}
+//   static getBasic(uriFinal: string, http: Http, token: any):Promise<any>{
+//     return new Promise((resolve, reject)=>{
+//
+//       let headers = new Headers();
+//       headers.append('Authorization', token);
+//
+//       let uri = Const.API_URI+uriFinal;
+//       http.get(uri, {headers: headers})
+//         .subscribe(res=>{
+//
+//           if(res.status!=200){
+//             reject(res.statusText);
+//           }
+//           let data = res.json();
+//           if(data.ok==false){
+//             throw new Error(data.msg);
+//           }
+//           resolve(data.result);
+//         },(err)=>{
+//           // console.log('get error');
+//           // console.log(JSON.stringify(err));
+//           reject(err);
+//         })
+//     });
+//   }
+//
+// static putBasic(uriFinal: string, body: any, http: Http, token: any){
+//   return new Promise((resolve, reject)=>{
+//
+//     let headers = new Headers();
+//     headers.append('Authorization', token);
+//
+//     if(body!=null && body!=""){
+//       headers.append('Content-type', 'application/json');
+//     }
+//
+//     let uri = Const.API_URI+uriFinal;
+//     http.put(uri, body, {headers: headers})
+//       .subscribe(res=>{
+//
+//         let data = res.json();
+//         if(data.ok==false){
+//           reject(data.msg);
+//         }
+//         if(data.result){
+//           resolve(data.result);
+//         }else{
+//           resolve(true);
+//         }
+//
+//       },(err)=>{
+//         console.log('err in put');
+//         console.log(JSON.stringify(err));
+//         reject(err);
+//       })
+//   });
+// }
+//
+// static postBasic(uriFinal: string, body: any, http: Http, token: any):Promise<any>{
+//   return new Promise((resolve, reject)=>{
+//
+//     let headers = new Headers();
+//     headers.append('Authorization', token);
+//
+//     if(body!=null && body!=""){
+//       headers.append('Content-type', 'application/json');
+//     }
+//
+//     let uri = Const.API_URI+uriFinal;
+//     http.post(uri, body, {headers: headers})
+//       .subscribe(res=>{
+//
+//         let data = res.json();
+//         if(data.ok==false){
+//           reject(data.msg);
+//         }
+//         if(data.result){
+//           resolve(data.result);
+//         }else{
+//           resolve(true);
+//         }
+//       },(err)=>{
+//         reject(err);
+//       })
+//   });
+// }
+//
+//
+// static deleteBasic(uriFinal: string, http: Http, token: any){
+//   return new Promise((resolve, reject)=>{
+//
+//     let headers = new Headers();
+//     headers.append('Authorization', token);
+//
+//     let uri = Const.API_URI+uriFinal;
+//     http.delete(uri, {headers: headers})
+//       .subscribe(res=>{
+//
+//         let data = res.json();
+//         if(data.ok==false){
+//           reject(data.msg);
+//         }
+//         if(data.result){
+//           resolve(data.result);
+//         }else{
+//           resolve(true);
+//         }
+//       },(err)=>{
+//         reject(err);
+//       })
+//   });
+// }
 
 static shouldUseDb(newtorkAvailable:boolean, itemAvailable:boolean, force:boolean/*, isSynching:boolean*/):boolean{
   let res:boolean = true;

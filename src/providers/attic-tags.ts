@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Http, Headers } from '@angular/http';
+import {  Headers } from '@angular/http';
 import 'rxjs/add/operator/map';
 
 import { Auth } from './auth';
@@ -16,6 +16,7 @@ import { Synch } from './synch';
 import { SqliteError, DbAction, Const } from '../public/const';
 
 import { AtticCache } from './attic-cache';
+import { HttpProvider } from './http';
 
 /*
   Generated class for the AtticTags provider.
@@ -29,7 +30,7 @@ export class AtticTags {
   private cachedAlmostMinTag:TagAlmostMin[]=null;
   private cachedFullTag:TagFull[]=null;
 
-  constructor(public http: Http, public auth: Auth,
+  constructor(private http: HttpProvider, public auth: Auth,
     private db: Db, private netManager: NetManager,
     private synch: Synch,
     private atticCache: AtticCache
@@ -76,7 +77,8 @@ export class AtticTags {
             return p;
           }else{
             console.log('no tags, using the network');
-            return Utils.getBasic('/api/tags/all/min', this.http, this.auth.token);
+            //return Utils.getBasic('/api/tags/all/min', this.http, this.auth.token);
+            return this.http.get('/api/tags/all/min');
           }
         })
         .then(fetchingResult=>{
@@ -123,7 +125,8 @@ export class AtticTags {
     private tagByTitle_loadFromNetworkAndInsert(title: string):Promise<any>{
       return new Promise<any>((resolve, reject)=>{
         let tag:TagFull;
-        Utils.getBasic('/api/tags/'+title, this.http, this.auth.token)
+        //Utils.getBasic('/api/tags/'+title, this.http, this.auth.token)
+        this.http.get('/api/tags/'+title)
         .then(result=>{
           console.log('the resul from network is: ');
           console.log(JSON.stringify(result.tag));
@@ -291,14 +294,20 @@ export class AtticTags {
         .then(result=>{
           isAllowed = result;
           if(result){
-            return Utils.postBasic('/api/tags/mod/change-title', JSON.stringify({
-              tag:{
-                title: tag.title,
-                newtitle: newTitle
-              }
-            }),
-            this.http,this.auth.token
-          )
+          //   return Utils.postBasic('/api/tags/mod/change-title', JSON.stringify({
+          //     tag:{
+          //       title: tag.title,
+          //       newtitle: newTitle
+          //     }
+          //   }),
+          //   this.http,this.auth.token
+          // )
+          return this.http.post('/api/tags/mod/change-title', JSON.stringify({
+            tag:{
+              title: tag.title,
+              newtitle: newTitle
+            }
+          }))
         }else{
           reject(new Error(Const.TAG_TITLE_IMPOSSIBLE));
         }

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Http, Headers } from '@angular/http';
+// import { Http, Headers } from '@angular/http';
 /* importing auth because I need the token. */
 import { Auth } from './auth';
 import { DbAction, Const, SqliteError } from '../public/const';
@@ -13,6 +13,7 @@ import { AtticTags } from './attic-tags';
 import { TagAlmostMin, TagExtraMin, TagFull } from '../models/tags';
 
 import { AtticCache } from './attic-cache';
+import { HttpProvider } from './http';
 
 import 'rxjs/add/operator/map';
 
@@ -28,11 +29,12 @@ export class AtticNotes {
   // private cachedExtraMinNote: NoteExtraMin[] = null;
   // private cachedFullNote: NoteFull[] = null;
 
-  constructor(public http: Http, public auth: Auth,
+  constructor(public auth: Auth,
     private atticTags: AtticTags,
     private atticCache: AtticCache,
     private db: Db, private netManager: NetManager,
-    private synch: Synch
+    private synch: Synch,
+    private http:HttpProvider
   ) {
     console.log('Hello AtticNotes Provider');
   }
@@ -94,7 +96,8 @@ export class AtticNotes {
           return p;
         }else{
           console.log('using the network');
-          return Utils.getBasic('/api/notes/all/min/with-date', this.http, this.auth.token);
+          return this.http.get('/api/notes/all/min/with-date');
+          //return Utils.getBasic('/api/notes/all/min/with-date', this.http, this.auth.token);
         }
       })
       .then(fetchingResult=>{
@@ -137,7 +140,8 @@ export class AtticNotes {
   private noteByTitle_loadFromNetworkAndInsert(title: string):Promise<any>{
     return new Promise<any>((resolve, reject)=>{
       let note:NoteFull;
-      Utils.getBasic('/api/notes/'+title, this.http, this.auth.token)
+      this.http.get('/api/notes/'+title)
+      //Utils.getBasic('/api/notes/'+title, this.http, this.auth.token)
       .then(result=>{
         console.log('the resul from network is: ');
         console.log(JSON.stringify(result.note));
@@ -392,7 +396,8 @@ export class AtticNotes {
           return this.db.getNotesByTags(tags, this.auth.userid);
         }else{
           console.log('no notes, using the network');
-          return Utils.postBasic('/api/notes/by-tags-no-role', JSON.stringify({tags: tags.map((tag)=>{return tag.title})}), this.http, this.auth.token)
+          return this.http.post('/api/notes/by-tags-no-role', JSON.stringify({tags: tags.map((tag)=>{return tag.title})}));
+          //return Utils.postBasic('/api/notes/by-tags-no-role', JSON.stringify({tags: tags.map((tag)=>{return tag.title})}), this.http, this.auth.token)
         }
       })
       .then(fetchingResult=>{
@@ -536,7 +541,8 @@ return this.items.filter((item) => {
           return this.db.getNotesByText(text, this.auth.userid);
         }else{
           console.log('no notes, using the network');
-          return Utils.postBasic('/api/notes/by-text', JSON.stringify({note:{text:text}}),this.http, this.auth.token);
+          return this.http.post('/api/notes/by-text', JSON.stringify({note:{text:text}}));
+          //return Utils.postBasic('/api/notes/by-text', JSON.stringify({note:{text:text}}),this.http, this.auth.token);
         }
       })
       .then(fetchingResult=>{
@@ -579,14 +585,21 @@ return this.items.filter((item) => {
         .then(result=>{
           isAllowed = result;
           if(result){
-            return Utils.postBasic('/api/notes/mod/change-title', JSON.stringify({
-              note:{
-                title: note.title,
-                newtitle: newTitle
-              }
-            }),
-            this.http,
-            this.auth.token
+          //   return Utils.postBasic('/api/notes/mod/change-title', JSON.stringify({
+          //     note:{
+          //       title: note.title,
+          //       newtitle: newTitle
+          //     }
+          //   }),
+          //   this.http,
+          //   this.auth.token
+          // )
+          return this.http.post('/api/notes/mod/change-title', JSON.stringify({
+                note:{
+                  title: note.title,
+                  newtitle: newTitle
+                }
+              })
           )
           }else{
             reject(new Error(Const.NOTE_TITLE_IMPOSSIBLE));

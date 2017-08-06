@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
-import { Http } from '@angular/http';
 import { Auth } from './auth';
 import { NetManager } from './net-manager';
 import { UserSummary } from '../models/user_summary';
 import { Db } from './db';
 import { Utils } from '../public/utils';
 import 'rxjs/add/operator/map';
+import {HttpProvider} from './http';
 
 /*
   Generated class for the AtticUserProvider provider.
@@ -16,7 +16,7 @@ import 'rxjs/add/operator/map';
 @Injectable()
 export class AtticUserProvider {
 
-  constructor(public http: Http,
+  constructor(public http: HttpProvider,
     private auth: Auth,
     private netManager: NetManager,
     private db: Db
@@ -46,7 +46,8 @@ export class AtticUserProvider {
         p=this.db.getUserSummary(this.auth.userid);
       }else{
         // console.log('not use db');
-        p=Utils.getBasic('/api/users/'+this.auth.userid, this.http, this.auth.token);
+        //p=Utils.getBasic('/api/users/'+this.auth.userid, this.http, this.auth.token);
+        p=this.http.get('/api/users/'+this.auth.userid);
       }
       p.then(fetchingResult=>{
         userSummary = fetchingResult as UserSummary;

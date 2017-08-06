@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Http } from '@angular/http';
+// import { Http } from '@angular/http';
 import 'rxjs/add/operator/map';
 import { Db/*, LogObject */, LogObjSmart} from './db';
 import { Auth } from './auth';
@@ -14,6 +14,7 @@ import { Platform } from 'ionic-angular';
 import { Utils } from '../public/utils';
 
 import { NetManager } from './net-manager';
+import { HttpProvider} from './http';
 
 /*
   Generated class for the Synch provider.
@@ -66,7 +67,7 @@ export class Synch {
     // private atticNotes: AtticNotes,
     // private atticTags: AtticTags,
     private auth: Auth,
-    public http: Http,
+    public http: HttpProvider,
     private platform: Platform
     ) {
 
@@ -344,7 +345,8 @@ export class Synch {
             currentLog = obj;
             promises.push(
               new Promise<any>((resolve, reject)=>{
-                Utils.putBasic('/api/notes/create', JSON.stringify({note: obj.note}),this.http, this.auth.token)
+                //Utils.putBasic('/api/notes/create', JSON.stringify({note: obj.note}),this.http, this.auth.token)
+                this.http.put('/api/notes/create', JSON.stringify({note: obj.note}))
                 .then(result=>{
                   console.log('done with');
                   console.log(JSON.stringify(obj.note));
@@ -448,7 +450,8 @@ export class Synch {
             currentLog = obj;
             promises.push(
               new Promise<any>((resolve, reject)=>{
-                Utils.putBasic('/api/tags/'+obj.tag.title, {}, this.http, this.auth.token)
+                //Utils.putBasic('/api/tags/'+obj.tag.title, {}, this.http, this.auth.token)
+                this.http.put('/api/tags/'+obj.tag.title)
                 .then(result=>{
                   correctResult.push(obj.tag.title);
                   resolve(result);
@@ -547,7 +550,8 @@ export class Synch {
                 if(obj.note.othertags.length>0){
                   reqBody.othertags = obj.note.othertags;
                 }
-                Utils.postBasic('/api/notes/mod/add-tags', JSON.stringify({note:reqBody}), this.http, this.auth.userid)
+                //Utils.postBasic('/api/notes/mod/add-tags', JSON.stringify({note:reqBody}), this.http, this.auth.userid)
+                this.http.post('/api/notes/mod/add-tags', JSON.stringify({note:reqBody}))
                 .then(result=>{
                   correctResult.push(obj.note.title);
                   // console.log('ok tags-to-add-to');
@@ -624,7 +628,8 @@ export class Synch {
                   title:obj.note.title,
                   tags:obj.note.maintags
                 }
-                Utils.postBasic('/api/notes/mod/remove-tags', JSON.stringify({note:note}), this.http, this.auth.userid)
+                //Utils.postBasic('/api/notes/mod/remove-tags', JSON.stringify({note:note}), this.http, this.auth.userid)
+                this.http.post('/api/notes/mod/remove-tags', JSON.stringify({note:note}))
                 .then(result=>{
                   correctResult.push(obj.note.title);
                   // console.log('ok in send tags-to-remove-from');
@@ -693,7 +698,8 @@ export class Synch {
             currentLog = obj;
             promises.push(
               new Promise<any>((resolve, reject)=>{
-                Utils.deleteBasic('/api/notes/'+obj.note.title, this.http, this.auth.token)
+                //Utils.deleteBasic('/api/notes/'+obj.note.title, this.http, this.auth.token)
+                this.http.delete('/api/notes/'+obj.note.title)
                 .then(result=>{
                   correctResult.push(obj.note.title);
                   // console.log('ok send note to delete');
@@ -782,7 +788,8 @@ export class Synch {
             currentLog = obj;
             promises.push(
               new Promise<any>((resolve, reject)=>{
-                Utils.deleteBasic('/api/tags/'+obj.tag.title, this.http, this.auth.token)
+                //Utils.deleteBasic('/api/tags/'+obj.tag.title, this.http, this.auth.token)
+                this.http.delete('/api/tags/'+obj.tag.title)
                 .then(result=>{
                   correctResult.push(obj.tag.title);
                   // console.log('ok send tags-to-delete');
@@ -856,10 +863,14 @@ export class Synch {
             currentLog = obj;
             promises.push(
               new Promise<any>((resolve, reject)=>{
-                Utils.postBasic('/api/mod/change-text/', JSON.stringify({note:
+                // Utils.postBasic('/api/mod/change-text/', JSON.stringify({note:
+                //   {title:obj.note.tile,
+                //     text:obj.note.text
+                //   }}), this.http, this.auth.token)
+                this.http.post('/api/mod/change-text/', JSON.stringify({note:
                   {title:obj.note.tile,
                     text:obj.note.text
-                  }}), this.http, this.auth.token)
+                  }}))
                 .then(result=>{
                   correctResult.push(obj.note.title);
                   // console.log();
@@ -930,10 +941,14 @@ export class Synch {
             currentLog = obj;
             promises.push(
               new Promise<any>((resolve, reject)=>{
-                Utils.postBasic('/api/mod/change-links/', JSON.stringify({note:
+                // Utils.postBasic('/api/mod/change-links/', JSON.stringify({note:
+                //   {title:obj.note.tile,
+                //   links: obj.note.links
+                //   }}), this.http, this.auth.token)
+                this.http.post('/api/mod/change-links/', JSON.stringify({note:
                   {title:obj.note.tile,
                   links: obj.note.links
-                  }}), this.http, this.auth.token)
+                  }}))
                 .then(result=>{
                   correctResult.push(obj.note.title);
                   // console.log('ok in send notes-to-change-links');
@@ -1004,10 +1019,14 @@ export class Synch {
             currentLog = obj;
             promises.push(
               new Promise<any>((resolve, reject)=>{
-                  Utils.postBasic('/api/mod/set-done/', JSON.stringify({note:
+                  // Utils.postBasic('/api/mod/set-done/', JSON.stringify({note:
+                  //   {title:obj.note.tile,
+                  //     isdone: obj.note.isdone
+                  //   }}), this.http, this.auth.token)
+                  this.http.post('/api/mod/set-done/', JSON.stringify({note:
                     {title:obj.note.tile,
                       isdone: obj.note.isdone
-                    }}), this.http, this.auth.token)
+                    }}))
                 .then(result=>{
                   correctResult.push(obj.note.title);
                   // console.log('ok send notes-to-set-done');
