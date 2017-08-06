@@ -23,7 +23,8 @@ export class TagDetailsPage {
 
   constructor(public navCtrl: NavController, public navParams: NavParams,
     private popoverCtrl: PopoverController,
-    private atticTags: AtticTags) {
+    private atticTags: AtticTags,
+  ) {
       this.title=navParams.get('title');
       this.tagByTitle(this.title, false);
   }

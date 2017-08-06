@@ -178,44 +178,44 @@ static logTags(tag: TagExtraMin):string{
 //   return result;
 // }
 
-static presentToast(toastCtrl: ToastController, message: string, error?: boolean):Promise<any>{
-  let toast = toastCtrl.create({
-    message: message,
-    duration: 2000,
-    position: 'bottom',
-    showCloseButton: true,
-    closeButtonText: 'Ok',
-  });
-  // if(error){
-  //     toast._cssClass = 'toast-error-css';
-  // }
-  return toast.present()
-}
+// static presentToast(toastCtrl: ToastController, message: string, error?: boolean):Promise<any>{
+//   let toast = toastCtrl.create({
+//     message: message,
+//     duration: 2000,
+//     position: 'bottom',
+//     showCloseButton: true,
+//     closeButtonText: 'Ok',
+//   });
+//   // if(error){
+//   //     toast._cssClass = 'toast-error-css';
+//   // }
+//   return toast.present()
+// }
 
-static askConfirm(alertCtrl: AlertController, message: string, cb: ((_ :boolean)=>void)){
-  let alert = alertCtrl.create({
-    title: 'Confirm delete',
-    message: message,
-    buttons: [
-      {
-        text: 'Cancel',
-        role: 'cancel',
-        handler: () => {
-          console.log('nothing to do');
-          cb(false);
-        }
-      },
-      {
-        text: 'Ok',
-        handler: () => {
-          console.log('cancellation confirmed');
-          cb(true);
-        }
-      }
-    ]
-  });
-  alert.present();
-}
+// static askConfirm(alertCtrl: AlertController, message: string, cb: ((_ :boolean)=>void)){
+//   let alert = alertCtrl.create({
+//     title: 'Confirm delete',
+//     message: message,
+//     buttons: [
+//       {
+//         text: 'Cancel',
+//         role: 'cancel',
+//         handler: () => {
+//           console.log('nothing to do');
+//           cb(false);
+//         }
+//       },
+//       {
+//         text: 'Ok',
+//         handler: () => {
+//           console.log('cancellation confirmed');
+//           cb(true);
+//         }
+//       }
+//     ]
+//   });
+//   alert.present();
+// }
 
 public static arrayDiff<T>(arg0:T[], arg1:T[], cmp:(a:T, b:T)=>number):T[]{
   return arg0.filter(item=>{
@@ -325,41 +325,41 @@ static fromTagsToString(tags: TagExtraMin[]):string[]{
   return result;
 }
 
-static pushLink(alertCtrl:AlertController, cb: ((_: any)=>void) ){
-    let prompt=alertCtrl.create({
-      title: 'New link',
-      message: 'Insert the new link',
-      inputs:[
-        {
-          name: 'link',
-          placeholder: 'link'
-        }
-      ],
-      buttons:[
-        {
-          text: 'Cancel',
-          handler: data => {}
-        },
-        {
-          text: 'Add',
-          handler: data=>{
-            cb(data);
-            // console.log('pushed');
-            // console.log(data.link);
-          }
-        }
-      ]
-    });
-    prompt.present();
-  }
+// static pushLink(alertCtrl:AlertController, cb: ((_: any)=>void) ){
+//     let prompt=alertCtrl.create({
+//       title: 'New link',
+//       message: 'Insert the new link',
+//       inputs:[
+//         {
+//           name: 'link',
+//           placeholder: 'link'
+//         }
+//       ],
+//       buttons:[
+//         {
+//           text: 'Cancel',
+//           handler: data => {}
+//         },
+//         {
+//           text: 'Add',
+//           handler: data=>{
+//             cb(data);
+//             // console.log('pushed');
+//             // console.log(data.link);
+//           }
+//         }
+//       ]
+//     });
+//     prompt.present();
+//   }
 
-  public static showErrorAlert(alertCtrl:AlertController, error:any):void{
-    let alert = alertCtrl.create({
-      title: error,
-      buttons: ['OK']
-    });
-    alert.present();
-  }
+  // public static showErrorAlert(alertCtrl:AlertController, error:any):void{
+  //   let alert = alertCtrl.create({
+  //     title: error,
+  //     buttons: ['OK']
+  //   });
+  //   alert.present();
+  // }
 
 //   static getEffectiveTagsFromNotes(note: NoteFull):TagFull[]{
 //     let array: TagFull[];

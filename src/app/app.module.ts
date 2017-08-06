@@ -34,10 +34,10 @@ import { Synch } from '../providers/synch';
 import { Auth } from '../providers/auth';
 import { NetManager } from '../providers/net-manager';
 import { AtticUserProvider } from '../providers/attic-user';
-
 import { Network } from '@ionic-native/network';
 import { AtticCache } from '../providers/attic-cache';
 import { HttpProvider } from '../providers/http';
+import { GraphicProvider } from '../providers/graphic';
 
 
 
@@ -100,7 +100,8 @@ import { HttpProvider } from '../providers/http';
     NetManager,
     AtticUserProvider,
     AtticCache,
-    HttpProvider
+    HttpProvider,
+    GraphicProvider
     ]
 })
 export class AppModule {}

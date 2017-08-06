@@ -13,6 +13,8 @@ import { TabsPage } from '../tabs/tabs';
 import { Filter } from '../../public/const';
 import { Utils } from '../../public/utils';
 
+import { GraphicProvider} from '../../providers/graphic'
+
 // import { Db } from '../../providers/db'
 
 /*
@@ -35,7 +37,8 @@ export class LoginPage {
   // constructor(public navCtrl: NavController, public navParams: NavParams) {}
   constructor(public navCtrl: NavController, private toastCtrl: ToastController,
     private auth: Auth,
-    public loadingCtrl: LoadingController/*, private db: Db,*/
+    public loadingCtrl: LoadingController/*, private db: Db,*/,
+    private graphicProvider:GraphicProvider
   ){}
 
 
@@ -99,7 +102,7 @@ export class LoginPage {
     .catch(error=>{
       console.log('auth error');
       console.log(JSON.stringify(error));
-      Utils.presentToast(this.toastCtrl, 'error during the authentication', true);
+      this.graphicProvider.presentToast('error during the authentication', true);
       this.loading.dismiss();
     });
 

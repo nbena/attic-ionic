@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, PopoverController, ToastController, Events } from 'ionic-angular';
+import { NavController, NavParams, PopoverController,/* ToastController, */Events } from 'ionic-angular';
 
 import { AtticNotes } from '../../providers/attic-notes';
 import { NoteExtraMin, /*NoteSmart, */NoteMin/*, NoteFull*/ } from '../../models/notes';
@@ -22,6 +22,7 @@ import { TagAlmostMin } from '../../models/tags';
 import { NotesPopoverPage } from '../notes-popover/notes-popover';
 
 import { Utils } from '../../public/utils';
+import { GraphicProvider} from '../../providers/graphic'
 
 /*
   Generated class for the Notes page.
@@ -62,8 +63,10 @@ export class NotesPage {
     private popoverCtrl: PopoverController,
     private atticNotes: AtticNotes,
     // private db: Db,
-    private toastCtrl: ToastController,
-    private synch: Synch) {
+    // private toastCtrl: ToastController,
+    private synch: Synch,
+    private graphicProvider:GraphicProvider
+  ) {
 
       //try{
       let filterType:any;
@@ -163,13 +166,13 @@ export class NotesPage {
     .then(isThere=>{
       if(isThere){
         isThereSomething = isThere;
-        Utils.presentToast(this.toastCtrl, 'synching...');
+        this.graphicProvider.presentToast('synching...');
         return this.synch.synch()
       }
     })
     .then(synched=>{
       if(isThereSomething){
-        Utils.presentToast(this.toastCtrl, 'synching done');
+        this.graphicProvider.presentToast('synching done');
       }
     })
     .catch(error=>{

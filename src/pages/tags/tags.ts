@@ -9,6 +9,7 @@ import { NotesPage } from '../notes/notes';
 import { Filter } from '../../public/const';
 import { FormControl } from '@angular/forms';
 import { Utils } from '../../public/utils';
+import { GraphicProvider} from '../../providers/graphic'
 /*
   Generated class for the Tags page.
 
@@ -30,7 +31,9 @@ export class TagsPage {
 
   constructor(public navCtrl: NavController,
     public alertCtrl: AlertController,
-    private atticTags: AtticTags) {
+    private atticTags: AtticTags,
+    private graphicProvider:GraphicProvider
+  ) {
     if(this.allTags==null){
       this.loadAlmostMin(false);
     }
@@ -110,29 +113,37 @@ export class TagsPage {
 
 
   createNewTag(){
-    let prompt = this.alertCtrl.create({
-      title: 'New tag',
-      message: 'Enter a name for the new tag',
-      inputs:[
-        {
-        name: 'title',
-        placeholder: 'Title'
-        }
-      ],
-      buttons: [
-        {
-          text: 'Cancel',
-          handler: data => {}
-        },
-        {
-          text: 'Save',
-          handler: data=>{
-            this.createNewTagAPI(<string>data.title);
-          }
-        }
-      ]
-    });
-    prompt.present();
+    // let prompt = this.alertCtrl.create({
+    //   title: 'New tag',
+    //   message: 'Enter a name for the new tag',
+    //   inputs:[
+    //     {
+    //     name: 'title',
+    //     placeholder: 'Title'
+    //     }
+    //   ],
+    //   buttons: [
+    //     {
+    //       text: 'Cancel',
+    //       handler: data => {}
+    //     },
+    //     {
+    //       text: 'Save',
+    //       handler: data=>{
+    //         this.createNewTagAPI(<string>data.title);
+    //       }
+    //     }
+    //   ]
+    // });
+    // prompt.present();
+    this.graphicProvider.genericAlert('New tag', 'Enter a name for the new tag',
+      [{
+        name:'title',
+        placeholder:'Title'
+      }],
+      'Save',
+      (data)=>{this.createNewTagAPI(data.title as string)}
+    )
   }
 
   createNewTagAPI(title: string){
@@ -156,7 +167,8 @@ export class TagsPage {
         //   buttons: ['OK']
         // });
         // alert.present();
-        Utils.showErrorAlert(this.alertCtrl, error);
+        //Utils.showErrorAlert(this.alertCtrl, error);
+        this.graphicProvider.showErrorAlert(error);
       })
   }
 

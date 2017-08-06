@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { NavController, NavParams, PopoverController,
-  AlertController, ToastController } from 'ionic-angular';
+/*AlertController, ToastController*/ } from 'ionic-angular';
 
 import { NoteExtraMin, NoteFull, NoteMin, NoteSmart } from '../../models/notes';
 
@@ -12,6 +12,7 @@ import { TagDetailsPage } from '../tag-details/tag-details';
 import { NoteDetailsPopoverPage } from '../note-details-popover/note-details-popover';
 
 import { Utils } from '../../public/utils';
+import {GraphicProvider} from '../../providers/graphic';
 
 /*
   Generated class for the NoteDetails page.
@@ -85,9 +86,10 @@ export class NoteDetailsPage {
 
 
   constructor(public navCtrl: NavController, public navParams: NavParams,
-    public popoverCtrl: PopoverController, public alertCtrl: AlertController,
-    public toastCtrl: ToastController,
-    private atticNotes: AtticNotes, private atticTags: AtticTags) {
+    public popoverCtrl: PopoverController,
+    private atticNotes: AtticNotes, private atticTags: AtticTags,
+    private graphicProvider:GraphicProvider
+  ) {
     this.title=navParams.get('title');
     this.init();
   }
@@ -221,25 +223,31 @@ export class NoteDetailsPage {
   what it is selected (and removed, with ion-chip).
   */
   addMainTags(){
-    let alert = this.alertCtrl.create();
-    alert.setTitle("Add main tags");
-
-    for(let i=0;i<this.reallyAvailableTags.length;i++){
-      alert.addInput({
-        type: 'checkbox',
-        label: this.reallyAvailableTags[i].title,
-        value:  JSON.stringify(this.reallyAvailableTags[i]) /*it doesn't accept objects.*/
-      })
-    }
-    alert.addButton('Cancel');
-    alert.addButton({
-      text: 'Ok',
-      handler: data => {
-        // console.log(JSON.stringify(data));
-        this.addMainTagsUI(<string[]>data);
-      }
-    })
-    alert.present();
+    // let alert = this.alertCtrl.create();
+    // alert.setTitle("Add main tags");
+    //
+    // for(let i=0;i<this.reallyAvailableTags.length;i++){
+    //   alert.addInput({
+    //     type: 'checkbox',
+    //     label: this.reallyAvailableTags[i].title,
+    //     value:  JSON.stringify(this.reallyAvailableTags[i]) /*it doesn't accept objects.*/
+    //   })
+    // }
+    // alert.addButton('Cancel');
+    // alert.addButton({
+    //   text: 'Ok',
+    //   handler: data => {
+    //     // console.log(JSON.stringify(data));
+    //     this.addMainTagsUI(<string[]>data);
+    //   }
+    // })
+    // alert.present();
+    this.graphicProvider.genericAlertInput('Add main tags', this.reallyAvailableTags.map(obj=>{
+      return {type:'checkbox',
+        label:obj.title,
+        value:JSON.stringify(obj)
+        }
+    }), this.addMainTagsUI);
   }
 
   /*
@@ -256,25 +264,31 @@ export class NoteDetailsPage {
   }
 
   addOtherTags(){
-    let alert = this.alertCtrl.create();
-    alert.setTitle("Add other tags");
-
-    for(let i=0;i<this.reallyAvailableTags.length;i++){
-      alert.addInput({
-        type: 'checkbox',
-        label: this.reallyAvailableTags[i].title,
-        value: JSON.stringify(this.reallyAvailableTags[i]) /*it doesn't accept objects.*/
-      })
-    }
-    alert.addButton('Cancel');
-    alert.addButton({
-      text: 'Ok',
-      handler: data => {
-        // console.log(JSON.stringify(data));
-        this.addOtherTagsUI(<string[]>data);
-      }
-    })
-    alert.present();
+    // let alert = this.alertCtrl.create();
+    // alert.setTitle("Add other tags");
+    //
+    // for(let i=0;i<this.reallyAvailableTags.length;i++){
+    //   alert.addInput({
+    //     type: 'checkbox',
+    //     label: this.reallyAvailableTags[i].title,
+    //     value: JSON.stringify(this.reallyAvailableTags[i]) /*it doesn't accept objects.*/
+    //   })
+    // }
+    // alert.addButton('Cancel');
+    // alert.addButton({
+    //   text: 'Ok',
+    //   handler: data => {
+    //     // console.log(JSON.stringify(data));
+    //     this.addOtherTagsUI(<string[]>data);
+    //   }
+    // })
+    // alert.present();
+    this.graphicProvider.genericAlertInput('Add other tags', this.reallyAvailableTags.map(obj=>{
+      return {type:'checkbox',
+        label:obj.title,
+        value:JSON.stringify(obj)
+        }
+    }), this.addOtherTagsUI);
   }
 
   addOtherTagsUI(tags: string[]){
@@ -300,7 +314,17 @@ export class NoteDetailsPage {
 
   pushLinks(){
 
-    Utils.pushLink(this.alertCtrl, (data)=>{this.addLinks(data)});
+    //Utils.pushLink(this.alertCtrl, (data)=>{this.addLinks(data)});
+    this.graphicProvider.genericAlert('New link', 'Insert the new link',
+      [
+        {
+          name:'link',
+          placeholder:'link'
+        }
+      ],
+      'Add',
+      (data)=>{this.addLinks(data)}
+    )
   }
 
   deleteMainTags(event, i: number, title: string){
@@ -429,7 +453,8 @@ export class NoteDetailsPage {
     if(this.haveToRemoveTags){
       this.removeTagsAPI()
       .then(result=>{
-        Utils.presentToast(this.toastCtrl, 'tags removed');
+        //Utils.presentToast(this.toastCtrl, 'tags removed');
+        this.graphicProvider.presentToast('tags removed');
         this.haveToRemoveTags = false;
       })
       .catch(error=>{
@@ -441,7 +466,7 @@ export class NoteDetailsPage {
       /*if both, resolve with one call.*/
       this.addTagsAPI()
       .then(result=>{
-        Utils.presentToast(this.toastCtrl, 'tags added');
+        this.graphicProvider.presentToast('tags added');
         this.haveToAddMainTags = false;
         this.haveToAddOtherTags = false;
       })
@@ -453,7 +478,7 @@ export class NoteDetailsPage {
     else if(this.haveToAddMainTags){
       this.addMainTagsAPI()
         .then(result=>{
-          Utils.presentToast(this.toastCtrl, 'tags added');
+          this.graphicProvider.presentToast('tags added');
           this.haveToAddMainTags = false;
         })
         .catch(error=>{
@@ -464,7 +489,7 @@ export class NoteDetailsPage {
     else if(this.haveToAddOtherTags){
       this.addOtherTagsAPI()
         .then(result=>{
-          Utils.presentToast(this.toastCtrl, 'tags added');
+          this.graphicProvider.presentToast('tags added');
           this.haveToAddOtherTags = false;
         })
         .catch(error=>{
@@ -475,7 +500,7 @@ export class NoteDetailsPage {
   if(this.haveToChangeLinks){
     this.changeLinksAPI()
     .then(result=>{
-      Utils.presentToast(this.toastCtrl, 'links changed');
+      this.graphicProvider.presentToast('links changed');
       this.haveToChangeLinks = false;
     })
     .catch(error=>{
@@ -486,7 +511,7 @@ export class NoteDetailsPage {
     if(this.isDoneChanged){
       this.changeDoneAPI()
         .then(result=>{
-          Utils.presentToast(this.toastCtrl, '\'done\' modified');
+          this.graphicProvider.presentToast('\'done\' modified');
           this.isDoneChanged =  false;
         })
         .catch(error=>{

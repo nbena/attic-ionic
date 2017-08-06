@@ -1,9 +1,10 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, ToastController, AlertController, ViewController, App } from 'ionic-angular';
+import { NavController, NavParams, /*ToastController, AlertController,*/ ViewController, App } from 'ionic-angular';
 import { TagFull } from '../../models/tags';
 import { AtticTags } from '../../providers/attic-tags';
 import { Utils } from '../../public/utils';
 import { TagsPage } from '../tags/tags';
+import { GraphicProvider} from '../../providers/graphic'
 
 /*
   Generated class for the TagsPopover page.
@@ -20,10 +21,12 @@ export class TagDetailsPopoverPage {
   tag: TagFull;
 
   constructor(public navCtrl: NavController, public navParams: NavParams,
-    private toastCtrl: ToastController, private alertCtrl: AlertController,
+    // private toastCtrl: ToastController, private alertCtrl: AlertController,
     private app: App,
     private viewCtrl: ViewController,
-    private atticTags: AtticTags) {
+    private atticTags: AtticTags,
+    private graphicProvider:GraphicProvider
+  ) {
       this.tag = navParams.get('tag');
     }
 
@@ -32,31 +35,35 @@ export class TagDetailsPopoverPage {
   }
 
   changeTitle(){
-    let prompt = this.alertCtrl.create({
-      title: 'New title',
-      message: 'Enter a new title',
-      inputs:[
-        {
-        name: 'title',
-        /*placeholder: 'Title'*/
-        value: this.tag.title
-        }
-      ],
-      buttons: [
-        {
-          text: 'Cancel',
-          handler: data => {}
-        },
-        {
-          text: 'Save',
-          handler: data=>{
-            this.changeTitleAPI(<string>data.title);
-          }
-        }
-      ]
-    });
-    prompt.present();
-  // this.close();
+    // let prompt = this.alertCtrl.create({
+    //   title: 'New title',
+    //   message: 'Enter a new title',
+    //   inputs:[
+    //     {
+    //     name: 'title',
+    //     /*placeholder: 'Title'*/
+    //     value: this.tag.title
+    //     }
+    //   ],
+    //   buttons: [
+    //     {
+    //       text: 'Cancel',
+    //       handler: data => {}
+    //     },
+    //     {
+    //       text: 'Save',
+    //       handler: data=>{
+    //         this.changeTitleAPI(<string>data.title);
+    //       }
+    //     }
+    //   ]
+    // });
+    // prompt.present();
+    this.graphicProvider.genericAlert('New title', 'Enter a new title',
+      [{name:'title', value:this.tag.title}],
+      'Save',
+      (data)=>{this.changeTitleAPI(data.title as string)}
+      )
   }
 
   changeTitleAPI(newTitle:string){
@@ -65,12 +72,13 @@ export class TagDetailsPopoverPage {
       return this.atticTags.changeTitle(this.tag, newTitle)
     })
     .then(()=>{
-      return Utils.presentToast(this.toastCtrl, 'Title updated');
+      // return Utils.presentToast(this.toastCtrl, 'Title updated');
+      return this.graphicProvider.presentToast('Title updated');
     })
     .catch(error=>{
       // console.log('some errors happen');
       // console.log(JSON.stringify(error))
-      Utils.showErrorAlert(this.alertCtrl, error);
+      this.graphicProvider.showErrorAlert(error);
     })
   }
 
@@ -79,13 +87,16 @@ export class TagDetailsPopoverPage {
   // }
 
   deleteTag(){
-    Utils.askConfirm(this.alertCtrl, 'Are you sure to delete tag \''+this.tag.title+'\'',(_ : boolean)=>{
-      if(_){
-        this.deleteTagAPI();
-      }/*else{
-        nothing to do.
-      }*/
-    });
+    // Utils.askConfirm(this.alertCtrl, 'Are you sure to delete tag \''+this.tag.title+'\'',(_ : boolean)=>{
+    //   if(_){
+    //     this.deleteTagAPI();
+    //   }/*else{
+    //     nothing to do.
+    //   }*/
+    // });
+    this.graphicProvider.askConfirm('Are you sure to delete tag \''+this.tag.title+'\?',
+      (res:boolean)=>{if(res){this.deleteTagAPI();}}
+    )
   }
 
   deleteTagAPI(){
@@ -97,7 +108,8 @@ export class TagDetailsPopoverPage {
       return this.app.getRootNav().push(TagsPage);
     })
     .then(()=>{
-      return Utils.presentToast(this.toastCtrl, 'Tag deleted');
+      //return Utils.presentToast(this.toastCtrl, 'Tag deleted');
+      return this.graphicProvider.presentToast('Tag deleted');
     })
     .catch(error=>{
       console.log(JSON.stringify(error))

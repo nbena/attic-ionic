@@ -5,6 +5,7 @@ import { AtticTags } from '../../providers/attic-tags';
 import { NoteFull, NoteSmart, NoteMin, NoteExtraMin } from '../../models/notes';
 import { TagExtraMin, TagFull, TagAlmostMin } from '../../models/tags';
 import { Utils } from '../../public/utils'
+import {GraphicProvider} from '../../providers/graphic';
 
 /*
   Generated class for the CreateNote page.
@@ -36,7 +37,8 @@ export class CreateNotePage {
     private alertCtrl: AlertController,
     private atticNotes: AtticNotes,
     private atticTags: AtticTags,
-    private events: Events
+    private events: Events,
+    private graphicProvider:GraphicProvider
   ) {
 
       this.newNote = new NoteFull();
@@ -142,7 +144,7 @@ export class CreateNotePage {
         //   buttons: ['OK']
         // });
         // alert.present();
-        Utils.showErrorAlert(this.alertCtrl, error);
+        this.graphicProvider.showErrorAlert(error);
       })
   }
 
@@ -162,30 +164,18 @@ export class CreateNotePage {
   */
 
   pushLink(){
-    // let prompt=this.alertCtrl.create({
-    //   title: 'New link',
-    //   message: 'Insert the new link',
-    //   inputs:[
-    //     {
-    //       name: 'link',
-    //       placeholder: 'link'
-    //     }
-    //   ],
-    //   buttons:[
-    //     {
-    //       text: 'Cancel',
-    //       handler: data => {}
-    //     },
-    //     {
-    //       text: 'Save',
-    //       handler: data=>{
-    //         this.links.push(data.link);
-    //       }
-    //     }
-    //   ]
-    // });
-    // prompt.present();
-    Utils.pushLink(this.alertCtrl, (data)=>{this.links.push(data.link)}/*function(data: string){this.links.push(data.link)}*/);
+
+    //Utils.pushLink(this.alertCtrl, (data)=>{this.links.push(data.link)}/*function(data: string){this.links.push(data.link)}*/);
+    this.graphicProvider.genericAlert('New link', 'Insert the new link',
+      [
+        {
+          name:'link',
+          placeholder:'link'
+        }
+      ],
+      'Add',
+      (data)=>{this.links.push(data.link)}
+    )
   }
 
 

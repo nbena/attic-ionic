@@ -5,6 +5,7 @@ import { Synch } from '../../providers/synch';
 import { UserSummary } from '../../models/user_summary';
 import { Const } from '../../public/const';
 import { Utils } from '../../public/utils';
+import { GraphicProvider} from '../../providers/graphic'
 
 /**
  * Generated class for the SummaryPage page.
@@ -34,7 +35,8 @@ export class SummaryPage {
      private toastCtrl: ToastController,
      private alertCtrl: AlertController,
      private atticUser: AtticUserProvider,
-     private synch: Synch
+     private synch: Synch,
+     private graphicProvider:GraphicProvider
    ) {
 
       // this.load(false);
@@ -102,11 +104,12 @@ export class SummaryPage {
 
   startSynching(){
     if(this.synchingEnabled){
-      Utils.presentToast(this.toastCtrl, 'synching...');
+      //Utils.presentToast(this.toastCtrl, 'synching...');
+      this.graphicProvider.presentToast('synching...');
       this.synch.synch()
       .then(synched=>{
         console.log('synching done');
-        Utils.presentToast(this.toastCtrl, 'synching done');
+        this.graphicProvider.presentToast('synching done');
         this.setSynchState();
       })
       .catch(error=>{
@@ -123,7 +126,7 @@ export class SummaryPage {
   }
 
   empty(){
-    Utils.askConfirm(this.alertCtrl, 'Be sure to have everything synched before, '+
+    this.graphicProvider.askConfirm( 'Be sure to have everything synched before, '+
     'if not you\'ll loose changes; consider that cache can speed up app\'s performance. '+
     'Are you sure?',(confirmed : boolean)=>{
       if(confirmed){
@@ -138,7 +141,8 @@ export class SummaryPage {
     this.atticUser.deleteEverything()
     .then(()=>{
       console.log('ok everything deleted');
-      Utils.presentToast(this.toastCtrl, 'everything deleted');
+      //Utils.presentToast(this.toastCtrl, 'everything deleted');
+      this.graphicProvider.presentToast('everything deleted');
     })
     .catch(error=>{
       console.log('error in delete everything');
