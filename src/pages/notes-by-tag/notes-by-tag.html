@@ -23,9 +23,11 @@
   </ion-searchbar>
 
   <form (ngSubmit)="searchNotesByTags()">
-    <ion-item>
+    <div text-center>
       <button ion-button type="submit" [disabled]="!btnEnabled">Search</button>
-    </ion-item>
+    </div>
+
+
   </form>
 
 
@@ -62,7 +64,7 @@
 
   <ion-list>
     <ion-item *ngFor="let tag of shownTags; let i=index">
-      <ion-checkbox (click)="dataChanged($event, i); $event.stopPropagation();"></ion-checkbox>
+      <ion-checkbox (ionChange)="dataChanged2($event, i);"></ion-checkbox>
       <ion-label>{{tag.title}}</ion-label>
       <ion-badge item-right>{{tag.noteslength}}</ion-badge>
     </ion-item>

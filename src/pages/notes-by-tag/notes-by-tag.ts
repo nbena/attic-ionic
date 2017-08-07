@@ -95,8 +95,10 @@ export class NotesByTagPage {
   //     this.isChecked[itemIndex]=false;
   //   }
   // }
-  dataChanged(e:any, itemIndex:number){
-    if(e.target.checked){
+
+  dataChanged2(e:any, itemIndex:number){
+    console.log('changed');
+    if(e.checked){
       this.isChecked[itemIndex]=true;
       this.btnEnabled = true;
       this.checkedCount++;
@@ -108,6 +110,25 @@ export class NotesByTagPage {
       }
     }
   }
+
+  //no longer needed as long as I use ion-checkbox.
+  //if use canonical input type="checkbox" then there's need to $event.stopPropagation()
+  //
+  // dataChanged(e:any, itemIndex:number){
+  //   console.log('changed');
+  //   if(e.target.checked){
+  //     this.isChecked[itemIndex]=true;
+  //     this.btnEnabled = true;
+  //     this.checkedCount++;
+  //   }else{
+  //     this.isChecked[itemIndex]=false;
+  //     this.checkedCount--;
+  //     if(this.checkedCount==0){
+  //       this.btnEnabled = false;
+  //     }
+  //   }
+  // }
+
 
   searchNotesByTags(){
     // console.log('clicked');
