@@ -39,6 +39,8 @@ import { AtticCache } from '../providers/attic-cache';
 import { HttpProvider } from '../providers/http';
 import { GraphicProvider } from '../providers/graphic';
 
+import { AutosizeDirective } from '../directives/autosize/autosize';
+
 
 
 
@@ -58,7 +60,8 @@ import { GraphicProvider } from '../providers/graphic';
     NotesPopoverPage,
     NotesByTagPage,
     TabsPage,
-    SummaryPage
+    SummaryPage,
+    AutosizeDirective
   ],
   imports: [
     IonicModule.forRoot(MyApp),

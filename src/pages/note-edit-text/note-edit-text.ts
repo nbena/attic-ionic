@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Directive } from '@angular/core';
 import { NavController, NavParams/*, ToastController*/ } from 'ionic-angular';
 
 import { NoteFull } from '../../models/notes';
@@ -14,7 +14,7 @@ import { GraphicProvider} from '../../providers/graphic'
 */
 @Component({
   selector: 'page-note-edit-text',
-  templateUrl: 'note-edit-text.html'
+  templateUrl: 'note-edit-text.html',
 })
 export class NoteEditTextPage {
 

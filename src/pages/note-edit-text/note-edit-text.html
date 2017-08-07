@@ -8,25 +8,25 @@
 
   <ion-navbar color="primary">
 
-    <ion-buttons start>
+    <!-- <ion-buttons start>
       <button ion-button icon-only menuToggle>
         <ion-icon name="menu"></ion-icon>
       </button>
-    </ion-buttons>
-    <ion-title>{{note?.title}}</ion-title>
+    </ion-buttons> -->
+    <ion-title>Edit text</ion-title>
   </ion-navbar>
 
 </ion-header>
 
 
-<ion-content padding>
+<ion-content padding text-center>
   <form (ngSubmit)="changeText()">
     <ion-item>
       <ion-label> Enter the new text:</ion-label>
     </ion-item>
-    <ion-textarea [(ngModel)]="text" name="text"></ion-textarea>
-    <button ion-button full name="confirm" type="submit" color="primary">Confirm</button>
-    <button ion-button full name="cancel" type="button" color="primary" (click)="cancel()">Cancel</button>
+    <ion-textarea [(ngModel)]="text" name="text" autosize></ion-textarea>
+    <button ion-button name="confirm" type="submit" color="primary">Confirm</button>
+    <button ion-button name="cancel" type="button" color="primary" (click)="cancel()">Cancel</button>
   </form>
 
 </ion-content>
