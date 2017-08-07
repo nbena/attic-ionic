@@ -3,7 +3,7 @@ import { NavController, NavParams, ViewController/*, ToastController, AlertContr
 import { NoteFull } from '../../models/notes';
 import { NoteEditTextPage } from '../note-edit-text/note-edit-text';
 import { AtticNotes } from '../../providers/attic-notes';
-import { Utils } from '../../public/utils';
+// import { Utils } from '../../public/utils';
 import { NotesPage } from '../notes/notes';
 import { GraphicProvider} from '../../providers/graphic'
 /*

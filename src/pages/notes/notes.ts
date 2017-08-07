@@ -21,7 +21,7 @@ import { TagAlmostMin } from '../../models/tags';
 
 import { NotesPopoverPage } from '../notes-popover/notes-popover';
 
-import { Utils } from '../../public/utils';
+//import { Utils } from '../../public/utils';
 import { GraphicProvider} from '../../providers/graphic'
 
 /*

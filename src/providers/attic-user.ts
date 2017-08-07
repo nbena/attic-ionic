@@ -3,7 +3,6 @@ import { Auth } from './auth';
 import { NetManager } from './net-manager';
 import { UserSummary } from '../models/user_summary';
 import { Db } from './db';
-import { Utils } from '../public/utils';
 import 'rxjs/add/operator/map';
 import {HttpProvider} from './http';
 

@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { NavController, NavParams, PopoverController,
 /*AlertController, ToastController*/ } from 'ionic-angular';
 
-import { NoteExtraMin, NoteFull, NoteMin, NoteSmart } from '../../models/notes';
+import { /*NoteExtraMin, */NoteFull/*, NoteMin, NoteSmart*/ } from '../../models/notes';
 
 import { AtticNotes } from '../../providers/attic-notes';
 import { AtticTags } from '../../providers/attic-tags';

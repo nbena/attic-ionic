@@ -1,10 +1,10 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, AlertController, Events } from 'ionic-angular';
+import { NavController, NavParams, /*AlertController,*/ Events } from 'ionic-angular';
 import { AtticNotes } from '../../providers/attic-notes';
 import { AtticTags } from '../../providers/attic-tags';
-import { NoteFull, NoteSmart, NoteMin, NoteExtraMin } from '../../models/notes';
-import { TagExtraMin, TagFull, TagAlmostMin } from '../../models/tags';
-import { Utils } from '../../public/utils'
+import { NoteFull/*, NoteSmart, NoteMin, NoteExtraMin*/ } from '../../models/notes';
+import { /*TagExtraMin, TagFull,*/ TagAlmostMin } from '../../models/tags';
+// import { Utils } from '../../public/utils'
 import {GraphicProvider} from '../../providers/graphic';
 
 /*
@@ -34,7 +34,7 @@ export class CreateNotePage {
 
 
   constructor(public navCtrl: NavController, public navParams: NavParams,
-    private alertCtrl: AlertController,
+    // private alertCtrl: AlertController,
     private atticNotes: AtticNotes,
     private atticTags: AtticTags,
     private events: Events,

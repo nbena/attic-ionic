@@ -3,7 +3,7 @@ import { NavController, NavParams/*, ToastController*/ } from 'ionic-angular';
 
 import { NoteFull } from '../../models/notes';
 import { AtticNotes } from '../../providers/attic-notes';
-import { Utils } from '../../public/utils';
+// import { Utils } from '../../public/utils';
 import { GraphicProvider} from '../../providers/graphic'
 
 /*

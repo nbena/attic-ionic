@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { NavController, NavParams, /*ToastController, AlertController,*/ ViewController, App } from 'ionic-angular';
 import { TagFull } from '../../models/tags';
 import { AtticTags } from '../../providers/attic-tags';
-import { Utils } from '../../public/utils';
+// import { Utils } from '../../public/utils';
 import { TagsPage } from '../tags/tags';
 import { GraphicProvider} from '../../providers/graphic'
 

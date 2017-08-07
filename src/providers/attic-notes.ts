@@ -3,13 +3,13 @@ import { Injectable } from '@angular/core';
 /* importing auth because I need the token. */
 import { Auth } from './auth';
 import { DbAction, Const, SqliteError } from '../public/const';
-import { NoteExtraMin/*, NoteSmart,*/, NoteFull,NoteMin, NoteBarebon, NoteExtraMinWithDate } from '../models/notes';
+import { NoteExtraMin/*, NoteSmart,*/, NoteFull,/*NoteMin,/*, NoteBarebon,*/ NoteExtraMinWithDate } from '../models/notes';
 import { Utils } from '../public/utils';
 import { Db/*, LogObject*/ } from './db';
 import { NetManager } from './net-manager';
 
 import { Synch } from './synch';
-import { AtticTags } from './attic-tags';
+// import { AtticTags } from './attic-tags';
 import { TagAlmostMin, TagExtraMin, TagFull } from '../models/tags';
 
 import { AtticCache } from './attic-cache';
@@ -30,7 +30,7 @@ export class AtticNotes {
   // private cachedFullNote: NoteFull[] = null;
 
   constructor(public auth: Auth,
-    private atticTags: AtticTags,
+    // private atticTags: AtticTags,
     private atticCache: AtticCache,
     private db: Db, private netManager: NetManager,
     private synch: Synch,
@@ -372,10 +372,10 @@ export class AtticNotes {
 
   notesByTag2(tags:TagAlmostMin[], force: boolean):Promise<any>{
     return new Promise<any>((resolve, reject)=>{
-      let useForce: boolean = force;
+      // let useForce: boolean = force;
       let isNteworkAvailable: boolean = this.netManager.isConnected;
       let areThereNotesInTheDb: boolean;
-      let notes:NoteExtraMin[]=[];
+      // let notes:NoteExtraMin[]=[];
       let useDb: boolean;
       let expectedResult: number = 0;
       tags.forEach((tag)=>{expectedResult+=tag.noteslength});
@@ -523,10 +523,10 @@ return this.items.filter((item) => {
     // return Utils.postBasic('/api/notes/by-text', JSON.stringify({note:
     //   {text: text}}), this.http, this.auth.token);
     return new Promise<NoteExtraMin[]>((resolve,reject)=>{
-      let useForce: boolean = force;
+      // let useForce: boolean = force;
       let isNteworkAvailable: boolean = this.netManager.isConnected;
       let areThereNotesInTheDb: boolean;
-      let notes:NoteExtraMin[]=[];
+      // let notes:NoteExtraMin[]=[];
       let useDb: boolean;
       this.db.getNotesCount(this.auth.userid)
       .then(number=>{

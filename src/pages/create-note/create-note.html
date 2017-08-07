@@ -24,20 +24,24 @@
 <ion-content padding>
 
   <form (ngSubmit)="createNote()">
-  <ion-list>
+  <!-- <ion-list> -->
 
     <ion-item>
-      <ion-label stacked>Title</ion-label>
-      <ion-input placeholder="title" name="title" [(ngModel)]="newNote.title"></ion-input>
+      <ion-label stacked color="primary">Title</ion-label>
+      <ion-input
+
+      name="title" [(ngModel)]="newNote.title"></ion-input>
     </ion-item>
 
     <ion-item>
-      <ion-label stacked>Text</ion-label>
-      <ion-textarea placeholder="text" name="text" [(ngModel)]="newNote.text"></ion-textarea>
+      <ion-label stacked color="primary">Text</ion-label>
+      <ion-textarea
+
+      name="text" [(ngModel)]="newNote.text"></ion-textarea>
     </ion-item>
 
   <ion-item>
-    <ion-label>Main tags:</ion-label>
+    <ion-label stacked color="primary">Main tags:</ion-label>
     <ion-select multiple="true" [(ngModel)]="mainTags" name="main-tags">
       <ion-option *ngFor="let tag of tags" [value]="tag">
         {{tag.title}}
@@ -46,7 +50,7 @@
   </ion-item>
 
   <ion-item>
-    <ion-label>Other tags:</ion-label>
+    <ion-label stacked color="primary">Other tags:</ion-label>
     <ion-select multiple="true" [(ngModel)]="otherTags" name="other-tags">
       <ion-option *ngFor="let tag of tags" [value]="tag">
         {{tag.title}}
@@ -56,15 +60,24 @@
 
 
   <ion-item>
-    <ion-label stacked>
+    <ion-label stacked color="primary"
+    >
       Links:
     </ion-label>
     <button ion-button type="button" icon-only item-right (click)="pushLink()" color="primary">
       <ion-icon name="add-circle"></ion-icon>
     </button>
   </ion-item>
-  <ion-item>
-    <ion-list>
+
+
+  <!-- <ion-item-divider></ion-item-divider> -->
+  <!-- <ion-item> -->
+
+    <!-- <ion-scroll scrollX="true" style="height:100%;"> -->
+    <!-- <ion-list> -->
+    <!-- <ion-row nowrap> -->
+
+      <!-- <ion-item> -->
       <ion-chip *ngFor="let link of links; let i=index">
         <ion-label>
           {{link}}
@@ -73,12 +86,19 @@
           <ion-icon name="close"></ion-icon>
         </button>
       </ion-chip>
-    </ion-list>
-  </ion-item>
+    <!-- </ion-item> -->
+    <!-- </ion-list> -->
+    <!-- </ion-row> -->
+    <!-- </ion-scroll> -->
+
+  <!-- </ion-item> -->
+
+  <!-- <ion-item-divider></ion-item-divider> -->
+
 
 
   <ion-item>
-    <ion-label>Done:</ion-label>
+    <ion-label stacked color="primary">Done:</ion-label>
     <ion-toggle [(ngModel)]="newNote.isdone" name="is-done"></ion-toggle>
   </ion-item>
 
@@ -86,7 +106,7 @@
     <button ion-button type="submit">Create</button>
   </ion-item>
 
-  </ion-list>
+  <!-- </ion-list> -->
   </form>
 
 </ion-content>

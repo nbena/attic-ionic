@@ -20,7 +20,7 @@ import { Filter} from '../../public/const';
 export class NotesPopoverPage {
 
 
-private removeFilterEnabled: boolean = true;
+// private removeFilterEnabled: boolean = true;
 //find a method, maybe, to check if there is some filter applied.
 
   constructor(public navCtrl: NavController, /*private navParams: NavParams,*/

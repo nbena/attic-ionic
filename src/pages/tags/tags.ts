@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, AlertController } from 'ionic-angular';
+import { NavController/*, NavParams, AlertController*/ } from 'ionic-angular';
 
 
-import { TagExtraMin,/* TagMin, */TagFull, TagAlmostMin } from '../../models/tags';
+import { /*TagExtraMi, TagMin, */TagFull, TagAlmostMin } from '../../models/tags';
 import { AtticTags } from '../../providers/attic-tags';
 import { TagDetailsPage } from '../tag-details/tag-details';
 import { NotesPage } from '../notes/notes';
@@ -30,7 +30,7 @@ export class TagsPage {
   searchTerm: string ='';
 
   constructor(public navCtrl: NavController,
-    public alertCtrl: AlertController,
+    // public alertCtrl: AlertController,
     private atticTags: AtticTags,
     private graphicProvider:GraphicProvider
   ) {
