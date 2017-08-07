@@ -44,7 +44,7 @@ MenuToggle is used for the sidemenu.
 
   <ion-list>
     <ion-item *ngFor="let tag of shownTags;" (click)="displayTagDetails(tag.title)">
-      <ion-label item-left>{{tag.title}}</ion-label>
+      <ion-label >{{tag.title}}</ion-label>
       <ion-badge item-right (click)="notesByTag($event, tag)">{{tag.noteslength}}</ion-badge>
     </ion-item>
   </ion-list>

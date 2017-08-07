@@ -63,7 +63,7 @@
   <ion-list>
     <ion-item *ngFor="let tag of shownTags; let i=index">
       <ion-checkbox (click)="dataChanged($event, i); $event.stopPropagation();"></ion-checkbox>
-      <ion-label item-left>{{tag.title}}</ion-label>
+      <ion-label>{{tag.title}}</ion-label>
       <ion-badge item-right>{{tag.noteslength}}</ion-badge>
     </ion-item>
   </ion-list>
