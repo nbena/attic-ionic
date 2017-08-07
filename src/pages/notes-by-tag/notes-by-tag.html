@@ -43,9 +43,9 @@
 
 </ion-list> -->
 
-<h3>Tags!</h3>
+<!-- <h3>Tags!</h3> -->
 
-  <ion-card detail-push *ngFor="let tag of shownTags; let i=index">
+  <!-- <ion-card detail-push *ngFor="let tag of shownTags; let i=index">
 
     <ion-label class="checkbox">
       <input type="checkbox" (click)="dataChanged($event, i); $event.stopPropagation();">
@@ -58,6 +58,14 @@
       <ion-label>Notes:</ion-label>
       <ion-badge item-right>{{tag.noteslength}}</ion-badge>
     </ion-item>
-  </ion-card>
+  </ion-card> -->
+
+  <ion-list>
+    <ion-item *ngFor="let tag of shownTags; let i=index">
+      <ion-checkbox (click)="dataChanged($event, i); $event.stopPropagation();"></ion-checkbox>
+      <ion-label item-left>{{tag.title}}</ion-label>
+      <ion-badge item-right>{{tag.noteslength}}</ion-badge>
+    </ion-item>
+  </ion-list>
 
 </ion-content>

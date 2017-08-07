@@ -1252,9 +1252,14 @@ private expandArrayTagsMinWithEverything(tags:TagExtraMin[], userid:string):stri
 }
 
 
-private prepareQueryInsertIntoHelp(baseQuery: string, length:number, userid:string):string{
+private prepareQueryInsertIntoHelp(baseQuery: string, length:number, userid:string, questionMark:number):string{
   for(let i=0;i<length;i++){
-    baseQuery += '(?,?,?,?),';
+    //baseQuery += '(?,?,?,?),';
+
+    let temp:string='?,'.repeat(questionMark);
+    temp=temp.substr(0, temp.length-1);
+    temp = '('+temp+'),';
+    baseQuery+=temp;
   }
   baseQuery = baseQuery.substr(0, baseQuery.length-1);
   return baseQuery;
@@ -1265,7 +1270,7 @@ public insertNotesMinSmartAndCleanify(notes: NoteExtraMinWithDate[], userid: str
   return new Promise<void>((resolve, reject)=>{
     this.db.transaction(tx=>{
       /*first insert into notes_help*/
-      let query:string = this.prepareQueryInsertIntoHelp(Query.INSERT_INTO_NOTES_HELP, notes.length, userid);
+      let query:string = this.prepareQueryInsertIntoHelp(Query.INSERT_INTO_NOTES_HELP, notes.length, userid, 4);
       tx.executeSql(query, this.expandArrayNotesMinWithEverything(notes, userid),
         (tx:any, res:any)=>{console.log('ok insert into notes_help');},
         (tx:any, error:any)=>{
@@ -1330,7 +1335,7 @@ public insertTag(tag:TagFull, userid:string):Promise<void>{
 public insertTagsMinSmartAndCleanify(tags: TagAlmostMin[], userid: string):Promise<void>{
   return new Promise<void>((resolve, reject)=>{
     this.db.transaction(tx=>{
-      let query:string = this.prepareQueryInsertIntoHelp(Query.INSERT_INTO_TAGS_HELP, tags.length, userid);
+      let query:string = this.prepareQueryInsertIntoHelp(Query.INSERT_INTO_TAGS_HELP, tags.length, userid, 3);
       tx.executeSql(query, this.expandArrayTagsMinWithEverything(tags, userid),
         (tx:any, res:any)=>{console.log('ok insert into tags_help');},
         (tx:any, error:any)=>{

@@ -1,10 +1,9 @@
 import { Component } from '@angular/core';
- import { /*IonicPage, NavController, NavParams*/ToastController, AlertController } from 'ionic-angular';
+// import { /*IonicPage, NavController, NavParams*/ToastController, AlertController } from 'ionic-angular';
 import { AtticUserProvider } from '../../providers/attic-user';
 import { Synch } from '../../providers/synch';
 import { UserSummary } from '../../models/user_summary';
 import { Const } from '../../public/const';
-import { Utils } from '../../public/utils';
 import { GraphicProvider} from '../../providers/graphic'
 
 /**
@@ -32,8 +31,8 @@ export class SummaryPage {
   synchingEnabled: boolean = false;
 
    constructor(/*public navCtrl: NavController, public navParams: NavParams*/
-     private toastCtrl: ToastController,
-     private alertCtrl: AlertController,
+    //  private toastCtrl: ToastController,
+    //  private alertCtrl: AlertController,
      private atticUser: AtticUserProvider,
      private synch: Synch,
      private graphicProvider:GraphicProvider

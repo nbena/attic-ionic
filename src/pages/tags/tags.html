@@ -31,40 +31,24 @@ MenuToggle is used for the sidemenu.
   </ion-searchbar>
 
 
-  <h3>Tags!</h3>
-  <!-- <ion-list> -->
-    <ion-card detail-push *ngFor="let tag of shownTags" (click)="displayTagDetails(tag.title)">
+  <!-- <h3>Tags!</h3> -->
+    <!-- <ion-card detail-push *ngFor="let tag of shownTags" (click)="displayTagDetails(tag.title)">
     <ion-label>
       {{tag.title}}
     </ion-label>
-    <!--  {{note._id}}-->
     <ion-item>
       <ion-label>Notes:</ion-label>
       <ion-badge item-right (click)="notesByTag($event, tag)">{{tag.noteslength}}</ion-badge>
     </ion-item>
-  </ion-card>
-  <!-- </ion-list> -->
+  </ion-card> -->
 
-  <!-- <button ion-button icon-only (click)="createNewTag()">
-    <ion-icon name="add-circle"></ion-icon>
-  </button> -->
+  <ion-list>
+    <ion-item *ngFor="let tag of shownTags;" (click)="displayTagDetails(tag.title)">
+      <ion-label item-left>{{tag.title}}</ion-label>
+      <ion-badge item-right (click)="notesByTag($event, tag)">{{tag.noteslength}}</ion-badge>
+    </ion-item>
+  </ion-list>
 
-
-
-<!-- </ion-content> -->
-
-
-
-<!--
-<button fab fab-bottom fab-right (click)="createNewTag()">
-    <ion-icon name="add"></ion-icon>
-</button> -->
-
-<!-- <ion-fab right bottom>
-  <button ion-fab color="primary" (click)="createNewTag()">
-    <ion-icon name="add"></ion-icon>
-  </button>
-</ion-fab> -->
 
 
 <style>
