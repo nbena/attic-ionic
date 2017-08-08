@@ -15,7 +15,7 @@ import { TagAlmostMin, TagExtraMin, TagFull } from '../models/tags';
 import { AtticCache } from './attic-cache';
 import { HttpProvider } from './http';
 
-import { AtticError } from '../public/attic';
+import { AtticError } from '../public/errors';
 
 import 'rxjs/add/operator/map';
 
@@ -81,7 +81,11 @@ export class AtticNotes {
           let p:Promise<NoteExtraMin[]>;
           if(!this.atticCache.AreExtraMinNotesEmpty()){
             console.log('using cache');
-            p = new Promise<NoteExtraMin[]>((resolve, reject)=>{resolve(this.atticCache.getCachedExtraMinNote())});
+            p = new Promise<NoteExtraMin[]>((resolve, reject)=>{
+              let notes:NoteExtraMinWithDate[]=this.atticCache.getCachedExtraMinNote() as NoteExtraMinWithDate[];
+              // notes.sort(NoteExtraMinWithDate.descendingCompare); //see if needed.
+              resolve(notes);
+            });
           }else{
             console.log('no cache using db');
             p = this.db.getNotesMin(this.auth.userid);
@@ -161,19 +165,29 @@ export class AtticNotes {
         areThereNotesInTheDb = (number > 0) ? true : false;
         useDb = Utils.shouldUseDb(this.netManager.isConnected, areThereNotesInTheDb, force/*, this.synch.isSynching()*/);
         // callNet = !useDb;
+        console.log('use db note');console.log(JSON.stringify(useDb));
         if(useDb){
           let p:Promise<NoteFull>;
-          let res:number; //no longer need to set to -1, binarySearch already did it for us.
-          if(!this.atticCache.AreFullNotesEmpty()){
-            res = Utils.binarySearch(this.atticCache.getCachedFullNotes(), NoteExtraMin.NewNoteExtraMin(title), NoteExtraMin.ascendingCompare);
-          }
-          if(res!=-1){
+          let note:NoteFull=this.atticCache.getNoteFullOrNull(NoteExtraMin.NewNoteExtraMin(title));
+          if(note!=null){
             console.log('the note is in the cache');
-            p = new Promise<NoteFull>((resolve, reject)=>{resolve(this.atticCache.getCachedFullNotes()[res])});
+            p=new Promise<NoteFull>((resolve, reject)=>{resolve(note)});
           }else{
-            console.log('using the db for full note');
+            console.log('the note is not in the cache');
             p=this.db.getNoteFull(title, this.auth.userid);
           }
+
+
+          // if(!this.atticCache.AreFullNotesEmpty()){
+          //   res = Utils.binarySearch(this.atticCache.getCachedFullNotes(), NoteExtraMin.NewNoteExtraMin(title), NoteExtraMin.ascendingCompare);
+          // }
+          // if(res!=-1){
+          //   console.log('the note is in the cache');
+          //   p = new Promise<NoteFull>((resolve, reject)=>{resolve(this.atticCache.getCachedFullNotes()[res])});
+          // }else{
+          //   console.log('using the db for full note');
+          //   p=this.db.getNoteFull(title, this.auth.userid);
+          // }
           return p;
         }else{
           return this.noteByTitle_loadFromNetworkAndInsert(title);

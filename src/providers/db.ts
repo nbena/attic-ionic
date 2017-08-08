@@ -1388,8 +1388,8 @@ public getTagsMin(userid: string):Promise<TagAlmostMin[]>{
           obj.noteslength=0; //good!
         }
 
-        console.log('object returned tags: ');
-        console.log(JSON.stringify(obj));
+        // console.log('object returned tags: ');
+        // console.log(JSON.stringify(obj));
         //array.push(obj);
         array=Utils.binaryArrayInsert(array, obj, TagAlmostMin.descendingCompare);
       }

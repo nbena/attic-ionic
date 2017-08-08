@@ -58,7 +58,11 @@ export class AtticTags {
             let p:Promise<TagAlmostMin[]>;
             if(!this.atticCache.AreAlmostMinTagsEmpty()){
               console.log('using cache');
-              p = new Promise<TagAlmostMin[]>((resolve, reject)=>{resolve(this.atticCache.getCachedAlmostMinTags())});
+              p = new Promise<TagAlmostMin[]>((resolve, reject)=>{
+                let tags:TagAlmostMin[]=this.atticCache.getCachedAlmostMinTags();
+                //tags.sort(TagAlmostMin.descendingCompare); //see if needed.
+                resolve(tags);
+              });
             }else{
               console.log('no cache using db');
               p = this.db.getTagsMin(this.auth.userid);
@@ -129,19 +133,27 @@ export class AtticTags {
           // callNet = !useDb;
           if(useDb){
             let p:Promise<TagFull>;
-            let res:number=-1;
-            if(!this.atticCache.AreFullTagsEmpty()){
-              //i can use a tag extra min because the tag is loaded only if
-              //it's fulll.
-              res = Utils.binarySearch(this.atticCache.getCachedFullTags(), TagExtraMin.NewTag(title),TagExtraMin.ascendingCompare)
-            }
-            if(res!=-1){
+            let tag:TagFull=this.atticCache.getTagFullOrNull(TagExtraMin.NewTag(title));
+            if(tag!=null){
               console.log('the tag is in the cache');
-              p=new Promise<TagFull>((resolve, reject)=>{resolve(this.atticCache.getCachedFullTags()[res])});
+              p=new Promise<TagFull>((resolve, reject)=>{resolve(tag)});
             }else{
-              console.log('using the db for full tag');
+              console.log('the tag is not in the cache');
               p=this.db.getTagFull(title, this.auth.userid);
             }
+            // let res:number=-1;
+            // if(!this.atticCache.AreFullTagsEmpty()){
+            //   //i can use a tag extra min because the tag is loaded only if
+            //   //it's fulll.
+            //   res = Utils.binarySearch(this.atticCache.getCachedFullTags(), TagExtraMin.NewTag(title),TagExtraMin.ascendingCompare)
+            // }
+            // if(res!=-1){
+            //   console.log('the tag is in the cache');
+            //   p=new Promise<TagFull>((resolve, reject)=>{resolve(this.atticCache.getCachedFullTags()[res])});
+            // }else{
+            //   console.log('using the db for full tag');
+            //   p=this.db.getTagFull(title, this.auth.userid);
+            // }
             return p;
           }else{
             return this.tagByTitle_loadFromNetworkAndInsert(title);
@@ -248,9 +260,10 @@ export class AtticTags {
         }
       })
       .then(changedLocally=>{
-        if(isAllowed){
+        //if(isAllowed){
+
           resolve();
-        }
+        //}
       })
       .catch(error=>{
         console.log('error in changing title');
