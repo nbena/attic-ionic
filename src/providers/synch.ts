@@ -15,6 +15,7 @@ import { Utils } from '../public/utils';
 
 import { NetManager } from './net-manager';
 import { HttpProvider} from './http';
+import { AtticError } from '../public/errors';
 
 /*
   Generated class for the Synch provider.
@@ -410,7 +411,7 @@ export class Synch {
       .catch(error=>{
         console.log('error in processing notes-to-save');
         console.log(JSON.stringify(error));
-        if(Utils.isPostgresError(error) || Utils.isPostgresError(error.message)){
+        if(AtticError.isPostgresError(error) || AtticError.isPostgresError(error.message)){
           console.log('postgres error!');
           //this.noteToDeleteBecauseOfAnError = current;
           this.objCreateNoteToDeleteBecaseOfAnError = currentLog;
@@ -484,7 +485,7 @@ export class Synch {
       .catch(error=>{
         console.log('error in processing tags-to-save');
         console.log(JSON.stringify(error));
-        if(Utils.isPostgresError(error) || Utils.isPostgresError(error.message)){
+        if(AtticError.isPostgresError(error) || AtticError.isPostgresError(error.message)){
           console.log('postgres error!');
           //this.tagToDeleteBecauseOfAnError = current;
           this.objCreateTagToDeleteBecaseOfAnError = currentLog;
@@ -587,7 +588,7 @@ export class Synch {
       .catch(error=>{
         console.log('error in processing notes (tags-to-add-to)');
         console.log(JSON.stringify(error));
-        if(Utils.isPostgresError(error) || Utils.isPostgresError(error.message)){
+        if(AtticError.isPostgresError(error) || AtticError.isPostgresError(error.message)){
           console.log('postgres error!');
           //this.noteToDeleteBecauseOfAnError = current;
           this.objAddTagToNoteToDeleteBecaseOfAnError = currentLog;
@@ -663,7 +664,7 @@ export class Synch {
       .catch(error=>{
         console.log('error in processing notes (tags-to-remove-from)');
         console.log(JSON.stringify(error));
-        if(Utils.isPostgresError(error) || Utils.isPostgresError(error.message)){
+        if(AtticError.isPostgresError(error) || AtticError.isPostgresError(error.message)){
           console.log('postgres error!');
           //this.noteToDeleteBecauseOfAnError = current;
           this.objRemoveTagFromNoteToDeleteBecaseOfAnError = currentLog;
@@ -733,7 +734,7 @@ export class Synch {
       .catch(error=>{
         console.log('error in processing notes-to-delete');
         console.log(JSON.stringify(error));
-        if(Utils.isPostgresError(error) || Utils.isPostgresError(error.message)){
+        if(AtticError.isPostgresError(error) || AtticError.isPostgresError(error.message)){
           console.log('postgres error!');
           //this.noteToDeleteBecauseOfAnError = current;
           //this.objNoteTo = currentLog;
@@ -823,7 +824,7 @@ export class Synch {
       .catch(error=>{
         console.log('error in processing tags-to-delete');
         console.log(JSON.stringify(error));
-        if(Utils.isPostgresError(error) || Utils.isPostgresError(error.message)){
+        if(AtticError.isPostgresError(error) || AtticError.isPostgresError(error.message)){
           console.log('postgres error!');
           //this.noteToDeleteBecauseOfAnError = current;
           //this.objRemov = currentLog;
@@ -904,7 +905,7 @@ export class Synch {
       .catch(error=>{
         console.log('error in processing notes-to-change-text.');
         console.log(JSON.stringify(error));
-        if(Utils.isPostgresError(error) || Utils.isPostgresError(error.message)){
+        if(AtticError.isPostgresError(error) || AtticError.isPostgresError(error.message)){
           console.log('postgres error!');
           //this.noteToDeleteBecauseOfAnError = current;
           this.objChangeTextToDeleteBecaseOfAnError = currentLog;
@@ -982,7 +983,7 @@ export class Synch {
       .catch(error=>{
         console.log('error in processing notes-to-change-links.');
         console.log(JSON.stringify(error));
-        if(Utils.isPostgresError(error) || Utils.isPostgresError(error.message)){
+        if(AtticError.isPostgresError(error) || AtticError.isPostgresError(error.message)){
           console.log('postgres error!');
           //this.noteToDeleteBecauseOfAnError = current;
           this.objSetLinkToDeleteBecaseOfAnError = currentLog;
@@ -1060,7 +1061,7 @@ export class Synch {
       .catch(error=>{
         console.log('error in processing notes-to-set-done.');
         console.log(JSON.stringify(error));
-        if(Utils.isPostgresError(error) || Utils.isPostgresError(error.message)){
+        if(AtticError.isPostgresError(error) || AtticError.isPostgresError(error.message)){
           console.log('postgres error!');
           //this.noteToDeleteBecauseOfAnError = current;
           this.objSetDoneToDeleteBecaseOfAnError = currentLog;

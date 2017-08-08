@@ -203,6 +203,32 @@ export class NoteFull extends NoteBarebon{
   }
 
 
+
+  public getMinifiedVersionForCreation():NoteFull{
+    let tmpNote:NoteFull = this.clone();
+    let maintags:TagExtraMin[]=tmpNote.maintags.map(obj=>{return TagExtraMin.NewTag(obj.title)});
+    let othertags:TagExtraMin[]=tmpNote.othertags.map(obj=>{return TagExtraMin.NewTag(obj.title)});
+    tmpNote.maintags=maintags;
+    tmpNote.othertags=othertags;
+    return tmpNote;
+  }
+
+
+  public clone():NoteFull{
+    let tmpNote:NoteFull = new NoteFull();
+    tmpNote.title=this.title;
+    tmpNote.text=this.text;
+    tmpNote.maintags = this.maintags;
+    tmpNote.othertags = this.othertags;
+    tmpNote.isdone = this.isdone;
+    tmpNote.creationdate = this.creationdate;
+    tmpNote.lastmodificationdate = this.lastmodificationdate;
+    tmpNote.links = this.links;
+    return tmpNote;
+  }
+
+
+
 }
 export class NoteSQLite extends NoteFull{
   mainTagsToAdd: TagFull[];

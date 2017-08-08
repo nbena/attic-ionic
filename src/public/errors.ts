@@ -25,6 +25,18 @@ export class AtticError{
     return returnedError;
   }
 
+
+  private static isSqliteError(error:string):boolean{
+    let ret:boolean=false;
+    if(error == AtticError.SQLITE_DUPLICATE_KEY_AUTH ||
+      error == AtticError.SQLITE_DUPLICATE_KEY_TAGS ||
+      error == AtticError.SQLITE_DUPLICATE_KEY_NOTES
+    ){
+      ret=true;
+    }
+    return ret;
+  }
+
 public static getBetterSqliteError(error:any):any{
   let ret:any = error;
   if(error.message!=null){
@@ -77,7 +89,7 @@ public static getBetterNetworkError(error:any):any{
 
 
 
-
+//directly taken from the server.
 public static readonly POSTGRES_DUPLICATE_KEY_NOTES:string = 'DbError another note with the same title';
 public static readonly POSTGRES_DUPLICATE_KEY_TAGS:string = 'DbError another tag with the same title';
 public static readonly POSTGRES_DUPLICATE_KEY_NOTES_TAGS:string = 'DbError the tag is already with this note';
@@ -101,6 +113,19 @@ public static isPostgresError(error:string):boolean{
   }
   return ret;
 }
+
+
+public static getError(error:any):any{
+  let ret:any = error;
+  if(error.message!=null){
+    if(AtticError.isSqliteError(error.message)){
+      ret=AtticError.getBetterSqliteError(error);
+    }else if(AtticError.isNetworkError(error)){
+      ret=AtticError.getBetterNetworkError(error);
+    }
+    return ret;
+  }
+  }
 
 
 

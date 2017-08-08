@@ -15,7 +15,7 @@ import { TagAlmostMin, TagExtraMin, TagFull } from '../models/tags';
 import { AtticCache } from './attic-cache';
 import { HttpProvider } from './http';
 
-import { AtticError } from '../public/attic-errors';
+import { AtticError } from '../public/attic';
 
 import 'rxjs/add/operator/map';
 
@@ -70,23 +70,14 @@ export class AtticNotes {
       let useForce: boolean = force;
       let isNteworkAvailable: boolean = this.netManager.isConnected;
       let areThereNotesInTheDb: boolean;
-      let notes:NoteExtraMinWithDate[]=[];
       let useDb: boolean;
       this.db.getNotesCount(this.auth.userid)
       .then(number=>{
         areThereNotesInTheDb = (number > 0) ? true : false;
-        console.log('the numberof notes is');
-        console.log(number);
-        // let useDb = !isNteworkAvailable || areThereNotesInTheDb || !force;
-        useDb = Utils.shouldUseDb(isNteworkAvailable, areThereNotesInTheDb, force/*, this.synch.isSynching()*/);
-        console.log('usedb note: ');
-        console.log(JSON.stringify(useDb));
+        // console.log('the numberof notes is');console.log(number);
+        useDb = Utils.shouldUseDb(isNteworkAvailable, areThereNotesInTheDb, force);
+        // console.log('usedb note: ');console.log(JSON.stringify(useDb));
         if(useDb){
-          // if(this.cachedExtraMinNote!=null){
-          //   resolve(this.cachedExtraMinNote);
-          // }else{
-          //   return this.db.getNotesMin(this.auth.userid);
-          // }
           let p:Promise<NoteExtraMin[]>;
           if(!this.atticCache.AreExtraMinNotesEmpty()){
             console.log('using cache');
@@ -99,41 +90,31 @@ export class AtticNotes {
         }else{
           console.log('using the network');
           return this.http.get('/api/notes/all/min/with-date');
-          //return Utils.getBasic('/api/notes/all/min/with-date', this.http, this.auth.token);
         }
       })
       .then(fetchingResult=>{
         if(useDb){
-          /*fetchingResult = NoteMin[] from the DB.*/
-          if(this.atticCache.AreExtraMinNotesEmpty()){
-            this.atticCache.pushAllToCachedExtraMinNote(fetchingResult as NoteExtraMinWithDate[]);
-            //this.atticCache.cachedExtraMinNotes = fetchingResult;
-          }
-          resolve(fetchingResult);
+          return new Promise<NoteExtraMin[]>((resolve, reject)=>{resolve(fetchingResult)});
         }else{
-          /*fetchingResult = NoteMin[] from the network, need to insert.*/
-          /*inserting is available only if the locks are available*/
-          if(!this.synch.isNoteFullyLocked()){
-            notes = fetchingResult as NoteExtraMinWithDate[];
-            // for(let i=notes.length-1;i>=0;i--){
-            //   this.db.insertNoteMinQuietly(notes[i], this.auth.userid);
-            // }
-            this.db.insertNotesMinSmartAndCleanify(notes, this.auth.userid);
-            this.atticCache.pushAllToCachedExtraMinNote(fetchingResult as NoteExtraMinWithDate[])
-            resolve(notes);
+          if(!this.synch.isNoteFullyLocked()){ /*can insert only if lock is free*/
+            this.db.insertNotesMinSmartAndCleanify(fetchingResult as NoteExtraMinWithDate[], this.auth.userid);
+            return new Promise<NoteExtraMin[]>((resolve, reject)=>{resolve(fetchingResult)});
+
           }else{
-            /*can't insert*/
             console.log('fetched notes min but it is locked');
           }
         }
       })
+      .then(notes=>{
+        this.atticCache.pushAllToCachedExtraMinNote(notes as NoteExtraMinWithDate[]);
+        resolve(notes);
+      })
       .catch(error=>{
         console.log('error notes:');
-        console.log(JSON.stringify(error));
+        console.log(JSON.stringify(error.message));
+        reject(AtticError.getError(error));
       })
-
     });
-    // return Utils.getBasic('/api/notes/all/min', this.http, this.auth.token);
   }
 
 
@@ -142,25 +123,16 @@ export class AtticNotes {
 
   private noteByTitle_loadFromNetworkAndInsert(title: string):Promise<any>{
     return new Promise<any>((resolve, reject)=>{
-      let note:NoteFull;
       this.http.get('/api/notes/'+title)
-      //Utils.getBasic('/api/notes/'+title, this.http, this.auth.token)
       .then(result=>{
-        console.log('the resul from network is: ');
-        console.log(JSON.stringify(result.note));
-        note = result.note as NoteFull;
+        // console.log('the resul from network is: ');console.log(JSON.stringify(result.note));
         /*inserting in the DB.*/
         if(!this.synch.isNoteFullyLocked()){
-          this.db.insertOrUpdateNote(note, this.auth.userid); /*this will be done asynchronously? yes... maybe*/
+          this.db.insertOrUpdateNote(result as NoteFull, this.auth.userid); /*promise is resolved before is done.*/
         }else{
           console.log('fetched note by title but it is locked');
         }
-        resolve(note);
-      // .catch(error=>{
-      //   console.log('errror while fetching and inserting.');
-      //   console.log(JSON.stringify(error));
-      //   reject(error);
-      // })
+        resolve(result as NoteFull);
     })
     .catch(error=>{
       reject(error);
@@ -183,15 +155,15 @@ export class AtticNotes {
     return new Promise<NoteFull>((resolve, reject)=>{
       let areThereNotesInTheDb: boolean;
       let useDb: boolean;
-      let callNet: boolean;
+      // let callNet: boolean;
       this.db.getNotesCount(this.auth.userid)
       .then(number=>{
         areThereNotesInTheDb = (number > 0) ? true : false;
         useDb = Utils.shouldUseDb(this.netManager.isConnected, areThereNotesInTheDb, force/*, this.synch.isSynching()*/);
-        callNet = !useDb;
+        // callNet = !useDb;
         if(useDb){
           let p:Promise<NoteFull>;
-          let res:number=-1;
+          let res:number; //no longer need to set to -1, binarySearch already did it for us.
           if(!this.atticCache.AreFullNotesEmpty()){
             res = Utils.binarySearch(this.atticCache.getCachedFullNotes(), NoteExtraMin.NewNoteExtraMin(title), NoteExtraMin.ascendingCompare);
           }
@@ -226,55 +198,15 @@ export class AtticNotes {
       })
       .then(fromNet=>{
         /*if here the note is not in the DB.*/ /*--> no longer*/
-        //resolve(fromNet);
-        // if(this.atticCache.AreFullNotesEmpty()){
-        //   this.atticCache.cachedFullNotes=[];
-        // }
-        //this.atticCache.cachedFullNotes = Utils.binaryArrayInsert(this.atticCache.cachedFullNotes, fromNet, NoteExtraMin.ascendingCompare);
         this.atticCache.pushToCachedFullNotes(fromNet as NoteFull);
         resolve(fromNet);
       })
       .catch(error=>{
         console.log('error in getting full note');
         console.log(JSON.stringify(error));
-        reject(error);
+        reject(AtticError.getError(error));
       })
     })
-    //   if(useDb){
-    //     /*check if the note is full.
-    //     this.db.getNoteFull(title)
-    //     .then(result=>{
-    //       /*we are not in the catch only if the note is there and it's full.
-    //       console.log('the note is full');
-    //       resolve(result);
-    //     })
-    //     .catch(error=>{
-    //       /*if any error, call the network.
-    //       console.log('error from getNoteFull');
-    //       console.log(JSON.stringify(error));
-    //       console.log('loading from the network and saving');
-    //       this.noteByTitle_loadFromNetworkAndInsert(title)
-    //       .then(result=>{
-    //         resolve(result);
-    //       })
-    //       .catch(error=>{
-    //         reject(error);
-    //       })
-    //     })
-    //   }else{
-    //     console.log('loading from the network and saving, no db use.');
-    //     this.noteByTitle_loadFromNetworkAndInsert(title)
-    //     .then(result=>{
-    //       resolve(result);
-    //     })
-    //     .catch(error=>{
-    //       reject(error);
-    //     })
-    //   }
-    // });
-    //
-    //
-    // //return Utils.getBasic('/api/notes/'+title, this.http, this.auth.token);
   }
 
   /*
@@ -282,32 +214,17 @@ export class AtticNotes {
   then the log will be consumed.
   THE CONTROL ON THE NOTE WITH ANOTHER SAME TITLE MUST BE ALREADY DONE.
   */
-  // createNote(note: NoteFull):Promise<any>{
-  //   return new Promise<any>((resolve, reject)=>{
-  //     this.db.createNewNote(note);
-  //     resolve(true);
-  //   });
-  //   //return Utils.putBasic('/api/notes/create', JSON.stringify({note:note}), this.http, this.auth.token);
+
+
+  // private minifyNoteFullForCration(note:NoteFull):NoteFull{
+  //   let noteRes:NoteFull = note;
+  //   let maintags:TagExtraMin[]=noteRes.maintags.map(obj=>{return TagExtraMin.NewTag(obj.title)});
+  //   let othertags:TagExtraMin[]=noteRes.othertags.map(obj=>{return TagExtraMin.NewTag(obj.title)});
+  //   noteRes.maintags = maintags;
+  //   noteRes.othertags = othertags;
+  //   return noteRes;
   // }
 
-  private minifyNoteFullForCration(note:NoteFull):NoteFull{
-    let noteRes:NoteFull = note;
-    let maintags:TagExtraMin[]=noteRes.maintags.map(obj=>{return TagExtraMin.NewTag(obj.title)});
-    let othertags:TagExtraMin[]=noteRes.othertags.map(obj=>{return TagExtraMin.NewTag(obj.title)});
-    noteRes.maintags = maintags;
-    noteRes.othertags = othertags;
-    return noteRes;
-  }
-
-  // private reget(arg0:TagFull[], arg1:TagExtraMin[]):TagFull[]{
-  //   let array:TagFull[]=[];
-  //   arg1.map(obj=>{
-  //     let index:number;
-  //     index=Utils.indexOfCmp(arg0, obj, TagExtraMin.ascendingCompare);
-  //     return arg0[index];
-  //   })
-  //   return array;
-  // }
 
   createNote2(note: NoteFull/*, tags: TagAlmostMin[]*/):Promise<void>{
     // return this.db.createNewNote2(note, tags, this.auth.userid);
@@ -319,8 +236,10 @@ export class AtticNotes {
         let cachedTags:TagFull[]=this.atticCache.getCachedFullTags();
         let necessaryTags:TagFull[]=Utils.binaryGetFullObjectTag(cachedTags, note.getTagsAsTagsExtraMinArray().sort(TagExtraMin.ascendingCompare));
 
-        this.db.createNewNote2(this.minifyNoteFullForCration(note), /*tags, */this.auth.userid, necessaryTags)
+
+        this.db.createNewNote2(note.getMinifiedVersionForCreation(), /*tags, */this.auth.userid, necessaryTags)
         .then(result=>{
+          this.atticCache.pushToCachedFullNotes(note);
           resolve();
         })
         .catch(error=>{
@@ -374,6 +293,9 @@ export class AtticNotes {
   //   })
   // }
 
+
+
+  //THIS IS DONE THROUGH THE CACHE.
   notesByTag2(tags:TagAlmostMin[], force: boolean):Promise<any>{
     return new Promise<any>((resolve, reject)=>{
       // let useForce: boolean = force;
@@ -390,18 +312,14 @@ export class AtticNotes {
       this.db.getNotesCount(this.auth.userid)
       .then(number=>{
         areThereNotesInTheDb = (number > 0) ? true : false;
-        console.log('the numberof notes is');
-        console.log(number);
-        // let useDb = !isNteworkAvailable || areThereNotesInTheDb || !force;
+        // console.log('the numberof notes is');console.log(number);
         useDb = Utils.shouldUseDb(isNteworkAvailable, areThereNotesInTheDb, force/*, this.synch.isSynching()*/);
-        console.log('usedb note: ');
-        console.log(JSON.stringify(useDb));
+        console.log('usedb note: ');console.log(JSON.stringify(useDb));
         if(useDb){
           return this.db.getNotesByTags(tags, this.auth.userid);
         }else{
           console.log('no notes, using the network');
           return this.http.post('/api/notes/by-tags-no-role', JSON.stringify({tags: tags.map((tag)=>{return tag.title})}));
-          //return Utils.postBasic('/api/notes/by-tags-no-role', JSON.stringify({tags: tags.map((tag)=>{return tag.title})}), this.http, this.auth.token)
         }
       })
       .then(fetchingResult=>{
@@ -409,144 +327,39 @@ export class AtticNotes {
         console.log(JSON.stringify(fetchingResult));
         resolve(fetchingResult as NoteExtraMin[])
       })
-      // .then(secondFetch=>{
-      //   /*just the one from the network*/
-      //   resolve(secondFetch);
-      // })
       .catch(error=>{
         console.log('error notes:');
         console.log(JSON.stringify(error));
-        reject(error);
+        reject(AtticError.getError(error));
       })
 
     });
-    // return Utils.getBasic('/api/notes/all/min', this.http, this.auth.token);
   }
 
-  // notesByTag2(tags:TagAlmostMin[], force: boolean):Promise<any>{
-  //   return new Promise<any>((resolve, reject)=>{
-  //     let useForce: boolean = force;
-  //     let isNteworkAvailable: boolean = this.netManager.isConnected;
-  //     let areThereNotesInTheDb: boolean;
-  //     let notes:NoteExtraMin[]=[];
-  //     let useDb: boolean;
-  //     let expectedResult: number = 0;
-  //     tags.forEach((tag)=>{expectedResult+=tag.noteslength});
-  //     /*doing this to avoid useless queries*/
-  //     if(expectedResult == 0){
-  //       resolve([]);
-  //     }
-  //     this.db.getNotesCount(this.auth.userid)
-  //     .then(number=>{
-  //       areThereNotesInTheDb = (number > 0) ? true : false;
-  //       console.log('the numberof notes is');
-  //       console.log(number);
-  //       // let useDb = !isNteworkAvailable || areThereNotesInTheDb || !force;
-  //       useDb = Utils.shouldUseDb(isNteworkAvailable, areThereNotesInTheDb, force/*, this.synch.isSynching()*/);
-  //       console.log('usedb note: ');
-  //       console.log(JSON.stringify(useDb));
-  //       if(useDb){
-  //         return this.db.getNotesByTags(tags, this.auth.userid)
-  //       }else{
-  //         console.log('no notes, using the network');
-  //         return this.notesByTags_loadFromNetworkAndInsert(tags);
-  //       }
-  //     })
-  //     .then(fetchingResult=>{
-  //       if(useDb){
-  //         /*fetchingResult = NoteMin[] from the DB.*/
-  //         fetchingResult = fetchingResult as NoteExtraMin[];
-  //         if(expectedResult == fetchingResult.length){
-  //           /*ok, nothing to do.*/
-  //           resolve(fetchingResult);
-  //         }
-  //         else{
-  //           /*error*/
-  //           console.log('there is an error, need to fetch data from the network.')
-  //           if(isNteworkAvailable==false){
-  //             resolve([]);
-  //           }else{
-  //             /*TODO , saving the title of note returned here, it will fully downloaded.*/
-  //             return this.notesByTags_loadFromNetworkAndInsert(tags);
-  //           }
-  //         }/*end of useDb*/
-  //       }else{
-  //         /*fetchingResult from first network calling.*/
-  //         // notes = fetchingResult as NoteExtraMin[];
-  //         // for(let i=0;i<notes.length;i++){
-  //         //   this.db.insertNoteMinQuietly(notes[i]);
-  //         // }
-  //         // resolve(notes);
-  //         /*the data are already fetched from the network, and started to be inserted in the DB*/
-  //         resolve(fetchingResult);
-  //       }
-  //     })
-  //     .then(secondFetch=>{
-  //       /*just the one from the network*/
-  //       resolve(secondFetch);
-  //     })
-  //     .catch(error=>{
-  //       console.log('error notes:');
-  //       console.log(JSON.stringify(error));
-  //     })
-  //
-  //   });
-  //   // return Utils.getBasic('/api/notes/all/min', this.http, this.auth.token);
-  // }
-  //
-  // notesByMainTag(tags: string[]){
-  //   return Utils.postBasic('/api/notes/by-tag/unpop', JSON.stringify({mainTags: tags}), this.http, this.auth.token);
-  // }
-  //
-  // notesByOtherTag(tags: string[]){
-  //   return Utils.postBasic('/api/notes/by-tag/unpop', JSON.stringify({otherTags: tags}), this.http, this.auth.token);
-  // }
-/*
-return this.items.filter((item) => {
-    return item.title.toLowerCase().indexOf(searchTerm.toLowerCase()) > -1;
-});
-*/
   filterNotesByTitle(notes: NoteExtraMin[], term: string):NoteExtraMin[]{
     return notes.filter((note)=>{
       return note.title.indexOf(term.toLowerCase())>-1;
     });
   }
 
-  // filterNotesByTags(notes: NoteExtraMin[], tags: TagExtraMin):NoteExtraMin[]{
-  //   return notes.filter((note)=>{
-  //
-  //   })
-  // }
-
-  // notesByTitle(title: string){
-  //   return Utils.postBasic('/api/notes/by-title/reg/unpop', JSON.stringify({title: title}), this.http, this.auth.token);
-  // }
 
   notesByText(text: string, force: boolean){
 
-    // return Utils.postBasic('/api/notes/by-text', JSON.stringify({note:
-    //   {text: text}}), this.http, this.auth.token);
     return new Promise<NoteExtraMin[]>((resolve,reject)=>{
-      // let useForce: boolean = force;
       let isNteworkAvailable: boolean = this.netManager.isConnected;
       let areThereNotesInTheDb: boolean;
-      // let notes:NoteExtraMin[]=[];
       let useDb: boolean;
       this.db.getNotesCount(this.auth.userid)
       .then(number=>{
         areThereNotesInTheDb = (number > 0) ? true : false;
-        console.log('the numberof notes is');
-        console.log(number);
-        // let useDb = !isNteworkAvailable || areThereNotesInTheDb || !force;
+        // console.log('the numberof notes is');console.log(number);
         useDb = Utils.shouldUseDb(isNteworkAvailable, areThereNotesInTheDb, force/*, this.synch.isSynching()*/);
-        console.log('usedb note: ');
-        console.log(JSON.stringify(useDb));
+        console.log('usedb note: ');console.log(JSON.stringify(useDb));
         if(useDb){
           return this.db.getNotesByText(text, this.auth.userid);
         }else{
           console.log('no notes, using the network');
           return this.http.post('/api/notes/by-text', JSON.stringify({note:{text:text}}));
-          //return Utils.postBasic('/api/notes/by-text', JSON.stringify({note:{text:text}}),this.http, this.auth.token);
         }
       })
       .then(fetchingResult=>{
@@ -555,7 +368,7 @@ return this.items.filter((item) => {
       .catch(error=>{
         console.log('error in getting text');
         console.log(JSON.stringify(error));
-        reject(error);
+        reject(AtticError.getError(error));
       })
     })
   }
@@ -580,8 +393,6 @@ return this.items.filter((item) => {
 
 
   changeTitle(note: NoteFull, newTitle: string):Promise<void>{
-    // return Utils.postBasic('/api/notes/mod/title', JSON.stringify({note:
-    //   {title: noteTitle, newTitle: newTitle}}), this.http, this.auth.token);
     let isAllowed: boolean = false;
     if(!this.synch.isNoteFullyLocked()){
       return new Promise<void>((resolve, reject)=>{
@@ -589,15 +400,6 @@ return this.items.filter((item) => {
         .then(result=>{
           isAllowed = result;
           if(result){
-          //   return Utils.postBasic('/api/notes/mod/change-title', JSON.stringify({
-          //     note:{
-          //       title: note.title,
-          //       newtitle: newTitle
-          //     }
-          //   }),
-          //   this.http,
-          //   this.auth.token
-          // )
           return this.http.post('/api/notes/mod/change-title', JSON.stringify({
                 note:{
                   title: note.title,
@@ -624,7 +426,7 @@ return this.items.filter((item) => {
       })
       .catch(error=>{
         console.log('error in changing title');
-        reject(AtticError.getBetterSqliteError(error.message as string));;
+        reject(AtticError.getError(error));
       })
       })
     }else{
@@ -637,11 +439,6 @@ return this.items.filter((item) => {
 
 
   addTags(note: NoteFull, mainTags: TagExtraMin[], otherTags: TagExtraMin[]){
-    // return Utils.postBasic('/api/notes/mod/addtags', JSON.stringify({note:
-    //   {title: note.title,
-    //     maintags: mainTags.map((tag)=>{return tag.title}),
-    //     othertags: otherTags.map((tag)=>{tag.title})}}),
-    //     this.http, this.auth.token);
     if(!this.synch.isNoteFullyLocked()){
       return this.db.addTags(note, this.auth.userid, mainTags, otherTags);
     }else{
@@ -654,10 +451,6 @@ return this.items.filter((item) => {
 
 
   addMainTags(note: NoteFull, mainTags: TagExtraMin[]){
-    // return Utils.postBasic('/api/notes/mod/addtags', JSON.stringify({note:
-    //   {title: note.title,
-    //     mainTags: mainTags.map((tag)=>{tag.title}) }}),
-    //     this.http, this.auth.token);
     if(!this.synch.isNoteFullyLocked()){
       return this.db.addTags(note, this.auth.userid, mainTags);
     }else{
@@ -669,10 +462,6 @@ return this.items.filter((item) => {
   }
 
   addOtherTags(note: NoteFull, otherTags: TagExtraMin[]){
-    // return Utils.postBasic('/api/notes/mod/addtags', JSON.stringify({note:
-    //   {title: note.title,
-    //     othertags: otherTags.map((tag)=>{return tag.title}) }}),
-    //     this.http, this.auth.token);
     if(!this.synch.isNoteFullyLocked()){
       return this.db.addTags(note, this.auth.userid, null, otherTags);
     }else{
@@ -683,16 +472,7 @@ return this.items.filter((item) => {
     }
   }
 
-  // removeMainTags(noteId: string, tagIds: string[]){
-  //   return Utils.postBasic('/api/notes/mod/removetags', JSON.stringify({id: noteId, mainTags: tagIds }), this.http, this.auth.token);
-  // }
-  //
-  // removeOtherTags(noteId: string, tagIds: string[]){
-  //   return Utils.postBasic('/api/notes/mod/removetags', JSON.stringify({id: noteId, otherTags: tagIds }), this.http, this.auth.token);
-  // }
   removeTags(note: NoteFull, tags: TagExtraMin[]){
-    // return Utils.postBasic('/api/notes/mod/removetags',JSON.stringify({note:
-    //   {title:noteTitle, tags:tags}}), this.http, this.auth.token );
     if(!this.synch.isNoteFullyLocked()){
       return this.db.removeTagsFromNote(note, this.auth.userid, tags);
     }else{
@@ -703,18 +483,8 @@ return this.items.filter((item) => {
     }
   }
 
-  // addLinks(noteId: string, links: string[]){
-  //   // console.log('going to: ');
-  //   // console.log(JSON.stringify({id:noteId, links: links}));
-  //   return Utils.postBasic('/api/notes/mod/addlinks', JSON.stringify({id: noteId, links: links }), this.http, this.auth.token);
-  // }
-  //
-  // removeLinks(noteId: string, links: string[]){
-  //   return Utils.postBasic('/api/notes/mod/removelinks', JSON.stringify({id: noteId, links: links }), this.http, this.auth.token);
-  // }
+
   changeLinks(/*noteTitle: string, links:string[]*/note:NoteFull){
-    // return Utils.postBasic('/api/notes/mod/links', JSON.stringify({note:
-    //   {title: noteTitle, links:links}}), this.http, this.auth.token);
     if(!this.synch.isNoteFullyLocked()){
       return this.db.setLinks(note, this.auth.userid);
     }else{
@@ -726,8 +496,6 @@ return this.items.filter((item) => {
   }
 
   changeText(/*noteTitle: string, text:string*/note:NoteFull){
-    // return Utils.postBasic('/api/notes/mod/text', JSON.stringify({note:
-    //   {title:noteTitle, text:text}}), this.http, this.auth.token);
     if(!this.synch.isNoteFullyLocked()){
       return this.db.setText(note, this.auth.userid);
     }else{
@@ -739,8 +507,6 @@ return this.items.filter((item) => {
   }
 
   changeDone(/*noteTitle: string, done: boolean*/note: NoteFull){
-    // return Utils.postBasic('/api/notes/mod/setdone', JSON.stringify({note:
-    //   {title:noteTitle, isDone:done}}), this.http, this.auth.token);
     if(!this.synch.isNoteFullyLocked()){
       return this.db.setDone(note, this.auth.userid);
     }else{
@@ -752,14 +518,6 @@ return this.items.filter((item) => {
   }
 
   deleteNote(note: NoteExtraMin):Promise<any>{
-    // if(_id instanceof Number){
-    //   // let obj = new LogObject();
-    //   // obj.action = Action.DeleteNote;
-    //   // obj.refNotesToSave = <number>_id;
-    //   return this.db.transactionDeleteNoteFromNotesToSave(<number>_id);
-    // }else{
-    //   return this.db.transactionDeleteNoteFromNotes(<string>_id);
-    // }
     if(!this.synch.isNoteFullyLocked()){
 
       let cachedTags:TagFull[]=this.atticCache.getCachedFullTags();
@@ -775,6 +533,8 @@ return this.items.filter((item) => {
       })
     }
   }
+
+
 
   /*warning, a note full object can be saved in the db if there are pending operations on it?*/
 

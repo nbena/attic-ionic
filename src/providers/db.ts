@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Http } from '@angular/http';
+// import { Http } from '@angular/http';
 import { SQLite } from 'ionic-native';
 import { Platform } from 'ionic-angular';
 import { Query } from '../public/query';
@@ -8,66 +8,8 @@ import { Utils } from '../public/utils';
 import { NoteExtraMin, NoteFull, NoteSQLite,NoteMin, NoteExtraMinWithDate } from '../models/notes';
 import { TagExtraMin, TagFull, /*TagMin,*/ TagAlmostMin, TagSQLite } from '../models/tags';
 import { UserSummary } from '../models/user_summary';
-import { AtticError } from '../public/attic-errors';
-//import * as Promise from 'bluebird';
+import { AtticError } from '../public/errors';
 
-// import 'rxjs/add/operator/map';
-
-// class SQLiteLogObject{
-//   _id: number;
-//   action: string;
-//   refNotes: string;
-//   refTags: string;
-//   refNotesToSave: number;
-//   refTagsToSave: number;
-//   done: boolean;
-//   data: string;
-// }
-//
-//
-// export class LogObject{
-//   _id: number;
-
-//   action: Action;
-//   refNotes: string;
-//   refTags: string;
-//   refNotesToSave: number;
-//   refTagsToSave: number;
-//   done: boolean;
-//   data: any;
-//
-//   public static LogObjectParse(row: any):LogObject{
-//     let obj = new LogObject();
-//     obj._id=row._id;
-//     obj.action=Action[<string>row.action];
-//     obj.refNotes=row.refNote;
-//     obj.refTags=row.refTag;
-//     obj.refNotesToSave=row.refNoteToSave;
-//     obj.refTagsToSave=row.refTagToSave;
-//     obj.done=row.done;
-//     obj.data = JSON.parse(row.data);
-//     return obj;
-//   }
-//
-//   public toSQLiteObject():SQLiteLogObject{
-//     let obj = new SQLiteLogObject();
-//     obj._id=this._id;
-//     obj.action=Action[this.action];
-//     obj.refNotes=this.refNotes;
-//     obj.refTags=this.refTags;
-//     obj.refNotesToSave=this.refNotesToSave;
-//     obj.refTagsToSave=this.refTagsToSave;
-//     obj.done=this.done;
-//     obj.data = JSON.stringify(this.data);
-//     return obj;
-//   }
-//
-// }
-//
-// class DbUtils{
-//   query: string;
-//   data: any[];
-// }
 
 export class LogObjMin{
 
