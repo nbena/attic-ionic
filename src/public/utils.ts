@@ -10,118 +10,7 @@ import { ToastController, AlertController } from 'ionic-angular';
 
 
 export class Utils{
-//   static getBasic(uriFinal: string, http: Http, token: any):Promise<any>{
-//     return new Promise((resolve, reject)=>{
-//
-//       let headers = new Headers();
-//       headers.append('Authorization', token);
-//
-//       let uri = Const.API_URI+uriFinal;
-//       http.get(uri, {headers: headers})
-//         .subscribe(res=>{
-//
-//           if(res.status!=200){
-//             reject(res.statusText);
-//           }
-//           let data = res.json();
-//           if(data.ok==false){
-//             throw new Error(data.msg);
-//           }
-//           resolve(data.result);
-//         },(err)=>{
-//           // console.log('get error');
-//           // console.log(JSON.stringify(err));
-//           reject(err);
-//         })
-//     });
-//   }
-//
-// static putBasic(uriFinal: string, body: any, http: Http, token: any){
-//   return new Promise((resolve, reject)=>{
-//
-//     let headers = new Headers();
-//     headers.append('Authorization', token);
-//
-//     if(body!=null && body!=""){
-//       headers.append('Content-type', 'application/json');
-//     }
-//
-//     let uri = Const.API_URI+uriFinal;
-//     http.put(uri, body, {headers: headers})
-//       .subscribe(res=>{
-//
-//         let data = res.json();
-//         if(data.ok==false){
-//           reject(data.msg);
-//         }
-//         if(data.result){
-//           resolve(data.result);
-//         }else{
-//           resolve(true);
-//         }
-//
-//       },(err)=>{
-//         console.log('err in put');
-//         console.log(JSON.stringify(err));
-//         reject(err);
-//       })
-//   });
-// }
-//
-// static postBasic(uriFinal: string, body: any, http: Http, token: any):Promise<any>{
-//   return new Promise((resolve, reject)=>{
-//
-//     let headers = new Headers();
-//     headers.append('Authorization', token);
-//
-//     if(body!=null && body!=""){
-//       headers.append('Content-type', 'application/json');
-//     }
-//
-//     let uri = Const.API_URI+uriFinal;
-//     http.post(uri, body, {headers: headers})
-//       .subscribe(res=>{
-//
-//         let data = res.json();
-//         if(data.ok==false){
-//           reject(data.msg);
-//         }
-//         if(data.result){
-//           resolve(data.result);
-//         }else{
-//           resolve(true);
-//         }
-//       },(err)=>{
-//         reject(err);
-//       })
-//   });
-// }
-//
-//
-// static deleteBasic(uriFinal: string, http: Http, token: any){
-//   return new Promise((resolve, reject)=>{
-//
-//     let headers = new Headers();
-//     headers.append('Authorization', token);
-//
-//     let uri = Const.API_URI+uriFinal;
-//     http.delete(uri, {headers: headers})
-//       .subscribe(res=>{
-//
-//         let data = res.json();
-//         if(data.ok==false){
-//           reject(data.msg);
-//         }
-//         if(data.result){
-//           resolve(data.result);
-//         }else{
-//           resolve(true);
-//         }
-//       },(err)=>{
-//         reject(err);
-//       })
-//   });
-// }
+
 
 static shouldUseDb(newtorkAvailable:boolean, itemAvailable:boolean, force:boolean/*, isSynching:boolean*/):boolean{
   let res:boolean = true;
@@ -151,71 +40,9 @@ static shouldUseDb(newtorkAvailable:boolean, itemAvailable:boolean, force:boolea
   return res;
 }
 
-static logTags(tag: TagExtraMin):string{
-  let result='';
-  result+=(' title: '+tag.title);
-  return result;
-}
 
-// static logNote(note: NoteBarebon):string{
-//   let result = '';
-//   result+=('title '+note.title);
-//   result+=(' text '+note.text);
-//   result+=(' isDone '+(note.isdone ? "true" : "false"));
-//   result+=(' links '+note.links.toString());
-//
-//   if(note instanceof NoteFull || note instanceof NoteMin){
-//     result+='mainTags: ';
-//     for(let i=0;i<note.maintags.length;i++){
-//       result+=Utils.logTags(<TagExtraMin>note.maintags[i]);
-//     }
-//     result+='otherTags: ';
-//     for(let i=0;i<note.othertags.length;i++){
-//       result+=Utils.logTags(<TagExtraMin>note.othertags[i]);
-//     }
-//   }
-//
-//   return result;
-// }
 
-// static presentToast(toastCtrl: ToastController, message: string, error?: boolean):Promise<any>{
-//   let toast = toastCtrl.create({
-//     message: message,
-//     duration: 2000,
-//     position: 'bottom',
-//     showCloseButton: true,
-//     closeButtonText: 'Ok',
-//   });
-//   // if(error){
-//   //     toast._cssClass = 'toast-error-css';
-//   // }
-//   return toast.present()
-// }
 
-// static askConfirm(alertCtrl: AlertController, message: string, cb: ((_ :boolean)=>void)){
-//   let alert = alertCtrl.create({
-//     title: 'Confirm delete',
-//     message: message,
-//     buttons: [
-//       {
-//         text: 'Cancel',
-//         role: 'cancel',
-//         handler: () => {
-//           console.log('nothing to do');
-//           cb(false);
-//         }
-//       },
-//       {
-//         text: 'Ok',
-//         handler: () => {
-//           console.log('cancellation confirmed');
-//           cb(true);
-//         }
-//       }
-//     ]
-//   });
-//   alert.present();
-// }
 
 public static arrayDiff<T>(arg0:T[], arg1:T[], cmp:(a:T, b:T)=>number):T[]{
   return arg0.filter(item=>{
@@ -331,69 +158,8 @@ static fromTagsToString(tags: TagExtraMin[]):string[]{
   return result;
 }
 
-// static pushLink(alertCtrl:AlertController, cb: ((_: any)=>void) ){
-//     let prompt=alertCtrl.create({
-//       title: 'New link',
-//       message: 'Insert the new link',
-//       inputs:[
-//         {
-//           name: 'link',
-//           placeholder: 'link'
-//         }
-//       ],
-//       buttons:[
-//         {
-//           text: 'Cancel',
-//           handler: data => {}
-//         },
-//         {
-//           text: 'Add',
-//           handler: data=>{
-//             cb(data);
-//             // console.log('pushed');
-//             // console.log(data.link);
-//           }
-//         }
-//       ]
-//     });
-//     prompt.present();
-//   }
 
-  // public static showErrorAlert(alertCtrl:AlertController, error:any):void{
-  //   let alert = alertCtrl.create({
-  //     title: error,
-  //     buttons: ['OK']
-  //   });
-  //   alert.present();
-  // }
 
-//   static getEffectiveTagsFromNotes(note: NoteFull):TagFull[]{
-//     let array: TagFull[];
-//     if(note== 'NoteFull'){
-//       array =<TagFull[]> note.maintags.concat(note.othertags);
-//     }else if(tnote == 'NoteSQLite'){
-//       let noteRes = <NoteSQLite>note;
-//       array = <TagFull[]>noteRes.maintags.concat(noteRes.othertags, noteRes.mainTagsToAdd, noteRes.otherTagsToAdd);
-//       array = Utils.arrayDiff(array, noteRes.mainTagsToRemove.concat(noteRes.otherTagsToRemove));
-//     // }
-//     // array = note.mainTags.concat(note.otherTags, note.mainTagsToAdd, note.otherTagsToAdd);
-//     // array = Utils.arrayDiff(array, note.mainTagsToRemove.concat(note.otherTagsToRemove));
-//     // return array;
-//   }
-//   return array;
-// }
-
- // static getEffectiveNotesFromTags(tag: TagFull):NoteFull[]{
- //   let array: NoteFull[];
- //   if(typeof tag == 'TagFull'){
- //     array = tag.notes;
- //   }else if(typeof tag == 'TagSQLite'){
- //     let tagRes = <TagSQLite>tag;
- //     array = tagRes.notes.concat(tagRes.addedNotes);
- //     array = Utils.arrayDiff(array, tagRes.removedNotes);
- //   }
- //   return array;
- // }
 
 //generic utility method for a smart insert into a generic array.
 //surely we assume array is already sorted.
@@ -413,6 +179,37 @@ static fromTagsToString(tags: TagExtraMin[]):string[]{
        current = Math.floor((start+end)/2);
    }
    array.splice(current, 0, item);
+   return array;
+ }
+
+
+
+ public static binaryArrayInsertNoDuplicate<T>(array: T[], item: T, cmp: ((a,b)=>number)):T[]{
+     let returned: T[];
+     let start: number, end: number, current:number, cmpValue;
+     let found:boolean = false;
+     start = 0;
+     end = array.length;
+     current = Math.floor((start+end)/2);
+     while(end>start){
+       cmpValue = cmp(item, array[current]);
+       if(cmpValue<0){
+         end = current;
+       }
+       else if (cmpValue==0){
+         found = true;
+         break;
+       }
+       else{
+         start = current+1;
+       }
+       current = Math.floor((start+end)/2);
+   }
+   if(!found){
+     console.log('not found');
+     array.splice(current, 0, item);
+   }
+   else{console.log('found');}
    return array;
  }
 

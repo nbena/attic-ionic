@@ -79,10 +79,10 @@ export class AtticNotes {
         // console.log('usedb note: ');console.log(JSON.stringify(useDb));
         if(useDb){
           let p:Promise<NoteExtraMin[]>;
-          if(!this.atticCache.AreExtraMinNotesEmpty()){
+          if(!this.atticCache.areDifferentlySortedCachedNotesExtraMinEmpty()){
             console.log('using cache');
             p = new Promise<NoteExtraMin[]>((resolve, reject)=>{
-              let notes:NoteExtraMinWithDate[]=this.atticCache.getCachedExtraMinNote() as NoteExtraMinWithDate[];
+              let notes:NoteExtraMinWithDate[]=this.atticCache.getDifferentlySortedCachedNotesExtraMin() as NoteExtraMinWithDate[];
               // notes.sort(NoteExtraMinWithDate.descendingCompare); //see if needed.
               resolve(notes);
             });
@@ -110,7 +110,7 @@ export class AtticNotes {
         }
       })
       .then(notes=>{
-        this.atticCache.pushAllToCachedExtraMinNote(notes as NoteExtraMinWithDate[]);
+        this.atticCache.pushAllToDifferentlySortedCachedExtraMinNote(notes as NoteExtraMinWithDate[]);
         resolve(notes);
       })
       .catch(error=>{

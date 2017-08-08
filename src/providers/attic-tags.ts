@@ -56,10 +56,10 @@ export class AtticTags {
           console.log('usedb tag: ');console.log(JSON.stringify(useDb));
           if(useDb){
             let p:Promise<TagAlmostMin[]>;
-            if(!this.atticCache.AreAlmostMinTagsEmpty()){
+            if(!this.atticCache.areDifferentlySortedCachedTagsAlmostMinEmpty()){
               console.log('using cache');
               p = new Promise<TagAlmostMin[]>((resolve, reject)=>{
-                let tags:TagAlmostMin[]=this.atticCache.getCachedAlmostMinTags();
+                let tags:TagAlmostMin[]=this.atticCache.getDifferentlySortedCachedTagAlmostMin();
                 //tags.sort(TagAlmostMin.descendingCompare); //see if needed.
                 resolve(tags);
               });
@@ -88,7 +88,7 @@ export class AtticTags {
           }
         })
         .then(tags=>{
-          this.atticCache.pushAllToCachedAlmostMinTags(tags as TagAlmostMin[]);
+          this.atticCache.pushAllToDifferentlySortedCachedAlmostMinTags(tags as TagAlmostMin[]);
           resolve(tags);
         })
         .catch(error=>{

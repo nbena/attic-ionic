@@ -1347,21 +1347,24 @@ public insertTagsMinSmartAndCleanify(tags: TagAlmostMin[], userid: string):Promi
   })
 }
 
-public getNotesMin(userid: string):Promise<NoteExtraMin[]>{
+public getNotesMin(userid: string):Promise<NoteExtraMinWithDate[]>{
   return new Promise<NoteExtraMin[]>((resolve, reject)=>{
     this.db.executeSql(Query.SELECT_NOTES_MIN, [userid])
     .then(result=>{
-      let array:NoteExtraMin[] = [];
+      let array:NoteExtraMinWithDate[] = [];
       for(let i=0;i<result.rows.length;i++){
-        let rawResult:any=result.rows.item(i).json_object;
+        //let rawResult:any=result.rows.item(i).json_object;
         // let date:any = JSON.parse(rawResult).lastmodificationdate;
-        let obj:NoteExtraMin = JSON.parse(rawResult);
+        //let obj:NoteExtraMinWithDate = JSON.parse(rawResult);
         // console.log('object returned notes: ');
         // console.log(JSON.stringify(obj));
         // if(date!=null){
         //   let tObject1
         // }
-        array.push(obj);
+        let note:NoteExtraMinWithDate = new NoteExtraMinWithDate();
+        note.title=result.rows.item(i).title;
+        note.lastmodificationdate=result.rows.item(i).lastmodificationdate;
+        array.push(note);
       }
       // console.log('the array is:');
       // console.log(JSON.stringify(array));

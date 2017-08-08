@@ -157,8 +157,9 @@ export class Query{
 
   static readonly SELECT_JUST_TITLE = 'select title from notes where userid=? order by notes';
 
+  static readonly SELECT_NOTES_MIN = 'select title, lastmodificationdate from notes where mustbedeleted=\'false\' and userid=? order by lastmodificationdate desc, title asc';
 
-  static readonly SELECT_NOTES_MIN = 'select json_object from notes where mustbedeleted=\'false\' and userid=? order by lastmodificationdate desc, title asc';
+  //static readonly SELECT_NOTES_MIN = 'select json_object from notes where mustbedeleted=\'false\' and userid=? order by lastmodificationdate desc, title asc';
   static readonly SELECT_TAGS_MIN = 'select json_object from tags where mustbedeleted=\'false\' and userid=?';
 
   // static readonly IS_NOTE_UP_TO_DATE = 'select title from notes where mustbedeleted=\'false\' and title=? and json_object=?';
