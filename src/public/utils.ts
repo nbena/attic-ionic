@@ -225,13 +225,19 @@ public static arrayDiff<T>(arg0:T[], arg1:T[], cmp:(a:T, b:T)=>number):T[]{
 
 public static indexOfCmp<T>(arg0:T[], b:T, cmp:(a:T, b:T)=>number):number{
   let index:number = -1;
-  for(let i=0;i<arg0.length;i++){
-    if(cmp(arg0[i], b)==0){
-      index=i;
-      i=arg0.length;
+  if(arg0!=null){
+    for(let i=0;i<arg0.length;i++){
+      if(cmp(arg0[i], b)==0){
+        index=i;
+        i=arg0.length;
+      }
     }
   }
   return index;
+}
+
+public static binaryArrayDiff<T>(arg0:T[], arg1:T[], cmp:(a:T, b:T)=>number):T[]{
+  return arg0.filter(item=>{return Utils.binarySearch(arg1, item, cmp)});
 }
 
 // static arrayDiff(arg0: any[], arg1: any[]){
@@ -479,21 +485,51 @@ static fromTagsToString(tags: TagExtraMin[]):string[]{
 
  public static getFullObjectNote(arg0:NoteFull[], arg1:NoteExtraMin[]):NoteFull[]{
    let array:NoteFull[]=[];
-   arg1.map(obj=>{
-     let index:number;
-     index=Utils.indexOfCmp(arg0, obj, NoteExtraMin.ascendingCompare);
-     return arg0[index];
-   })
+   if(arg0!=null){
+     array=arg1.map(obj=>{
+       let index:number;
+       index=Utils.indexOfCmp(arg0, obj, NoteExtraMin.ascendingCompare);
+       return arg0[index];
+     })
+   }
    return array;
  }
 
  public static getFullObjectTag(arg0:TagFull[], arg1:NoteExtraMin[]):TagFull[]{
    let array:TagFull[]=[];
-   arg1.map(obj=>{
-     let index:number;
-     index=Utils.indexOfCmp(arg0, obj, TagExtraMin.ascendingCompare);
-     return arg0[index];
-   })
+   if(arg0!=null){
+     array=arg1.map(obj=>{
+       let index:number;
+       index=Utils.indexOfCmp(arg0, obj, TagExtraMin.ascendingCompare);
+       return arg0[index];
+     })
+   }
+   return array;
+ }
+
+
+
+ public static binaryGetFullObjectNote(arg0:NoteFull[], arg1:NoteExtraMin[]):NoteFull[]{
+   let array:NoteFull[]=[];
+   if(arg0!=null){
+     array=arg1.map(obj=>{
+       let index:number;
+       index=Utils.binarySearch(arg0, obj, NoteExtraMin.ascendingCompare);
+       return arg0[index];
+     })
+   }
+   return array;
+ }
+
+ public static binaryGetFullObjectTag(arg0:TagFull[], arg1:NoteExtraMin[]):TagFull[]{
+   let array:TagFull[]=[];
+   if(arg0!=null){
+     array=arg1.map(obj=>{
+       let index:number;
+       index=Utils.binarySearch(arg0, obj, TagExtraMin.ascendingCompare);
+       return arg0[index];
+     })
+   }
    return array;
  }
 

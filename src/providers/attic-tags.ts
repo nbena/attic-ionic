@@ -27,8 +27,8 @@ import { HttpProvider } from './http';
 @Injectable()
 export class AtticTags {
 
-  private cachedAlmostMinTag:TagAlmostMin[]=null;
-  private cachedFullTag:TagFull[]=null;
+  // private cachedAlmostMinTag:TagAlmostMin[]=null;
+  //private cachedFullTag:TagFull[]=null;
 
   constructor(private http: HttpProvider, public auth: Auth,
     private db: Db, private netManager: NetManager,
@@ -67,9 +67,9 @@ export class AtticTags {
           //   return this.db.getTagsMin(this.auth.userid);
           if(useDb){
             let p:Promise<TagAlmostMin[]>;
-            if(this.cachedAlmostMinTag!=null){
+            if(!this.atticCache.AreAlmostMinTagsEmpty()){
               console.log('using cache');
-              p = new Promise<TagAlmostMin[]>((resolve, reject)=>{resolve(this.cachedAlmostMinTag)});
+              p = new Promise<TagAlmostMin[]>((resolve, reject)=>{resolve(this.atticCache.getCachedAlmostMinTags())});
             }else{
               console.log('no cache using db');
               p = this.db.getTagsMin(this.auth.userid);
@@ -86,9 +86,9 @@ export class AtticTags {
           console.log(JSON.stringify(fetchingResult));
           if(useDb){
             /*fetchingResult = NoteMin[] from the DB.*/
-            if(this.cachedAlmostMinTag==null){
-              this.cachedAlmostMinTag = fetchingResult;
-            }
+            // if(this.cachedAlmostMinTag==null){
+              this.atticCache.pushAllToCachedAlmostMinTags(fetchingResult as TagAlmostMin[]);
+            // }
             resolve(fetchingResult);
           }else{
             /*fetchingResult = NoteMin[] from the network, need to insert.*/
@@ -98,7 +98,8 @@ export class AtticTags {
               //   this.db.insertTagMinQuietly(tags[i], this.auth.userid);
               // }
               this.db.insertTagsMinSmartAndCleanify(tags, this.auth.userid);
-              this.cachedAlmostMinTag = fetchingResult as TagAlmostMin[];
+              // this.cachedAlmostMinTag = fetchingResult as TagAlmostMin[];
+              this.atticCache.pushAllToCachedAlmostMinTags(fetchingResult as TagAlmostMin[]);
             }else{
               console.log('fetched tags by title but it is locked');
             }
@@ -169,14 +170,14 @@ export class AtticTags {
           if(useDb){
             let p:Promise<TagFull>;
             let res:number=-1;
-            if(this.cachedFullTag!=null){
+            if(!this.atticCache.AreFullTagsEmpty()){
               //i can use a tag extra min because the tag is loaded only if
               //it's fulll.
-              res = Utils.binarySearch(this.cachedFullTag, TagExtraMin.NewTag(title),TagExtraMin.ascendingCompare)
+              res = Utils.binarySearch(this.atticCache.getCachedFullTags(), TagExtraMin.NewTag(title),TagExtraMin.ascendingCompare)
             }
             if(res!=-1){
               console.log('the tag is in the cache');
-              p=new Promise<TagFull>((resolve, reject)=>{resolve(this.cachedFullTag[res])});
+              p=new Promise<TagFull>((resolve, reject)=>{resolve(this.atticCache.getCachedFullTags()[res])});
             }else{
               console.log('using the db for full tag');
               p=this.db.getTagFull(title, this.auth.userid);
@@ -204,10 +205,10 @@ export class AtticTags {
         })
         .then(fromNet=>{
           /*if here the note is not in the DB.*/
-          if(this.cachedFullTag==null){
-            this.cachedFullTag = [];
-          }
-          this.cachedFullTag = Utils.binaryArrayInsert(this.cachedFullTag, fromNet, TagExtraMin.ascendingCompare);
+          // if(this.cachedFullTag==null){
+          //   this.cachedFullTag = [];
+          // }
+          this.atticCache.pushToCachedFullTags(fromNet as TagFull);
           resolve(fromNet);
         })
         .catch(error=>{
@@ -228,6 +229,9 @@ export class AtticTags {
       if(!this.synch.isTagLocked()){
         this.db.createTag(tag, this.auth.userid)
         .then(result=>{
+
+          this.atticCache.pushToCachedFullTags(tag);
+
           resolve();
         })
         .catch(error=>{
@@ -360,7 +364,7 @@ export class AtticTags {
     // return Utils.deleteBasic('/api/tags/'+tag.title, this.http, this.auth.token);
     if(!this.synch.isTagLocked()){
 
-      let cachedNotes:NoteFull[]=this.atticCache.cachedFullNotes;
+      let cachedNotes:NoteFull[]=this.atticCache.getCachedFullNotes();
       let necessaryNotes:NoteFull[]=null;
       if(tag instanceof TagFull){
         necessaryNotes=Utils.getFullObjectNote(cachedNotes, (tag as TagFull).notes);

@@ -86,9 +86,9 @@ export class AtticNotes {
           //   return this.db.getNotesMin(this.auth.userid);
           // }
           let p:Promise<NoteExtraMin[]>;
-          if(this.atticCache.cachedExtraMinNotes!=null){
+          if(!this.atticCache.AreExtraMinNotesEmpty()){
             console.log('using cache');
-            p = new Promise<NoteExtraMin[]>((resolve, reject)=>{resolve(this.atticCache.cachedExtraMinNotes)});
+            p = new Promise<NoteExtraMin[]>((resolve, reject)=>{resolve(this.atticCache.getCachedExtraMinNote())});
           }else{
             console.log('no cache using db');
             p = this.db.getNotesMin(this.auth.userid);
@@ -103,8 +103,9 @@ export class AtticNotes {
       .then(fetchingResult=>{
         if(useDb){
           /*fetchingResult = NoteMin[] from the DB.*/
-          if(this.atticCache.cachedExtraMinNotes==null){
-            this.atticCache.cachedExtraMinNotes = fetchingResult;
+          if(this.atticCache.AreExtraMinNotesEmpty()){
+            this.atticCache.pushAllToCachedExtraMinNote(fetchingResult as NoteExtraMinWithDate[]);
+            //this.atticCache.cachedExtraMinNotes = fetchingResult;
           }
           resolve(fetchingResult);
         }else{
@@ -116,7 +117,7 @@ export class AtticNotes {
             //   this.db.insertNoteMinQuietly(notes[i], this.auth.userid);
             // }
             this.db.insertNotesMinSmartAndCleanify(notes, this.auth.userid);
-            this.atticCache.cachedExtraMinNotes = fetchingResult as NoteExtraMinWithDate[];
+            this.atticCache.pushAllToCachedExtraMinNote(fetchingResult as NoteExtraMinWithDate[])
             resolve(notes);
           }else{
             /*can't insert*/
@@ -189,12 +190,12 @@ export class AtticNotes {
         if(useDb){
           let p:Promise<NoteFull>;
           let res:number=-1;
-          if(this.atticCache.cachedFullNotes!=null){
-            res = Utils.binarySearch(this.atticCache.cachedFullNotes, NoteExtraMin.NewNoteExtraMin(title), NoteExtraMin.ascendingCompare);
+          if(!this.atticCache.AreFullNotesEmpty()){
+            res = Utils.binarySearch(this.atticCache.getCachedFullNotes(), NoteExtraMin.NewNoteExtraMin(title), NoteExtraMin.ascendingCompare);
           }
           if(res!=-1){
             console.log('the note is in the cache');
-            p = new Promise<NoteFull>((resolve, reject)=>{resolve(this.atticCache.cachedFullNotes[res])});
+            p = new Promise<NoteFull>((resolve, reject)=>{resolve(this.atticCache.getCachedFullNotes()[res])});
           }else{
             console.log('using the db for full note');
             p=this.db.getNoteFull(title, this.auth.userid);
@@ -224,10 +225,11 @@ export class AtticNotes {
       .then(fromNet=>{
         /*if here the note is not in the DB.*/ /*--> no longer*/
         //resolve(fromNet);
-        if(this.atticCache.cachedFullNotes==null){
-          this.atticCache.cachedFullNotes=[];
-        }
-        this.atticCache.cachedFullNotes = Utils.binaryArrayInsert(this.atticCache.cachedFullNotes, fromNet, NoteExtraMin.ascendingCompare);
+        // if(this.atticCache.AreFullNotesEmpty()){
+        //   this.atticCache.cachedFullNotes=[];
+        // }
+        //this.atticCache.cachedFullNotes = Utils.binaryArrayInsert(this.atticCache.cachedFullNotes, fromNet, NoteExtraMin.ascendingCompare);
+        this.atticCache.pushToCachedFullNotes(fromNet as NoteFull);
         resolve(fromNet);
       })
       .catch(error=>{
@@ -312,8 +314,8 @@ export class AtticNotes {
 
         //try to provide to the db more fulltag as possible.
 
-        let cachedTags:TagFull[]=this.atticCache.cachedFullTags;
-        let necessaryTags:TagFull[]=Utils.getFullObjectTag(cachedTags, note.getTagsAsTagsExtraMinArray());
+        let cachedTags:TagFull[]=this.atticCache.getCachedFullTags();
+        let necessaryTags:TagFull[]=Utils.binaryGetFullObjectTag(cachedTags, note.getTagsAsTagsExtraMinArray().sort(TagExtraMin.ascendingCompare));
 
         this.db.createNewNote2(this.minifyNoteFullForCration(note), /*tags, */this.auth.userid, necessaryTags)
         .then(result=>{
@@ -758,10 +760,10 @@ return this.items.filter((item) => {
     // }
     if(!this.synch.isNoteFullyLocked()){
 
-      let cachedTags:TagFull[]=this.atticCache.cachedFullTags;
+      let cachedTags:TagFull[]=this.atticCache.getCachedFullTags();
       let necessaryTags:TagFull[]=null;
       if(note instanceof NoteFull){
-        necessaryTags=Utils.getFullObjectTag(cachedTags, (note as NoteFull).getTagsAsTagsExtraMinArray());
+        necessaryTags=Utils.binaryGetFullObjectTag(cachedTags, (note as NoteFull).getTagsAsTagsExtraMinArray().sort(TagExtraMin.ascendingCompare));
       }
       return this.db.deleteNote(note, this.auth.userid, necessaryTags);
     }else{

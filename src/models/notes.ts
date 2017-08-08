@@ -33,6 +33,27 @@ export class NoteExtraMinWithDate extends NoteExtraMin{
   constructor(){
     super();
   }
+
+  public static ascendingCompare(a: NoteExtraMinWithDate, b: NoteExtraMinWithDate):number{
+    let r:number;
+    if(a.lastmodificationdate.getTime()!=b.lastmodificationdate.getTime()){
+      r = ((a.lastmodificationdate>b.lastmodificationdate) ? 1: -1);
+    }else{
+      r = a.title.localeCompare(b.title);
+    }
+    return r;
+  }
+
+
+  public static descendingCompare(a: NoteExtraMinWithDate, b: NoteExtraMinWithDate):number{
+    let r:number;
+    if(a.lastmodificationdate.getTime()!=b.lastmodificationdate.getTime()){
+      r = ((a.lastmodificationdate>b.lastmodificationdate) ? -1: 1);
+    }else{
+      r = a.title.localeCompare(b.title);
+    }
+    return r;
+  }
 }
 
 export class NoteBarebon extends NoteExtraMinWithDate{
@@ -98,26 +119,7 @@ export class NoteFull extends NoteBarebon{
     this.othertags = [];
   }
 
-  public static ascendingCompare(a: NoteFull, b: NoteFull):number{
-    let r:number;
-    if(a.lastmodificationdate.getTime()!=b.lastmodificationdate.getTime()){
-      r = ((a.lastmodificationdate>b.lastmodificationdate) ? 1: -1);
-    }else{
-      r = a.title.localeCompare(b.title);
-    }
-    return r;
-  }
 
-
-  public static descendingCompare(a: NoteFull, b: NoteFull):number{
-    let r:number;
-    if(a.lastmodificationdate.getTime()!=b.lastmodificationdate.getTime()){
-      r = ((a.lastmodificationdate>b.lastmodificationdate) ? -1: 1);
-    }else{
-      r = a.title.localeCompare(b.title);
-    }
-    return r;
-  }
 
   public getTagsAsTagsExtraMinArray():TagExtraMin[]{
     return this.maintags.concat(this.othertags);

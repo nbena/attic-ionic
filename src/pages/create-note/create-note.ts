@@ -114,16 +114,19 @@ export class CreateNotePage {
     this.newNote.links = this.links;
 
     // console.log(Utils.logNote(this.newNote));
-    console.log('the new note is:');
-    console.log(JSON.stringify(this.newNote));
+    // console.log('the new note is:');
+    // console.log(JSON.stringify(this.newNote));
   }
 
 
   createNote(){
     this.getNote();
     // console.log(JSON.stringify({note:this.newNote}));
-    this.mainTags.forEach((tag)=>{tag.noteslength++});
-    this.otherTags.forEach((tag)=>{tag.noteslength++});
+
+    //no because it's already done by the db when he update them.
+    // this.mainTags.forEach((tag)=>{tag.noteslength++});
+    // this.otherTags.forEach((tag)=>{tag.noteslength++});
+
     this.atticNotes.createNote2(this.newNote/*, this.mainTags.concat(this.otherTags)*/)
       .then(result=>{
         console.log(result);
