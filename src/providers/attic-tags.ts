@@ -13,10 +13,12 @@ import {NoteExtraMin, NoteFull} from '../models/notes';
 import { Db } from './db';
 import { NetManager } from './net-manager';
 import { Synch } from './synch';
-import { SqliteError, DbAction, Const } from '../public/const';
+import { DbAction, Const } from '../public/const';
 
 import { AtticCache } from './attic-cache';
 import { HttpProvider } from './http';
+
+import { AtticError } from '../public/attic-errors';
 
 /*
   Generated class for the AtticTags provider.
@@ -235,7 +237,7 @@ export class AtticTags {
           resolve();
         })
         .catch(error=>{
-          error = SqliteError.getBetterSqliteError(error.message as string);
+          error = AtticError.getBetterSqliteError(error.message as string);
           reject(error);
         })
       }
@@ -313,7 +315,7 @@ export class AtticTags {
             }
           }))
         }else{
-          reject(new Error(Const.TAG_TITLE_IMPOSSIBLE));
+          reject(new Error(AtticError.TAG_TITLE_IMPOSSIBLE));
         }
         })
         // console.log('going to send');
@@ -337,7 +339,7 @@ export class AtticTags {
       })
       .catch(error=>{
         console.log('error in changing title');
-        reject(SqliteError.getBetterSqliteError(error.message as string));
+        reject(AtticError.getBetterSqliteError(error.message as string));
       })
       })
     }else{

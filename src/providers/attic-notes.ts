@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 // import { Http, Headers } from '@angular/http';
 /* importing auth because I need the token. */
 import { Auth } from './auth';
-import { DbAction, Const, SqliteError } from '../public/const';
+import { DbAction, Const } from '../public/const';
 import { NoteExtraMin/*, NoteSmart,*/, NoteFull,/*NoteMin,/*, NoteBarebon,*/ NoteExtraMinWithDate } from '../models/notes';
 import { Utils } from '../public/utils';
 import { Db/*, LogObject*/ } from './db';
@@ -14,6 +14,8 @@ import { TagAlmostMin, TagExtraMin, TagFull } from '../models/tags';
 
 import { AtticCache } from './attic-cache';
 import { HttpProvider } from './http';
+
+import { AtticError } from '../public/attic-errors';
 
 import 'rxjs/add/operator/map';
 
@@ -322,7 +324,7 @@ export class AtticNotes {
           resolve();
         })
         .catch(error=>{
-          reject(SqliteError.getBetterSqliteError(error.message as string));
+          reject(AtticError.getBetterSqliteError(error.message as string));
         })
       }else{
         console.log('trying to create note but it is locked');
@@ -604,7 +606,7 @@ return this.items.filter((item) => {
               })
           )
           }else{
-            reject(new Error(Const.NOTE_TITLE_IMPOSSIBLE));
+            reject(new Error(AtticError.NOTE_TITLE_IMPOSSIBLE));
           }
         })
 
@@ -622,7 +624,7 @@ return this.items.filter((item) => {
       })
       .catch(error=>{
         console.log('error in changing title');
-        reject(SqliteError.getBetterSqliteError(error.message as string));;
+        reject(AtticError.getBetterSqliteError(error.message as string));;
       })
       })
     }else{

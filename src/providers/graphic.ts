@@ -100,10 +100,11 @@ export class GraphicProvider {
     return alert.present();
 }
 
-    public showErrorAlert(error:any):void{
+    public showErrorAlert(errorMsg:string):void{
       let alert = this.alertCtrl.create({
-        title: error,
-        buttons: ['OK']
+        title: 'Error',
+        buttons: ['OK'],
+        message:errorMsg
       });
       alert.present();
   }

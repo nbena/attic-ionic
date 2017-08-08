@@ -3,12 +3,12 @@ import { Http } from '@angular/http';
 import { SQLite } from 'ionic-native';
 import { Platform } from 'ionic-angular';
 import { Query } from '../public/query';
-import { Table, Const, DbAction, WhichField, SqliteError, IndexTagType, TagType } from '../public/const';
+import { Const, DbAction,/*SqliteError,*/ IndexTagType, TagType } from '../public/const';
 import { Utils } from '../public/utils';
 import { NoteExtraMin, NoteFull, NoteSQLite,NoteMin, NoteExtraMinWithDate } from '../models/notes';
 import { TagExtraMin, TagFull, /*TagMin,*/ TagAlmostMin, TagSQLite } from '../models/tags';
 import { UserSummary } from '../models/user_summary';
-import * as micro from 'microseconds';
+import { AtticError } from '../public/attic-errors';
 //import * as Promise from 'bluebird';
 
 // import 'rxjs/add/operator/map';
@@ -465,7 +465,7 @@ public setToken(token: any, userid: string):Promise<any>{
         })
       })
     }catch(e){
-      if(e.message == SqliteError.DUPLICATE_KEY_AUTH){
+      if(e.message == AtticError.SQLITE_DUPLICATE_KEY_AUTH){
         //user is already there.
         this.db.executeSql(Query.INSERT_ONLY_TOKEN, [token, userid])
         .then(result=>{

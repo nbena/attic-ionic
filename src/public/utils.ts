@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Http, Headers } from '@angular/http';
 /* importing auth because I need the token. */
 // import { Auth } from '../providers/auth';
-import { Const, PostgresError, SqliteError, DbAction } from '../public/const';
+import { Const,/* PostgresError, SqliteError,*/ DbAction } from '../public/const';
 import { NoteBarebon, NoteFull, NoteMin, NoteExtraMin } from '../models/notes';
 import { TagExtraMin, TagFull, TagSQLite } from '../models/tags';
 import { ToastController, AlertController } from 'ionic-angular';
@@ -462,18 +462,6 @@ static fromTagsToString(tags: TagExtraMin[]):string[]{
  //   return current;
  // }
 
- public static isPostgresError(error:string):boolean{
-   let ret:boolean = false;
-   if(error==PostgresError.DUPLICATE_KEY_NOTES || error==PostgresError.DUPLICATE_KEY_NOTES_TAGS
-     || error==PostgresError.DUPLICATE_KEY_TAGS || error==PostgresError.FINAL_TAGS_FKEY
-     || error==PostgresError.MAINTAGS_LIMIT || error==PostgresError.OTHERTAGS_LIMIT
-     || error==PostgresError.USER_REACHED_MAX_NOTES || error==PostgresError.USER_REACHED_MAX_TAGS
-     //|| error.startsWith('JsonError') no thins because is a paramter that should NEVER happen.
-   ){
-     ret=true;
-   }
-   return ret;
- }
 
 
  public static getSynchingError(action:DbAction.DbAction):string{
@@ -532,6 +520,9 @@ static fromTagsToString(tags: TagExtraMin[]):string[]{
    }
    return array;
  }
+
+
+
 
 
 
