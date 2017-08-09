@@ -101,7 +101,7 @@ export class AtticTags {
         .catch(error=>{
           console.log('error tags:');
           console.log(JSON.stringify(error.message));
-          reject(AtticError.getError(error));
+          reject(/*AtticError.getError(error)*/error);
         })
       })
     }
@@ -186,7 +186,7 @@ export class AtticTags {
         .catch(error=>{
           console.log('error in getting full tag');
           console.log(JSON.stringify(error));
-          reject(AtticError.getError(error));
+          reject(/*AtticError.getError(error)*/error);
         })
       })
     }
@@ -286,7 +286,7 @@ export class AtticTags {
   }
 
 
-  deleteTag(tag: TagExtraMin):Promise<any>{
+  deleteTag(tag: TagAlmostMin):Promise<any>{
     if(!this.synch.isTagLocked()){
 
       let cachedNotes:NoteFull[]=this.atticCache.getCachedFullNotes();
@@ -294,6 +294,7 @@ export class AtticTags {
       if(tag instanceof TagFull){
         necessaryNotes=Utils.getFullObjectNote(cachedNotes, (tag as TagFull).notes);
       }
+      this.atticCache.removeTag(tag);
       return this.db.deleteTag(tag, this.auth.userid, necessaryNotes);
     }else{
       return new Promise<any>((resolve, reject)=>{

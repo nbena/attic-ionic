@@ -48,7 +48,8 @@ export class NoteEditTextPage {
         this.navCtrl.pop();
       })
       .catch(error=>{
-        console.log(JSON.stringify(error));
+        console.log(JSON.stringify('change text error: '+error));
+        this.graphicProvider.showErrorAlert(error);
       })
   }
 

@@ -129,7 +129,7 @@ public static isPostgresError(error:string):boolean{
 }
 
 
-public static getError(error:any):any{
+private static getError(error:any):any{
   let ret:any = error;
   if(error.message!=null){
     if(AtticError.isSqliteError(error.message)){
@@ -143,5 +143,38 @@ public static getError(error:any):any{
   }
 
 
+  public static getNewError(error:any):ErrData{
+    let errorOut:ErrData;
+    let errData:any;
+    let isSpecific:boolean = false;
+    if(error.message!=null){
+      if(AtticError.isSqliteError(error.message)){
+        errData=AtticError.getBetterSqliteError(error);
+        isSpecific = true;
+        }
+    }
+    if(AtticError.isNetworkError(error)){
+      errData=AtticError.getBetterNetworkError(error);
+      isSpecific = true;
+    }
+    errorOut = ErrData.NewErrData(errData, isSpecific);
+    return errorOut;
+  }
+
+}
+
+
+export class ErrData{
+
+  isSpecific: boolean = false;
+  error: any;
+
+
+  public static NewErrData(errorIn:any, isSpecific:boolean):ErrData{
+    let err:ErrData = new ErrData();
+    err.error=errorIn;
+    err.isSpecific = isSpecific;
+    return err;
+  }
 
 }

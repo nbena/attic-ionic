@@ -68,6 +68,8 @@ export class CreateNotePage {
         .catch(error=>{
           console.log('load min tags error');
           console.log(error);
+          this.graphicProvider.showErrorAlert(error,
+            ' and so I cannot load tags');
         })
     }
   }
@@ -138,8 +140,8 @@ export class CreateNotePage {
         //error here...
       })
       .catch(error=>{
-        console.log('error create new note');
-        console.log(JSON.stringify(error));
+        // console.log('error create new note: ');
+        console.log('error create new note: '+JSON.stringify(error));
         // console.log(error);
         // console.log('better error');
         // let alert = this.alertCtrl.create({

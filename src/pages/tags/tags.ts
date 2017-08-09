@@ -83,7 +83,8 @@ export class TagsPage {
         this.shownTags=this.allTags.slice();
       })
       .catch(error=>{
-        console.log(JSON.stringify(error));
+        console.log('load almost min error: '+JSON.stringify(error));
+        this.graphicProvider.showErrorAlert(error);
       })
   }
 
@@ -158,8 +159,8 @@ export class TagsPage {
         // this.shownTags.push(<TagFull>tag);
       })
       .catch(error=>{
-        console.log('error create new tag');
-        console.log(JSON.stringify(error));
+        // console.log('create new tag error: ');
+        console.log('create new tag error: '+JSON.stringify(error));
         // console.log(error);
         // console.log('better error');
         // let alert = this.alertCtrl.create({

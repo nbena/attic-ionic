@@ -1,8 +1,9 @@
 import { Component } from '@angular/core';
-import { NavController, /*NavParams, */AlertController, ViewController } from 'ionic-angular';
+import { NavController, /*NavParams, AlertController*/ViewController } from 'ionic-angular';
 import { NotesPage } from '../notes/notes';
 import { NotesByTagPage } from '../notes-by-tag/notes-by-tag';
 import { Filter} from '../../public/const';
+import {GraphicProvider} from '../../providers/graphic';
 
 
 /*
@@ -24,7 +25,8 @@ export class NotesPopoverPage {
 //find a method, maybe, to check if there is some filter applied.
 
   constructor(public navCtrl: NavController, /*private navParams: NavParams,*/
-    private alertCtrl: AlertController, private viewCtrl: ViewController,
+    /*private alertCtrl: AlertController, */private viewCtrl: ViewController,
+    private graphicProvider:GraphicProvider
   ) {
 
   }
@@ -35,29 +37,33 @@ export class NotesPopoverPage {
   }
 
   filterByText(){
-      let prompt = this.alertCtrl.create({
-        title: 'Search by text',
-        message: 'Enter the text you want to search',
-        inputs:[
-          {
-          name: 'title',
-          placeholder: 'text'
-          }
-        ],
-        buttons: [
-          {
-            text: 'Cancel',
-            handler: data => {}
-          },
-          {
-            text: 'Ok',
-            handler: data=>{
-              this.filterByTextAPI(<string>data.title);
-            }
-          }
-        ]
-      });
-      prompt.present();
+      // let prompt = this.alertCtrl.create({
+      //   title: 'Search by text',
+      //   message: 'Enter the text you want to search',
+      //   inputs:[
+      //     {
+      //     name: 'title',
+      //     placeholder: 'text'
+      //     }
+      //   ],
+      //   buttons: [
+      //     {
+      //       text: 'Cancel',
+      //       handler: data => {}
+      //     },
+      //     {
+      //       text: 'Ok',
+      //       handler: data=>{
+      //         this.filterByTextAPI(<string>data.title);
+      //       }
+      //     }
+      //   ]
+      // });
+      // prompt.present();
+      this.graphicProvider.genericAlert('Search by text', 'Enter the text to search for',
+        [{name:'title', placeholder:'text'}], 'Ok', (data:any)=>{this.filterByTextAPI(data as string);}
+
+      );
       // this.close();
   }
   // close(){

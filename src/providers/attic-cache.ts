@@ -380,4 +380,53 @@ export class AtticCache {
     return this.summary==null;
   }
 
+
+
+
+  public removeNote(note:NoteExtraMin):void{
+    let n3:number;
+    // console.log(typeof  note);
+    console.log(JSON.stringify(note as NoteExtraMinWithDate));
+    if(note instanceof NoteExtraMinWithDate && note.lastmodificationdate!=null){
+      console.log('using binary search');
+      n3 = Utils.binarySearch(this.differentlySortedCachedExtraMinNotes, note as NoteExtraMinWithDate, NoteExtraMinWithDate.descendingCompare);
+    }else{
+      console.log('using search');
+      n3 = Utils.search(this.differentlySortedCachedExtraMinNotes, note, NoteExtraMin.ascendingCompare);
+    }
+    console.log(n3);
+
+    let n1:number = Utils.binarySearch(this.cachedFullNotes, note, NoteExtraMin.ascendingCompare);
+    let n2:number = Utils.binarySearch(this.cachedExtraMinNotes, note, NoteExtraMin.ascendingCompare);
+    //let n3:number = Utils.binarySearch(this.differentlySortedCachedExtraMinNotes, note, NoteExtraMinWithDate.descendingCompare);
+    if(n1!=-1){
+      this.cachedFullNotes.splice(n1, 1);
+    }
+    if(n2!=-1){
+      this.cachedExtraMinNotes.splice(n2, 1);
+    }
+    if(n3!=-1){
+      console.log('going to delete');
+      this.differentlySortedCachedExtraMinNotes.splice(n3, 1);
+      console.log('deleted');
+      console.log(JSON.stringify(this.differentlySortedCachedExtraMinNotes));
+    }
+  }
+
+
+  public removeTag(tag:TagAlmostMin):void{
+    let n1:number = Utils.binarySearch(this.cachedFullTags, tag, TagExtraMin.ascendingCompare);
+    let n2:number = Utils.binarySearch(this.cachedAlmostMinTags, tag, TagExtraMin.ascendingCompare);
+    let n3:number = Utils.binarySearch(this.differentlySortedCachedAlmostMinTags, tag, TagAlmostMin.descendingCompare);
+    if(n1!=-1){
+      this.cachedFullTags.splice(n1, 1);
+    }
+    if(n2!=-1){
+      this.cachedAlmostMinTags.splice(n2, 1);
+    }
+    if(n3!=-1){
+      this.differentlySortedCachedAlmostMinTags.splice(n3, 1);
+    }
+  }
+
 }

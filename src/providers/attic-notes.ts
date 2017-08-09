@@ -128,7 +128,7 @@ export class AtticNotes {
       .catch(error=>{
         console.log('error notes:');
         console.log(JSON.stringify(error.message));
-        reject(AtticError.getError(error));
+        reject(/*AtticError.getError(error)*/error);
       })
     });
   }
@@ -224,7 +224,7 @@ export class AtticNotes {
       .catch(error=>{
         console.log('error in getting full note');
         console.log(JSON.stringify(error));
-        reject(AtticError.getError(error));
+        reject(/*AtticError.getError(error)*/error);
       })
     })
   }
@@ -351,7 +351,7 @@ export class AtticNotes {
       .catch(error=>{
         console.log('error notes:');
         console.log(JSON.stringify(error));
-        reject(AtticError.getError(error));
+        reject(/*AtticError.getError(error)*/error);
       })
 
     });
@@ -392,7 +392,7 @@ export class AtticNotes {
       .catch(error=>{
         console.log('error in getting text');
         console.log(JSON.stringify(error));
-        reject(AtticError.getError(error));
+        reject(/*AtticError.getError(error)*/error);
       })
     })
   }
@@ -450,7 +450,7 @@ export class AtticNotes {
       })
       .catch(error=>{
         console.log('error in changing title');
-        reject(AtticError.getError(error));
+        reject(/*AtticError.getError(error)*/error);
       })
       })
     }else{
@@ -542,6 +542,7 @@ export class AtticNotes {
   }
 
   deleteNote(note: NoteExtraMin):Promise<any>{
+    console.log('the note in: '+JSON.stringify(note));
     if(!this.synch.isNoteFullyLocked()){
 
       let cachedTags:TagFull[]=this.atticCache.getCachedFullTags();
@@ -549,6 +550,7 @@ export class AtticNotes {
       if(note instanceof NoteFull){
         necessaryTags=Utils.binaryGetFullObjectTag(cachedTags, (note as NoteFull).getTagsAsTagsExtraMinArray().sort(TagExtraMin.ascendingCompare));
       }
+      this.atticCache.removeNote(note)
       return this.db.deleteNote(note, this.auth.userid, necessaryTags);
     }else{
       return new Promise<any>((resolve, reject)=>{

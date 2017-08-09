@@ -108,14 +108,23 @@ export class NotesPage {
       //   //   console.log(e);
       //   // }
       // }
+      let r:boolean = true;
+      let refresh = this.navParams.get('refresh');
+      if(refresh!=null){
+        if(!refresh){
+          r = false;
+        }
+      }
+      if(r){
+        this.synchingTask();  
+      }
 
-      this.synchingTask();
 
       let eventualNote:string=null
 
       eventualNote = this.navParams.get('note');
-      console.log('the eventual note from navParams');
-      console.log(JSON.stringify(eventualNote));
+      // console.log('the eventual note from navParams');
+      // console.log(JSON.stringify(eventualNote));
       this.unshiftIfPossible(eventualNote);
 
       this.events.subscribe('change-tab', (tab, note)=>{
@@ -184,9 +193,9 @@ export class NotesPage {
       this.graphicProvider.presentToast('synching done');
     })
     .catch(error=>{
-      console.log('error in synch or in get things to synch');
-      console.log(JSON.stringify(error));
-      this.graphicProvider.showErrorAlert(error.message);
+      // console.log('error in synch or in get things to synch');
+      console.log('error in synch or in get things to synch:  '+JSON.stringify(error));
+      this.graphicProvider.showErrorAlert(error);
     })
 
   }
@@ -262,8 +271,9 @@ export class NotesPage {
 
       })
       .catch(error=>{
-        console.log('load min error');
-        console.log(JSON.stringify(error));
+        // console.log('load min error');
+        console.log('load min error: '+JSON.stringify(error));
+        this.graphicProvider.showErrorAlert(error);
       })
   }
 
@@ -310,8 +320,9 @@ export class NotesPage {
       }
     })
     .catch(error=>{
-      console.log('load by tags error');
-      console.log(JSON.stringify(error));
+      // console.log('load by tags error');
+      console.log('load by tags error: '+JSON.stringify(error));
+      this.graphicProvider.showErrorAlert(error);
     })
   }
 
@@ -358,8 +369,9 @@ export class NotesPage {
         //}
       })
       .catch(error=>{
-        console.log('load by text error');
-        console.log(JSON.stringify(error));
+        // console.log('load by text error: ');
+        console.log('load by text error: '+JSON.stringify(error));
+        this.graphicProvider.showErrorAlert(error);
       })
   }
 

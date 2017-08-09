@@ -163,7 +163,7 @@ static fromTagsToString(tags: TagExtraMin[]):string[]{
 
 //generic utility method for a smart insert into a generic array.
 //surely we assume array is already sorted.
- public static binaryArrayInsert<T>(array: T[], item: T, cmp: ((a,b)=>number)):T[]{
+ public static binaryArrayInsert<T>(array: T[], item: T, cmp: ((a:T,b:T)=>number)):T[]{
      let returned: T[];
      let start: number, end: number, current:number, cmpValue;
      start = 0;
@@ -183,8 +183,19 @@ static fromTagsToString(tags: TagExtraMin[]):string[]{
  }
 
 
+public static search<T>(array:T[], item:T,  cmp: ((a:T,b:T)=>number)):number{
+  let ret:number=-1;
+  for(let i=0;i<array.length;i++){
+    if(cmp(array[i], item)==0){
+      ret =i;
+      i=array.length;
+    }
+  }
+  return ret;
+}
 
- public static binaryArrayInsertNoDuplicate<T>(array: T[], item: T, cmp: ((a,b)=>number)):T[]{
+
+ public static binaryArrayInsertNoDuplicate<T>(array: T[], item: T, cmp: ((a:T,b:T)=>number)):T[]{
      let returned: T[];
      let start: number, end: number, current:number, cmpValue;
      let found:boolean = false;

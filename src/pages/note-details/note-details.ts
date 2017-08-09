@@ -92,6 +92,7 @@ export class NoteDetailsPage {
   ) {
     this.title=navParams.get('title');
     this.note = new NoteFull();
+    this.note.title=this.title;
     this.init();
   }
 
@@ -114,8 +115,8 @@ export class NoteDetailsPage {
     this.atticNotes.noteByTitle(this.title, force)
       .then(result=>{
         this.note=<NoteFull>result;
-        console.log('the note is:');
-        console.log(JSON.stringify(this.note));
+        // console.log('the note is:');
+        // console.log(JSON.stringify(this.note));
         // this.lastModificationDateString=this.note.lastModificationDate.toDateString();
         // this.creationDateString=this.note.creationDate.toDateString();
         // this._mainTags=this.note.mainTags;
@@ -161,7 +162,7 @@ export class NoteDetailsPage {
 
       })
       .catch(error=>{
-        console.log(JSON.stringify(error));
+        console.log('load tags error: '+JSON.stringify(error));
         this.graphicProvider.showErrorAlert(error);
       })
   }
@@ -462,7 +463,8 @@ export class NoteDetailsPage {
         this.haveToRemoveTags = false;
       })
       .catch(error=>{
-        console.log(JSON.stringify(error));
+        console.log('remove tags error: '+JSON.stringify(error));
+        this.graphicProvider.showErrorAlert(error);
       })
     }
 
@@ -475,7 +477,8 @@ export class NoteDetailsPage {
         this.haveToAddOtherTags = false;
       })
       .catch(error=>{
-        console.log(JSON.stringify(error));
+        console.log('add tags error: '+JSON.stringify(error));
+        this.graphicProvider.showErrorAlert(error);
       })
     }
 
@@ -486,7 +489,8 @@ export class NoteDetailsPage {
           this.haveToAddMainTags = false;
         })
         .catch(error=>{
-          console.log(JSON.stringify(error));
+          console.log('add tags error: '+JSON.stringify(error));
+          this.graphicProvider.showErrorAlert(error);
         })
     }
 
@@ -497,7 +501,8 @@ export class NoteDetailsPage {
           this.haveToAddOtherTags = false;
         })
         .catch(error=>{
-          console.log(JSON.stringify(error));
+          console.log('add tags error: '+JSON.stringify(error));
+          this.graphicProvider.showErrorAlert(error);
         })
     }
 
@@ -508,7 +513,8 @@ export class NoteDetailsPage {
       this.haveToChangeLinks = false;
     })
     .catch(error=>{
-      console.log(JSON.stringify(error));
+      console.log('change links error: '+JSON.stringify(error));
+      this.graphicProvider.showErrorAlert(error);
     })
   }
 
@@ -519,7 +525,8 @@ export class NoteDetailsPage {
           this.isDoneChanged =  false;
         })
         .catch(error=>{
-          console.log(JSON.stringify(error));
+          console.log('set done error: '+JSON.stringify(error));
+          this.graphicProvider.showErrorAlert(error);
         })
     }
     if(this.allFalse()){

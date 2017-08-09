@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { NavController, NavParams, ViewController/*, ToastController, AlertController*/, App } from 'ionic-angular';
-import { NoteFull } from '../../models/notes';
+import { NoteFull, NoteExtraMinWithDate } from '../../models/notes';
 import { NoteEditTextPage } from '../note-edit-text/note-edit-text';
 import { AtticNotes } from '../../providers/attic-notes';
 // import { Utils } from '../../public/utils';
@@ -33,15 +33,16 @@ export class NoteDetailsPopoverPage {
       // }else {
       //   this.done='Mark as \'done\'';
       // }
+      console.log(JSON.stringify(this.navCtrl.last()));
     }
 
 
   changeText(){
-    // this.close();
+    this.viewCtrl.dismiss();
     this.navCtrl.push(NoteEditTextPage, {note: this.note})
-    .then(()=>{
-      this.viewCtrl.dismiss();
-    })
+    // .then(()=>{
+    //   this.viewCtrl.dismiss();
+    // })
   }
 
   // changeMainTags(){
@@ -121,7 +122,7 @@ export class NoteDetailsPopoverPage {
       .catch(error=>{
         //Utils.showErrorAlert(this.alertCtrl, error);
         this.graphicProvider.showErrorAlert(error);
-        console.log(JSON.stringify(error));
+        console.log('change title error: '+JSON.stringify(error));
       });
   }
 
@@ -141,7 +142,7 @@ export class NoteDetailsPopoverPage {
     //     nothing to do.
     //   }*/
     // });
-    this.graphicProvider.askConfirm('Are you sure to delete note \''+this.note.title+'\?',
+    this.graphicProvider.askConfirm('Question','Are you sure to delete note \''+this.note.title+'\?',
       (res:boolean)=>{if(res){this.deleteNoteAPI();}}
     )
   }
@@ -161,17 +162,24 @@ export class NoteDetailsPopoverPage {
 
     this.viewCtrl.dismiss()
     .then(()=>{
-      return this.atticNotes.deleteNote(this.note)
+      return this.atticNotes.deleteNote(this.note as NoteExtraMinWithDate)
     })
     .then(()=>{
-      return this.app.getRootNav().push(NotesPage);
+      //need to use change-tab
+      //this.viewCtrl.dismiss();
+      //this.navCtrl.getViews().forEach(obj=>{if(obj.)})
+      console.log(JSON.stringify(this.navCtrl.last()));
+      return this.app.getRootNav().push(NotesPage, {refresh:false, toRemove:this.note as NoteExtraMinWithDate})
     })
+    // .then(()=>{
+    //   return this.viewCtrl.dismiss();
+    // })
     .then(()=>{
       //return Utils.presentToast(this.toastCtrl, 'Note deleted');
       return this.graphicProvider.presentToast('Note deleted');
     })
     .catch(error=>{
-      console.log(JSON.stringify(error));
+      console.log('delete error: '+JSON.stringify(error.message));
     })
   }
 

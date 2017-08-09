@@ -5,6 +5,7 @@ import { TagAlmostMin, TagExtraMin } from '../../models/tags';
 import { FormControl } from '@angular/forms';
 import { NotesPage } from '../notes/notes';
 import { Filter } from '../../public/const';
+import {GraphicProvider} from '../../providers/graphic';
 
 /*
   Generated class for the NotesByTag page.
@@ -31,7 +32,8 @@ export class NotesByTagPage {
 
   constructor(public navCtrl: NavController, public navParams: NavParams,
     private atticTags: AtticTags,
-    private viewCtrl: ViewController
+    private viewCtrl: ViewController,
+    private graphicProvider:GraphicProvider
   ) {
     if(this.allTags==null){
       this.loadAlmostMin(false);
@@ -73,7 +75,8 @@ export class NotesByTagPage {
         this.mkIsChecked();
       })
       .catch(error=>{
-        console.log(JSON.stringify(error));
+        console.log('load tags error: '+JSON.stringify(error));
+        this.graphicProvider.showErrorAlert(error);
       })
   }
 

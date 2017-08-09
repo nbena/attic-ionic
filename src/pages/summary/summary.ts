@@ -73,8 +73,8 @@ export class SummaryPage {
 
     })
     .catch(error=>{
-      console.log('summary error');
-      console.log(JSON.stringify(error));
+      // console.log('summary error: ');
+      console.log('summary error: '+JSON.stringify(error));
     })
   }
 
@@ -115,12 +115,12 @@ export class SummaryPage {
           this.setSynchState();
         })
         .catch(error=>{
-          console.log('error in synch');
-          console.log(JSON.stringify(error));
+          // console.log('error in synch');
+          console.log('error in synch'+JSON.stringify(error));
           // this.synchingEnabled = true;
           // this.synchState = Const.CURRENTLY_NOT_SYNCHING;
           this.setSynchState();
-          this.graphicProvider.showErrorAlert(error.message);
+          this.graphicProvider.showErrorAlert(error);
         })
         //please note that this is not done AFTER, but it's call when promise starts.
         this.synchState = Const.CURRENTLY_SYNCHING;
@@ -134,7 +134,7 @@ export class SummaryPage {
   }
 
   empty(){
-    this.graphicProvider.askConfirm( 'Be sure to have everything synched before, '+
+    this.graphicProvider.askConfirm( 'Question','Be sure to have everything synched before, '+
     'if not you\'ll loose changes; consider that cache can speed up app\'s performance. '+
     'Are you sure?',(confirmed : boolean)=>{
       if(confirmed){
@@ -153,8 +153,9 @@ export class SummaryPage {
       this.graphicProvider.presentToast('everything deleted');
     })
     .catch(error=>{
-      console.log('error in delete everything');
-      console.log(JSON.stringify(error));
+      // console.log('error in delete everything');
+      console.log('error in delete everything'+JSON.stringify(error));
+      this.graphicProvider.showErrorAlert(error);
     })
     // console.log('looooser');
   }

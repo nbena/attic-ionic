@@ -5,6 +5,7 @@ import { /*TagFull, TagExtraMin, *//*TagMin*/TagFull } from '../../models/tags';
 import { AtticTags } from '../../providers/attic-tags';
 import { NoteDetailsPage } from '../note-details/note-details';
 import { TagDetailsPopoverPage } from '../tag-details-popover/tag-details-popover';
+import {GraphicProvider} from '../../providers/graphic';
 
 /*
   Generated class for the TagDetails page.
@@ -24,6 +25,7 @@ export class TagDetailsPage {
   constructor(public navCtrl: NavController, public navParams: NavParams,
     private popoverCtrl: PopoverController,
     private atticTags: AtticTags,
+    private graphicProvider:GraphicProvider
   ) {
       this.title=navParams.get('title');
       this.tagByTitle(this.title, false);
@@ -44,11 +46,12 @@ export class TagDetailsPage {
         //   this.tag.notes.push(result.tag.notes[i].notetitle);
         // }
         this.tag=result;
-        console.log('the tag is:');
-        console.log(JSON.stringify(this.tag));
+        // console.log('the tag is:');
+        // console.log(JSON.stringify(this.tag));
       })
-      .catch(err=>{
-        console.log(err);
+      .catch(error=>{
+        console.log('tag by title error:'+error);
+        this.graphicProvider.showErrorAlert(error);
       })
   }
 

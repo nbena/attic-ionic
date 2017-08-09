@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import 'rxjs/add/operator/map';
 
 import { ToastController, AlertController } from 'ionic-angular';
+import { AtticError, ErrData } from '../public/errors';
 
 /*
   Generated class for the GraphicProvider provider.
@@ -14,7 +15,8 @@ import { ToastController, AlertController } from 'ionic-angular';
 export class GraphicProvider {
 
   constructor(private toastCtrl:ToastController,
-    private alertCtrl:AlertController) {
+    private alertCtrl:AlertController
+  ) {
     console.log('Hello GraphicProvider Provider');
   }
 
@@ -32,9 +34,9 @@ export class GraphicProvider {
     return toast.present();
   }
 
-  public askConfirm(message:string, callback:((_:boolean)=>void)):Promise<any>{
+  public askConfirm(title:string, message:string, callback:((_:boolean)=>void)):Promise<any>{
     let alert = this.alertCtrl.create({
-      title: 'Confirm delete',
+      title: title,
       message: message,
       buttons: [
         {
@@ -83,7 +85,7 @@ export class GraphicProvider {
 
   public genericAlertInput(title:string, input:{type:string, label:string, value:string}[], callback:((_:any)=>void)):Promise<any>{
     let alert = this.alertCtrl.create();
-    alert.setTitle("Add main tags");
+    alert.setTitle(title);
 
     input.forEach(obj=>{
       alert.addInput(obj);
@@ -100,11 +102,15 @@ export class GraphicProvider {
     return alert.present();
 }
 
-    public showErrorAlert(errorMsg:string):void{
+    public showErrorAlert(errorIn:any, otherMsg?:string):void{
+      let error:ErrData = AtticError.getNewError(errorIn);
+      let msg:string;
+      msg = ((error.isSpecific) ? error.error.message : 'Something went wrong');
+      if(otherMsg!=null){msg+=otherMsg}
       let alert = this.alertCtrl.create({
         title: 'Error',
         buttons: ['OK'],
-        message:errorMsg
+        message:msg
       });
       alert.present();
   }

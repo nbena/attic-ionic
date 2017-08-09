@@ -356,7 +356,7 @@ export class Synch {
         return this.removeBadThings();
       }else{
         this.isStarted = false;
-        reject(AtticError.getError(error));
+        reject(/*AtticError.getError(error)*/error);
       }
     })
     .then(()=>{
@@ -454,7 +454,7 @@ export class Synch {
                   resolve(result);
                 })
                 .catch(error=>{
-                  reject(AtticError.getError(error));
+                  reject(/*AtticError.getError(error)*/error);
                 })
               })
             );
@@ -518,7 +518,7 @@ export class Synch {
         }
         console.log('the current error object is: ');
         console.log(JSON.stringify(currentLog));
-        reject(AtticError.getError(error)); /*error is correctly rejected.*/
+        reject(/*AtticError.getError(error)*/error); /*error is correctly rejected.*/
       })
     })
   }
@@ -549,7 +549,7 @@ export class Synch {
                   resolve(result);
                 })
                 .catch(error=>{
-                  reject(AtticError.getError(error));
+                  reject(/*AtticError.getError(error)*/error);
                 })
               })
             );
@@ -584,7 +584,7 @@ export class Synch {
         }
         console.log('the current error object is: ');
         console.log(JSON.stringify(currentLog));
-        reject(AtticError.getError(error));
+        reject(/*AtticError.getError(error)*/error);
       })
     })
   }
@@ -652,7 +652,7 @@ export class Synch {
                 .catch(error=>{
                   // console.log('error in send tags-to-add-to');
                   // console.log(JSON.stringify(error));
-                  reject(AtticError.getError(error));
+                  reject(/*AtticError.getError(error)*/error);
                 })
               })
             )
@@ -687,7 +687,7 @@ export class Synch {
         }
         console.log('the current error object is: ');
         console.log(JSON.stringify(currentLog));
-        reject(AtticError.getError(error));
+        reject(/*AtticError.getError(error)*/error);
       })
     })
   }
@@ -730,7 +730,7 @@ export class Synch {
                 .catch(error=>{
                   // console.log('error in send tags-to-remove-from');
                   // console.log(JSON.stringify(error));
-                  reject(AtticError.getError(error));
+                  reject(/*AtticError.getError(error)*/error);
                 })
               })
             )
@@ -763,7 +763,7 @@ export class Synch {
         }
         console.log('the current error object is: ');
         console.log(JSON.stringify(currentLog));
-        reject(AtticError.getError(error));
+        reject(/*AtticError.getError(error)*/error);
       })
     })
   }
@@ -800,7 +800,7 @@ export class Synch {
                 .catch(error=>{
                   // console.log('error in send to note to delete');
                   // console.log(JSON.stringify(error));
-                  reject(AtticError.getError(error));
+                  reject(/*AtticError.getError(error)*/error);
                 })
               })
             )
@@ -835,7 +835,7 @@ export class Synch {
         }
         console.log('the current error object is: ');
         console.log(JSON.stringify(currentLog));
-        reject(AtticError.getError(error));
+        reject(/*AtticError.getError(error)*/error);
       })
     })
   }
@@ -890,7 +890,7 @@ export class Synch {
                 .catch(error=>{
                   // console.log('error in send tags-to-delete');
                   // console.log(JSON.stringify(error));
-                  reject(AtticError.getError(error));
+                  reject(/*AtticError.getError(error)*/error);
                 })
               })
             )
@@ -925,7 +925,7 @@ export class Synch {
         }
         console.log('the current error object is: ');
         console.log(JSON.stringify(currentLog));
-        reject(AtticError.getError(error));
+        reject(/*AtticError.getError(error)*/error);
       })
     })
   }
@@ -971,7 +971,7 @@ export class Synch {
                 .catch(error=>{
                   // console.log('error in');
                   // console.log(JSON.stringify(error));
-                  reject(AtticError.getError(error));
+                  reject(/*AtticError.getError(error)*/error);
                 })
               })
             )
@@ -1004,7 +1004,7 @@ export class Synch {
         }
         console.log('the current error object is: ');
         console.log(JSON.stringify(currentLog));
-        reject(AtticError.getError(error));
+        reject(/*AtticError.getError(error)*/error);
       })
     })
   }
@@ -1049,7 +1049,7 @@ export class Synch {
                 .catch(error=>{
                   // console.log('error in send notes-to-change-links');
                   // console.log(JSON.stringify(error));
-                  reject(AtticError.getError(error));
+                  reject(/*AtticError.getError(error)*/error);
                 })
               })
             )
@@ -1082,7 +1082,7 @@ export class Synch {
         }
         console.log('the current error object is: ');
         console.log(JSON.stringify(currentLog));
-        reject(AtticError.getError(error));
+        reject(/*AtticError.getError(error)*/error);
       })
     })
   }
@@ -1127,7 +1127,7 @@ export class Synch {
                 .catch(error=>{
                   // console.log('error in send notes-to-set-done');
                   // console.log(JSON.stringify(error));
-                  reject(AtticError.getError(error));
+                  reject(/*AtticError.getError(error)*/error);
                 })
               })
             )
@@ -1160,7 +1160,7 @@ export class Synch {
         }
         console.log('the current error object is: ');
         console.log(JSON.stringify(currentLog));
-        reject(AtticError.getError(error));
+        reject(/*AtticError.getError(error)*/error);
       })
     })
   }
@@ -1207,7 +1207,7 @@ export class Synch {
         .catch(error=>{
           console.log('error remove bad notes-to-set-link');
           console.log(JSON.stringify(error));
-          reject(AtticError.getError(error));
+          reject(/*AtticError.getError(error)*/error);
         })
       }else{
         console.log('no bad notes-to-set-link to remove');
@@ -1229,7 +1229,7 @@ export class Synch {
         .catch(error=>{
           console.log('error remove bad notes-to-change-text');
           console.log(JSON.stringify(error));
-          reject(AtticError.getError(error));
+          reject(/*AtticError.getError(error)*/error);
         })
       }else{
         console.log('no bad notes-to-change-text to remove');
@@ -1251,7 +1251,7 @@ export class Synch {
         .catch(error=>{
           console.log('error remove bad notes-to-create');
           console.log(JSON.stringify(error.message));
-          reject(AtticError.getError(error));
+          reject(/*AtticError.getError(error)*/error);
         })
       }else{
         console.log('no bad notes-to-create to remove');
@@ -1273,7 +1273,7 @@ export class Synch {
         .catch(error=>{
           console.log('error remove bad tags-to-add-to');
           console.log(JSON.stringify(error));
-          reject(AtticError.getError(error));
+          reject(/*AtticError.getError(error)*/error);
         })
       }else{
         console.log('no bad tags-to-add-to to remove');
@@ -1295,7 +1295,7 @@ export class Synch {
         .catch(error=>{
           console.log('error remove bad tags-to-remove-from');
           console.log(JSON.stringify(error));
-          reject(AtticError.getError(error));
+          reject(/*AtticError.getError(error)*/error);
         })
       }else{
         console.log('no bad tags-to-remove-from to remove');
@@ -1318,7 +1318,7 @@ export class Synch {
         .catch(error=>{
           console.log('error remove bad tags-to-create');
           console.log(JSON.stringify(error));
-          reject(AtticError.getError(error));
+          reject(/*AtticError.getError(error)*/error);
         })
       }else{
         console.log('no bad tags-to-create to remove');

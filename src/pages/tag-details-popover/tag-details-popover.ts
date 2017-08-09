@@ -77,7 +77,7 @@ export class TagDetailsPopoverPage {
     })
     .catch(error=>{
       // console.log('some errors happen');
-      // console.log(JSON.stringify(error))
+      console.log('error change title '+JSON.stringify(error))
       this.graphicProvider.showErrorAlert(error);
     })
   }
@@ -94,7 +94,7 @@ export class TagDetailsPopoverPage {
     //     nothing to do.
     //   }*/
     // });
-    this.graphicProvider.askConfirm('Are you sure to delete tag \''+this.tag.title+'\?',
+    this.graphicProvider.askConfirm('Question','Are you sure to delete tag \''+this.tag.title+'\?',
       (res:boolean)=>{if(res){this.deleteTagAPI();}}
     )
   }
@@ -112,7 +112,8 @@ export class TagDetailsPopoverPage {
       return this.graphicProvider.presentToast('Tag deleted');
     })
     .catch(error=>{
-      console.log(JSON.stringify(error))
+      console.log(JSON.stringify('delete tag error: '+error))
+      this.graphicProvider.showErrorAlert(error)
     })
   }
 
