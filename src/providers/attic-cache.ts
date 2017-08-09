@@ -4,6 +4,7 @@ import { Injectable } from '@angular/core';
 import {NoteFull, NoteExtraMin, NoteExtraMinWithDate} from '../models/notes';
 import {TagFull, TagExtraMin, TagAlmostMin} from '../models/tags';
 import {Utils} from '../public/utils';
+import { UserSummary } from '../models/user_summary';
 
 
 /*
@@ -25,6 +26,8 @@ export class AtticCache {
   private differentlySortedCachedExtraMinNotes: NoteExtraMinWithDate[] = null;
   private differentlySortedCachedAlmostMinTags: TagAlmostMin[] =null;
 
+  private summary:UserSummary = null;
+
 
 //TODO when insert single item before check that it's not present.
 //TODO add an option to not sort, but I don't think it's valid.
@@ -36,17 +39,22 @@ export class AtticCache {
     this.cachedExtraMinNotes = [];
     this.differentlySortedCachedExtraMinNotes = [];
     this.differentlySortedCachedAlmostMinTags = [];
+    //this.summary = new UserSummary(); must be kept to null
     console.log('Hello AtticCacheProvider Provider');
   }
 
   //using ascendingCompare for extra min make the sort suitable for every class.
 
   public pushToCachedFullTags(tag:TagFull){
-    Utils.binaryArrayInsertNoDuplicate(this.cachedFullTags, tag, TagExtraMin.ascendingCompare);
+    if(tag!=null){
+      Utils.binaryArrayInsertNoDuplicate(this.cachedFullTags, tag, TagExtraMin.ascendingCompare);
+    }
   }
 
   public pushToCachedFullNotes(note:NoteFull){
-    Utils.binaryArrayInsertNoDuplicate(this.cachedFullNotes, note, NoteExtraMin.ascendingCompare);
+    if(note!=null){
+      Utils.binaryArrayInsertNoDuplicate(this.cachedFullNotes, note, NoteExtraMin.ascendingCompare);
+    }
   }
 
   public pushToCachedAlmostMinTags(tag:TagAlmostMin){
@@ -54,6 +62,7 @@ export class AtticCache {
   }
 
   public pushToCachedExtraMinNote(note:NoteExtraMin){
+
     Utils.binaryArrayInsertNoDuplicate(this.cachedExtraMinNotes, note, NoteExtraMin.ascendingCompare);
   }
 
@@ -63,6 +72,7 @@ export class AtticCache {
   }
 
   public pushToDifferentlySortedCachedExtraMinNote(note:NoteExtraMin){
+
     Utils.binaryArrayInsertNoDuplicate(this.differentlySortedCachedExtraMinNotes, note, NoteExtraMinWithDate.descendingCompare);
   }
 
@@ -124,6 +134,20 @@ export class AtticCache {
     this.differentlySortedCachedAlmostMinTags = [];
     this.differentlySortedCachedAlmostMinTags = tags;
     this.pushAllToCachedAlmostMinTags(tags, false);
+  }
+
+
+  public setSummary(summary:UserSummary):void{
+    if(this.summary==null){
+      this.summary=summary;
+    }
+    else if(!this.summary.equals(summary)){
+      this.summary=summary;
+    }
+  }
+
+  public getSummary():UserSummary{
+    return this.summary;
   }
 
 
@@ -334,6 +358,10 @@ export class AtticCache {
 
   public areDifferentlySortedCachedTagsAlmostMinEmpty():boolean{
     return this.differentlySortedCachedAlmostMinTags.length==0;
+  }
+
+  public isSummaryEmpty():boolean{
+    return this.summary==null;
   }
 
 }

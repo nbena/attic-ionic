@@ -63,30 +63,44 @@ public static readonly NET_ERROR = 'An error occured due to your network connect
 
 private static isNetworkError(error:any):boolean{
   let isNetwork:boolean = false;
-  if(error.status!=null &&
-    error.statusText!=null &&
-    error.ok !=null &&
-    error.headers!=null
-    )
-  if(error.status==0 &&
-    error.url==null &&
-    error.statusText=='' &&
-    error.ok == false &&
-    error.headers=={}
-  ){
-      isNetwork=true;
-    }
+  // if(error.status!=null &&
+  //   error.statusText!=null &&
+  //   error.ok !=null
+  //   // && error.headers!=null
+  // ){
+  //   console.log('matched error');
+  //   if(error.status==0
+  //     // && error.url==null
+  //     && error.statusText=='' &&
+  //     error.ok == false &&
+  //     error.headers=={}
+  //   ){
+  //       isNetwork=true;
+  //     }
+  // }
+  if(JSON.stringify(error) == AtticError.NETWORK_JSON_ERROR){
+    isNetwork = true;
+    // console.log('equals');
+  }
   return isNetwork;
 }
 
 public static getBetterNetworkError(error:any):any{
-  let ret:any;
+  let ret:Error;
   if(AtticError.isNetworkError(error)){
-    ret.message=AtticError.NET_ERROR;
+    // ret.message=AtticError.NET_ERROR;
+    ret = AtticError.getNewNetworkError();
   }
   return ret;
 }
 
+public static getNewNetworkError():Error{
+  let ret:Error = new Error(AtticError.NET_ERROR);
+  return ret;
+}
+
+
+  private static readonly NETWORK_JSON_ERROR = '{"_body":{"isTrusted":true},"status":0,"ok":false,"statusText":"","headers":{},"type":3,"url":null}';
 
 
 //directly taken from the server.
@@ -120,11 +134,12 @@ public static getError(error:any):any{
   if(error.message!=null){
     if(AtticError.isSqliteError(error.message)){
       ret=AtticError.getBetterSqliteError(error);
-    }else if(AtticError.isNetworkError(error)){
-      ret=AtticError.getBetterNetworkError(error);
-    }
-    return ret;
+      }
   }
+  if(AtticError.isNetworkError(error)){
+    ret=AtticError.getBetterNetworkError(error)
+  }
+  return ret;
   }
 
 

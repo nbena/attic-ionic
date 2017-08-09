@@ -3351,8 +3351,8 @@ private getCounts(rows:any, summary:UserSummary):UserSummary{
 
   summary = this.mkAvailable(summary);
 
-  console.log('the summary here'),
-  console.log(JSON.stringify(summary));
+  // console.log('the summary here'),
+  // console.log(JSON.stringify(summary));
   return summary;
 }
 

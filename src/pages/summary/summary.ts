@@ -102,26 +102,35 @@ export class SummaryPage {
   }
 
   startSynching(){
-    if(this.synchingEnabled){
-      //Utils.presentToast(this.toastCtrl, 'synching...');
-      this.graphicProvider.presentToast('synching...');
-      this.synch.synch()
-      .then(synched=>{
-        console.log('synching done');
-        this.graphicProvider.presentToast('synching done');
-        this.setSynchState();
-      })
-      .catch(error=>{
-        console.log('error in synch');
-        console.log(JSON.stringify(error));
-        // this.synchingEnabled = true;
-        // this.synchState = Const.CURRENTLY_NOT_SYNCHING;
-        this.setSynchState();
-      })
-      //please note that this is not done AFTER, but it's call when promise starts.
-      this.synchState = Const.CURRENTLY_SYNCHING;
-      this.synchingEnabled = false;
-    }
+
+    // try{
+      if(this.synchingEnabled){ //even if it's
+      //not necessary let's keep it here.
+        //Utils.presentToast(this.toastCtrl, 'synching...');
+        this.graphicProvider.presentToast('synching...');
+        this.synch.synch()
+        .then(synched=>{
+          console.log('synching done');
+          this.graphicProvider.presentToast('synching done');
+          this.setSynchState();
+        })
+        .catch(error=>{
+          console.log('error in synch');
+          console.log(JSON.stringify(error));
+          // this.synchingEnabled = true;
+          // this.synchState = Const.CURRENTLY_NOT_SYNCHING;
+          this.setSynchState();
+          this.graphicProvider.showErrorAlert(error.message);
+        })
+        //please note that this is not done AFTER, but it's call when promise starts.
+        this.synchState = Const.CURRENTLY_SYNCHING;
+        this.synchingEnabled = false;
+      }
+    // }
+    // catch(e){
+    //   console.log('error here');
+    //   console.log(JSON.stringify(e));
+    // }
   }
 
   empty(){

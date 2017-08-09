@@ -45,6 +45,7 @@ export class AtticTags {
         let useForce: boolean = force;
         let isNteworkAvailable: boolean = this.netManager.isConnected;
         let areThereTagsInTheDb: boolean;
+        let useCache: boolean = false;
         // let tags:TagAlmostMin[]=[];
         let useDb: boolean;
         this.db.getTagsCount(this.auth.userid)
@@ -53,43 +54,49 @@ export class AtticTags {
           // console.log('the number of tags is');console.log(number);
           // let useDb = !isNteworkAvailable || areThereNotesInTheDb || !force;
           useDb = Utils.shouldUseDb(isNteworkAvailable, areThereTagsInTheDb, force/*, this.synch.isSynching()*/);
-          console.log('usedb tag: ');console.log(JSON.stringify(useDb));
+          console.log('use db tag: ');console.log(JSON.stringify(useDb));
+          let p:Promise<TagAlmostMin[]>;
           if(useDb){
-            let p:Promise<TagAlmostMin[]>;
             if(!this.atticCache.areDifferentlySortedCachedTagsAlmostMinEmpty()){
+              useCache=true;
               console.log('using cache');
-              p = new Promise<TagAlmostMin[]>((resolve, reject)=>{
-                let tags:TagAlmostMin[]=this.atticCache.getDifferentlySortedCachedTagAlmostMin();
-                //tags.sort(TagAlmostMin.descendingCompare); //see if needed.
-                resolve(tags);
-              });
+              p=Promise.resolve(this.atticCache.getDifferentlySortedCachedTagAlmostMin());
             }else{
               console.log('no cache using db');
               p = this.db.getTagsMin(this.auth.userid);
             }
-            return p;
           }else{
             console.log('no tags, using the network');
-            //return Utils.getBasic('/api/tags/all/min', this.http, this.auth.token);
-            return this.http.get('/api/tags/all/min');
+            p=this.http.get('/api/tags/all/min');
           }
+          return p;
         })
         .then(fetchingResult=>{
           // console.log('fetch result is:');
           // console.log(JSON.stringify(fetchingResult));
-          if(useDb){
-            return new Promise<TagAlmostMin[]>((resolve, reject)=>{resolve(fetchingResult)});
-          }else{
-            if(!this.synch.isTagLocked()){
-              this.db.insertTagsMinSmartAndCleanify(fetchingResult as TagAlmostMin[], this.auth.userid);
-              return new Promise<TagAlmostMin[]>((resolve, reject)=>{resolve(fetchingResult)});
-            }else{
-              console.log('fetched tags by title but it is locked');            }
-          }
-        })
-        .then(tags=>{
-          this.atticCache.pushAllToDifferentlySortedCachedAlmostMinTags(tags as TagAlmostMin[]);
-          resolve(tags);
+        //   if(useDb){
+        //     return new Promise<TagAlmostMin[]>((resolve, reject)=>{resolve(fetchingResult)});
+        //   }else{
+        //     if(!this.synch.isTagLocked()){
+        //       this.db.insertTagsMinSmartAndCleanify(fetchingResult as TagAlmostMin[], this.auth.userid);
+        //       return new Promise<TagAlmostMin[]>((resolve, reject)=>{resolve(fetchingResult)});
+        //     }else{
+        //       console.log('fetched tags by title but it is locked');            }
+        //   }
+        // })
+        // .then(tags=>{
+        //   this.atticCache.pushAllToDifferentlySortedCachedAlmostMinTags(tags as TagAlmostMin[]);
+        //   resolve(tags);
+        // })
+        resolve(fetchingResult as TagAlmostMin[]);
+        if(!this.synch.isTagLocked() && !useDb){
+          this.db.insertTagsMinSmartAndCleanify(fetchingResult as TagAlmostMin[], this.auth.userid);
+        }else{
+          console.log('fetched tags but is locked (or I\'ve used db)');
+        }
+        if(!useCache){
+          this.atticCache.pushAllToDifferentlySortedCachedAlmostMinTags(fetchingResult as TagAlmostMin[]);
+        }
         })
         .catch(error=>{
           console.log('error tags:');
@@ -125,56 +132,52 @@ export class AtticTags {
       return new Promise<TagFull>((resolve, reject)=>{
         let areThereTagsInTheDb: boolean;
         let useDb: boolean;
-        // let callNet: boolean;
+        let useCache: boolean = false;
         this.db.getTagsCount(this.auth.userid)
         .then(number=>{
           areThereTagsInTheDb = (number > 0) ? true : false;
           useDb = Utils.shouldUseDb(this.netManager.isConnected, areThereTagsInTheDb, force/*, this.synch.isSynching()*/);
-          // callNet = !useDb;
+          let p:Promise<TagFull>;
           if(useDb){
-            let p:Promise<TagFull>;
             let tag:TagFull=this.atticCache.getTagFullOrNull(TagExtraMin.NewTag(title));
             if(tag!=null){
               console.log('the tag is in the cache');
-              p=new Promise<TagFull>((resolve, reject)=>{resolve(tag)});
+              p=Promise.resolve(tag);
             }else{
               console.log('the tag is not in the cache');
               p=this.db.getTagFull(title, this.auth.userid);
             }
-            // let res:number=-1;
-            // if(!this.atticCache.AreFullTagsEmpty()){
-            //   //i can use a tag extra min because the tag is loaded only if
-            //   //it's fulll.
-            //   res = Utils.binarySearch(this.atticCache.getCachedFullTags(), TagExtraMin.NewTag(title),TagExtraMin.ascendingCompare)
-            // }
-            // if(res!=-1){
-            //   console.log('the tag is in the cache');
-            //   p=new Promise<TagFull>((resolve, reject)=>{resolve(this.atticCache.getCachedFullTags()[res])});
-            // }else{
-            //   console.log('using the db for full tag');
-            //   p=this.db.getTagFull(title, this.auth.userid);
-            // }
-            return p;
           }else{
-            return this.tagByTitle_loadFromNetworkAndInsert(title);
+            p= this.tagByTitle_loadFromNetworkAndInsert(title);
           }
+          return p;
         })
         .then(tagFull=>{
-          if(useDb){
-            /*we have the note and nothing more should have done.*/
-            if(tagFull==null){
-              return this.tagByTitle_loadFromNetworkAndInsert(title);
-            }else{
-              return new Promise<TagFull>((resolve, reject)=>{resolve(tagFull)});
-            }
-          }else{
-            /*we have the note and it has been inserted into the DB*/
-            return new Promise<TagFull>((resolve, reject)=>{resolve(tagFull)});
+          // if(useDb){
+          //   /*we have the note and nothing more should have done.*/
+          //   if(tagFull==null){
+          //     return this.tagByTitle_loadFromNetworkAndInsert(title);
+          //   }else{
+          //     return new Promise<TagFull>((resolve, reject)=>{resolve(tagFull)});
+          //   }
+          // }else{
+          //   /*we have the note and it has been inserted into the DB*/
+          //   return new Promise<TagFull>((resolve, reject)=>{resolve(tagFull)});
+          // }
+          if(tagFull!=null){
+            resolve(tagFull);
+          }else if(tagFull==null && useDb){
+            return this.tagByTitle_loadFromNetworkAndInsert(title);
           }
+          return Promise.resolve(tagFull);
         })
-        .then(fromNet=>{
-          this.atticCache.pushToCachedFullTags(fromNet as TagFull);
-          resolve(fromNet);
+        .then(lastAttempt=>{
+          // this.atticCache.pushToCachedFullTags(fromNet as TagFull);
+          // resolve(fromNet);
+          resolve(lastAttempt);
+          if(!useCache){
+            this.atticCache.pushToCachedFullTags(lastAttempt);
+          }
         })
         .catch(error=>{
           console.log('error in getting full tag');

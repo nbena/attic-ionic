@@ -167,110 +167,209 @@ export class Synch {
   public synch():Promise<void>{
     console.log('is started?'); console.log(JSON.stringify(this.isStarted));
     return new Promise<void>((resolve, reject)=>{
-      if(!this.isStarted){
-        this.isStarted = true;
-        this.makeAllTrue();
-        /*first thing to do is cleaning up.*/
-        console.log('cleaning up');
-        this.cleanUp()
-        .then(()=>{
-          console.log('starting sending things');
-          this.makeAllNoteTrue();
-          return this.sendTagsToSave();
-        })
-        .then(()=>{
-          console.log('tags sent');
-          this.makeAllTagTrue();
-          return this.sendNotesToSave();
-        })
-        .then(()=>{
-          console.log('notes sent');
-          this.lockNoteDone = false;
-          this.lockNoteText = false;
-          this.lockNoteLinks = false;
-          this.lockTagCreate = true;
-          this.lockTagDelete = true;
-          /*already true.*/
-          // this.lockNoteAddTags = true;
-          // this.lockNoteRemoveTags = true;
-          return this.sendTagsToAddToNotes();
-        })
-        .then(()=>{
-          console.log('tags added');
-          /*use the same lock as before*/
-          return this.sendTagsToRemoveFromNotes();
-        })
-        .then(()=>{
-          console.log('tags added');
-          /*the previuos locks are ok.*/
-          return this.sendTagsToDelete();
-        })
-        .then(()=>{
-          console.log('tags deleted');
-          this.makeAllTrue();
-          return this.sendNotesToDelete();
-        })
-        .then(()=>{
-          console.log('notes deleted');
-          //this.lockNoteDone = true; already done
-          this.lockNoteText = false;
-          this.lockNoteLinks = false;
-          this.makeAllTagFalse();
-          return this.sendNotesToChangeDone();
-        })
-        .then(()=>{
-          console.log('set done');
-          this.lockNoteDone = false;
-          this.lockNoteText = true;
-          return this.sendNotesToChangeText();
-        })
-        .then(()=>{
-          console.log('text changed');
-          this.lockNoteText = false;
-          this.lockNoteLinks = true;
-          return this.sendNotesToChangeLinks();
-        })
-        .then(()=>{
-        //   // console.log('everything is done');
-        //   console.log('links changed');
-        //   // return this.removeNoteBecauseOfError();
-        //
-        //   return this.removeBadThings();
-        //
-        //   // this.isStarted = false;
-        //   // this.makeAllFalse();
-        //   // resolve();
-        // })
-        // .then(()=>{
-        //   console.log('bad things removed');
-        //   console.log('everything is done');
-        //   this.isStarted=false;
-        //   this.makeAllFalse();
-        console.log('links changed');
-        console.log('everything is done');
-        resolve();
-      })
-        .catch(error=>{
-          console.log('sent error:');
-          console.log(JSON.stringify(error));
-          if(this.someSynchError){
-            return this.removeBadThings();
+
+      if(!this.netManager.isConnected){
+        reject(AtticError.getNewNetworkError());
+      }else{
+
+        this.db.isThereSomethingToSynch(this.auth.userid)
+        .then(something=>{
+          //unfortunately need to be done ehere.
+          //if not it continues also in the else branch.
+          if(something && !this.isStarted){
+            this.synchCore().then(()=>{resolve()})
+              .catch(error=>{reject(error)})
           }else{
-            this.isStarted = false;
-            reject(error);
+            resolve();
           }
-        })
-        .then(()=>{
-          console.log('bad things removed');
-          resolve();
-        })
-        .catch(error=>{
-          console.log('error in removing bad things');
-          console.log(JSON.stringify(error));
-          reject(error);
-        })
+          })
+
+
+
+          // if(!this.isStarted){
+          //   this.isStarted = true;
+          //   this.makeAllTrue();
+          //   /*first thing to do is cleaning up.*/
+          //   console.log('cleaning up');
+          //   this.cleanUp()
+          //   .then(()=>{
+          //     console.log('starting sending things');
+          //     this.makeAllNoteTrue();
+          //     return this.sendTagsToSave();
+          //   })
+          //   .then(()=>{
+          //     console.log('tags sent');
+          //     this.makeAllTagTrue();
+          //     return this.sendNotesToSave();
+          //   })
+          //   .then(()=>{
+          //     console.log('notes sent');
+          //     this.lockNoteDone = false;
+          //     this.lockNoteText = false;
+          //     this.lockNoteLinks = false;
+          //     this.lockTagCreate = true;
+          //     this.lockTagDelete = true;
+          //     /*already true.*/
+          //     // this.lockNoteAddTags = true;
+          //     // this.lockNoteRemoveTags = true;
+          //     return this.sendTagsToAddToNotes();
+          //   })
+          //   .then(()=>{
+          //     console.log('tags added');
+          //     /*use the same lock as before*/
+          //     return this.sendTagsToRemoveFromNotes();
+          //   })
+          //   .then(()=>{
+          //     console.log('tags added');
+          //     /*the previuos locks are ok.*/
+          //     return this.sendTagsToDelete();
+          //   })
+          //   .then(()=>{
+          //     console.log('tags deleted');
+          //     this.makeAllTrue();
+          //     return this.sendNotesToDelete();
+          //   })
+          //   .then(()=>{
+          //     console.log('notes deleted');
+          //     //this.lockNoteDone = true; already done
+          //     this.lockNoteText = false;
+          //     this.lockNoteLinks = false;
+          //     this.makeAllTagFalse();
+          //     return this.sendNotesToChangeDone();
+          //   })
+          //   .then(()=>{
+          //     console.log('set done');
+          //     this.lockNoteDone = false;
+          //     this.lockNoteText = true;
+          //     return this.sendNotesToChangeText();
+          //   })
+          //   .then(()=>{
+          //     console.log('text changed');
+          //     this.lockNoteText = false;
+          //     this.lockNoteLinks = true;
+          //     return this.sendNotesToChangeLinks();
+          //   })
+          //   .then(()=>{
+          //   console.log('links changed');
+          //   console.log('everything is done');
+          //   resolve();
+          // })
+          //   .catch(error=>{
+          //     console.log('sent error:');
+          //     console.log(JSON.stringify(error));
+          //     if(this.someSynchError){
+          //       return this.removeBadThings();
+          //     }else{
+          //       this.isStarted = false;
+          //       reject(AtticError.getError(error));
+          //     }
+          //   })
+          //   .then(()=>{
+          //     console.log('bad things removed');
+          //     resolve();
+          //   })
+          //   .catch(error=>{
+          //     console.log('error in removing bad things');
+          //     console.log(JSON.stringify(error));
+          //     reject(error);
+          //   })
+          // }
+
       }
     });
+  }
+
+
+  private synchCore():Promise<void>{
+    return new Promise<void>((resolve, reject)=>{
+      this.isStarted = true;
+      this.makeAllTrue();
+      /*first thing to do is cleaning up.*/
+      console.log('cleaning up');
+      this.cleanUp()
+      .then(()=>{
+        console.log('starting sending things');
+        this.makeAllNoteTrue();
+        return this.sendTagsToSave();
+      })
+      .then(()=>{
+        console.log('tags sent');
+        this.makeAllTagTrue();
+        return this.sendNotesToSave();
+      })
+      .then(()=>{
+        console.log('notes sent');
+        this.lockNoteDone = false;
+        this.lockNoteText = false;
+        this.lockNoteLinks = false;
+        this.lockTagCreate = true;
+        this.lockTagDelete = true;
+        /*already true.*/
+        // this.lockNoteAddTags = true;
+        // this.lockNoteRemoveTags = true;
+        return this.sendTagsToAddToNotes();
+      })
+      .then(()=>{
+        console.log('tags added');
+        /*use the same lock as before*/
+        return this.sendTagsToRemoveFromNotes();
+      })
+      .then(()=>{
+        console.log('tags added');
+        /*the previuos locks are ok.*/
+        return this.sendTagsToDelete();
+      })
+      .then(()=>{
+        console.log('tags deleted');
+        this.makeAllTrue();
+        return this.sendNotesToDelete();
+      })
+      .then(()=>{
+        console.log('notes deleted');
+        //this.lockNoteDone = true; already done
+        this.lockNoteText = false;
+        this.lockNoteLinks = false;
+        this.makeAllTagFalse();
+        return this.sendNotesToChangeDone();
+      })
+      .then(()=>{
+        console.log('set done');
+        this.lockNoteDone = false;
+        this.lockNoteText = true;
+        return this.sendNotesToChangeText();
+      })
+      .then(()=>{
+        console.log('text changed');
+        this.lockNoteText = false;
+        this.lockNoteLinks = true;
+        return this.sendNotesToChangeLinks();
+      })
+      .then(()=>{
+      console.log('links changed');
+      console.log('everything is done');
+      resolve();
+    })
+    .catch(error=>{
+      console.log('sent error:');
+      console.log(JSON.stringify(error));
+      if(this.someSynchError){
+        return this.removeBadThings();
+      }else{
+        this.isStarted = false;
+        reject(AtticError.getError(error));
+      }
+    })
+    .then(()=>{
+      console.log('bad things removed');
+      this.isStarted = false;
+      resolve();
+    })
+    .catch(error=>{
+      console.log('error in removing bad things');
+      console.log(JSON.stringify(error));
+      reject(error);
+    })
+    })
   }
 
   // private mkPromise():Promise<void>[]{
@@ -355,7 +454,7 @@ export class Synch {
                   resolve(result);
                 })
                 .catch(error=>{
-                  reject(error);
+                  reject(AtticError.getError(error));
                 })
               })
             );
@@ -419,7 +518,7 @@ export class Synch {
         }
         console.log('the current error object is: ');
         console.log(JSON.stringify(currentLog));
-        reject(error); /*error is correctly rejected.*/
+        reject(AtticError.getError(error)); /*error is correctly rejected.*/
       })
     })
   }
@@ -439,26 +538,18 @@ export class Synch {
         if(objs == null){
           resolve();
         }else{
-          // return Promise.all(objs.map((obj)=>{
-          //   current = obj.tag.title;
-          //   return Utils.putBasic('/api/tags/'+obj.tag.title, {}, this.http, this.auth.token)
-          //   .then(res=>{
-          //     correctResult.push(obj.tag.title);
-          //   })
-          // }))
           let promises:Promise<any>[] = [];
           objs.forEach(obj=>{
             currentLog = obj;
             promises.push(
               new Promise<any>((resolve, reject)=>{
-                //Utils.putBasic('/api/tags/'+obj.tag.title, {}, this.http, this.auth.token)
                 this.http.put('/api/tags/'+obj.tag.title)
                 .then(result=>{
                   correctResult.push(obj.tag.title);
                   resolve(result);
                 })
                 .catch(error=>{
-                  reject(error);
+                  reject(AtticError.getError(error));
                 })
               })
             );
@@ -493,7 +584,7 @@ export class Synch {
         }
         console.log('the current error object is: ');
         console.log(JSON.stringify(currentLog));
-        reject(error);
+        reject(AtticError.getError(error));
       })
     })
   }
@@ -561,7 +652,7 @@ export class Synch {
                 .catch(error=>{
                   // console.log('error in send tags-to-add-to');
                   // console.log(JSON.stringify(error));
-                  reject(error);
+                  reject(AtticError.getError(error));
                 })
               })
             )
@@ -596,7 +687,7 @@ export class Synch {
         }
         console.log('the current error object is: ');
         console.log(JSON.stringify(currentLog));
-        reject(error);
+        reject(AtticError.getError(error));
       })
     })
   }
@@ -639,7 +730,7 @@ export class Synch {
                 .catch(error=>{
                   // console.log('error in send tags-to-remove-from');
                   // console.log(JSON.stringify(error));
-                  reject(error);
+                  reject(AtticError.getError(error));
                 })
               })
             )
@@ -672,7 +763,7 @@ export class Synch {
         }
         console.log('the current error object is: ');
         console.log(JSON.stringify(currentLog));
-        reject(error);
+        reject(AtticError.getError(error));
       })
     })
   }
@@ -709,7 +800,7 @@ export class Synch {
                 .catch(error=>{
                   // console.log('error in send to note to delete');
                   // console.log(JSON.stringify(error));
-                  reject(error);
+                  reject(AtticError.getError(error));
                 })
               })
             )
@@ -744,7 +835,7 @@ export class Synch {
         }
         console.log('the current error object is: ');
         console.log(JSON.stringify(currentLog));
-        reject(error);
+        reject(AtticError.getError(error));
       })
     })
   }
@@ -799,7 +890,7 @@ export class Synch {
                 .catch(error=>{
                   // console.log('error in send tags-to-delete');
                   // console.log(JSON.stringify(error));
-                  reject(error);
+                  reject(AtticError.getError(error));
                 })
               })
             )
@@ -834,7 +925,7 @@ export class Synch {
         }
         console.log('the current error object is: ');
         console.log(JSON.stringify(currentLog));
-        reject(error);
+        reject(AtticError.getError(error));
       })
     })
   }
@@ -880,7 +971,7 @@ export class Synch {
                 .catch(error=>{
                   // console.log('error in');
                   // console.log(JSON.stringify(error));
-                  reject(error);
+                  reject(AtticError.getError(error));
                 })
               })
             )
@@ -913,7 +1004,7 @@ export class Synch {
         }
         console.log('the current error object is: ');
         console.log(JSON.stringify(currentLog));
-        reject(error);
+        reject(AtticError.getError(error));
       })
     })
   }
@@ -958,7 +1049,7 @@ export class Synch {
                 .catch(error=>{
                   // console.log('error in send notes-to-change-links');
                   // console.log(JSON.stringify(error));
-                  reject(error);
+                  reject(AtticError.getError(error));
                 })
               })
             )
@@ -991,7 +1082,7 @@ export class Synch {
         }
         console.log('the current error object is: ');
         console.log(JSON.stringify(currentLog));
-        reject(error);
+        reject(AtticError.getError(error));
       })
     })
   }
@@ -1036,7 +1127,7 @@ export class Synch {
                 .catch(error=>{
                   // console.log('error in send notes-to-set-done');
                   // console.log(JSON.stringify(error));
-                  reject(error);
+                  reject(AtticError.getError(error));
                 })
               })
             )
@@ -1069,7 +1160,7 @@ export class Synch {
         }
         console.log('the current error object is: ');
         console.log(JSON.stringify(currentLog));
-        reject(error);
+        reject(AtticError.getError(error));
       })
     })
   }
@@ -1116,7 +1207,7 @@ export class Synch {
         .catch(error=>{
           console.log('error remove bad notes-to-set-link');
           console.log(JSON.stringify(error));
-          reject(error);
+          reject(AtticError.getError(error));
         })
       }else{
         console.log('no bad notes-to-set-link to remove');
@@ -1138,7 +1229,7 @@ export class Synch {
         .catch(error=>{
           console.log('error remove bad notes-to-change-text');
           console.log(JSON.stringify(error));
-          reject(error);
+          reject(AtticError.getError(error));
         })
       }else{
         console.log('no bad notes-to-change-text to remove');
@@ -1160,7 +1251,7 @@ export class Synch {
         .catch(error=>{
           console.log('error remove bad notes-to-create');
           console.log(JSON.stringify(error.message));
-          reject(error);
+          reject(AtticError.getError(error));
         })
       }else{
         console.log('no bad notes-to-create to remove');
@@ -1182,7 +1273,7 @@ export class Synch {
         .catch(error=>{
           console.log('error remove bad tags-to-add-to');
           console.log(JSON.stringify(error));
-          reject(error);
+          reject(AtticError.getError(error));
         })
       }else{
         console.log('no bad tags-to-add-to to remove');
@@ -1204,7 +1295,7 @@ export class Synch {
         .catch(error=>{
           console.log('error remove bad tags-to-remove-from');
           console.log(JSON.stringify(error));
-          reject(error);
+          reject(AtticError.getError(error));
         })
       }else{
         console.log('no bad tags-to-remove-from to remove');
@@ -1227,7 +1318,7 @@ export class Synch {
         .catch(error=>{
           console.log('error remove bad tags-to-create');
           console.log(JSON.stringify(error));
-          reject(error);
+          reject(AtticError.getError(error));
         })
       }else{
         console.log('no bad tags-to-create to remove');

@@ -206,7 +206,7 @@ static fromTagsToString(tags: TagExtraMin[]):string[]{
        current = Math.floor((start+end)/2);
    }
    if(!found){
-     console.log('not found');
+    //  console.log('not found');
      array.splice(current, 0, item);
    }
    else{console.log('found');}

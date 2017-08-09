@@ -100,14 +100,16 @@ export class NotesPage {
       // }
 
       /*execute first time (?)*/
-      if(this.currentFilter==Filter.None){
-        try{
-          this.synchingTask();
-        }
-        catch(e){
-          console.log(e);
-        }
-      }
+      // if(this.currentFilter==Filter.None){
+      //   // try{
+      //     this.synchingTask();
+      //   // }
+      //   // catch(e){
+      //   //   console.log(e);
+      //   // }
+      // }
+
+      this.synchingTask();
 
       let eventualNote:string=null
 
@@ -161,29 +163,37 @@ export class NotesPage {
   }
 
   private synchingTask(){
-    let isThereSomething:boolean = false;
-    this.synch.isThereSomethingToSynch()
-    .then(isThere=>{
-      if(isThere){
-        isThereSomething = isThere;
-        this.graphicProvider.presentToast('synching...');
-        return this.synch.synch()
-      }
-    })
-    .then(synched=>{
-      if(isThereSomething){
-        this.graphicProvider.presentToast('synching done');
-      }
+    // let isThereSomething:boolean = false;
+    // this.synch.isThereSomethingToSynch()
+    // .then(isThere=>{
+    //   if(isThere){
+    //     isThereSomething = isThere;
+    //     this.graphicProvider.presentToast('synching...');
+    //     return this.synch.synch();
+    //   }
+    // })
+    // .then(synched=>{
+    //   if(isThereSomething){
+    //     this.graphicProvider.presentToast('synching done');
+    //   }
+    // })
+    this.graphicProvider.presentToast('synching...');
+    this.synch.synch()
+    .then(()=>{
+      console.log('synching done');
+      this.graphicProvider.presentToast('synching done');
     })
     .catch(error=>{
       console.log('error in synch or in get things to synch');
       console.log(JSON.stringify(error));
+      this.graphicProvider.showErrorAlert(error.message);
     })
 
   }
 
   refresh(refresher){
-    this.loadMinAndSynch(true);
+    // this.loadMinAndSynch(true);
+    this.loadMin(true)
     setTimeout(()=>{
       refresher.complete();
     },2000);
@@ -257,18 +267,18 @@ export class NotesPage {
       })
   }
 
-  loadMinAndSynch(force: boolean){
-    this.atticNotes.loadNotesMin(force)
-      .then(result=>{
-        this.allNotes=result as NoteExtraMin[];
-        this.shownNotes=this.allNotes;
-        this.synchingTask();
-      })
-      .catch(error=>{
-        console.log('load min error');
-        console.log(JSON.stringify(error));
-      })
-  }
+  // loadMinAndSynch(force: boolean){
+  //   this.atticNotes.loadNotesMin(force)
+  //     .then(result=>{
+  //       this.allNotes=result as NoteExtraMin[];
+  //       this.shownNotes=this.allNotes;
+  //       this.synchingTask();
+  //     })
+  //     .catch(error=>{
+  //       console.log('load min error');
+  //       console.log(JSON.stringify(error));
+  //     })
+  // }
 
   // loadByTags(tags: string[]/*, firstTime: boolean*/){
   //   // console.log("called the load by tags with: "+tags );
@@ -290,8 +300,8 @@ export class NotesPage {
   //  }
     this.atticNotes.notesByTag2(tags, force)
     .then(result=>{
-      console.log('result here is');
-      console.log(JSON.stringify(result));
+      // console.log('result here is');
+      // console.log(JSON.stringify(result));
       if(this.allNotes==null){
         this.allNotes = result as NoteExtraMin[];
         this.shownNotes = this.allNotes.slice();
@@ -300,7 +310,7 @@ export class NotesPage {
       }
     })
     .catch(error=>{
-      console.log('load tags 2 error');
+      console.log('load by tags error');
       console.log(JSON.stringify(error));
     })
   }

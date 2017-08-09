@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { Auth } from './auth';
 import { NetManager } from './net-manager';
 import { UserSummary } from '../models/user_summary';
+import { AtticCache } from './attic-cache';
 import { Db } from './db';
 import 'rxjs/add/operator/map';
 import {HttpProvider} from './http';
@@ -18,7 +19,8 @@ export class AtticUserProvider {
   constructor(public http: HttpProvider,
     private auth: Auth,
     private netManager: NetManager,
-    private db: Db
+    private db: Db,
+    private atticCache: AtticCache
   ) {
     console.log('Hello AtticUserProvider Provider');
   }
@@ -28,44 +30,45 @@ export class AtticUserProvider {
     return new Promise<UserSummary>((resolve, reject)=>{
       let useDb: boolean = true;
       let isNteworkAvailable: boolean = this.netManager.isConnected;
-      // console.log('is connected');
-      // console.log(JSON.stringify(isNteworkAvailable));
       if(force){
         useDb=false;
       }
       if(!isNteworkAvailable){
         useDb = true;
       }
-      console.log('use db summary');
-      console.log(JSON.stringify(useDb));
-      let p;
-      let userSummary:UserSummary;
+      console.log('use db summary');console.log(JSON.stringify(useDb));
+      let p:Promise<UserSummary>;
+      // let userSummary:UserSummary;
       if(useDb){
-        // console.log('use db');
-        p=this.db.getUserSummary(this.auth.userid);
+        if(!this.atticCache.isSummaryEmpty()){
+          console.log('using cache');
+          p=new Promise<UserSummary>((resolve, reject)=>{resolve(this.atticCache.getSummary())});
+        }else{
+          console.log('the summary is not in the cache');
+          p=this.db.getUserSummary(this.auth.userid);
+        }
       }else{
-        // console.log('not use db');
-        //p=Utils.getBasic('/api/users/'+this.auth.userid, this.http, this.auth.token);
         p=this.http.get('/api/users/'+this.auth.userid);
       }
       p.then(fetchingResult=>{
-        userSummary = fetchingResult as UserSummary;
+        // userSummary = fetchingResult as UserSummary;
+        resolve(fetchingResult);
         if(useDb){
-          resolve(userSummary);
+          //resolve(userSummary);
+          return new Promise<UserSummary>((resolve, reject)=>{resolve(fetchingResult as UserSummary)});
         }else{
           /*just set free*/
-          this.db.insertSetFree(userSummary.data.isfree, this.auth.userid);
-          resolve(userSummary);
+          this.db.insertSetFree((fetchingResult as UserSummary).data.isfree, this.auth.userid);
+          return new Promise<UserSummary>((resolve, reject)=>{resolve(fetchingResult as UserSummary)});
         }
       })
-      // return this.db.getUserSummary(this.auth.userid);
-      this.db.getUserSummary(this.auth.userid)
       .then(summary=>{
-        resolve(summary);
+        this.atticCache.setSummary(summary);
+        // resolve(summary);
       })
       .catch(error=>{
         console.log('error in get summary provider');
-        console.log(JSON.stringify(error));
+        console.log(JSON.stringify(error.message));
         reject(error);
       })
     })

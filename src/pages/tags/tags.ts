@@ -78,7 +78,7 @@ export class TagsPage {
   loadAlmostMin(force: boolean){
     this.atticTags.loadTagsMin(force)
       .then(result=>{
-        console.log(JSON.stringify(result));
+        // console.log(JSON.stringify(result));
         this.allTags=result as TagAlmostMin[];
         this.shownTags=this.allTags.slice();
       })

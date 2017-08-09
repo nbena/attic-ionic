@@ -68,6 +68,7 @@ export class AtticNotes {
   loadNotesMin(force: boolean):Promise<NoteExtraMin[]>{
     return new Promise<NoteExtraMin[]>((resolve, reject)=>{
       let useForce: boolean = force;
+      let useCache: boolean = false;
       let isNteworkAvailable: boolean = this.netManager.isConnected;
       let areThereNotesInTheDb: boolean;
       let useDb: boolean;
@@ -76,43 +77,54 @@ export class AtticNotes {
         areThereNotesInTheDb = (number > 0) ? true : false;
         // console.log('the numberof notes is');console.log(number);
         useDb = Utils.shouldUseDb(isNteworkAvailable, areThereNotesInTheDb, force);
-        // console.log('usedb note: ');console.log(JSON.stringify(useDb));
+        console.log('use db note: ');console.log(JSON.stringify(useDb));
+        let p:Promise<NoteExtraMin[]>;
         if(useDb){
-          let p:Promise<NoteExtraMin[]>;
           if(!this.atticCache.areDifferentlySortedCachedNotesExtraMinEmpty()){
+            useCache=true;
             console.log('using cache');
-            p = new Promise<NoteExtraMin[]>((resolve, reject)=>{
-              let notes:NoteExtraMinWithDate[]=this.atticCache.getDifferentlySortedCachedNotesExtraMin() as NoteExtraMinWithDate[];
-              // notes.sort(NoteExtraMinWithDate.descendingCompare); //see if needed.
-              resolve(notes);
-            });
+            // p = new Promise<NoteExtraMin[]>((resolve, reject)=>{
+            //   let notes:NoteExtraMinWithDate[]=this.atticCache.getDifferentlySortedCachedNotesExtraMin() as NoteExtraMinWithDate[];
+            //   resolve(notes);
+            // })
+            p = Promise.resolve(this.atticCache.getDifferentlySortedCachedNotesExtraMin());
+            /*
+            if resolving now it's bad, I'll to use a lot of if then to see if cached or not, use a
+            promise insted.
+            */
           }else{
             console.log('no cache using db');
             p = this.db.getNotesMin(this.auth.userid);
           }
-          return p;
         }else{
           console.log('using the network');
-          return this.http.get('/api/notes/all/min/with-date');
+          p = this.http.get('/api/notes/all/min/with-date');
         }
+        return p;
       })
       .then(fetchingResult=>{
-        if(useDb){
-          return new Promise<NoteExtraMin[]>((resolve, reject)=>{resolve(fetchingResult)});
+        resolve(fetchingResult as NoteExtraMin[]);
+        // if(useDb){
+          //return new Promise<NoteExtraMin[]>((resolve, reject)=>{resolve(fetchingResult)});
+          // return Promise.resolve(fetchingResult as NoteExtraMin[]);
+        // }else{
+        if(!this.synch.isNoteFullyLocked() && !useDb){ /*can insert only if lock is free*/
+          this.db.insertNotesMinSmartAndCleanify(fetchingResult as NoteExtraMinWithDate[], this.auth.userid);
+          //return new Promise<NoteExtraMin[]>((resolve, reject)=>{resolve(fetchingResult)});
         }else{
-          if(!this.synch.isNoteFullyLocked()){ /*can insert only if lock is free*/
-            this.db.insertNotesMinSmartAndCleanify(fetchingResult as NoteExtraMinWithDate[], this.auth.userid);
-            return new Promise<NoteExtraMin[]>((resolve, reject)=>{resolve(fetchingResult)});
-
-          }else{
-            console.log('fetched notes min but it is locked');
-          }
+          console.log('fetched notes min but it is locked (or I\'ve used db)');
         }
+        if(!useCache){
+          this.atticCache.pushAllToDifferentlySortedCachedExtraMinNote(fetchingResult as NoteExtraMinWithDate[]);
+          // console.log('added to cache');
+        }
+        //}
       })
-      .then(notes=>{
-        this.atticCache.pushAllToDifferentlySortedCachedExtraMinNote(notes as NoteExtraMinWithDate[]);
-        resolve(notes);
-      })
+      // .then(notes=>{
+      //   this.atticCache.pushAllToDifferentlySortedCachedExtraMinNote(notes as NoteExtraMinWithDate[]);
+      //   // resolve(notes);
+      //   console.log('added to notes');
+      // })
       .catch(error=>{
         console.log('error notes:');
         console.log(JSON.stringify(error.message));
@@ -159,65 +171,48 @@ export class AtticNotes {
     return new Promise<NoteFull>((resolve, reject)=>{
       let areThereNotesInTheDb: boolean;
       let useDb: boolean;
-      // let callNet: boolean;
+      let useCache: boolean = false;
       this.db.getNotesCount(this.auth.userid)
       .then(number=>{
         areThereNotesInTheDb = (number > 0) ? true : false;
         useDb = Utils.shouldUseDb(this.netManager.isConnected, areThereNotesInTheDb, force/*, this.synch.isSynching()*/);
         // callNet = !useDb;
         console.log('use db note');console.log(JSON.stringify(useDb));
+        let p:Promise<NoteFull>;
         if(useDb){
-          let p:Promise<NoteFull>;
           let note:NoteFull=this.atticCache.getNoteFullOrNull(NoteExtraMin.NewNoteExtraMin(title));
           if(note!=null){
-            console.log('the note is in the cache');
-            p=new Promise<NoteFull>((resolve, reject)=>{resolve(note)});
+            console.log('the note is in the cache'); useCache=true;
+            //p=new Promise<NoteFull>((resolve, reject)=>{resolve(note)});
+            p=Promise.resolve(note);
           }else{
             console.log('the note is not in the cache');
             p=this.db.getNoteFull(title, this.auth.userid);
           }
-
-
-          // if(!this.atticCache.AreFullNotesEmpty()){
-          //   res = Utils.binarySearch(this.atticCache.getCachedFullNotes(), NoteExtraMin.NewNoteExtraMin(title), NoteExtraMin.ascendingCompare);
-          // }
-          // if(res!=-1){
-          //   console.log('the note is in the cache');
-          //   p = new Promise<NoteFull>((resolve, reject)=>{resolve(this.atticCache.getCachedFullNotes()[res])});
-          // }else{
-          //   console.log('using the db for full note');
-          //   p=this.db.getNoteFull(title, this.auth.userid);
-          // }
-          return p;
         }else{
-          return this.noteByTitle_loadFromNetworkAndInsert(title);
+          p= this.noteByTitle_loadFromNetworkAndInsert(title);
         }
+        return p;
       })
       .then(noteFull=>{
-        if(useDb){
-          /*we have the note and nothing more should have done.*/
-          if(noteFull==null){
-            /*if it's not in the db.*/
-            return this.noteByTitle_loadFromNetworkAndInsert(title);
-          }else{
-            //resolve(noteFull);
-            return new Promise<NoteFull>((resolve, reject)=>{resolve(noteFull)})
-            //resolve a bit in late but so I leave a unique exit point.
-          }
-        }else{
-          /*we have the note and it has been inserted into the DB*/
-          //resolve(noteFull);
-          return new Promise<NoteFull>((resolve, reject)=>{resolve(noteFull)});
+        if(noteFull!=null){
+          resolve(noteFull);
+        }else if(noteFull==null && useDb){
+          return this.noteByTitle_loadFromNetworkAndInsert(title);
         }
+        return Promise.resolve(noteFull); //this is important because I need to
+        //provide a value for the next promise in order to leave the possibility to
+        //insert to the cache.
       })
-      .then(fromNet=>{
-        /*if here the note is not in the DB.*/ /*--> no longer*/
-        this.atticCache.pushToCachedFullNotes(fromNet as NoteFull);
-        resolve(fromNet);
+      .then(lastAttempt=>{
+        resolve(lastAttempt);
+        if(!useCache){
+          this.atticCache.pushToCachedFullNotes(lastAttempt);
+        }
       })
       .catch(error=>{
         console.log('error in getting full note');
-        console.log(JSON.stringify(error));
+        console.log(JSON.stringify(error.message));
         reject(AtticError.getError(error));
       })
     })
@@ -310,12 +305,11 @@ export class AtticNotes {
 
 
   //THIS IS DONE THROUGH THE CACHE.
-  notesByTag2(tags:TagAlmostMin[], force: boolean):Promise<any>{
-    return new Promise<any>((resolve, reject)=>{
-      // let useForce: boolean = force;
+  notesByTag2(tags:TagAlmostMin[], force: boolean):Promise<NoteExtraMin[]>{
+    return new Promise<NoteExtraMin[]>((resolve, reject)=>{
       let isNteworkAvailable: boolean = this.netManager.isConnected;
       let areThereNotesInTheDb: boolean;
-      // let notes:NoteExtraMin[]=[];
+      // let useCache: boolean = false;
       let useDb: boolean;
       let expectedResult: number = 0;
       tags.forEach((tag)=>{expectedResult+=tag.noteslength});
@@ -329,16 +323,18 @@ export class AtticNotes {
         // console.log('the numberof notes is');console.log(number);
         useDb = Utils.shouldUseDb(isNteworkAvailable, areThereNotesInTheDb, force/*, this.synch.isSynching()*/);
         console.log('usedb note: ');console.log(JSON.stringify(useDb));
+        let p:Promise<NoteExtraMin[]>;
         if(useDb){
-          return this.db.getNotesByTags(tags, this.auth.userid);
+          p= this.db.getNotesByTags(tags, this.auth.userid);
         }else{
           console.log('no notes, using the network');
-          return this.http.post('/api/notes/by-tags-no-role', JSON.stringify({tags: tags.map((tag)=>{return tag.title})}));
+          p= this.http.post('/api/notes/by-tags-no-role', JSON.stringify({tags: tags.map((tag)=>{return tag.title})}));
         }
+        return p;
       })
       .then(fetchingResult=>{
-        console.log('fetchingResult is');
-        console.log(JSON.stringify(fetchingResult));
+        // console.log('fetchingResult is');
+        // console.log(JSON.stringify(fetchingResult));
         resolve(fetchingResult as NoteExtraMin[])
       })
       .catch(error=>{
@@ -357,24 +353,27 @@ export class AtticNotes {
   }
 
 
-  notesByText(text: string, force: boolean){
+  notesByText(text: string, force: boolean):Promise<NoteExtraMin[]>{
 
     return new Promise<NoteExtraMin[]>((resolve,reject)=>{
       let isNteworkAvailable: boolean = this.netManager.isConnected;
       let areThereNotesInTheDb: boolean;
       let useDb: boolean;
+      // let useCache: boolean = false;
       this.db.getNotesCount(this.auth.userid)
       .then(number=>{
         areThereNotesInTheDb = (number > 0) ? true : false;
         // console.log('the numberof notes is');console.log(number);
         useDb = Utils.shouldUseDb(isNteworkAvailable, areThereNotesInTheDb, force/*, this.synch.isSynching()*/);
         console.log('usedb note: ');console.log(JSON.stringify(useDb));
+        let p:Promise<NoteExtraMin[]>;
         if(useDb){
-          return this.db.getNotesByText(text, this.auth.userid);
+          p=this.db.getNotesByText(text, this.auth.userid);
         }else{
           console.log('no notes, using the network');
-          return this.http.post('/api/notes/by-text', JSON.stringify({note:{text:text}}));
+          p= this.http.post('/api/notes/by-text', JSON.stringify({note:{text:text}}));
         }
+        return p;
       })
       .then(fetchingResult=>{
         resolve(fetchingResult);
