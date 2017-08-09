@@ -58,82 +58,98 @@ export class AtticCache {
   }
 
   public pushToCachedAlmostMinTags(tag:TagAlmostMin){
-    Utils.binaryArrayInsertNoDuplicate(this.cachedAlmostMinTags, tag, TagExtraMin.ascendingCompare);
+    if(tag!=null){
+      Utils.binaryArrayInsertNoDuplicate(this.cachedAlmostMinTags, tag, TagExtraMin.ascendingCompare);
+    }
   }
 
   public pushToCachedExtraMinNote(note:NoteExtraMin){
-
-    Utils.binaryArrayInsertNoDuplicate(this.cachedExtraMinNotes, note, NoteExtraMin.ascendingCompare);
+    if(note!=null){
+      Utils.binaryArrayInsertNoDuplicate(this.cachedExtraMinNotes, note, NoteExtraMin.ascendingCompare);
+    }
   }
 
 
   public pushToDifferentlySortedCachedAlmostMinTags(tag:TagAlmostMin){
-    Utils.binaryArrayInsertNoDuplicate(this.differentlySortedCachedAlmostMinTags, tag, TagAlmostMin.descendingCompare);
+    if(tag!=null){
+      Utils.binaryArrayInsertNoDuplicate(this.differentlySortedCachedAlmostMinTags, tag, TagAlmostMin.descendingCompare);
+    }
   }
 
   public pushToDifferentlySortedCachedExtraMinNote(note:NoteExtraMin){
-
-    Utils.binaryArrayInsertNoDuplicate(this.differentlySortedCachedExtraMinNotes, note, NoteExtraMinWithDate.descendingCompare);
+    if(note!=null){
+      Utils.binaryArrayInsertNoDuplicate(this.differentlySortedCachedExtraMinNotes, note, NoteExtraMinWithDate.descendingCompare);
+    }
   }
 
 
 
   public pushAllToCachedFullTags(tags:TagFull[], searchForDuplicate:boolean){
-    this.cachedFullTags = [];
-    for(let tag of tags){
-      if(!searchForDuplicate){
-        Utils.binaryArrayInsert(this.cachedFullTags, tag, TagExtraMin.ascendingCompare);
-      }else{
-        Utils.binaryArrayInsertNoDuplicate(this.cachedFullTags, tag, TagExtraMin.ascendingCompare);
+    if(tags!=null){
+      this.cachedFullTags = [];
+      for(let tag of tags){
+        if(!searchForDuplicate){
+          Utils.binaryArrayInsert(this.cachedFullTags, tag, TagExtraMin.ascendingCompare);
+        }else{
+          Utils.binaryArrayInsertNoDuplicate(this.cachedFullTags, tag, TagExtraMin.ascendingCompare);
+        }
       }
     }
   }
 
   public pushAllToCachedFullNotes(notes:NoteFull[], searchForDuplicate:boolean){
-    this.cachedFullNotes = [];
-    for(let note of notes){
-      if(!searchForDuplicate){
-        Utils.binaryArrayInsert(this.cachedFullNotes, note, NoteExtraMin.ascendingCompare);
-      }else{
-        Utils.binaryArrayInsertNoDuplicate(this.cachedFullNotes, note, NoteExtraMin.ascendingCompare);
+    if(notes!=null){
+      this.cachedFullNotes = [];
+      for(let note of notes){
+        if(!searchForDuplicate){
+          Utils.binaryArrayInsert(this.cachedFullNotes, note, NoteExtraMin.ascendingCompare);
+        }else{
+          Utils.binaryArrayInsertNoDuplicate(this.cachedFullNotes, note, NoteExtraMin.ascendingCompare);
+        }
       }
     }
   }
 
   public pushAllToCachedAlmostMinTags(tags:TagAlmostMin[], searchForDuplicate:boolean){
-    this.cachedAlmostMinTags = [];
-    for(let tag of tags){
-      if(!searchForDuplicate){
-        Utils.binaryArrayInsert(this.cachedAlmostMinTags, tag, TagExtraMin.ascendingCompare);
-      }else{
-        Utils.binaryArrayInsertNoDuplicate(this.cachedAlmostMinTags, tag, TagExtraMin.ascendingCompare);
+    if(tags!=null){
+      this.cachedAlmostMinTags = [];
+      for(let tag of tags){
+        if(!searchForDuplicate){
+          Utils.binaryArrayInsert(this.cachedAlmostMinTags, tag, TagExtraMin.ascendingCompare);
+        }else{
+          Utils.binaryArrayInsertNoDuplicate(this.cachedAlmostMinTags, tag, TagExtraMin.ascendingCompare);
+        }
       }
     }
-    // console.log('the cached almost min');
-    // console.log(JSON.stringify(this.cachedAlmostMinTags));
   }
 
   public pushAllToCachedExtraMinNote(notes:NoteExtraMin[], searchForDuplicate:boolean){
-    this.cachedExtraMinNotes = [];
-    for(let note of notes){
-      if(!searchForDuplicate){
-        Utils.binaryArrayInsert(this.cachedExtraMinNotes, note, NoteExtraMin.ascendingCompare);
-      }else{
-        Utils.binaryArrayInsertNoDuplicate(this.cachedExtraMinNotes, note, NoteExtraMin.ascendingCompare);
+    if(notes!=null){
+      this.cachedExtraMinNotes = [];
+      for(let note of notes){
+        if(!searchForDuplicate){
+          Utils.binaryArrayInsert(this.cachedExtraMinNotes, note, NoteExtraMin.ascendingCompare);
+        }else{
+          Utils.binaryArrayInsertNoDuplicate(this.cachedExtraMinNotes, note, NoteExtraMin.ascendingCompare);
+        }
       }
     }
   }
 
   public pushAllToDifferentlySortedCachedExtraMinNote(notes:NoteExtraMinWithDate[]){
-    this.differentlySortedCachedExtraMinNotes = [];
-    this.differentlySortedCachedExtraMinNotes = notes;
-    this.pushAllToCachedExtraMinNote(notes, false);
+    if(notes!=null){
+      this.differentlySortedCachedExtraMinNotes = [];
+      this.differentlySortedCachedExtraMinNotes = notes;
+      this.pushAllToCachedExtraMinNote(notes, false);
+    }
   }
 
   public pushAllToDifferentlySortedCachedAlmostMinTags(tags:TagAlmostMin[]){
-    this.differentlySortedCachedAlmostMinTags = [];
-    this.differentlySortedCachedAlmostMinTags = tags;
-    this.pushAllToCachedAlmostMinTags(tags, false);
+    if(tags!=null){
+      this.differentlySortedCachedAlmostMinTags = [];
+      this.differentlySortedCachedAlmostMinTags = tags;
+      this.pushAllToCachedAlmostMinTags(tags, false);
+    }
   }
 
 

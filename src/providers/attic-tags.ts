@@ -166,22 +166,26 @@ export class AtticTags {
           // }
           if(tagFull!=null){
             resolve(tagFull);
+            return Promise.resolve(tagFull);
           }else if(tagFull==null && useDb){
             return this.tagByTitle_loadFromNetworkAndInsert(title);
           }
-          return Promise.resolve(tagFull);
         })
         .then(lastAttempt=>{
           // this.atticCache.pushToCachedFullTags(fromNet as TagFull);
           // resolve(fromNet);
-          resolve(lastAttempt);
+          if(lastAttempt==null){
+            reject(AtticError.getNewNetworkError());
+          }else{
+            resolve(lastAttempt);
+          }
           if(!useCache){
             this.atticCache.pushToCachedFullTags(lastAttempt);
           }
         })
         .catch(error=>{
           console.log('error in getting full tag');
-          console.log(JSON.stringify(error.message));
+          console.log(JSON.stringify(error));
           reject(AtticError.getError(error));
         })
       })

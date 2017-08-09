@@ -137,8 +137,8 @@ export class AtticNotes {
 
 
 
-  private noteByTitle_loadFromNetworkAndInsert(title: string):Promise<any>{
-    return new Promise<any>((resolve, reject)=>{
+  private noteByTitle_loadFromNetworkAndInsert(title: string):Promise<NoteFull>{
+    return new Promise<NoteFull>((resolve, reject)=>{
       this.http.get('/api/notes/'+title)
       .then(result=>{
         // console.log('the resul from network is: ');console.log(JSON.stringify(result.note));
@@ -195,24 +195,35 @@ export class AtticNotes {
         return p;
       })
       .then(noteFull=>{
+        // console.log('the notefull'+JSON.stringify(noteFull));
         if(noteFull!=null){
+          // console.log('note is not null');
           resolve(noteFull);
+          return Promise.resolve(noteFull);
         }else if(noteFull==null && useDb){
+          // console.log('load from net');
           return this.noteByTitle_loadFromNetworkAndInsert(title);
         }
-        return Promise.resolve(noteFull); //this is important because I need to
-        //provide a value for the next promise in order to leave the possibility to
-        //insert to the cache.
+        // else{
+        //   return Promise.resolve(noteFull); //this is important because I need to
+        //   //provide a value for the next promise in order to leave the possibility to
+        //   //insert to the cache.
+        // }
       })
       .then(lastAttempt=>{
-        resolve(lastAttempt);
+        // console.log('last attempt: '+JSON.stringify(lastAttempt));
+        if(lastAttempt==null){
+          reject(AtticError.getNewNetworkError());
+        }else{
+          resolve(lastAttempt);
+        }
         if(!useCache){
           this.atticCache.pushToCachedFullNotes(lastAttempt);
         }
       })
       .catch(error=>{
         console.log('error in getting full note');
-        console.log(JSON.stringify(error.message));
+        console.log(JSON.stringify(error));
         reject(AtticError.getError(error));
       })
     })

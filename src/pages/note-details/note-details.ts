@@ -91,6 +91,7 @@ export class NoteDetailsPage {
     private graphicProvider:GraphicProvider
   ) {
     this.title=navParams.get('title');
+    this.note = new NoteFull();
     this.init();
   }
 
@@ -140,7 +141,9 @@ export class NoteDetailsPage {
 
       })
       .catch(err=>{
+        this.note.title=this.title;
         console.log(JSON.stringify(err));
+        this.graphicProvider.showErrorAlert(err);
       })
   }
 
@@ -159,6 +162,7 @@ export class NoteDetailsPage {
       })
       .catch(error=>{
         console.log(JSON.stringify(error));
+        this.graphicProvider.showErrorAlert(error);
       })
   }
 
