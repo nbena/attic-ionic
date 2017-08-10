@@ -113,6 +113,7 @@ export class SummaryPage {
           console.log('synching done');
           this.graphicProvider.presentToast('synching done');
           this.setSynchState();
+          this.summary.data.logscount=0;
         })
         .catch(error=>{
           // console.log('error in synch');
