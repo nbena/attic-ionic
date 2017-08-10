@@ -140,6 +140,7 @@ export class CreateNotePage {
         /*it doesn't work.*/
 
         // this.viewCtrl.dismiss();
+        this.makeEmpty();
 
         this.events.publish('change-tab',0, title); //see if it is blank or not.
         //error here...
@@ -167,6 +168,15 @@ export class CreateNotePage {
     this.newNote.title="";
     this.newNote = null;
     //just this, keep tags loaded.
+  }
+
+  makeEmpty(){
+    this.newNote.text='';
+    this.newNote.title='';
+    this.links=[];
+    this.mainTags=[];
+    this.otherTags=[];
+    this.newNote.isdone=false;
   }
 
   /*
