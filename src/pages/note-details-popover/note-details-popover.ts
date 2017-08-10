@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, ViewController/*, ToastController, AlertController*/, App } from 'ionic-angular';
+import { NavController, NavParams, ViewController/*, ToastController, AlertController*/, App,Events } from 'ionic-angular';
 import { NoteFull, NoteExtraMinWithDate } from '../../models/notes';
 import { NoteEditTextPage } from '../note-edit-text/note-edit-text';
 import { AtticNotes } from '../../providers/attic-notes';
@@ -24,16 +24,11 @@ export class NoteDetailsPopoverPage {
   constructor(public navCtrl: NavController, public navParams: NavParams,
     public viewCtrl: ViewController, /*public alertCtrl: AlertController,*/
     private app: App,
+    private events:Events,
     /*public toastCtrl: ToastController*/ private atticNotes: AtticNotes,
     private graphicProvider: GraphicProvider
   ) {
       this.note=navParams.get('note');
-      // if(this.note.isDone){
-      //   this.done='Mark as \'undone\'';
-      // }else {
-      //   this.done='Mark as \'done\'';
-      // }
-      console.log(JSON.stringify(this.navCtrl.last()));
     }
 
 
@@ -166,10 +161,11 @@ export class NoteDetailsPopoverPage {
     })
     .then(()=>{
       //need to use change-tab
-      //this.viewCtrl.dismiss();
+      this.viewCtrl.dismiss();
       //this.navCtrl.getViews().forEach(obj=>{if(obj.)})
-      console.log(JSON.stringify(this.navCtrl.last()));
-      return this.app.getRootNav().push(NotesPage, {refresh:false, toRemove:this.note as NoteExtraMinWithDate})
+      //return this.app.getRootNav().push(NotesPage, {refresh:false, toRemove:this.note as NoteExtraMinWithDate})
+      // return this.app.getRootNav().popToRoot();
+      this.events.publish('go-to-notes');
     })
     // .then(()=>{
     //   return this.viewCtrl.dismiss();

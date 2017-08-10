@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, /*AlertController,*/ Events } from 'ionic-angular';
+import { NavController, NavParams, /*AlertController,*/ Events, ViewController } from 'ionic-angular';
 import { AtticNotes } from '../../providers/attic-notes';
 import { AtticTags } from '../../providers/attic-tags';
 import { NoteFull/*, NoteSmart, NoteMin, NoteExtraMin*/ } from '../../models/notes';
@@ -38,7 +38,8 @@ export class CreateNotePage {
     private atticNotes: AtticNotes,
     private atticTags: AtticTags,
     private events: Events,
-    private graphicProvider:GraphicProvider
+    private graphicProvider:GraphicProvider,
+    private viewCtrl: ViewController
   ) {
 
       this.newNote = new NoteFull();
@@ -134,9 +135,13 @@ export class CreateNotePage {
         console.log(result);
         // this.navCtrl.parent.select(0);
         let title:string = this.newNote.title;
-        this.makeAllNull();
+
+        //this.makeAllNull(); --> don't use null.
         /*it doesn't work.*/
-        this.events.publish('change-tab',0, title);
+
+        // this.viewCtrl.dismiss();
+
+        this.events.publish('change-tab',0, title); //see if it is blank or not.
         //error here...
       })
       .catch(error=>{

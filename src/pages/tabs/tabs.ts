@@ -38,6 +38,11 @@ export class TabsPage {
       this.notesParams = note;
       this.tabs.select(tab);
       });
+
+    this.events.subscribe('go-to-notes', (refresh)=>{
+      this.tabs.select(0);
+    });
+
   }
 
   ionViewDidLoad() {

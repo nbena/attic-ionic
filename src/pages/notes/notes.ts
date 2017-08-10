@@ -1,5 +1,7 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, PopoverController,/* ToastController, */Events } from 'ionic-angular';
+import { NavController, NavParams, PopoverController,/* ToastController, */Events,
+  ViewController
+  } from 'ionic-angular';
 
 import { AtticNotes } from '../../providers/attic-notes';
 import { NoteExtraMin, /*NoteSmart, */NoteMin/*, NoteFull*/ } from '../../models/notes';
@@ -56,6 +58,10 @@ export class NotesPage {
 
   isFull: boolean;
 
+  isRefreshing:boolean = false;
+
+  isRefreshingSet: boolean = false;
+
   /*eventualNote: string = null;*/
 
   constructor(public navCtrl: NavController, private navParams: NavParams,
@@ -65,7 +71,8 @@ export class NotesPage {
     // private db: Db,
     // private toastCtrl: ToastController,
     private synch: Synch,
-    private graphicProvider:GraphicProvider
+    private graphicProvider:GraphicProvider,
+    private viewCtrl: ViewController
   ) {
 
       //try{
@@ -108,16 +115,7 @@ export class NotesPage {
       //   //   console.log(e);
       //   // }
       // }
-      let r:boolean = true;
-      let refresh = this.navParams.get('refresh');
-      if(refresh!=null){
-        if(!refresh){
-          r = false;
-        }
-      }
-      if(r){
-        this.synchingTask();  
-      }
+
 
 
       let eventualNote:string=null
@@ -132,6 +130,31 @@ export class NotesPage {
       })
 
 
+      this.events.subscribe('go-to-notes', (refresh)=>{
+        this.isRefreshingSet = true;
+        this.refreshIfNecessary(refresh);
+      })
+
+
+      if(!this.isRefreshingSet){
+        this.refreshIfNecessary(true);
+      }
+
+  }
+
+  refreshIfNecessary(r:boolean){
+    // let defaultRefresh:boolean = true;
+    // let refresh = this.navParams.get('refresh');
+    // if(refresh!=null){
+    //   if(!refresh){
+    //     r = false;
+    //   }
+    // }
+    // console.log('refresh?: '+r);
+    if(r){
+      this.isRefreshing = true;
+      this.synchingTask();
+    }
   }
 
 
@@ -140,6 +163,12 @@ export class NotesPage {
     popover.present({
       ev: event
     });
+  }
+
+  //important to call this in that function if we do not want
+  //any error to be thrown.
+  ionViewWillEnter(){
+    this.viewCtrl.showBackButton(false);
   }
 
 
@@ -186,18 +215,22 @@ export class NotesPage {
     //     this.graphicProvider.presentToast('synching done');
     //   }
     // })
-    this.graphicProvider.presentToast('synching...');
-    this.synch.synch()
-    .then(()=>{
-      console.log('synching done');
-      this.graphicProvider.presentToast('synching done');
-    })
-    .catch(error=>{
-      // console.log('error in synch or in get things to synch');
-      console.log('error in synch or in get things to synch:  '+JSON.stringify(error));
-      this.graphicProvider.showErrorAlert(error);
-    })
 
+    if(!this.isRefreshing){
+      this.isRefreshing=true;
+      this.graphicProvider.presentToast('synching...');
+      this.synch.synch()
+      .then(()=>{
+        console.log('synching done');
+        this.graphicProvider.presentToast('synching done');
+      })
+      .catch(error=>{
+        // console.log('error in synch or in get things to synch');
+        console.log('error in synch or in get things to synch:  '+JSON.stringify(error));
+        this.graphicProvider.showErrorAlert(error);
+      })
+      this.isRefreshing=false;
+    }
   }
 
   refresh(refresher){
