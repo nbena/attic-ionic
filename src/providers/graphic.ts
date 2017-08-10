@@ -103,6 +103,7 @@ export class GraphicProvider {
 }
 
     public showErrorAlert(errorIn:any, otherMsg?:string):void{
+      console.log(JSON.stringify(errorIn));console.log(JSON.stringify(errorIn.message));
       let error:ErrData = AtticError.getNewError(errorIn);
       let msg:string;
       msg = ((error.isSpecific) ? error.error.message : 'Something went wrong');

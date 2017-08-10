@@ -821,7 +821,7 @@ public createNewNote2(note:NoteFull, userid:string, usedTag?:TagFull[]):Promise<
         usedTag=usedTag.sort(TagExtraMin.ascendingCompare);
       }
       //skip lastmodificationdate cause it(should be) is done by the db.
-      tx.executeSql(Query.INSERT_NOTE_2, [note.title, note.text,jsonNote,note.lastmodificationdate, userid],
+      tx.executeSql(Query.INSERT_NOTE_2, [note.title, note.text,jsonNote,note.lastmodificationdate.toISOString(), userid],
         (tx:any, res:any)=>{console.log('inserted new note')},
         (tx:any, error:any)=>{console.log('error in insert new note');console.log(JSON.stringify(error))}
       );
@@ -1205,11 +1205,22 @@ private expandArrayNotesMinWithEverything(notes:NoteExtraMinWithDate[], userid:s
   for(let i=notes.length-1;i>=0;i--){
     array.push(notes[i].title);
     array.push(JSON.stringify(notes[i]));
-    array.push(JSON.stringify(notes[i].lastmodificationdate));
+    array.push(notes[i].lastmodificationdate.toISOString());
     array.push(userid);
   }
   return array;
 }
+
+// private expandArrayNotesMinWithEverything(notes:NoteExtraMinWithDate[], userid:string):string[]{
+//   let array:string[]=[];
+//   for(let i=notes.length-1;i>=0;i--){
+//     array.push(notes[i].title);
+//     array.push(JSON.stringify(notes[i]));
+//     array.push(JSON.stringify(notes[i].lastmodificationdate));
+//     array.push(userid);
+//   }
+//   return array;
+// }
 
 private expandArrayTagsMinWithEverything(tags:TagExtraMin[], userid:string):string[]{
   let array:string[]=[];
@@ -1237,6 +1248,7 @@ private prepareQueryInsertIntoHelp(baseQuery: string, length:number, userid:stri
 
 
 public insertNotesMinSmartAndCleanify(notes: NoteExtraMinWithDate[], userid: string):Promise<void>{
+  // console.log('the input to insert');console.log(JSON.stringify(notes));
   return new Promise<void>((resolve, reject)=>{
     this.db.transaction(tx=>{
       /*first insert into notes_help*/
@@ -1363,11 +1375,13 @@ public getNotesMin(userid: string):Promise<NoteExtraMinWithDate[]>{
         // }
         let note:NoteExtraMinWithDate = new NoteExtraMinWithDate();
         note.title=result.rows.item(i).title;
-        note.lastmodificationdate=result.rows.item(i).lastmodificationdate;
+        // let raw:any = result.rows.item(i).lastmodificationdate;
+        // let lastmod:Date = new Date(Date.parse(result.rows.item(i).lastmodificationdate));
+        // note.lastmodificationdate = lastmod;
+        note.lastmodificationdate = new Date(result.rows.item(i).lastmodificationdate);
         array.push(note);
       }
-      // console.log('the array is:');
-      // console.log(JSON.stringify(array));
+      console.log('the array is:');console.log(JSON.stringify(array));
       resolve(array);
     })
     .catch(error=>{

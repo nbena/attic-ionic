@@ -111,14 +111,15 @@ export class CreateNotePage {
 
     this.newNote.creationdate = new Date();
     this.newNote.lastmodificationdate = this.newNote.creationdate;
+    console.log(JSON.stringify(this.newNote.lastmodificationdate));
 
     // this.newNote.isdone = this.oldNote.isdone;
 
     this.newNote.links = this.links;
 
     // console.log(Utils.logNote(this.newNote));
-    // console.log('the new note is:');
-    // console.log(JSON.stringify(this.newNote));
+    console.log('the new note is:');
+    console.log(JSON.stringify(this.newNote));
   }
 
 

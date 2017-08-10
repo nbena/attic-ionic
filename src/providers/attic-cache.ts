@@ -138,17 +138,56 @@ export class AtticCache {
 
   public pushAllToDifferentlySortedCachedExtraMinNote(notes:NoteExtraMinWithDate[]){
     if(notes!=null){
+      //console.log('what I\'m going to push:');console.log(JSON.stringify(notes));
       this.differentlySortedCachedExtraMinNotes = [];
       this.differentlySortedCachedExtraMinNotes = notes;
       this.pushAllToCachedExtraMinNote(notes, false);
+      //console.log('the new NoteExtraMinWithDate:');console.log(JSON.stringify(this.differentlySortedCachedExtraMinNotes));
     }
   }
 
   public pushAllToDifferentlySortedCachedAlmostMinTags(tags:TagAlmostMin[]){
     if(tags!=null){
+      // console.log('what i\'m going to push:\n'+JSON.stringify(tags));
       this.differentlySortedCachedAlmostMinTags = [];
       this.differentlySortedCachedAlmostMinTags = tags;
       this.pushAllToCachedAlmostMinTags(tags, false);
+      // console.log('the new TagAlmostMin:\n'+JSON.stringify(this.differentlySortedCachedAlmostMinTags));
+    }
+  }
+
+
+
+  public pushNoteFullToAll(note:NoteFull):void{
+    // console.log('the diff');console.log(JSON.stringify(this.differentlySortedCachedExtraMinNotes));
+    // console.log('the note');console.log(JSON.stringify(note as NoteExtraMinWithDate));
+    if(note!=null){
+      // try{
+        Utils.binaryArrayInsertNoDuplicate(this.differentlySortedCachedExtraMinNotes, note.forceCastToNoteExtraMinWithDate(), NoteExtraMinWithDate.descendingCompare);
+        // console.log('inserted into extra min notes');
+        // console.log(JSON.stringify(this.differentlySortedCachedExtraMinNotes));
+      // }catch(e){
+      //   console.log('error in differently');console.log(JSON.stringify(e.message));
+      // }
+      // try{
+        Utils.binaryArrayInsertNoDuplicate(this.cachedExtraMinNotes, note.forceCastToNoteExtraMin(), NoteExtraMin.ascendingCompare);
+      // }catch(e){
+      //   console.log('error in extra min');console.log(JSON.stringify(e));
+      // }
+      // try{
+        Utils.binaryArrayInsertNoDuplicate(this.cachedFullNotes, note, NoteExtraMin.ascendingCompare);
+      // }catch(e){
+      //   console.log('error in full');console.log(JSON.stringify(e));
+      // }
+    }
+  }
+
+
+  public pushTagFullToAll(tag:TagFull):void{
+    if(tag!=null){
+      Utils.binaryArrayInsertNoDuplicate(this.differentlySortedCachedAlmostMinTags, tag as TagAlmostMin, TagAlmostMin.descendingCompare);
+      Utils.binaryArrayInsertNoDuplicate(this.cachedAlmostMinTags, tag as TagAlmostMin, TagAlmostMin.ascendingCompare);
+      Utils.binaryArrayInsertNoDuplicate(this.cachedFullTags, tag, TagFull.ascendingCompare);
     }
   }
 
@@ -386,15 +425,15 @@ export class AtticCache {
   public removeNote(note:NoteExtraMin):void{
     let n3:number;
     // console.log(typeof  note);
-    console.log(JSON.stringify(note as NoteExtraMinWithDate));
+    // console.log(JSON.stringify(note as NoteExtraMinWithDate));
     if(note instanceof NoteExtraMinWithDate && note.lastmodificationdate!=null){
-      console.log('using binary search');
+      // console.log('using binary search');
       n3 = Utils.binarySearch(this.differentlySortedCachedExtraMinNotes, note as NoteExtraMinWithDate, NoteExtraMinWithDate.descendingCompare);
     }else{
-      console.log('using search');
+      // console.log('using search');
       n3 = Utils.search(this.differentlySortedCachedExtraMinNotes, note, NoteExtraMin.ascendingCompare);
     }
-    console.log(n3);
+    // console.log(n3);
 
     let n1:number = Utils.binarySearch(this.cachedFullNotes, note, NoteExtraMin.ascendingCompare);
     let n2:number = Utils.binarySearch(this.cachedExtraMinNotes, note, NoteExtraMin.ascendingCompare);
@@ -406,10 +445,10 @@ export class AtticCache {
       this.cachedExtraMinNotes.splice(n2, 1);
     }
     if(n3!=-1){
-      console.log('going to delete');
+      // console.log('going to delete');
       this.differentlySortedCachedExtraMinNotes.splice(n3, 1);
-      console.log('deleted');
-      console.log(JSON.stringify(this.differentlySortedCachedExtraMinNotes));
+      // console.log('deleted');
+      // console.log(JSON.stringify(this.differentlySortedCachedExtraMinNotes));
     }
   }
 

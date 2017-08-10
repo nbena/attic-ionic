@@ -33,6 +33,7 @@ export class AtticError{
       error == AtticError.SQLITE_DUPLICATE_KEY_NOTES
     ){
       ret=true;
+      console.log('is sqlite error');
     }
     return ret;
   }

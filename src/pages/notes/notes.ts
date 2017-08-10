@@ -4,7 +4,7 @@ import { NavController, NavParams, PopoverController,/* ToastController, */Event
   } from 'ionic-angular';
 
 import { AtticNotes } from '../../providers/attic-notes';
-import { NoteExtraMin, /*NoteSmart, */NoteMin/*, NoteFull*/ } from '../../models/notes';
+import { NoteExtraMin, /*NoteSmart, */NoteMin/*, NoteFull*/,NoteExtraMinWithDate } from '../../models/notes';
 
 import { NoteDetailsPage } from '../note-details/note-details';
 import { CreateNotePage } from '../create-note/create-note';
@@ -48,8 +48,8 @@ import { GraphicProvider} from '../../providers/graphic'
 export class NotesPage {
 
   /*defining the result from the API.*/
-  shownNotes: NoteExtraMin[] = null;
-  allNotes : NoteExtraMin[] = null;
+  shownNotes: NoteExtraMinWithDate[] = null;
+  allNotes : NoteExtraMinWithDate[] = null;
   currentFilter : Filter = Filter.None;
   currentFilterValue: any = null;
 
@@ -118,7 +118,7 @@ export class NotesPage {
 
 
 
-      let eventualNote:string=null
+      let eventualNote:NoteExtraMinWithDate=null
 
       eventualNote = this.navParams.get('note');
       // console.log('the eventual note from navParams');
@@ -126,7 +126,7 @@ export class NotesPage {
       this.unshiftIfPossible(eventualNote);
 
       this.events.subscribe('change-tab', (tab, note)=>{
-        this.unshiftIfPossible(note);
+        // this.unshiftIfPossible(note);
       })
 
 
@@ -169,6 +169,7 @@ export class NotesPage {
   //any error to be thrown.
   ionViewWillEnter(){
     this.viewCtrl.showBackButton(false);
+    console.log('so I\'m here');
   }
 
 
@@ -177,11 +178,17 @@ export class NotesPage {
     this.navCtrl.push(NoteDetailsPage, {title});
   }
 
-  unshiftIfPossible(note:string){
+  // unshiftIfPossible(note:string){
+  //   if(note!=null){
+  //     let trueNote: NoteExtraMin = new NoteExtraMin();
+  //     trueNote.title=note;
+  //     this.allNotes.unshift(trueNote);
+  //   }
+  // }
+
+  unshiftIfPossible(note:NoteExtraMinWithDate){
     if(note!=null){
-      let trueNote: NoteExtraMin = new NoteExtraMin();
-      trueNote.title=note;
-      this.allNotes.unshift(trueNote);
+      this.allNotes.unshift(note);
     }
   }
 
@@ -299,9 +306,9 @@ export class NotesPage {
   loadMin(force: boolean){
     this.atticNotes.loadNotesMin(force)
       .then(result=>{
-        this.allNotes=result as NoteExtraMin[];
+        this.allNotes=result as NoteExtraMinWithDate[];
         this.shownNotes=this.allNotes;
-
+        //console.log('the received note are: '+JSON.stringify(result));
       })
       .catch(error=>{
         // console.log('load min error');
@@ -346,10 +353,10 @@ export class NotesPage {
       // console.log('result here is');
       // console.log(JSON.stringify(result));
       if(this.allNotes==null){
-        this.allNotes = result as NoteExtraMin[];
+        this.allNotes = result as NoteExtraMinWithDate[];
         this.shownNotes = this.allNotes.slice();
       }else{
-        this.shownNotes = result as NoteExtraMin[];
+        this.shownNotes = result as NoteExtraMinWithDate[];
       }
     })
     .catch(error=>{

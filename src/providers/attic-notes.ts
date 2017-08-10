@@ -65,8 +65,8 @@ export class AtticNotes {
   /*
   can be rewritten: an error will force a call to the network.
   */
-  loadNotesMin(force: boolean):Promise<NoteExtraMin[]>{
-    return new Promise<NoteExtraMin[]>((resolve, reject)=>{
+  loadNotesMin(force: boolean):Promise<NoteExtraMinWithDate[]>{
+    return new Promise<NoteExtraMinWithDate[]>((resolve, reject)=>{
       let useForce: boolean = force;
       let useCache: boolean = false;
       let isNteworkAvailable: boolean = this.netManager.isConnected;
@@ -78,7 +78,7 @@ export class AtticNotes {
         // console.log('the numberof notes is');console.log(number);
         useDb = Utils.shouldUseDb(isNteworkAvailable, areThereNotesInTheDb, force);
         console.log('use db note: ');console.log(JSON.stringify(useDb));
-        let p:Promise<NoteExtraMin[]>;
+        let p:Promise<NoteExtraMinWithDate[]>;
         if(useDb){
           if(!this.atticCache.areDifferentlySortedCachedNotesExtraMinEmpty()){
             useCache=true;
@@ -103,19 +103,35 @@ export class AtticNotes {
         return p;
       })
       .then(fetchingResult=>{
-        resolve(fetchingResult as NoteExtraMin[]);
+        let res:NoteExtraMinWithDate[];
+        // console.log('the fucking fetchingResult is:\n');console.log(JSON.stringify(fetchingResult));
+        // let tmp:NoteExtraMinWithDate[] = (fetchingResult as NoteExtraMinWithDate[]).slice();
+        if(!useDb){
+          res = fetchingResult.map(obj=>{return NoteExtraMinWithDate.getNoteExtraMinWithDate(obj)});
+        }else{res = fetchingResult as NoteExtraMinWithDate[];}
+        resolve(res);
+        // console.log('after the resolve :\n'+JSON.stringify(fetchingResult as NoteExtraMinWithDate[]));
         // if(useDb){
           //return new Promise<NoteExtraMin[]>((resolve, reject)=>{resolve(fetchingResult)});
           // return Promise.resolve(fetchingResult as NoteExtraMin[]);
         // }else{
         if(!this.synch.isNoteFullyLocked() && !useDb){ /*can insert only if lock is free*/
-          this.db.insertNotesMinSmartAndCleanify(fetchingResult as NoteExtraMinWithDate[], this.auth.userid);
+          this.db.insertNotesMinSmartAndCleanify(/*fetchingResult.map(obj=>{
+            let note:NoteExtraMinWithDate=new NoteExtraMinWithDate();
+            note.title=obj.title;
+            console.log(typeof obj.lastmodificationdate);
+            if(typeof obj.lastmodificationdate === 'string'){
+              note.lastmodificationdate = new Date(obj.lastmodificationdate);
+            }else{note.lastmodificationdate = obj.lastmodificationdate}
+            // note.lastmodificationdate = obj.lastmodificationdate as Date;
+            return note;
+          }),*/res, this.auth.userid);
           //return new Promise<NoteExtraMin[]>((resolve, reject)=>{resolve(fetchingResult)});
         }else{
           console.log('fetched notes min but it is locked (or I\'ve used db)');
         }
         if(!useCache){
-          this.atticCache.pushAllToDifferentlySortedCachedExtraMinNote(fetchingResult as NoteExtraMinWithDate[]);
+          this.atticCache.pushAllToDifferentlySortedCachedExtraMinNote(res);
           // console.log('added to cache');
         }
         //}
@@ -223,7 +239,7 @@ export class AtticNotes {
       })
       .catch(error=>{
         console.log('error in getting full note');
-        console.log(JSON.stringify(error));
+        console.log(JSON.stringify(error.message));
         reject(/*AtticError.getError(error)*/error);
       })
     })
@@ -259,13 +275,16 @@ export class AtticNotes {
 
         this.db.createNewNote2(note.getMinifiedVersionForCreation(), /*tags, */this.auth.userid, necessaryTags)
         .then(result=>{
-          this.atticCache.pushToCachedFullNotes(note);
+          // this.atticCache.pushToCachedFullNotes(note);
+
+          this.atticCache.pushNoteFullToAll(note);
           resolve();
         })
         .catch(error=>{
           reject(AtticError.getBetterSqliteError(error.message as string));
         })
       }else{
+        // let s = new Date (Date.parse('2017-04-14T11:35:49.546Z'));
         console.log('trying to create note but it is locked');
         reject(Utils.getSynchingError(DbAction.DbAction.create));
       }
@@ -357,7 +376,13 @@ export class AtticNotes {
     });
   }
 
-  filterNotesByTitle(notes: NoteExtraMin[], term: string):NoteExtraMin[]{
+  // filterNotesByTitle(notes: NoteExtraMin[], term: string):NoteExtraMin[]{
+  //   return notes.filter((note)=>{
+  //     return note.title.indexOf(term.toLowerCase())>-1;
+  //   });
+  // }
+
+  filterNotesByTitle(notes: NoteExtraMinWithDate[], term: string):NoteExtraMinWithDate[]{
     return notes.filter((note)=>{
       return note.title.indexOf(term.toLowerCase())>-1;
     });

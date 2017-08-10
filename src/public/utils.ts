@@ -203,7 +203,12 @@ public static search<T>(array:T[], item:T,  cmp: ((a:T,b:T)=>number)):number{
      end = array.length;
      current = Math.floor((start+end)/2);
      while(end>start){
-       cmpValue = cmp(item, array[current]);
+      //  console.log('current is');console.log(JSON.stringify(array[current]));
+       //try{
+         cmpValue = cmp(item, array[current]);
+       //}catch(e){
+         //console.log('the error is for');console.log(JSON.stringify(array[current]));console.log(JSON.stringify(e.message));
+       //}
        if(cmpValue<0){
          end = current;
        }

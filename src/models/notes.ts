@@ -54,6 +54,16 @@ export class NoteExtraMinWithDate extends NoteExtraMin{
     }
     return r;
   }
+
+  public static getNoteExtraMinWithDate(input:any):NoteExtraMinWithDate{
+    let note:NoteExtraMinWithDate=new NoteExtraMinWithDate();
+    note.title=input.title;
+    note.lastmodificationdate = new Date(input.lastmodificationdate);
+    return note;
+  }
+
+
+
 }
 
 export class NoteBarebon extends NoteExtraMinWithDate{
@@ -225,6 +235,20 @@ export class NoteFull extends NoteBarebon{
     tmpNote.lastmodificationdate = this.lastmodificationdate;
     tmpNote.links = this.links;
     return tmpNote;
+  }
+
+
+  public forceCastToNoteExtraMinWithDate():NoteExtraMinWithDate{
+    let note:NoteExtraMinWithDate = new NoteExtraMinWithDate();
+    note.title=this.title;
+    note.lastmodificationdate=this.lastmodificationdate;
+    return note;
+  }
+
+  public forceCastToNoteExtraMin():NoteExtraMin{
+    let note:NoteExtraMin = new NoteExtraMin();
+    note.title=this.title;
+    return note;
   }
 
 
