@@ -153,6 +153,7 @@ export class TagsPage {
     // tag.noteslength=0;
     this.atticTags.createTag(tag)
       .then(result=>{
+        //it needs to be done.
         Utils.binaryArrayInsert(this.allTags, tag, TagAlmostMin.descendingCompare);
         Utils.binaryArrayInsert(this.shownTags, tag, TagAlmostMin.descendingCompare);
         // this.allTags.push(<TagFull>tag);

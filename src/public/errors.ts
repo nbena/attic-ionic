@@ -152,11 +152,14 @@ private static getError(error:any):any{
       if(AtticError.isSqliteError(error.message)){
         errData=AtticError.getBetterSqliteError(error);
         isSpecific = true;
+        console.log('is a sqlite error');
         }
     }
-    if(AtticError.isNetworkError(error)){
-      errData=AtticError.getBetterNetworkError(error);
-      isSpecific = true;
+    if(!isSpecific){
+      if(AtticError.isNetworkError(error)){
+        errData=AtticError.getBetterNetworkError(error);
+        isSpecific = true;
+      }
     }
     errorOut = ErrData.NewErrData(errData, isSpecific);
     return errorOut;

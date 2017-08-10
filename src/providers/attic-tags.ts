@@ -201,11 +201,12 @@ export class AtticTags {
       if(!this.synch.isTagLocked()){
         this.db.createTag(tag, this.auth.userid)
         .then(result=>{
-          this.atticCache.pushToCachedFullTags(tag);
+          //this.atticCache.pushToCachedFullTags(tag);
+          this.atticCache.pushTagFullToAll(tag);
           resolve();
         })
         .catch(error=>{
-          error = AtticError.getBetterSqliteError(error.message as string);
+          //error = AtticError.getBetterSqliteError(error.message as string);
           reject(error);
         })
       }

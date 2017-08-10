@@ -312,7 +312,7 @@ export class NotesPage {
       })
       .catch(error=>{
         // console.log('load min error');
-        console.log('load min error: '+JSON.stringify(error));
+        console.log('load min error: ');console.log(JSON.stringify(error));
         this.graphicProvider.showErrorAlert(error);
       })
   }
@@ -361,7 +361,7 @@ export class NotesPage {
     })
     .catch(error=>{
       // console.log('load by tags error');
-      console.log('load by tags error: '+JSON.stringify(error));
+      console.log('load by tags error: ');console.log(JSON.stringify(error));
       this.graphicProvider.showErrorAlert(error);
     })
   }
@@ -410,7 +410,7 @@ export class NotesPage {
       })
       .catch(error=>{
         // console.log('load by text error: ');
-        console.log('load by text error: '+JSON.stringify(error));
+        console.log('load by text error: ');console.log(JSON.stringify(error));
         this.graphicProvider.showErrorAlert(error);
       })
   }

@@ -281,7 +281,7 @@ export class AtticNotes {
           resolve();
         })
         .catch(error=>{
-          reject(AtticError.getBetterSqliteError(error.message as string));
+          reject(error/*AtticError.getBetterSqliteError(error.message as string)*/);
         })
       }else{
         // let s = new Date (Date.parse('2017-04-14T11:35:49.546Z'));

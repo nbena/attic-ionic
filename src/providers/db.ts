@@ -1381,7 +1381,7 @@ public getNotesMin(userid: string):Promise<NoteExtraMinWithDate[]>{
         note.lastmodificationdate = new Date(result.rows.item(i).lastmodificationdate);
         array.push(note);
       }
-      console.log('the array is:');console.log(JSON.stringify(array));
+      // console.log('the array is:');console.log(JSON.stringify(array));
       resolve(array);
     })
     .catch(error=>{
