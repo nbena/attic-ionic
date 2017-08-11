@@ -26,6 +26,17 @@ export class NoteExtraMin{
     return returned;
   }
 
+
+  public static safeNewNoteFromJsonString(json:string):NoteExtraMin{
+    return NoteExtraMin.safeNewNoteFromJsObject(JSON.parse(json));
+  }
+
+  public static safeNewNoteFromJsObject(jsonNote:any):NoteExtraMin{
+    let note:NoteExtraMin=new NoteExtraMin();
+    note.title = jsonNote.title;
+    return note;
+  }
+
 }
 
 export class NoteExtraMinWithDate extends NoteExtraMin{
@@ -55,13 +66,23 @@ export class NoteExtraMinWithDate extends NoteExtraMin{
     return r;
   }
 
-  public static getNoteExtraMinWithDate(input:any):NoteExtraMinWithDate{
+  // public static getNoteExtraMinWithDate(input:any):NoteExtraMinWithDate{
+  //   let note:NoteExtraMinWithDate=new NoteExtraMinWithDate();
+  //   note.title=input.title;
+  //   note.lastmodificationdate = new Date(input.lastmodificationdate);
+  //   return note;
+  // }
+
+  public static safeNewNoteFromJsObject(jsonNote:any):NoteExtraMinWithDate{
     let note:NoteExtraMinWithDate=new NoteExtraMinWithDate();
-    note.title=input.title;
-    note.lastmodificationdate = new Date(input.lastmodificationdate);
+    note.title=jsonNote.title;
+    note.lastmodificationdate = new Date(jsonNote.lastmodificationdate);
     return note;
   }
 
+  public static safeNewNoteFromJsonString(json:string):NoteExtraMinWithDate{
+    return NoteExtraMinWithDate.safeNewNoteFromJsObject(JSON.parse(json));
+  }
 
 
 }
@@ -193,10 +214,10 @@ export class NoteFull extends NoteBarebon{
     return result;
   }
 
-
-  public getNoteExtraMin():NoteExtraMin{
-    return NoteExtraMin.NewNoteExtraMin(this.title);
-  }
+  //for misterious reason it doesn't work.
+  // public getNoteExtraMin():NoteExtraMin{
+  //   return NoteExtraMin.NewNoteExtraMin(this.title);
+  // }
 
   public getTagTypeAsArray(type:TagType):TagType[]{
     let array:TagType[]=[];
@@ -252,11 +273,40 @@ export class NoteFull extends NoteBarebon{
   }
 
 
+  public static safeNewNoteFromJsonString(json: string):NoteFull{
+    // let tmpNote:NoteFull=new NoteFull();
+    // let jsonNote:any = JSON.parse(json);
+    // tmpNote.title=jsonNote.title;
+    // tmpNote.text=jsonNote.text;
+    // tmpNote.maintags = jsonNote.maintags;
+    // tmpNote.othertags = jsonNote.othertags;
+    // tmpNote.isdone = jsonNote.isdone;
+    // tmpNote.creationdate = jsonNote.creationdate;
+    // tmpNote.lastmodificationdate = jsonNote.lastmodificationdate;
+    // tmpNote.links = jsonNote.links;
+    return NoteFull.safeNewNoteFromJsObject(JSON.parse(json));
+
+  }
+
+
+  public static safeNewNoteFromJsObject(jsonNote:any):NoteFull{
+    let tmpNote:NoteFull=new NoteFull();
+    tmpNote.title=jsonNote.title;
+    tmpNote.text=jsonNote.text;
+    tmpNote.maintags = jsonNote.maintags;
+    tmpNote.othertags = jsonNote.othertags;
+    tmpNote.isdone = jsonNote.isdone;
+    tmpNote.creationdate = jsonNote.creationdate;
+    tmpNote.lastmodificationdate = jsonNote.lastmodificationdate;
+    tmpNote.links = jsonNote.links;
+    return tmpNote;
+  }
+
 
 }
-export class NoteSQLite extends NoteFull{
-  mainTagsToAdd: TagFull[];
-  otherTagsToAdd: TagFull[];
-  mainTagsToRemove: TagFull[];
-  otherTagsToRemove: TagFull[];
-}
+// export class NoteSQLite extends NoteFull{
+//   mainTagsToAdd: TagFull[];
+//   otherTagsToAdd: TagFull[];
+//   mainTagsToRemove: TagFull[];
+//   otherTagsToRemove: TagFull[];
+// }

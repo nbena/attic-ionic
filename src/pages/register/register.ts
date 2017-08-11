@@ -51,29 +51,31 @@ export class RegisterPage {
 
   register(){
     //this.loader();
-    this.loading=this.graphicProvider.showLoading('Authenticating'); //maybe I'll remove it.
+    if(this.registerPageForm.valid){
+      this.loading=this.graphicProvider.showLoading('Authenticating'); //maybe I'll remove it.
 
-    var user = new User(
-      // this.e_mail,
-      // this.password
-      this.registerPageForm.value.email,
-      this.registerPageForm.value.password
-    );
+      var user = new User(
+        // this.e_mail,
+        // this.password
+        this.registerPageForm.value.email,
+        this.registerPageForm.value.password
+      );
 
-    this.auth.createAccount(user)
-      .then(result=>{
-      // this.loading.dismiss();
-      this.graphicProvider.dismissLoading(this.loading);
-      console.log(result);
-      this.navCtrl.setRoot(NotesPage);
-    })
-    .catch(error=>{
-      console.log('auth error');console.log(JSON.stringify(error));
-      this.graphicProvider.dismissLoading(this.loading)
-      .then(()=>{
-        this.graphicProvider.showErrorAlert('error while creating account')
+      this.auth.createAccount(user)
+        .then(result=>{
+        // this.loading.dismiss();
+        this.graphicProvider.dismissLoading(this.loading);
+        console.log(result);
+        this.navCtrl.setRoot(NotesPage);
       })
-    })
+      .catch(error=>{
+        console.log('auth error');console.log(JSON.stringify(error));
+        this.graphicProvider.dismissLoading(this.loading)
+        .then(()=>{
+          this.graphicProvider.showErrorAlert('error while creating account')
+        })
+      })  
+    }
   }
 
 

@@ -72,31 +72,19 @@ export class AtticTags {
           return p;
         })
         .then(fetchingResult=>{
-          // console.log('fetch result is:');
-          // console.log(JSON.stringify(fetchingResult));
-        //   if(useDb){
-        //     return new Promise<TagAlmostMin[]>((resolve, reject)=>{resolve(fetchingResult)});
-        //   }else{
-        //     if(!this.synch.isTagLocked()){
-        //       this.db.insertTagsMinSmartAndCleanify(fetchingResult as TagAlmostMin[], this.auth.userid);
-        //       return new Promise<TagAlmostMin[]>((resolve, reject)=>{resolve(fetchingResult)});
-        //     }else{
-        //       console.log('fetched tags by title but it is locked');            }
-        //   }
-        // })
-        // .then(tags=>{
-        //   this.atticCache.pushAllToDifferentlySortedCachedAlmostMinTags(tags as TagAlmostMin[]);
-        //   resolve(tags);
-        // })
-        resolve(fetchingResult as TagAlmostMin[]);
-        if(!this.synch.isTagLocked() && !useDb){
-          this.db.insertTagsMinSmartAndCleanify(fetchingResult as TagAlmostMin[], this.auth.userid);
-        }else{
-          console.log('fetched tags but is locked (or I\'ve used db)');
-        }
-        if(!useCache){
-          this.atticCache.pushAllToDifferentlySortedCachedAlmostMinTags(fetchingResult as TagAlmostMin[]);
-        }
+          let res:TagAlmostMin[];
+          if(!useDb){
+            res = fetchingResult.map(obj=>{return TagAlmostMin.safeNewTagFullFromJsObject(obj)});
+          }else{res=fetchingResult;}
+          resolve(res/*fetchingResult as TagAlmostMin[]*/);
+          if(!this.synch.isTagLocked() && !useDb){
+            this.db.insertTagsMinSmartAndCleanify(fetchingResult/* as TagAlmostMin[]*/, this.auth.userid);
+          }else{
+            console.log('fetched tags but is locked (or I\'ve used db)');
+          }
+          if(!useCache){
+            this.atticCache.pushAllToDifferentlySortedCachedAlmostMinTags(fetchingResult/* as TagAlmostMin[]*/);
+          }
         })
         .catch(error=>{
           console.log('error tags:');
@@ -109,12 +97,11 @@ export class AtticTags {
 
     private tagByTitle_loadFromNetworkAndInsert(title: string):Promise<any>{
       return new Promise<any>((resolve, reject)=>{
-        let tag:TagFull;
         this.http.get('/api/tags/'+title)
         .then(result=>{
           // console.log('the resul from network is: ');
           // console.log(JSON.stringify(result.tag));
-          tag = result.tag as TagFull;
+          let tag:TagFull = TagFull.safeNewTagFullFromJsObject(result);
           if(!this.synch.isTagLocked()){
             this.db.insertTag(tag, this.auth.userid);
           }else{
@@ -181,6 +168,7 @@ export class AtticTags {
           }
           if(!useCache){
             this.atticCache.pushToCachedFullTags(lastAttempt);
+            //this.atticCache.pushTagFullToAll(lastAttempt);
           }
         })
         .catch(error=>{

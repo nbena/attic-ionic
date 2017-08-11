@@ -114,7 +114,7 @@ export class NoteDetailsPage {
   noteByTitle(force: boolean){
     this.atticNotes.noteByTitle(this.title, force)
       .then(result=>{
-        this.note=<NoteFull>result;
+        this.note=result as NoteFull;
         // console.log('the note is:');
         // console.log(JSON.stringify(this.note));
         // this.lastModificationDateString=this.note.lastModificationDate.toDateString();
@@ -122,8 +122,8 @@ export class NoteDetailsPage {
         // this._mainTags=this.note.mainTags;
         // this._otherTags=this.note.otherTags;
         // this._links=this.note.links;
-        this.mainTags=<TagExtraMin[]>this.note.maintags;
-        this.otherTags=<TagExtraMin[]>this.note.othertags;
+        this.mainTags=this.note.maintags as TagExtraMin[];
+        this.otherTags=this.note.othertags as TagExtraMin[];
         //
         // console.log('the main tags:');
         // console.log(JSON.stringify(this.mainTags));
@@ -154,7 +154,7 @@ export class NoteDetailsPage {
       .then(result=>{
         // console.log('the tags:');
         // console.log(JSON.stringify(result));
-        this.availableTags=<TagExtraMin[]>result;
+        this.availableTags=result as TagExtraMin[];
         this.areTagsAvailable=true;
         this.makeReallyAvailable();
 
@@ -250,23 +250,35 @@ export class NoteDetailsPage {
     this.graphicProvider.genericAlertInput('Add main tags', this.reallyAvailableTags.map(obj=>{
       return {type:'checkbox',
         label:obj.title,
-        value:JSON.stringify(obj)
+        value:obj.title
         }
-    }), this.addMainTagsUI);
+    }), (data)=>{
+      let tagsStr:string[]=data;
+      let tags:TagExtraMin[]=tagsStr.map(obj=>{return TagExtraMin.NewTag(obj)});
+      this.effectivelyAddMainTags(tags);
+    });
   }
 
-  /*
-  Using string[] because it is required by the API.
-  */
-  addMainTagsUI(tags: string[]){
-    // console.log("maintags: ");
-    // console.log(JSON.stringify(tags));
-    Utils.pushAllJSON(this.shownMainTags,tags);
-    Utils.pushAllJSON(this.mainTagsToAdd, tags);
+  effectivelyAddMainTags(tags:TagExtraMin[]){
+    this.shownMainTags=this.shownMainTags.concat(tags);
+    this.mainTagsToAdd=this.mainTagsToAdd.concat(tags);
     this.haveToAddMainTags = true;
     this.submitChangeEnabled = true;
     this.note.maintags=this.note.maintags.concat(this.mainTagsToAdd);
   }
+
+  // /*
+  // Using string[] because it is required by the API.
+  // */
+  // addMainTagsUI(tags: string[]){
+  //   // console.log("maintags: ");
+  //   // console.log(JSON.stringify(tags));
+  //   Utils.pushAllJSON(this.shownMainTags,tags);
+  //   Utils.pushAllJSON(this.mainTagsToAdd, tags);
+  //   this.haveToAddMainTags = true;
+  //   this.submitChangeEnabled = true;
+  //   this.note.maintags=this.note.maintags.concat(this.mainTagsToAdd);
+  // }
 
   addOtherTags(){
     // let alert = this.alertCtrl.create();
@@ -291,21 +303,34 @@ export class NoteDetailsPage {
     this.graphicProvider.genericAlertInput('Add other tags', this.reallyAvailableTags.map(obj=>{
       return {type:'checkbox',
         label:obj.title,
-        value:JSON.stringify(obj)
+        value:obj.title
         }
-    }), this.addOtherTagsUI);
+    }), (data)=>{
+      let tagsStr:string[]=data;
+      let tags:TagExtraMin[]=tagsStr.map(obj=>{return TagExtraMin.NewTag(obj)});
+      this.effectivelyAddOtherTags(tags);
+    });
   }
 
-  addOtherTagsUI(tags: string[]){
-    // console.log("ohertags: ");
-    // console.log(JSON.stringify(tags));
-    Utils.pushAllJSON(this.shownOtherTags, tags);
-    Utils.pushAllJSON(this.otherTagsToAdd, tags);
+
+  effectivelyAddOtherTags(tags:TagExtraMin[]){
+    this.shownOtherTags=this.shownOtherTags.concat(tags);
+    this.otherTagsToAdd=this.otherTagsToAdd.concat(tags);
     this.haveToAddOtherTags = true;
     this.submitChangeEnabled = true;
     this.note.othertags=this.note.othertags.concat(this.otherTagsToAdd);
-
   }
+
+  // addOtherTagsUI(tags: string[]){
+  //   // console.log("ohertags: ");
+  //   // console.log(JSON.stringify(tags));
+  //   Utils.pushAllJSON(this.shownOtherTags, tags);
+  //   Utils.pushAllJSON(this.otherTagsToAdd, tags);
+  //   this.haveToAddOtherTags = true;
+  //   this.submitChangeEnabled = true;
+  //   this.note.othertags=this.note.othertags.concat(this.otherTagsToAdd);
+  //
+  // }
 
   /*
   callback to pass.
@@ -421,7 +446,11 @@ export class NoteDetailsPage {
   defining real APIs
   */
   addMainTagsAPI(){
-    return this.atticNotes.addMainTags(this.note, this.mainTagsToAdd);
+    try{
+      return this.atticNotes.addMainTags(this.note, this.mainTagsToAdd);
+    }catch(e){
+      console.log('errorss here:');console.log(JSON.stringify(e));console.log(JSON.stringify(e.message));
+    }
   }
 
   addOtherTagsAPI(){
@@ -455,6 +484,11 @@ export class NoteDetailsPage {
 
   submit(){
     /*decide which actions must be taken.*/
+    console.log('now I try');
+    try{
+      this.note.forceCastToNoteExtraMin();
+    }catch(e){console.log('the fucking error is here');console.log(JSON.stringify(e.message))}
+
     if(this.haveToRemoveTags){
       this.removeTagsAPI()
       .then(result=>{
@@ -477,7 +511,7 @@ export class NoteDetailsPage {
         this.haveToAddOtherTags = false;
       })
       .catch(error=>{
-        console.log('add tags error: '+JSON.stringify(error));
+        console.log('add tags error: '+JSON.stringify(error.message));
         this.graphicProvider.showErrorAlert(error);
       })
     }
@@ -489,7 +523,7 @@ export class NoteDetailsPage {
           this.haveToAddMainTags = false;
         })
         .catch(error=>{
-          console.log('add tags error: '+JSON.stringify(error));
+          console.log('add tags error: '+JSON.stringify(error.message));
           this.graphicProvider.showErrorAlert(error);
         })
     }
@@ -501,7 +535,7 @@ export class NoteDetailsPage {
           this.haveToAddOtherTags = false;
         })
         .catch(error=>{
-          console.log('add tags error: '+JSON.stringify(error));
+          console.log('add tags error: '+JSON.stringify(error.message));
           this.graphicProvider.showErrorAlert(error);
         })
     }
@@ -513,7 +547,7 @@ export class NoteDetailsPage {
       this.haveToChangeLinks = false;
     })
     .catch(error=>{
-      console.log('change links error: '+JSON.stringify(error));
+      console.log('change links error: '+JSON.stringify(error.message));
       this.graphicProvider.showErrorAlert(error);
     })
   }
@@ -525,7 +559,7 @@ export class NoteDetailsPage {
           this.isDoneChanged =  false;
         })
         .catch(error=>{
-          console.log('set done error: '+JSON.stringify(error));
+          console.log('set done error: '+JSON.stringify(error.message));
           this.graphicProvider.showErrorAlert(error);
         })
     }

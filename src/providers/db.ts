@@ -5,8 +5,8 @@ import { Platform } from 'ionic-angular';
 import { Query } from '../public/query';
 import { Const, DbAction,/*SqliteError,*/ IndexTagType, TagType } from '../public/const';
 import { Utils } from '../public/utils';
-import { NoteExtraMin, NoteFull, NoteSQLite,NoteMin, NoteExtraMinWithDate } from '../models/notes';
-import { TagExtraMin, TagFull, /*TagMin,*/ TagAlmostMin, TagSQLite } from '../models/tags';
+import { NoteExtraMin, NoteFull, /*NoteSQLite,*/NoteMin, NoteExtraMinWithDate } from '../models/notes';
+import { TagExtraMin, TagFull, /*TagMin,*/ TagAlmostMin/*, TagSQLite */} from '../models/tags';
 import { UserSummary } from '../models/user_summary';
 import { AtticError } from '../public/errors';
 
@@ -816,7 +816,8 @@ public createNewNote2(note:NoteFull, userid:string, usedTag?:TagFull[]):Promise<
       let jsonNote:string = JSON.stringify(note);
       let tags:TagExtraMin[] = note.getTagsAsTagsExtraMinArray();
       tags=tags.sort(TagExtraMin.ascendingCompare);
-      let extraMin:NoteExtraMin=note.getNoteExtraMin();
+      // let extraMin:NoteExtraMin=note.getNoteExtraMin();
+      let extraMin:NoteExtraMin=note.forceCastToNoteExtraMin();
       if(usedTag!=null){
         usedTag=usedTag.sort(TagExtraMin.ascendingCompare);
       }
@@ -1030,18 +1031,19 @@ public getNoteFull(title: string, userid: string):Promise<NoteFull>{
         resolve(null);
       }else{
         /*try the parsing.*/
-        let rawResult:any = result.rows.item(0);
-        note = JSON.parse(rawResult.json_object) as NoteFull;
-        console.log('the note is');
-        console.log(JSON.stringify(note));
+        let rawResult:any = JSON.parse(result.rows.item(0).json_object);
+
+        // console.log('the note is');
+        // console.log(JSON.stringify(note));
         /*now a couple of checks to see if it's full.*/
-        if(note.text == null || !note.text || note.text == undefined){
+        if(rawResult.text == null || !rawResult.text || rawResult.text == undefined){
           console.log('throw the error, note is not full!');
           /*can't do the check on maintags because THEY CAN BE NULL, same for other tags.*/
           // reject(new Error(Const.ERR_NOTE_NOT_FULL));
           resolve(null);
         }else{
           /*if here the note is ok.*/
+          note = NoteFull.safeNewNoteFromJsObject(rawResult);
           resolve(note);
         }
       }
@@ -1061,18 +1063,18 @@ public getTagFull(title: string, userid: string):Promise<TagFull>{
         resolve(null);
       }else{
         /*try the parsing.*/
-        let rawResult:any = result.rows.item(0);
-        tag = JSON.parse(rawResult.json_object) as TagFull;
+        let rawResult:any = JSON.parse(result.rows.item(0).json_object);
+
         console.log('the tag is');
         console.log(JSON.stringify(tag));
         /*check if it's full.*/
-        if(tag.notes == null || tag.notes.length < 0 || tag.notes == undefined){
+        if(rawResult.notes == null || rawResult.notes.length < 0 || rawResult.notes == undefined){
           console.log('throw the error, tag is not full!');
 
           resolve(null);
         }else{
           /*if here the note is ok.*/
-          resolve(tag);
+          resolve(TagFull.safeNewTagFullFromJsObject(rawResult));
         }
       }
     })
@@ -1378,6 +1380,7 @@ public getNotesMin(userid: string):Promise<NoteExtraMinWithDate[]>{
         // let raw:any = result.rows.item(i).lastmodificationdate;
         // let lastmod:Date = new Date(Date.parse(result.rows.item(i).lastmodificationdate));
         // note.lastmodificationdate = lastmod;
+
         note.lastmodificationdate = new Date(result.rows.item(i).lastmodificationdate);
         array.push(note);
       }
@@ -1400,10 +1403,11 @@ public getTagsMin(userid: string):Promise<TagAlmostMin[]>{
       let array:TagAlmostMin[] = [];
       for(let i=0;i<result.rows.length;i++){
         let rawResult:any = result.rows.item(i).json_object;
-        let obj:TagAlmostMin = JSON.parse(rawResult);
-        if(obj.noteslength == null){
-          obj.noteslength=0; //good!
-        }
+        // let obj:TagAlmostMin = JSON.parse(rawResult);
+        // if(obj.noteslength == null){
+        //   obj.noteslength=0; //good!
+        // }
+        let obj:TagAlmostMin = TagAlmostMin.safeNewTagFromJsonString(rawResult);
 
         // console.log('object returned tags: ');
         // console.log(JSON.stringify(obj));
@@ -2056,6 +2060,7 @@ public getNotesByTags(tags: TagAlmostMin[], userid: string):Promise<NoteExtraMin
   }
 
   public addTags(note: NoteFull,  userid: string, mainTags? :  TagExtraMin[], otherTags?: TagExtraMin[]):Promise<any>{
+    console.log('the note I received as input is:');console.log(JSON.stringify(note));
     return new Promise<any>((resolve, reject)=>{
       this.db.transaction(tx=>{
       this.updateJsonObjNote(note, userid,tx);
@@ -2080,7 +2085,7 @@ public getNotesByTags(tags: TagAlmostMin[], userid: string):Promise<NoteExtraMin
           }
         );
 
-        this.addTagsToNoteCore(tx, note.getNoteExtraMin(), userid, tags);
+        this.addTagsToNoteCore(tx, note.forceCastToNoteExtraMin(), userid, tags);
 
 
 
@@ -2331,7 +2336,7 @@ public removeTagsFromNote(note: NoteFull, userid: string, tags: TagExtraMin[]):P
     //   }
     // )
     this.updateJsonObjNote(note, userid, tx);
-    this.removeTagsFromNoteCore(tx, note.getNoteExtraMin(), userid, tags);
+    this.removeTagsFromNoteCore(tx, note.forceCastToNoteExtraMin()/*note.getNoteExtraMin()*/, userid, tags);
     })
     .then(txResult=>{
       console.log('tx completed');

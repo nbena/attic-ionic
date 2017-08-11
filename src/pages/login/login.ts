@@ -103,31 +103,32 @@ export class LoginPage {
 
 //called from the page
   login(){
-    this.loading=this.graphicProvider.showLoading('Authenticating'); //maybe I'll remove it.
+    if(this.loginPageForm.valid){
+      this.loading=this.graphicProvider.showLoading('Authenticating'); //maybe I'll remove it.
 
-    var user = new User(
-      this.loginPageForm.value.email,
-      this.loginPageForm.value.password
-    );
+      var user = new User(
+        this.loginPageForm.value.email,
+        this.loginPageForm.value.password
+      );
 
-    this.tryingToSubmit = true;
+      this.tryingToSubmit = true;
 
-    this.auth.login(user)
-    .then(result=>{
-      //this.loading.dismiss();
-      this.graphicProvider.dismissLoading(this.loading);
-      // console.log("ok auth");
-      //this.navCtrl.setRoot(NotesPage, this.getParams());
-      this.navCtrl.setRoot(TabsPage);
-    })
-    .catch(error=>{
-      console.log('auth error');console.log(JSON.stringify(error));
-      this.graphicProvider.dismissLoading(this.loading)
-      .then(()=>{
-        this.graphicProvider.showErrorAlert('error during the authentication')
+      this.auth.login(user)
+      .then(result=>{
+        //this.loading.dismiss();
+        this.graphicProvider.dismissLoading(this.loading);
+        // console.log("ok auth");
+        //this.navCtrl.setRoot(NotesPage, this.getParams());
+        this.navCtrl.setRoot(TabsPage);
       })
-    });
-
+      .catch(error=>{
+        console.log('auth error');console.log(JSON.stringify(error));
+        this.graphicProvider.dismissLoading(this.loading)
+        .then(()=>{
+          this.graphicProvider.showErrorAlert('error during the authentication')
+        })
+      });  
+    }
   }
 
 

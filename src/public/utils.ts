@@ -4,7 +4,7 @@ import { Http, Headers } from '@angular/http';
 // import { Auth } from '../providers/auth';
 import { Const,/* PostgresError, SqliteError,*/ DbAction } from '../public/const';
 import { NoteBarebon, NoteFull, NoteMin, NoteExtraMin } from '../models/notes';
-import { TagExtraMin, TagFull, TagSQLite } from '../models/tags';
+import { TagExtraMin, TagFull/*, TagSQLite*/ } from '../models/tags';
 import { ToastController, AlertController } from 'ionic-angular';
 
 
@@ -125,11 +125,11 @@ public static binaryArrayDiff<T>(arg0:T[], arg1:T[], cmp:(a:T, b:T)=>number):T[]
 //
 // }
 //
-static pushAllJSON(arg0: TagExtraMin[], arg1: string[]){
-  for(let i of arg1){
-    arg0.push(JSON.parse(i));
-  }
-}
+// static pushAllJSON(arg0: TagExtraMin[], arg1: string[]){
+//   for(let i of arg1){
+//     arg0.push(JSON.parse(i));
+//   }
+// }
 
 //TODO delete this and use the one in notes.
 static myIndexOf(arg0: TagExtraMin[], arg1: TagExtraMin): number{

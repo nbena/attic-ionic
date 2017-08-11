@@ -43,7 +43,6 @@ export class AtticCache {
     console.log('Hello AtticCacheProvider Provider');
   }
 
-  //using ascendingCompare for extra min make the sort suitable for every class.
 
   public pushToCachedFullTags(tag:TagFull){
     if(tag!=null){
@@ -57,26 +56,26 @@ export class AtticCache {
     }
   }
 
-  public pushToCachedAlmostMinTags(tag:TagAlmostMin){
+  private pushToCachedAlmostMinTags(tag:TagAlmostMin){
     if(tag!=null){
       Utils.binaryArrayInsertNoDuplicate(this.cachedAlmostMinTags, tag, TagExtraMin.ascendingCompare);
     }
   }
 
-  public pushToCachedExtraMinNote(note:NoteExtraMin){
+  private pushToCachedExtraMinNote(note:NoteExtraMin){
     if(note!=null){
       Utils.binaryArrayInsertNoDuplicate(this.cachedExtraMinNotes, note, NoteExtraMin.ascendingCompare);
     }
   }
 
 
-  public pushToDifferentlySortedCachedAlmostMinTags(tag:TagAlmostMin){
+  private pushToDifferentlySortedCachedAlmostMinTags(tag:TagAlmostMin){
     if(tag!=null){
       Utils.binaryArrayInsertNoDuplicate(this.differentlySortedCachedAlmostMinTags, tag, TagAlmostMin.descendingCompare);
     }
   }
 
-  public pushToDifferentlySortedCachedExtraMinNote(note:NoteExtraMin){
+  private pushToDifferentlySortedCachedExtraMinNote(note:NoteExtraMin){
     if(note!=null){
       Utils.binaryArrayInsertNoDuplicate(this.differentlySortedCachedExtraMinNotes, note, NoteExtraMinWithDate.descendingCompare);
     }
@@ -84,33 +83,33 @@ export class AtticCache {
 
 
 
-  public pushAllToCachedFullTags(tags:TagFull[], searchForDuplicate:boolean){
-    if(tags!=null){
-      this.cachedFullTags = [];
-      for(let tag of tags){
-        if(!searchForDuplicate){
-          Utils.binaryArrayInsert(this.cachedFullTags, tag, TagExtraMin.ascendingCompare);
-        }else{
-          Utils.binaryArrayInsertNoDuplicate(this.cachedFullTags, tag, TagExtraMin.ascendingCompare);
-        }
-      }
-    }
-  }
-
-  public pushAllToCachedFullNotes(notes:NoteFull[], searchForDuplicate:boolean){
-    if(notes!=null){
-      this.cachedFullNotes = [];
-      for(let note of notes){
-        if(!searchForDuplicate){
-          Utils.binaryArrayInsert(this.cachedFullNotes, note, NoteExtraMin.ascendingCompare);
-        }else{
-          Utils.binaryArrayInsertNoDuplicate(this.cachedFullNotes, note, NoteExtraMin.ascendingCompare);
-        }
-      }
-    }
-  }
-
-  public pushAllToCachedAlmostMinTags(tags:TagAlmostMin[], searchForDuplicate:boolean){
+  // public pushAllToCachedFullTags(tags:TagFull[], searchForDuplicate:boolean){
+  //   if(tags!=null){
+  //     this.cachedFullTags = [];
+  //     for(let tag of tags){
+  //       if(!searchForDuplicate){
+  //         Utils.binaryArrayInsert(this.cachedFullTags, tag, TagExtraMin.ascendingCompare);
+  //       }else{
+  //         Utils.binaryArrayInsertNoDuplicate(this.cachedFullTags, tag, TagExtraMin.ascendingCompare);
+  //       }
+  //     }
+  //   }
+  // }
+  //
+  // public pushAllToCachedFullNotes(notes:NoteFull[], searchForDuplicate:boolean){
+  //   if(notes!=null){
+  //     this.cachedFullNotes = [];
+  //     for(let note of notes){
+  //       if(!searchForDuplicate){
+  //         Utils.binaryArrayInsert(this.cachedFullNotes, note, NoteExtraMin.ascendingCompare);
+  //       }else{
+  //         Utils.binaryArrayInsertNoDuplicate(this.cachedFullNotes, note, NoteExtraMin.ascendingCompare);
+  //       }
+  //     }
+  //   }
+  // }
+  //
+  private pushAllToCachedAlmostMinTags(tags:TagAlmostMin[], searchForDuplicate:boolean){
     if(tags!=null){
       this.cachedAlmostMinTags = [];
       for(let tag of tags){
@@ -123,7 +122,7 @@ export class AtticCache {
     }
   }
 
-  public pushAllToCachedExtraMinNote(notes:NoteExtraMin[], searchForDuplicate:boolean){
+  private pushAllToCachedExtraMinNote(notes:NoteExtraMin[], searchForDuplicate:boolean){
     if(notes!=null){
       this.cachedExtraMinNotes = [];
       for(let note of notes){
@@ -185,8 +184,8 @@ export class AtticCache {
 
   public pushTagFullToAll(tag:TagFull):void{
     if(tag!=null){
-      Utils.binaryArrayInsertNoDuplicate(this.differentlySortedCachedAlmostMinTags, tag as TagAlmostMin, TagAlmostMin.descendingCompare);
-      Utils.binaryArrayInsertNoDuplicate(this.cachedAlmostMinTags, tag as TagAlmostMin, TagAlmostMin.ascendingCompare);
+      Utils.binaryArrayInsertNoDuplicate(this.differentlySortedCachedAlmostMinTags, tag.forceCastToTagAlmostMin(), TagAlmostMin.descendingCompare);
+      Utils.binaryArrayInsertNoDuplicate(this.cachedAlmostMinTags, tag.forceCastToTagAlmostMin(), TagAlmostMin.ascendingCompare);
       Utils.binaryArrayInsertNoDuplicate(this.cachedFullTags, tag, TagFull.ascendingCompare);
     }
   }

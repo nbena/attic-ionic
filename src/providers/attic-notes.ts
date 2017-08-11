@@ -83,15 +83,7 @@ export class AtticNotes {
           if(!this.atticCache.areDifferentlySortedCachedNotesExtraMinEmpty()){
             useCache=true;
             console.log('using cache');
-            // p = new Promise<NoteExtraMin[]>((resolve, reject)=>{
-            //   let notes:NoteExtraMinWithDate[]=this.atticCache.getDifferentlySortedCachedNotesExtraMin() as NoteExtraMinWithDate[];
-            //   resolve(notes);
-            // })
             p = Promise.resolve(this.atticCache.getDifferentlySortedCachedNotesExtraMin());
-            /*
-            if resolving now it's bad, I'll to use a lot of if then to see if cached or not, use a
-            promise insted.
-            */
           }else{
             console.log('no cache using db');
             p = this.db.getNotesMin(this.auth.userid);
@@ -104,35 +96,18 @@ export class AtticNotes {
       })
       .then(fetchingResult=>{
         let res:NoteExtraMinWithDate[];
-        // console.log('the fucking fetchingResult is:\n');console.log(JSON.stringify(fetchingResult));
-        // let tmp:NoteExtraMinWithDate[] = (fetchingResult as NoteExtraMinWithDate[]).slice();
         if(!useDb){
-          res = fetchingResult.map(obj=>{return NoteExtraMinWithDate.getNoteExtraMinWithDate(obj)});
-        }else{res = fetchingResult as NoteExtraMinWithDate[];}
+          res = fetchingResult.map(obj=>{return NoteExtraMinWithDate.safeNewNoteFromJsObject(obj)});
+        }else{res = fetchingResult/* as NoteExtraMinWithDate[]*/;}
         resolve(res);
-        // console.log('after the resolve :\n'+JSON.stringify(fetchingResult as NoteExtraMinWithDate[]));
-        // if(useDb){
-          //return new Promise<NoteExtraMin[]>((resolve, reject)=>{resolve(fetchingResult)});
-          // return Promise.resolve(fetchingResult as NoteExtraMin[]);
-        // }else{
         if(!this.synch.isNoteFullyLocked() && !useDb){ /*can insert only if lock is free*/
-          this.db.insertNotesMinSmartAndCleanify(/*fetchingResult.map(obj=>{
-            let note:NoteExtraMinWithDate=new NoteExtraMinWithDate();
-            note.title=obj.title;
-            console.log(typeof obj.lastmodificationdate);
-            if(typeof obj.lastmodificationdate === 'string'){
-              note.lastmodificationdate = new Date(obj.lastmodificationdate);
-            }else{note.lastmodificationdate = obj.lastmodificationdate}
-            // note.lastmodificationdate = obj.lastmodificationdate as Date;
-            return note;
-          }),*/res, this.auth.userid);
+          this.db.insertNotesMinSmartAndCleanify(res, this.auth.userid);
           //return new Promise<NoteExtraMin[]>((resolve, reject)=>{resolve(fetchingResult)});
         }else{
           console.log('fetched notes min but it is locked (or I\'ve used db)');
         }
         if(!useCache){
           this.atticCache.pushAllToDifferentlySortedCachedExtraMinNote(res);
-          // console.log('added to cache');
         }
         //}
       })
@@ -159,12 +134,13 @@ export class AtticNotes {
       .then(result=>{
         // console.log('the resul from network is: ');console.log(JSON.stringify(result.note));
         /*inserting in the DB.*/
+        let note:NoteFull = NoteFull.safeNewNoteFromJsObject(result);
         if(!this.synch.isNoteFullyLocked()){
-          this.db.insertOrUpdateNote(result as NoteFull, this.auth.userid); /*promise is resolved before is done.*/
+          this.db.insertOrUpdateNote(note, this.auth.userid); /*promise is resolved before is done.*/
         }else{
           console.log('fetched note by title but it is locked');
         }
-        resolve(result as NoteFull);
+        resolve(note);
     })
     .catch(error=>{
       reject(error);
@@ -235,6 +211,7 @@ export class AtticNotes {
         }
         if(!useCache){
           this.atticCache.pushToCachedFullNotes(lastAttempt);
+          //this.atticCache.pushNoteFullToAll(lastAttempt);
         }
       })
       .catch(error=>{
@@ -366,7 +343,11 @@ export class AtticNotes {
       .then(fetchingResult=>{
         // console.log('fetchingResult is');
         // console.log(JSON.stringify(fetchingResult));
-        resolve(fetchingResult as NoteExtraMin[])
+        let res:NoteExtraMin[];
+        if(!useDb){
+          res = fetchingResult.map(obj=>{return NoteExtraMin.safeNewNoteFromJsObject(obj);});
+        }else{res=fetchingResult;}
+        resolve(res)
       })
       .catch(error=>{
         console.log('error notes:');
@@ -413,7 +394,11 @@ export class AtticNotes {
         return p;
       })
       .then(fetchingResult=>{
-        resolve(fetchingResult);
+        let res:NoteExtraMin[];
+        if(!useDb){
+          res = fetchingResult.map(obj=>{return NoteExtraMin.safeNewNoteFromJsObject(obj);});
+        }else{res=fetchingResult;}
+        resolve(res);
       })
       .catch(error=>{
         console.log('error in getting text');

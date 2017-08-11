@@ -61,6 +61,22 @@ export class TagAlmostMin extends TagExtraMin{
     super();
     this.noteslength=0;
   }
+
+
+  public static safeNewTagFullFromJsObject(jsonTag:any):TagAlmostMin{
+    let tag:TagAlmostMin= new TagAlmostMin();
+    tag.title=jsonTag.title;
+    tag.noteslength=jsonTag.noteslength;
+    if(jsonTag.noteslength==null || tag.noteslength==null){
+      tag.noteslength=0;
+    }
+    return tag;
+  }
+
+  public static safeNewTagFromJsonString(json:string):TagAlmostMin{
+    return TagAlmostMin.safeNewTagFullFromJsObject(JSON.parse(json));
+  }
+
 }
 
 // export class TagMin extends TagAlmostMin{
@@ -125,9 +141,35 @@ export class TagFull extends TagAlmostMin{
     }
   }
 
+
+  public forceCastToTagAlmostMin():TagAlmostMin{
+    let tag:TagAlmostMin = new TagAlmostMin();
+    tag.title=this.title;
+    tag.noteslength=this.noteslength;
+    return tag;
+  }
+
+  public static safeNewTagFullFromJsonString(json:string):TagFull{
+    return TagFull.safeNewTagFullFromJsObject(JSON.parse(json));
+  }
+
+  public static safeNewTagFullFromJsObject(jsonTag:any):TagFull{
+    let tag:TagFull = new TagFull();
+    tag.title = jsonTag.title;
+    tag.noteslength = jsonTag.noteslength;
+    tag.notes = tag.notes;
+    if(jsonTag.noteslength==null || tag.noteslength==null){
+      tag.noteslength=0;
+    }
+    if(tag.notes==null || jsonTag.notes==null){
+      tag.notes=[];
+    }
+    return tag;
+  }
+
 }
 
-export class TagSQLite extends TagFull {
-  addedNotes: NoteFull[];
-  removedNotes: NoteFull[];
-}
+// export class TagSQLite extends TagFull {
+//   addedNotes: NoteFull[];
+//   removedNotes: NoteFull[];
+// }
