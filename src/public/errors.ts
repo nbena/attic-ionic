@@ -33,15 +33,15 @@ export class AtticError{
       error == AtticError.SQLITE_DUPLICATE_KEY_NOTES
     ){
       ret=true;
-      console.log('is sqlite error');
+      // console.log('is sqlite error, and ret is');console.log(ret);
     }
     return ret;
   }
 
-public static getBetterSqliteError(error:any):any{
+private  static getBetterSqliteError(error:any):any{
   let ret:any = error;
   if(error.message!=null){
-    ret.message = AtticError.getBetterSqliteError(error);
+    ret.message = AtticError.getBetterSqliteErrorString(error.message);
   }
   return ret;
 }
@@ -101,7 +101,7 @@ public static getNewNetworkError():Error{
 }
 
 
-  private static readonly NETWORK_JSON_ERROR = '{"_body":{"isTrusted":true},"status":0,"ok":false,"statusText":"","headers":{},"type":3,"url":null}';
+private static readonly NETWORK_JSON_ERROR = '{"_body":{"isTrusted":true},"status":0,"ok":false,"statusText":"","headers":{},"type":3,"url":null}';
 
 
 //directly taken from the server.
@@ -130,18 +130,18 @@ public static isPostgresError(error:string):boolean{
 }
 
 
-private static getError(error:any):any{
-  let ret:any = error;
-  if(error.message!=null){
-    if(AtticError.isSqliteError(error.message)){
-      ret=AtticError.getBetterSqliteError(error);
-      }
-  }
-  if(AtticError.isNetworkError(error)){
-    ret=AtticError.getBetterNetworkError(error)
-  }
-  return ret;
-  }
+// private static getError(error:any):any{
+//   let ret:any = error;
+//   if(error.message!=null){
+//     if(AtticError.isSqliteError(error.message)){
+//       ret=AtticError.getBetterSqliteError(error);
+//       }
+//   }
+//   if(AtticError.isNetworkError(error)){
+//     ret=AtticError.getBetterNetworkError(error)
+//   }
+//   return ret;
+//   }
 
 
   public static getNewError(error:any):ErrData{
@@ -150,9 +150,11 @@ private static getError(error:any):any{
     let isSpecific:boolean = false;
     if(error.message!=null){
       if(AtticError.isSqliteError(error.message)){
+        // console.log('ok is specific sqlite error');
         errData=AtticError.getBetterSqliteError(error);
+        // console.log('the better sqlite error is:');console.log(JSON.stringify(errData));
         isSpecific = true;
-        console.log('is a sqlite error');
+        // console.log('is specific sqlite error');
         }
     }
     if(!isSpecific){
@@ -162,6 +164,7 @@ private static getError(error:any):any{
       }
     }
     errorOut = ErrData.NewErrData(errData, isSpecific);
+    // console.log('the error out is:');console.log(JSON.stringify(errorOut));
     return errorOut;
   }
 

@@ -275,7 +275,7 @@ export class AtticTags {
       })
       .catch(error=>{
         console.log('error in changing title');
-        reject(AtticError.getBetterSqliteError(error.message as string));
+        reject(/*AtticError.getBetterSqliteError(error.message as string)*/error);
       })
       })
     }else{
