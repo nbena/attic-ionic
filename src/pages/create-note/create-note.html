@@ -26,10 +26,10 @@
   [the dirty means that the user have touched it]
   -->
 
+  <ion-card>
 
-
-  <!-- <form (ngSubmit)="createNote()" [formGroup]="createPageForm"> -->
-  <form [formGroup]="createPageForm">
+  <!-- <form (ngSubmit)="createNote()" [formGroup]="createNotePageForm"> -->
+  <form [formGroup]="createNotePageForm">
 
     <ion-item>
       <ion-label stacked color="primary">Title</ion-label>
@@ -38,14 +38,14 @@
     </ion-input> -->
     <ion-input
     formControlName="title" type="text"
-    [class.invalid]="!createPageForm.controls.title.valid && (createPageForm.controls.title.dirty || tryingToSubmit)"
+    [class.invalid]="!createNotePageForm.controls.title.valid && (createNotePageForm.controls.title.dirty || tryingToSubmit)"
     >
   </ion-input>
     </ion-item>
 
 
 
-    <ion-item *ngIf="!createPageForm.controls.title.valid  && (createPageForm.controls.title.dirty || tryingToSubmit)">
+    <ion-item *ngIf="!createNotePageForm.controls.title.valid  && (createNotePageForm.controls.title.dirty || tryingToSubmit)">
         <ion-label class="error-label">Enter a valid title.</ion-label>
     </ion-item>
 
@@ -59,14 +59,14 @@
     <ion-textarea
     autosize
     formControlName="text" type="text"
-    [class.invalid]="!createPageForm.controls.text.valid && (createPageForm.controls.text.dirty || tryingToSubmit)"
+    [class.invalid]="!createNotePageForm.controls.text.valid && (createNotePageForm.controls.text.dirty || tryingToSubmit)"
     >
   </ion-textarea>
     </ion-item>
 
 
 
-    <ion-item *ngIf="!createPageForm.controls.text.valid  && (createPageForm.controls.text.dirty || tryingToSubmit)">
+    <ion-item *ngIf="!createNotePageForm.controls.text.valid  && (createNotePageForm.controls.text.dirty || tryingToSubmit)">
         <ion-label class="error-label">Enter a valid text.</ion-label>
     </ion-item>
 
@@ -148,10 +148,11 @@
 
 
   <div text-center>
-    <button ion-button (click)="createNote()" >Create</button>
+    <button ion-button full (click)="createNote()" >Create</button>
   </div>
 
   </form>
+</ion-card>
 
 </ion-content>
 

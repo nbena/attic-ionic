@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 //import { Http } from '@angular/http';
 import 'rxjs/add/operator/map';
 
-import { ToastController, AlertController } from 'ionic-angular';
+import { ToastController, AlertController, LoadingController, Loading } from 'ionic-angular';
 import { AtticError, ErrData } from '../public/errors';
 
 /*
@@ -15,12 +15,13 @@ import { AtticError, ErrData } from '../public/errors';
 export class GraphicProvider {
 
   constructor(private toastCtrl:ToastController,
-    private alertCtrl:AlertController
+    private alertCtrl:AlertController,
+    private loadingCtrl: LoadingController
   ) {
     console.log('Hello GraphicProvider Provider');
   }
 
-  public presentToast(message:string, error?:boolean):Promise<any>{
+  public presentToast(message:string):Promise<any>{
     let toast = this.toastCtrl.create({
       message: message,
       duration: 2000,
@@ -102,7 +103,7 @@ export class GraphicProvider {
     return alert.present();
 }
 
-    public showErrorAlert(errorIn:any, otherMsg?:string):void{
+    public showErrorAlert(errorIn:any, otherMsg?:string):Promise<any>{
       //console.log('the error');console.log(JSON.stringify(errorIn));console.log(JSON.stringify(errorIn.message));
       let error:ErrData = AtticError.getNewError(errorIn);
       let msg:string;
@@ -113,7 +114,26 @@ export class GraphicProvider {
         buttons: ['OK'],
         message:msg
       });
-      alert.present();
+      return alert.present();
+  }
+
+
+  public showLoading(message?:string):Loading{
+    let loading:Loading;
+    if(message!=null){
+      loading = this.loadingCtrl.create({
+        content: message
+      })
+    }else{
+      loading = this.loadingCtrl.create({})
+    }
+    loading.present();
+    return loading;
+  }
+
+
+  public dismissLoading(loading:Loading):Promise<any>{
+    return loading.dismiss();
   }
 
 }

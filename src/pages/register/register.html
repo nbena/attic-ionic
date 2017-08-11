@@ -15,30 +15,63 @@
 
 <ion-content padding>
 
-  <ion-row class="login-form">
+  <!-- <ion-row class="login-form">
       <ion-col>
-          <ion-list inset>
+          <ion-list inset> -->
+          <ion-list>
+        <form [formGroup]="registerPageForm">
 
-              <ion-item>
+
+
+              <!-- <ion-item>
                   <ion-label>
                     <ion-icon name="mail"></ion-icon>
                   </ion-label>
                   <ion-input [(ngModel)]="e_mail" placeholder="Email" type="email"></ion-input>
-              </ion-item>
+              </ion-item> -->
 
               <ion-item>
+                <ion-label>
+                  <ion-icon name="person"></ion-icon>
+                </ion-label>
+                <ion-input formControlName="email" placeholder="email" type="text"
+                [class.invalid]="!registerPageForm.controls.email.valid && (registerPageForm.controls.email.dirty || tryingToSubmit)"
+                ></ion-input>
+              </ion-item>
+
+              <ion-item *ngIf="!registerPageForm.controls.emails.valid && (registerPageForm.controls.email.dirty || tryingToSubmit)">
+                <ion-label class="error">Please enter a valid username.</ion-label>
+              </ion-item>
+
+              <!-- <ion-item>
                   <ion-label>
                     <ion-icon name="lock"></ion-icon>
                   </ion-label>
                   <ion-input [(ngModel)]="password" placeholder="Password" type="password"></ion-input>
+              </ion-item> -->
+
+              <ion-item>
+                <ion-label>
+                  <ion-icon name="lock"></ion-icon>
+                </ion-label>
+                <ion-input formControlName="password" placeholder="password" type="password"
+                [class.invalid]="!registerPageForm.controls.password.valid && (registerPageForm.controls.password.dirty || tryingToSubmit)"
+                ></ion-input>
+              </ion-item>
+
+              <ion-item *ngIf="!regsiterPageForm.controls.password.valid && (registerPageForm.controls.password.dirty || tryingToSubmit)">
+                <ion-label class="error">Please enter a valid password.</ion-label>
               </ion-item>
 
 
-          </ion-list>
 
-          <button ion-button (click)="register()">Register</button>
 
-      </ion-col>
-  </ion-row>
+          <button ion-button (click)="register()" color="primary">Register</button>
+
+        </form>
+        </ion-list>
+
+      <!-- </ion-col>
+  </ion-row> -->
 
 </ion-content>

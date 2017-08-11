@@ -27,7 +27,7 @@ import {GraphicProvider} from '../../providers/graphic';
 export class CreateNotePage {
 
 
-  createPageForm: FormGroup;
+  createNotePageForm: FormGroup;
 
 //  oldNote: NoteFull;
   newNote: NoteFull;
@@ -55,7 +55,7 @@ export class CreateNotePage {
     private formBuilder: FormBuilder
   ) {
 
-    this.createPageForm = formBuilder.group({
+    this.createNotePageForm = formBuilder.group({
       title:['', Validators.compose([Validators.required, Validators.minLength(2), Validators.maxLength(64)])],
       text: ['', Validators.compose([Validators.required, Validators.minLength(2)])],
       mainTags:[[]],
@@ -117,11 +117,11 @@ export class CreateNotePage {
 
   getNote2():void{
     this.newNote = new NoteFull();
-    this.newNote.title=this.createPageForm.value.title;
-    this.newNote.text=this.createPageForm.value.text;
-    this.newNote.maintags=this.createPageForm.value.mainTags;
-    this.newNote.othertags=this.createPageForm.value.otherTags;
-    this.newNote.isdone=this.createPageForm.value.isDone;
+    this.newNote.title=this.createNotePageForm.value.title;
+    this.newNote.text=this.createNotePageForm.value.text;
+    this.newNote.maintags=this.createNotePageForm.value.mainTags;
+    this.newNote.othertags=this.createNotePageForm.value.otherTags;
+    this.newNote.isdone=this.createNotePageForm.value.isDone;
     this.newNote.creationdate = new Date();
     this.newNote.lastmodificationdate = this.newNote.creationdate;
     this.newNote.links = this.links;
@@ -133,8 +133,8 @@ export class CreateNotePage {
   createNote(){
     this.tryingToSubmit=true;
     // console.log('is it valid?');
-    // console.log(JSON.stringify(this.createPageForm.valid));
-    if(this.createPageForm.valid){
+    // console.log(JSON.stringify(this.createNotePageForm.valid));
+    if(this.createNotePageForm.valid){
       this.getNote2();
       //
       // //no because it's already done by the db when he update them.
@@ -154,7 +154,7 @@ export class CreateNotePage {
         .catch(error=>{
           this.graphicProvider.showErrorAlert(error);
         })
-      console.log(JSON.stringify(this.createPageForm.value));
+      console.log(JSON.stringify(this.createNotePageForm.value));
     }else{
       console.log('is not valid');
     }
@@ -171,27 +171,27 @@ export class CreateNotePage {
   //   //just this, keep tags loaded.
   // }
 
-  makeEmpty(){
-    this.newNote.text='';
-    this.newNote.title='';
-    this.links=[];
-    this.mainTags=[];
-    this.otherTags=[];
-    this.newNote.isdone=false;
-  }
-
-
-  makeEmpty2(){
-    this.createPageForm.value.title='';
-    this.createPageForm.value.text='';
-    this.links=[]
-    this.createPageForm.value.mainTags=[];
-    this.createPageForm.value.otherTags=[];
-    this.createPageForm.value.isDone=false;
-  }
+  // makeEmpty(){
+  //   this.newNote.text='';
+  //   this.newNote.title='';
+  //   this.links=[];
+  //   this.mainTags=[];
+  //   this.otherTags=[];
+  //   this.newNote.isdone=false;
+  // }
+  //
+  //
+  // makeEmpty2(){
+  //   this.createNotePageForm.value.title='';
+  //   this.createNotePageForm.value.text='';
+  //   this.links=[]
+  //   this.createNotePageForm.value.mainTags=[];
+  //   this.createNotePageForm.value.otherTags=[];
+  //   this.createNotePageForm.value.isDone=false;
+  // }
 
   makeEmpty3(){
-    this.createPageForm.reset();
+    this.createNotePageForm.reset();
   }
 
   /*

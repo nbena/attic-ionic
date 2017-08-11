@@ -14,3 +14,16 @@
 // To declare rules for a specific mode, create a child rule
 // for the .md, .ios, or .wp mode classes. The mode class is
 // automatically applied to the <body> element in the app.
+
+
+//in order to make a border to the 'error' component
+.invalid {
+  border: 1px solid #ea6153;
+}
+
+
+//gray label
+.error-label{
+  font-size: 0.8em;
+  color: #808080;
+}
