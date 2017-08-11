@@ -274,6 +274,7 @@ export class AtticNotes {
 
 
         this.db.createNewNote2(note.getMinifiedVersionForCreation(), /*tags, */this.auth.userid, necessaryTags)
+        // Promise.resolve(note)
         .then(result=>{
           // this.atticCache.pushToCachedFullNotes(note);
 

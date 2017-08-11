@@ -1,11 +1,18 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, /*AlertController,*/ Events, ViewController } from 'ionic-angular';
+import { NavController, NavParams, /*AlertController,*/ Events, ViewController,
+
+ } from 'ionic-angular';
+
+import { FormBuilder, FormGroup, Validators } from '@angular/forms'
+
 import { AtticNotes } from '../../providers/attic-notes';
 import { AtticTags } from '../../providers/attic-tags';
 import { NoteFull/*, NoteSmart, NoteMin, NoteExtraMin*/ } from '../../models/notes';
 import { /*TagExtraMin, TagFull,*/ TagAlmostMin } from '../../models/tags';
 // import { Utils } from '../../public/utils'
 import {GraphicProvider} from '../../providers/graphic';
+
+//import {FORM_DIRECTIVES, FormBuilder,  ControlGroup, Validators, AbstractControl} from '@angular/common';
 
 /*
   Generated class for the CreateNote page.
@@ -19,6 +26,9 @@ import {GraphicProvider} from '../../providers/graphic';
 })
 export class CreateNotePage {
 
+
+  createPageForm: FormGroup;
+
 //  oldNote: NoteFull;
   newNote: NoteFull;
 
@@ -27,6 +37,8 @@ export class CreateNotePage {
   otherTags: TagAlmostMin[]  = [];
   // isDone: boolean;
   links: string[];
+
+  tryingToSubmit = false;
 
   // mainTagsString: string[];
   // otherTagsString: string[];
@@ -39,8 +51,17 @@ export class CreateNotePage {
     private atticTags: AtticTags,
     private events: Events,
     private graphicProvider:GraphicProvider,
-    private viewCtrl: ViewController
+    private viewCtrl: ViewController,
+    private formBuilder: FormBuilder
   ) {
+
+    this.createPageForm = formBuilder.group({
+      title:['', Validators.compose([Validators.required, Validators.minLength(2), Validators.maxLength(64)])],
+      text: ['', Validators.compose([Validators.required, Validators.minLength(2)])],
+      mainTags:[[]],
+      otherTags:[[]],
+      isDone:[]
+    })
 
       this.newNote = new NoteFull();
       this.newNote.isdone = false;
@@ -80,7 +101,6 @@ export class CreateNotePage {
 
     // this.newNote.title=this.oldNote.title;
     // this.newNote.text=this.oldNote.text;
-    this.newNote.links=this.links;
 
     this.newNote.maintags = [];
     this.newNote.othertags = [];
@@ -123,41 +143,51 @@ export class CreateNotePage {
   }
 
 
+  getNote2():void{
+    this.newNote = new NoteFull();
+    this.newNote.title=this.createPageForm.value.title;
+    this.newNote.text=this.createPageForm.value.text;
+    this.newNote.maintags=this.createPageForm.value.mainTags;
+    this.newNote.othertags=this.createPageForm.value.otherTags;
+    this.newNote.isdone=this.createPageForm.value.isDone;
+    this.newNote.creationdate = new Date();
+    this.newNote.lastmodificationdate = this.newNote.creationdate;
+    this.newNote.links = this.links;
+    console.log('the new note is:');
+    console.log(JSON.stringify(this.newNote));
+  }
+
+
   createNote(){
-    this.getNote();
-    // console.log(JSON.stringify({note:this.newNote}));
+    this.tryingToSubmit=true;
+    // console.log('is it valid?');
+    // console.log(JSON.stringify(this.createPageForm.valid));
+    if(this.createPageForm.valid){
+      this.getNote2();
+      // this.makeEmpty2();
+      // this.getNote();
+      //
+      // //no because it's already done by the db when he update them.
+      // // this.mainTags.forEach((tag)=>{tag.noteslength++});
+      // // this.otherTags.forEach((tag)=>{tag.noteslength++});
+      //
+      this.atticNotes.createNote2(this.newNote/*, this.mainTags.concat(this.otherTags)*/)
+        .then(result=>{
+          //console.log(result);
+          let title:string = this.newNote.title;
 
-    //no because it's already done by the db when he update them.
-    // this.mainTags.forEach((tag)=>{tag.noteslength++});
-    // this.otherTags.forEach((tag)=>{tag.noteslength++});
+          this.makeEmpty2();
+          this.tryingToSubmit=false;
 
-    this.atticNotes.createNote2(this.newNote/*, this.mainTags.concat(this.otherTags)*/)
-      .then(result=>{
-        console.log(result);
-        // this.navCtrl.parent.select(0);
-        let title:string = this.newNote.title;
-
-        //this.makeAllNull(); --> don't use null.
-        /*it doesn't work.*/
-
-        // this.viewCtrl.dismiss();
-        this.makeEmpty();
-
-        this.events.publish('change-tab',0, title); //see if it is blank or not.
-        //error here...
-      })
-      .catch(error=>{
-        // console.log('error create new note: ');
-        console.log('error create new note: '+JSON.stringify(error));
-        // console.log(error);
-        // console.log('better error');
-        // let alert = this.alertCtrl.create({
-        //   title: error,
-        //   buttons: ['OK']
-        // });
-        // alert.present();
-        this.graphicProvider.showErrorAlert(error);
-      })
+          this.events.publish('change-tab',0, title);
+        })
+        .catch(error=>{
+          this.graphicProvider.showErrorAlert(error);
+        })
+      console.log(JSON.stringify(this.createPageForm.value));
+    }else{
+      console.log('is not valid');
+    }
   }
 
   deleteLinks(event, i:number){
@@ -178,6 +208,16 @@ export class CreateNotePage {
     this.mainTags=[];
     this.otherTags=[];
     this.newNote.isdone=false;
+  }
+
+
+  makeEmpty2(){
+    this.createPageForm.value.title='';
+    this.createPageForm.value.text='';
+    this.links=[]
+    this.createPageForm.value.mainTags=[];
+    this.createPageForm.value.otherTags=[];
+    this.createPageForm.value.isDone=false;
   }
 
   /*

@@ -8,11 +8,6 @@
 
   <ion-navbar color="primary">
 
-    <!-- <ion-buttons start>
-      <button ion-button icon-only menuToggle>
-        <ion-icon name="menu"></ion-icon>
-      </button>
-    </ion-buttons>-->
 
     <ion-title>Create note</ion-title>
 
@@ -23,35 +18,87 @@
 
 <ion-content padding>
 
-  <form (ngSubmit)="createNote()">
-  <!-- <ion-list> -->
+  <!--
+  Basically 3 things have to be done:
+  1) - add the formControlName -> the binded property
+  2) - add the new css class 'invalid' if the control is not valid
+  3) - add a new item with ngIf (control is not valid) to show up the error.
+  [the dirty means that the user have touched it]
+  -->
+
+
+
+  <!-- <form (ngSubmit)="createNote()" [formGroup]="createPageForm"> -->
+  <form [formGroup]="createPageForm">
 
     <ion-item>
       <ion-label stacked color="primary">Title</ion-label>
-      <ion-input
-
-      name="title" [(ngModel)]="newNote.title"></ion-input>
+      <!-- <ion-input
+      name="title" [(ngModel)]="newNote.title">
+    </ion-input> -->
+    <ion-input
+    formControlName="title" type="text"
+    [class.invalid]="!createPageForm.controls.title.valid && (createPageForm.controls.title.dirty || tryingToSubmit)"
+    >
+  </ion-input>
     </ion-item>
+
+
+
+    <ion-item *ngIf="!createPageForm.controls.title.valid  && (createPageForm.controls.title.dirty || tryingToSubmit)">
+        <ion-label class="error-label">Enter a valid title.</ion-label>
+    </ion-item>
+
 
     <ion-item>
       <ion-label stacked color="primary">Text</ion-label>
-      <ion-textarea
+      <!-- <ion-textarea
       autosize
-      name="text" [(ngModel)]="newNote.text"></ion-textarea>
+      name="text" [(ngModel)]="newNote.text">
+    </ion-textarea> -->
+    <ion-textarea
+    autosize
+    formControlName="text" type="text"
+    [class.invalid]="!createPageForm.controls.text.valid && (createPageForm.controls.text.dirty || tryingToSubmit)"
+    >
+  </ion-textarea>
     </ion-item>
 
-  <ion-item>
+
+
+    <ion-item *ngIf="!createPageForm.controls.text.valid  && (createPageForm.controls.text.dirty || tryingToSubmit)">
+        <ion-label class="error-label">Enter a valid text.</ion-label>
+    </ion-item>
+
+
+  <!-- <ion-item>
     <ion-label stacked color="primary">Main tags:</ion-label>
     <ion-select multiple="true" [(ngModel)]="mainTags" name="main-tags">
       <ion-option *ngFor="let tag of tags" [value]="tag">
         {{tag.title}}
       </ion-option>
     </ion-select>
+  </ion-item> -->
+  <ion-item>
+    <ion-label stacked color="primary">Main tags:</ion-label>
+    <ion-select multiple="true" formControlName="mainTags">
+      <ion-option *ngFor="let tag of tags" [value]="tag">
+        {{tag.title}}
+      </ion-option>
+    </ion-select>
   </ion-item>
 
-  <ion-item>
+  <!-- <ion-item>
     <ion-label stacked color="primary">Other tags:</ion-label>
     <ion-select multiple="true" [(ngModel)]="otherTags" name="other-tags">
+      <ion-option *ngFor="let tag of tags" [value]="tag">
+        {{tag.title}}
+      </ion-option>
+    </ion-select>
+  </ion-item> -->
+  <ion-item>
+    <ion-label stacked color="primary">Other tags:</ion-label>
+    <ion-select multiple="true" formControlName="otherTags">
       <ion-option *ngFor="let tag of tags" [value]="tag">
         {{tag.title}}
       </ion-option>
@@ -70,14 +117,6 @@
   </ion-item>
 
 
-  <!-- <ion-item-divider></ion-item-divider> -->
-  <!-- <ion-item> -->
-
-    <!-- <ion-scroll scrollX="true" style="height:100%;"> -->
-    <!-- <ion-list> -->
-    <!-- <ion-row nowrap> -->
-
-      <!-- <ion-item> -->
       <ion-chip *ngFor="let link of links; let i=index">
         <ion-label>
           {{link}}
@@ -86,29 +125,32 @@
           <ion-icon name="close"></ion-icon>
         </button>
       </ion-chip>
-    <!-- </ion-item> -->
-    <!-- </ion-list> -->
-    <!-- </ion-row> -->
-    <!-- </ion-scroll> -->
-
-  <!-- </ion-item> -->
-
-  <!-- <ion-item-divider></ion-item-divider> -->
 
 
+
+
+  <!-- <ion-item>
+    <ion-label stacked color="primary">Done:</ion-label>
+    <ion-toggle [(ngModel)]="newNote.isdone" name="is-done"></ion-toggle>
+  </ion-item> -->
 
   <ion-item>
     <ion-label stacked color="primary">Done:</ion-label>
-    <ion-toggle [(ngModel)]="newNote.isdone" name="is-done"></ion-toggle>
+    <ion-toggle formControlName="isDone"></ion-toggle>
   </ion-item>
 
-  <!-- <ion-item> -->
-  <div text-center>
-    <button ion-button type="submit" >Create</button>
-  </div>
-  <!-- </ion-item> -->
 
-  <!-- </ion-list> -->
+
+  <!-- <ion-item> -->
+  <!-- <div text-center>
+    <button ion-button type="submit" >Create</button>
+  </div> -->
+
+
+  <div text-center>
+    <button ion-button (click)="createNote()" >Create</button>
+  </div>
+
   </form>
 
 </ion-content>
