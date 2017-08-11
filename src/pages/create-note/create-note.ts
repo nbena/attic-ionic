@@ -96,51 +96,23 @@ export class CreateNotePage {
     }
   }
 
-  getNote(){
-
-
-    // this.newNote.title=this.oldNote.title;
-    // this.newNote.text=this.oldNote.text;
-
-    this.newNote.maintags = [];
-    this.newNote.othertags = [];
-
-
-    // this.newNote.maintags = this.mainTagsString.map((tagTitle):TagExtraMin=>{
-    //   let tag = new TagExtraMin();
-    //   tag.title=tagTitle;
-    //   return tag;
-    // });
-    //
-    // this.newNote.othertags = this.otherTagsString.map((tagTitle):TagExtraMin=>{
-    //   let tag = new TagExtraMin();
-    //   tag.title=tagTitle;
-    //   return tag;
-    // });
-
-    // this.newNote.maintags = this.mainTags.map((tag)=>{
-    //   return tag;
-    // });
-    // this.newNote.othertags = this.otherTags.map((tag)=>{
-    //   return tag;
-    // });
-
-    this.newNote.maintags = this.mainTags;
-    this.newNote.othertags = this.otherTags;
-    // this.newNote.maintags.forEach((tag)=>{tag.no})
-
-    this.newNote.creationdate = new Date();
-    this.newNote.lastmodificationdate = this.newNote.creationdate;
-    console.log(JSON.stringify(this.newNote.lastmodificationdate));
-
-    // this.newNote.isdone = this.oldNote.isdone;
-
-    this.newNote.links = this.links;
-
-    // console.log(Utils.logNote(this.newNote));
-    console.log('the new note is:');
-    console.log(JSON.stringify(this.newNote));
-  }
+  // getNote(){
+  //   this.newNote.maintags = [];
+  //   this.newNote.othertags = [];
+  //
+  //   this.newNote.maintags = this.mainTags;
+  //   this.newNote.othertags = this.otherTags;
+  //   // this.newNote.maintags.forEach((tag)=>{tag.no})
+  //
+  //   this.newNote.creationdate = new Date();
+  //   this.newNote.lastmodificationdate = this.newNote.creationdate;
+  //
+  //
+  //   this.newNote.links = this.links;
+  //
+  //   console.log('the new note is:');
+  //   console.log(JSON.stringify(this.newNote));
+  // }
 
 
   getNote2():void{
@@ -164,8 +136,6 @@ export class CreateNotePage {
     // console.log(JSON.stringify(this.createPageForm.valid));
     if(this.createPageForm.valid){
       this.getNote2();
-      // this.makeEmpty2();
-      // this.getNote();
       //
       // //no because it's already done by the db when he update them.
       // // this.mainTags.forEach((tag)=>{tag.noteslength++});
@@ -176,7 +146,7 @@ export class CreateNotePage {
           //console.log(result);
           let title:string = this.newNote.title;
 
-          this.makeEmpty2();
+          this.makeEmpty3();
           this.tryingToSubmit=false;
 
           this.events.publish('change-tab',0, title);
@@ -195,11 +165,11 @@ export class CreateNotePage {
     this.links.splice(i,1);
   }
 
-  makeAllNull(){
-    this.newNote.title="";
-    this.newNote = null;
-    //just this, keep tags loaded.
-  }
+  // makeAllNull(){
+  //   this.newNote.title="";
+  //   this.newNote = null;
+  //   //just this, keep tags loaded.
+  // }
 
   makeEmpty(){
     this.newNote.text='';
@@ -218,6 +188,10 @@ export class CreateNotePage {
     this.createPageForm.value.mainTags=[];
     this.createPageForm.value.otherTags=[];
     this.createPageForm.value.isDone=false;
+  }
+
+  makeEmpty3(){
+    this.createPageForm.reset();
   }
 
   /*
