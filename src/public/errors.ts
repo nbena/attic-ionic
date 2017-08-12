@@ -112,7 +112,7 @@ public static readonly POSTGRES_USER_REACHED_MAX_NOTES:string = 'DbError a free 
 public static readonly POSTGRES_USER_REACHED_MAX_TAGS:string = 'DbError a free user cannot have more than 50 tags';
 public static readonly POSTGRES_MAINTAGS_LIMIT:string = 'DbError maintags cannot be more than 3';
 public static readonly POSTGRES_OTHERTAGS_LIMIT:string = 'DbError othetags cannot be more than 15';
-public static readonly POSTGRES_FINAL_TAGS_FKEY:string = 'DbError tags not found';
+public static readonly POSTGRES_FINAL_TAGS_FKEY:string = 'DbError tags not found'; /*whe trying to add a not-found tags*/
 
 
 
@@ -127,6 +127,68 @@ public static isPostgresError(error:string):boolean{
     ret=true;
   }
   return ret;
+}
+
+
+public static isDuplicateError(error:string):boolean{
+  let ret:boolean = false;
+  if(error==AtticError.POSTGRES_DUPLICATE_KEY_NOTES || error==AtticError.POSTGRES_DUPLICATE_KEY_NOTES_TAGS
+    || error==AtticError.POSTGRES_DUPLICATE_KEY_TAGS){
+      ret = true;
+    }
+  return ret;
+}
+
+public static isNotesTagsLimitError(error:string):boolean{
+  let ret:boolean = false;
+  if(error==AtticError.POSTGRES_MAINTAGS_LIMIT || error==AtticError.POSTGRES_OTHERTAGS_LIMIT){
+    ret = true;
+  }
+  return ret;
+}
+
+public static isUserReachedMaxError(error:string):boolean{
+  let ret:boolean = false;
+  if(error==AtticError.POSTGRES_USER_REACHED_MAX_NOTES || error==AtticError.POSTGRES_USER_REACHED_MAX_TAGS){
+    ret = true;
+  }
+  return ret;
+}
+
+
+public static isNotFoundError(error:string):boolean{
+  let ret:boolean = false;
+  if(error==AtticError.POSTGRES_FINAL_TAGS_FKEY){
+    ret = true;
+  }
+  return ret;
+}
+
+
+public static getPostgresErrorArray(error:string):boolean[]{
+  let ret:boolean[]=[];
+  ret.push(AtticError.isDuplicateError(error));
+  ret.push(AtticError.isNotesTagsLimitError(error));
+  ret.push(AtticError.isUserReachedMaxError(error));
+  ret.push(AtticError.isNotFoundError(error));
+  return ret;
+}
+
+
+public static isDuplicateErrorFromArray(array:boolean[]):boolean{
+  return array[0];
+}
+
+public static isNotesTagsLimitErrorFromArray(array:boolean[]):boolean{
+  return array[1];
+}
+
+public static isUserReachedMaxErrorFromArray(array:boolean[]):boolean{
+  return array[2];
+}
+
+public static isNotFoundErrorFromArray(array:boolean[]):boolean{
+  return array[3];
 }
 
 

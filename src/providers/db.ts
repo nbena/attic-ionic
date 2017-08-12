@@ -1056,6 +1056,19 @@ public isTagFull(title: string, userid: string):Promise<boolean>{
 }
 
 
+private static getNoteFullFromRes(res:any):NoteFull{
+  /*try the parsing.*/
+  let note:NoteFull;
+  let rawResult:any = JSON.parse(res.rows.item(0).json_object);
+  if(rawResult.text == null || !rawResult.text || rawResult.text == undefined){
+    console.log('throw the error, note is not full!');
+  }else{
+    /*if here the note is ok.*/
+    note = NoteFull.safeNewNoteFromJsObject(rawResult);
+  }
+  return note;
+}
+
 
 /*
 if not full, I will return null.
@@ -1068,22 +1081,17 @@ public getNoteFull(title: string, userid: string):Promise<NoteFull>{
       if(result.rows.length<=0){
         resolve(null);
       }else{
-        /*try the parsing.*/
-        let rawResult:any = JSON.parse(result.rows.item(0).json_object);
-
-        // console.log('the note is');
-        // console.log(JSON.stringify(note));
-        /*now a couple of checks to see if it's full.*/
-        if(rawResult.text == null || !rawResult.text || rawResult.text == undefined){
-          console.log('throw the error, note is not full!');
-          /*can't do the check on maintags because THEY CAN BE NULL, same for other tags.*/
-          // reject(new Error(Const.ERR_NOTE_NOT_FULL));
-          resolve(null);
-        }else{
-          /*if here the note is ok.*/
-          note = NoteFull.safeNewNoteFromJsObject(rawResult);
-          resolve(note);
-        }
+        // /*try the parsing.*/
+        // let rawResult:any = JSON.parse(result.rows.item(0).json_object);
+        // if(rawResult.text == null || !rawResult.text || rawResult.text == undefined){
+        //   console.log('throw the error, note is not full!');
+        //   resolve(null);
+        // }else{
+        //   /*if here the note is ok.*/
+        //   note = NoteFull.safeNewNoteFromJsObject(rawResult);
+        //   resolve(note);
+        // }
+        resolve(Db.getNoteFullFromRes(result));
       }
     })
     .catch(error=>{
@@ -1091,6 +1099,16 @@ public getNoteFull(title: string, userid: string):Promise<NoteFull>{
     })
   });
 }
+
+
+// private getNoteFullTx(tx:any, title:string, userid:string):NoteFull{
+//   let note:NoteFull;
+//   tx.executeSql(Query.GET_NOTE_FULL_JSON, [title, userid],
+//     (tx:any, res:any)=>{
+//       return Db.getNoteFullFromRes(res);
+//     },(err:any, res:any)=>{console.log('err in get note full tx');console.log(JSON.stringify(err))}
+//   )
+// }
 
 public getTagFull(title: string, userid: string):Promise<TagFull>{
   return new Promise<TagFull>((resolve, reject)=>{
@@ -3737,102 +3755,147 @@ private updateJsonObjTag(fullTag:TagFull, userid:string, tx?:any):void|Promise<v
 
 
 /*maybe in the future I'll pass full objects.*/
-private rollbackAddTag(note:NoteMin, userid:string, noteFull?:NoteFull, tagFull?:TagFull):Promise<void>{
+private rollbackAddTagToNote(note:NoteMin, error:boolean[],userid:string, noteFull?:NoteFull, tagFull?:TagFull):Promise<void>{
   return new Promise<void>((resolve, reject)=>{
-    this.db.transaction(tx=>{
-      //don't use the function 'smart replace' because here I'd have to update NOTES AND TAGS,
-      //, more or less 8 query, it's more convenient to do a query.
-      //this is where it changes.
-      let fullNote:NoteFull = new NoteFull();
-      let fullTag:TagFull = new TagFull();
-      let index:IndexTagType;
-      let isTagFull: boolean = false;
-      let isNoteFull:boolean = false;
-
-      let tags:TagExtraMin[] = note.getTagsAsTagsExtraMinArray();
-
-      tx.executeSql(Query.GET_NOTE_FULL_JSON, [note.title, userid],
-        (tx:any, res:any)=>{
-          if(res.rows.length<0){
-            console.log('fatal, no note');
-            reject(new Error('no note'));
-          }
-            let parsedNote= JSON.parse(res.rows.item(0).json_object);
-            if(!parsedNote.maintags && !parsedNote.othertags){
-              console.log('note is not full');
-            }else{
-              fullNote = parsedNote;
-              console.log('the note before the mod');
-              console.log(JSON.stringify(fullNote));
-              for(let i=0;i<tags.length;i++){
-                index = fullNote.getTagIndex(tags[i]);
-                if(index.index==-1){
-                  reject(new Error('tag not found'));
-                }
-                isNoteFull=true;
-                fullNote.removeTag(index);
-              }
-              console.log('the note after the mod');
-              console.log(JSON.stringify(fullNote));
-            }
-      },
-      (tx:any, error:any)=>{
-        console.log('error in get note json');
-        console.log(JSON.stringify(error));
-      }
-    );
-    for(let i=0;i<tags.length;i++){
-      tx.executeSql(Query.GET_TAG_FULL_JSON, [tags[i].title, userid],
-        (tx:any, res:any)=>{
-          if(res.rows.length<0){
-            console.log('fatal, no tag');
-            reject(new Error('no tag'));
-          }
-          let parsedTag = JSON.parse(res.rows.item(0).json_object);
-          //remove tag
-          if(parsedTag.notes){
-            fullTag = parsedTag;
-            isTagFull = true;
-            console.log('the tag before the mod');
-            console.log(JSON.stringify(fullTag));
-            fullTag.removeNote(fullNote as NoteExtraMin);
-            console.log('the tag after the mod');
-            console.log(JSON.stringify(fullTag));
-          }else{
-            console.log('tag is not full');
-          }
-        }
-        )
-        if(isTagFull){
-          this.updateJsonObjTag(fullTag, userid, tx);
-        }
-        tx.executeSql(Query.DELETE_FROM_LOGS_TAGS_TO_ADD_TO_NOTE_WHERE_NOTE_AND_TAG, [note.title, tags[i].title, userid],
-          (tx:any, res:any)=>{console.log('remove tags tags to add to notes from logs ok');},
-          (tx:any, error:any)=>{console.log('error remove tags tags to add to notes from logs');
-            console.log(JSON.stringify(error));}
-        )
+  //   this.db.transaction(tx=>{
+  //     //don't use the function 'smart replace' because here I'd have to update NOTES AND TAGS,
+  //     //, more or less 8 query, it's more convenient to do a query.
+  //     //this is where it changes.
+  //     let fullNote:NoteFull = new NoteFull();
+  //     let fullTag:TagFull = new TagFull();
+  //     let index:IndexTagType;
+  //     let isTagFull: boolean = false;
+  //     let isNoteFull:boolean = false;
+  //
+  //     let tags:TagExtraMin[] = note.getTagsAsTagsExtraMinArray();
+  //
+  //     tx.executeSql(Query.GET_NOTE_FULL_JSON, [note.title, userid],
+  //       (tx:any, res:any)=>{
+  //         if(res.rows.length<0){
+  //           console.log('fatal, no note');
+  //           reject(new Error('no note'));
+  //         }
+  //           let parsedNote= JSON.parse(res.rows.item(0).json_object);
+  //           if(!parsedNote.maintags && !parsedNote.othertags){
+  //             console.log('note is not full');
+  //           }else{
+  //             fullNote = parsedNote;
+  //             console.log('the note before the mod');
+  //             console.log(JSON.stringify(fullNote));
+  //             for(let i=0;i<tags.length;i++){
+  //               index = fullNote.getTagIndex(tags[i]);
+  //               if(index.index==-1){
+  //                 reject(new Error('tag not found'));
+  //               }
+  //               isNoteFull=true;
+  //               fullNote.removeTag(index);
+  //             }
+  //             console.log('the note after the mod');
+  //             console.log(JSON.stringify(fullNote));
+  //           }
+  //     },
+  //     (tx:any, error:any)=>{
+  //       console.log('error in get note json');
+  //       console.log(JSON.stringify(error));
+  //     }
+  //   );
+  //   for(let i=0;i<tags.length;i++){
+  //     tx.executeSql(Query.GET_TAG_FULL_JSON, [tags[i].title, userid],
+  //       (tx:any, res:any)=>{
+  //         if(res.rows.length<0){
+  //           console.log('fatal, no tag');
+  //           reject(new Error('no tag'));
+  //         }
+  //         let parsedTag = JSON.parse(res.rows.item(0).json_object);
+  //         //remove tag
+  //         if(parsedTag.notes){
+  //           fullTag = parsedTag;
+  //           isTagFull = true;
+  //           console.log('the tag before the mod');
+  //           console.log(JSON.stringify(fullTag));
+  //           fullTag.removeNote(fullNote as NoteExtraMin);
+  //           console.log('the tag after the mod');
+  //           console.log(JSON.stringify(fullTag));
+  //         }else{
+  //           console.log('tag is not full');
+  //         }
+  //       }
+  //       )
+  //       if(isTagFull){
+  //         this.updateJsonObjTag(fullTag, userid, tx);
+  //       }
+  //       tx.executeSql(Query.DELETE_FROM_LOGS_TAGS_TO_ADD_TO_NOTE_WHERE_NOTE_AND_TAG, [note.title, tags[i].title, userid],
+  //         (tx:any, res:any)=>{console.log('remove tags tags to add to notes from logs ok');},
+  //         (tx:any, error:any)=>{console.log('error remove tags tags to add to notes from logs');
+  //           console.log(JSON.stringify(error));}
+  //       )
+  //   }
+  //     if(isNoteFull){
+  //       this.updateJsonObjNote(fullNote, userid, tx);
+  //     }
+  //   })
+  //   .then(txResult=>{
+  //     console.log('tag force deleted');
+  //     resolve();
+  //   })
+  //   .catch(error=>{
+  //     console.log('error in delete force tag');
+  //     console.log(JSON.stringify(error));
+  //     reject(error);
+  //   })
+  // })
+  this.db.transaction(tx=>{
+    if(AtticError.isNotesTagsLimitErrorFromArray(error) || AtticError.isNotFoundErrorFromArray(error)){
+      this.rollbackAddTagToNoteJsonOpCore(tx, note, note.getTagsAsTagsExtraMinArray(),userid);
     }
-      if(isNoteFull){
-        this.updateJsonObjNote(fullNote, userid, tx);
-      }
-    })
-    .then(txResult=>{
-      console.log('tag force deleted');
-      resolve();
-    })
-    .catch(error=>{
-      console.log('error in delete force tag');
-      console.log(JSON.stringify(error));
-      reject(error);
-    })
+    this.rollabackAddTagToNoteOnlyLogCore(note.title, note.maintags, userid, tx);
+  }).then(()=>{console.log('ok rollback add-tags');resolve();})
+  .catch(error=>{console.log('error rollback add-tags');console.log(JSON.stringify(error));reject(error)})
   })
 }
 
+//the 'canonical' one is different.
+private rollabackAddTagToNoteOnlyLogCore(noteTitle:string, tags:string[], userid:string, tx?:any):Promise<void>|void{
+  let query:string = this.prepareTagsMultiVersion(tags.length, Query.DELETE_FROM_LOGS_TAGS_TO_ADD_TO_NOTE_WHERE_NOTE_AND_TAG_MULTI, true);
+  if(tx!=null){
+    tx.executeSql(query, [noteTitle, userid].concat(tags),
+    (tx:any, res:any)=>{console.log('ok removed tags-to-add-to-notes')},
+    (tx:any, error:any)=>{console.log('error removing tags-to-add-to-notes');console.log(JSON.stringify(error));}
+  )
+  }else{
+    return new Promise<void>((resolve, reject)=>{
+      this.db.executeSql(query, [noteTitle, userid].concat(tags))
+      .then(()=>{
+        console.log('ok removed tags-to-add-to-notes');resolve();
+      }).catch(error=>{
+        console.log('error removing tags-to-add-to-notes');console.log(JSON.stringify(error));reject(error);
+      })
+    })
+  }
+}
 
-private rollbackDeleteTag(note: NoteMin, userid:string):Promise<void>{
-  return new Promise<void>((resolve, reject)=>{
-    this.db.transaction(tx=>{
-      let tags:TagExtraMin[]=note.maintags.map(obj=>{return TagExtraMin.NewTag(obj)});
+
+private rollabackDeleteTagFromNoteOnlyLog(noteTitle:string, tags:string[], userid:string, tx?:any):Promise<void>|void{
+  let query:string = this.prepareTagsMultiVersion(tags.length, Query.DELETE_FROM_LOGS_TAGS_TO_DELETE_FROM_NOTE_WHERE_NOTE_AND_TAG_MULTI, true);
+  if(tx!=null){
+    tx.executeSql(query, [noteTitle, userid].concat(tags),
+    (tx:any, res:any)=>{console.log('ok removed tags-to-delete-from-notes')},
+    (tx:any, error:any)=>{console.log('error removing tags-to-delete-from-notes');console.log(JSON.stringify(error));}
+  )
+  }else{
+    return new Promise<void>((resolve, reject)=>{
+      this.db.executeSql(query, [noteTitle, userid].concat(tags))
+      .then(()=>{
+        console.log('ok removed tags-to-delete-from-notes');resolve();
+      }).catch(error=>{
+        console.log('error removing tags-to-delete-from-notes');console.log(JSON.stringify(error));reject(error);
+      })
+    })
+  }
+}
+
+private rollbackRemoveTagFromNoteJsonOpCore(tx:any, note:NoteMin, tags:TagExtraMin[], userid:string):void{
+
       for(let i=0;i<tags.length;i++){
         let jsonTag: string = JSON.stringify(tags[i]);
         tx.executeSql(Query.REMOVE_TAGS_FROM_NOTES_SMART_REPLACE, [jsonTag, jsonTag, userid],
@@ -3841,11 +3904,11 @@ private rollbackDeleteTag(note: NoteMin, userid:string):Promise<void>{
             console.log(JSON.stringify(error));}
         );
         //originally it was at the end of everything.
-        tx.executeSql(Query.DELETE_FROM_LOGS_TAGS_TO_ADD_TO_NOTE_WHERE_NOTE_AND_TAG, [note.title, tags[i].title, userid],
-          (tx:any, res:any)=>{console.log('remove tags tags to add to notes from logs ok');},
-          (tx:any, error:any)=>{console.log('error remove tags tags to add to notes from logs');
-            console.log(JSON.stringify(error));}
-        );
+        // tx.executeSql(Query.DELETE_FROM_LOGS_TAGS_TO_ADD_TO_NOTE_WHERE_NOTE_AND_TAG, [note.title, tags[i].title, userid],
+        //   (tx:any, res:any)=>{console.log('remove tags tags to add to notes from logs ok');},
+        //   (tx:any, error:any)=>{console.log('error remove tags tags to add to notes from logs');
+        //     console.log(JSON.stringify(error));}
+        // );
       }
       tx.executeSql(Query.REMOVE_TAGS_FROM_NOTES_CLEANUP_ONE, [userid],
         (tx:any, res:any)=>{console.log('remove tags tags cleanup one ok');},
@@ -3863,17 +3926,167 @@ private rollbackDeleteTag(note: NoteMin, userid:string):Promise<void>{
           console.log(JSON.stringify(error));}
       );
       //this is where it changes.
-    })
-    .then(txResult=>{
-      console.log('tag force deleted');
-      resolve();
-    })
-    .catch(error=>{
-      console.log('error in delete force tag');
-      console.log(JSON.stringify(error));
-      reject(error);
-    })
+}
+
+private rollbackAddTagToNoteJsonOpCore(tx:any, note:NoteMin, tags:TagExtraMin[], userid:string):void{
+  //don't use the function 'smart replace' because here I'd have to update NOTES AND TAGS,
+  //, more or less 8 query, it's more convenient to do a query.
+  //this is where it changes.
+  let fullNote:NoteFull = null;
+  let fullTags:TagFull[];
+  let index:IndexTagType;
+  let isTagFull: boolean = false;
+  let isNoteFull:boolean = false;
+
+  this.getNoteFull(note.title, userid)
+  .then(note=>{
+    if(note!=null){
+      fullNote = note;
+      tags.forEach(obj=>{note.removeTag(obj)});
+      return Promise.all(tags.map(obj=>{
+        if(obj!=null){return this.getTagFull(obj.title, userid)}
+      }));
+    }
+    return Promise.resolve(null);
   })
+  .then(fullObj=>{
+    if(fullObj!=null){
+      fullTags = fullObj as TagFull[];
+      fullTags.forEach(obj=>{
+        if(obj!=null){obj.removeNote(fullNote as NoteExtraMin)}
+      });
+    }
+
+      if(fullTags!=null){
+        fullTags.forEach(obj=>{this.updateJsonObjTag(obj, userid, tx)});
+      }
+      if(fullNote!=null){
+        this.updateJsonObjNote(fullNote, userid, tx);
+      }
+  })
+
+
+  // let tags:TagExtraMin[] = note.getTagsAsTagsExtraMinArray();
+
+//   tx.executeSql(Query.GET_NOTE_FULL_JSON, [note.title, userid],
+//     (tx:any, res:any)=>{
+//       if(res.rows.length<0){
+//         console.log('fatal, no note');
+//         // reject(new Error('no note'));
+//       }
+//         let parsedNote= JSON.parse(res.rows.item(0).json_object);
+//         if(!parsedNote.maintags && !parsedNote.othertags){
+//           console.log('note is not full');
+//         }else{
+//           fullNote = parsedNote;
+//           console.log('the note before the mod');
+//           console.log(JSON.stringify(fullNote));
+//           for(let i=0;i<tags.length;i++){
+//             index = fullNote.getTagIndex(tags[i]);
+//             if(index.index==-1){
+//               // reject(new Error('tag not found'));
+//             }
+//             isNoteFull=true;
+//             fullNote.removeTag(index);
+//           }
+//           console.log('the note after the mod');
+//           console.log(JSON.stringify(fullNote));
+//         }
+//   },
+//   (tx:any, error:any)=>{
+//     console.log('error in get note json');
+//     console.log(JSON.stringify(error));
+//   }
+// );
+// for(let i=0;i<tags.length;i++){
+//   tx.executeSql(Query.GET_TAG_FULL_JSON, [tags[i].title, userid],
+//     (tx:any, res:any)=>{
+//       if(res.rows.length<0){
+//         console.log('fatal, no tag');
+//         // reject(new Error('no tag'));
+//       }
+//       let parsedTag = JSON.parse(res.rows.item(0).json_object);
+//       //remove tag
+//       if(parsedTag.notes){
+//         fullTag = parsedTag;
+//         isTagFull = true;
+//         console.log('the tag before the mod');
+//         console.log(JSON.stringify(fullTag));
+//         fullTag.removeNote(fullNote as NoteExtraMin);
+//         console.log('the tag after the mod');
+//         console.log(JSON.stringify(fullTag));
+//       }else{
+//         console.log('tag is not full');
+//       }
+//     }
+//     )
+//     if(isTagFull){
+//       this.updateJsonObjTag(fullTag, userid, tx);
+//     }
+//     tx.executeSql(Query.DELETE_FROM_LOGS_TAGS_TO_ADD_TO_NOTE_WHERE_NOTE_AND_TAG, [note.title, tags[i].title, userid],
+//       (tx:any, res:any)=>{console.log('remove tags tags to add to notes from logs ok');},
+//       (tx:any, error:any)=>{console.log('error remove tags tags to add to notes from logs');
+//         console.log(JSON.stringify(error));}
+//     )
+// }
+//   if(isNoteFull){
+//     this.updateJsonObjNote(fullNote, userid, tx);
+//   }
+}
+
+
+private rollbackDeleteTagFromNote(note: NoteMin, error:boolean[],userid:string):Promise<void>{
+  return new Promise<void>((resolve, reject)=>{
+    // this.db.transaction(tx=>{
+    //   let tags:TagExtraMin[]=note.maintags.map(obj=>{return TagExtraMin.NewTag(obj)});
+    //   for(let i=0;i<tags.length;i++){
+    //     let jsonTag: string = JSON.stringify(tags[i]);
+    //     tx.executeSql(Query.REMOVE_TAGS_FROM_NOTES_SMART_REPLACE, [jsonTag, jsonTag, userid],
+    //       (tx:any, res:any)=>{console.log('remove tags smart replace ok');},
+    //       (tx:any, error:any)=>{console.log('error in smart replace');
+    //         console.log(JSON.stringify(error));}
+    //     );
+    //     //originally it was at the end of everything.
+    //     tx.executeSql(Query.DELETE_FROM_LOGS_TAGS_TO_ADD_TO_NOTE_WHERE_NOTE_AND_TAG, [note.title, tags[i].title, userid],
+    //       (tx:any, res:any)=>{console.log('remove tags tags to add to notes from logs ok');},
+    //       (tx:any, error:any)=>{console.log('error remove tags tags to add to notes from logs');
+    //         console.log(JSON.stringify(error));}
+    //     );
+    //   }
+    //   tx.executeSql(Query.REMOVE_TAGS_FROM_NOTES_CLEANUP_ONE, [userid],
+    //     (tx:any, res:any)=>{console.log('remove tags tags cleanup one ok');},
+    //     (tx:any, error:any)=>{console.log('error remove tags tags cleanup one');
+    //       console.log(JSON.stringify(error));}
+    //   );
+    //   tx.executeSql(Query.REMOVE_TAGS_FROM_NOTES_CLEANUP_TWO, [userid],
+    //     (tx:any, res:any)=>{console.log('remove tags tags cleanup two ok');},
+    //     (tx:any, error:any)=>{console.log('error remove tags tags cleanup two');
+    //       console.log(JSON.stringify(error));}
+    //   );
+    //   tx.executeSql(Query.REMOVE_TAGS_FROM_NOTES_CLEANUP_THREE, [userid],
+    //     (tx:any, res:any)=>{console.log('remove tags tags cleanup three ok');},
+    //     (tx:any, error:any)=>{console.log('error remove tags tags cleanup three');
+    //       console.log(JSON.stringify(error));}
+    //   );
+    //   //this is where it changes.
+    // })
+    // .then(txResult=>{
+    //   console.log('tag force deleted');
+    //   resolve();
+    // })
+    // .catch(error=>{
+    //   console.log('error in delete force tag');
+    //   console.log(JSON.stringify(error));
+    //   reject(error);
+    // })
+    this.db.transaction(tx=>{
+      //if(AtticError.isNotFoundErrorFromArray(error)){
+        this.rollbackAddTagToNoteJsonOpCore(tx, note, note.getTagsAsTagsExtraMinArray(),userid);
+      //}
+      this.rollabackAddTagToNoteOnlyLogCore(note.title, note.maintags, userid, tx);
+    }).then(()=>{console.log('ok rollback add-tags');resolve();})
+    .catch(error=>{console.log('error rollback add-tags');console.log(JSON.stringify(error));reject(error)})
+    })
 }
 
 private deleteChangeTextFromLogsSequenceCore(tx:any, noteTitles:string[], userid:string):void{
@@ -3970,9 +4183,10 @@ private rollbackSetLink(note:NoteExtraMin, userid:string):Promise<void>{
 
   //choose what to do...just logs or notes too?
   //by seeing it in action I think it's better the first.
-  private rollbackCreateNote(note:NoteExtraMin, userid:string):Promise<void>{
+  private rollbackCreateNote(note:NoteExtraMin, error:boolean[], userid:string):Promise<void>{
     return new Promise<void>((resolve, reject)=>{
       this.db.transaction(tx=>{
+        if(AtticError.isDuplicateErrorFromArray(error) || AtticError.isUserReachedMaxErrorFromArray(error))
         this.deleteNotesFromNotesBasciCore(tx, [note.title], userid);
         this.deleteNotesToCreateFromLogsMultiVersionCore(tx, [note.title], userid);
       })
@@ -3982,9 +4196,10 @@ private rollbackSetLink(note:NoteExtraMin, userid:string):Promise<void>{
   }
 
 
-  private rollbackCreateTag(tag:TagExtraMin, userid:string):Promise<void>{
+  private rollbackCreateTag(tag:TagExtraMin, error:boolean[],userid:string):Promise<void>{
     return new Promise<void>((resolve, reject)=>{
       this.db.transaction(tx=>{
+        if(AtticError.isDuplicateErrorFromArray(error) || AtticError.isUserReachedMaxErrorFromArray(error))
         this.deleteTagsFromTagsBasicCore(tx, [tag.title], userid);
         this.deleteTagsToCreateFromLogsMultiVersionCore(tx, [tag.title], userid);
       })
@@ -4006,16 +4221,16 @@ problems are only when:
     the log object is removed from the logs_sequence.
 for the other I just remove the log object from the logs_sequence.
 */
-public rollbackModification(logObj: LogObjSmart, userid:string):Promise<void>{
+public rollbackModification(logObj: LogObjSmart,userid:string, errorArray?:boolean[]):Promise<void>{
   return new Promise<void>((resolve, reject)=>{
     let p:Promise<void>;
     switch(logObj.action){
       case DbAction.DbAction.remove_tag:
         /*the note to delete are in the maintags of the note.*/
-        p=this.rollbackDeleteTag(logObj.note, userid);
+        p=this.rollbackDeleteTagFromNote(logObj.note, errorArray, userid);
         break;
       case DbAction.DbAction.add_tag:
-        p=this.rollbackAddTag(logObj.note, userid);
+        p=this.rollbackAddTagToNote(logObj.note,errorArray, userid);
         break;
       case DbAction.DbAction.change_text:
         p=this.rollbackChangeText(logObj.note, userid);
@@ -4028,9 +4243,9 @@ public rollbackModification(logObj: LogObjSmart, userid:string):Promise<void>{
         break;
       case DbAction.DbAction.create:
         if(logObj.note!=null){
-          p=this.rollbackCreateNote(logObj.note as NoteMin, userid);
+          p=this.rollbackCreateNote(logObj.note as NoteMin,errorArray, userid);
         }else{
-          p=this.rollbackCreateTag(logObj.tag.title, userid);
+          p=this.rollbackCreateTag(logObj.tag.title,errorArray, userid);
         }
         break;
       default:

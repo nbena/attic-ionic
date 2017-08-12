@@ -54,12 +54,19 @@ export class Synch {
   // private tagToDeleteBecauseOfAnError: string = null;
 
   private objRemoveTagFromNoteToDeleteBecaseOfAnError:LogObjSmart = null;
+  private errorArrayRemoveTagFromNote:boolean[] = [];
   private objAddTagToNoteToDeleteBecaseOfAnError:LogObjSmart = null;
+  private errorArrayTagToAddToNote:boolean[] = [];
   private objChangeTextToDeleteBecaseOfAnError:LogObjSmart = null;
+  // private errorArrayChangeTextBecauseOfAnError:boolean[] = [];
   private objSetDoneToDeleteBecaseOfAnError:LogObjSmart = null;
+  // private errorArraySetDoneBecauseOfAnError:boolean[] = [];
   private objSetLinkToDeleteBecaseOfAnError:LogObjSmart = null;
+  // private errorArraySetLinkBecauseOfAnError:boolean[] = [];
   private objCreateNoteToDeleteBecaseOfAnError:LogObjSmart = null;
+  private errorArrayCreateNote:boolean[] = [];
   private objCreateTagToDeleteBecaseOfAnError:LogObjSmart = null;
+  private errorArrayCreateTag:boolean[] = [];
 
   private someSynchError:boolean = false;
 
@@ -514,6 +521,7 @@ export class Synch {
           console.log('postgres error!');
           //this.noteToDeleteBecauseOfAnError = current;
           this.objCreateNoteToDeleteBecaseOfAnError = currentLog;
+          this.errorArrayCreateNote=AtticError.getPostgresErrorArray((error.message!=null)?error.message:error);
           this.someSynchError = true;
         }
         console.log('the current error object is: ');
@@ -580,6 +588,7 @@ export class Synch {
           console.log('postgres error!');
           //this.tagToDeleteBecauseOfAnError = current;
           this.objCreateTagToDeleteBecaseOfAnError = currentLog;
+          this.errorArrayCreateTag=AtticError.getPostgresErrorArray((error.message!=null)?error.message:error);
           this.someSynchError = true;
         }
         console.log('the current error object is: ');
@@ -683,6 +692,7 @@ export class Synch {
           console.log('postgres error!');
           //this.noteToDeleteBecauseOfAnError = current;
           this.objAddTagToNoteToDeleteBecaseOfAnError = currentLog;
+          this.errorArrayTagToAddToNote=AtticError.getPostgresErrorArray((error.message!=null)?error.message:error);
           this.someSynchError = true;
         }
         console.log('the current error object is: ');
@@ -759,6 +769,7 @@ export class Synch {
           console.log('postgres error!');
           //this.noteToDeleteBecauseOfAnError = current;
           this.objRemoveTagFromNoteToDeleteBecaseOfAnError = currentLog;
+          this.errorArrayRemoveTagFromNote=AtticError.getPostgresErrorArray((error.message!=null)?error.message:error);
           this.someSynchError = true;
         }
         console.log('the current error object is: ');
@@ -1243,7 +1254,7 @@ export class Synch {
       if(this.objCreateNoteToDeleteBecaseOfAnError!=null){
         console.log('the bad notes-to-create to remove');
         console.log(JSON.stringify(this.objCreateNoteToDeleteBecaseOfAnError));
-        this.db.rollbackModification(this.objCreateNoteToDeleteBecaseOfAnError, this.auth.userid)
+        this.db.rollbackModification(this.objCreateNoteToDeleteBecaseOfAnError, this.auth.userid, this.errorArrayCreateNote)
         .then(()=>{
           console.log('ok removed bad notes-to-create');
           resolve();
@@ -1265,7 +1276,7 @@ export class Synch {
       if(this.objAddTagToNoteToDeleteBecaseOfAnError!=null){
         console.log('the bad tags-to-add-to to remove');
         console.log(JSON.stringify(this.objAddTagToNoteToDeleteBecaseOfAnError));
-        this.db.rollbackModification(this.objAddTagToNoteToDeleteBecaseOfAnError, this.auth.userid)
+        this.db.rollbackModification(this.objAddTagToNoteToDeleteBecaseOfAnError, this.auth.userid, this.errorArrayTagToAddToNote)
         .then(()=>{
           console.log('ok removed bad tags-to-add-to');
           resolve();
@@ -1287,7 +1298,7 @@ export class Synch {
       if(this.objRemoveTagFromNoteToDeleteBecaseOfAnError!=null){
         console.log('the bad tags-to-remove-from to remove');
         console.log(JSON.stringify(this.objRemoveTagFromNoteToDeleteBecaseOfAnError));
-        this.db.rollbackModification(this.objRemoveTagFromNoteToDeleteBecaseOfAnError, this.auth.userid)
+        this.db.rollbackModification(this.objRemoveTagFromNoteToDeleteBecaseOfAnError, this.auth.userid, this.errorArrayRemoveTagFromNote)
         .then(()=>{
           console.log('ok removed bad tags-to-remove-from');
           resolve();
@@ -1310,7 +1321,7 @@ export class Synch {
       if(this.objCreateTagToDeleteBecaseOfAnError!=null){
         console.log('the bad tags-to-create to remove');
         console.log(JSON.stringify(this.objCreateTagToDeleteBecaseOfAnError));
-        this.db.rollbackModification(this.objCreateTagToDeleteBecaseOfAnError, this.auth.userid)
+        this.db.rollbackModification(this.objCreateTagToDeleteBecaseOfAnError, this.auth.userid, this.errorArrayCreateTag)
         .then(()=>{
           console.log('ok removed bad tags-to-create');
           resolve();
