@@ -270,8 +270,10 @@ export class Query{
 
 
   //note and tag to create
-  static readonly DELETE_FROM_LOGS_TAG_CREATED_WHERE_TAG = 'delete from logs_sequence where userid=? and notetitle is null and action=\'create\' and (tagtitle=?)';
-  static readonly DELETE_FROM_LOGS_NOTE_CREATED_WHERE_NOTE = 'delete from logs_sequence where userid=? and tagtitle is null and action=\'create\' and (notetitle=?)';
+  //static readonly DELETE_FROM_LOGS_TAG_CREATED_WHERE_TAG = 'delete from logs_sequence where userid=? and notetitle is null and action=\'create\' and (tagtitle=?)';
+  // static readonly DELETE_FROM_LOGS_NOTE_CREATED_WHERE_NOTE = 'delete from logs_sequence where userid=? and tagtitle is null and action=\'create\' and (notetitle=?)';
+  static readonly DELETE_FROM_LOGS_TAG_CREATED_WHERE_TAG = 'delete from logs_sequence where userid=? and notetitle is null and action=\'create\' and ';
+  static readonly DELETE_FROM_LOGS_NOTE_CREATED_WHERE_NOTE = 'delete from logs_sequence where userid=? and tagtitle is null and action=\'create\' and ';
 
 
 
@@ -288,8 +290,10 @@ export class Query{
   //static readonly DELETE_FROM_LOGS_NOTES_TO_DELETE_WHERE_NOTE = 'delete from logs_sequence where userid=? and action=\'delete\' and tagtitle is null and (notetitle=?)';
   //static readonly DELETE_FROM_NOTES_NOTES_TO_DELETE_WHERE_NOTE = 'delete from notes where userid=? and mustbedeleted=\'true\' and (title=?)';
 
-  static readonly DELETE_FROM_LOGS_TAGS_TO_DELETE_WHERE_TAG = 'delete from logs_sequence where userid=? and action=\'delete\' and notetitle is null and (tagtitle=?)';
-  static readonly DELETE_FROM_TAGS_TAGS_TO_DELETE_WHERE_TAG = 'delete from tags where userid=? and mustbedeleted=\'true\' and (title=?)';
+  // static readonly DELETE_FROM_LOGS_TAGS_TO_DELETE_WHERE_TAG = 'delete from logs_sequence where userid=? and action=\'delete\' and notetitle is null and (tagtitle=?)';
+  // static readonly DELETE_FROM_TAGS_TAGS_TO_DELETE_WHERE_TAG = 'delete from tags where userid=? and mustbedeleted=\'true\' and (title=?)';
+  static readonly DELETE_FROM_LOGS_TAGS_TO_DELETE_WHERE_TAG = 'delete from logs_sequence where userid=? and action=\'delete\' and notetitle is null and ';
+  static readonly DELETE_FROM_TAGS_TAGS_TO_DELETE_WHERE_TAG = 'delete from tags where userid=? and mustbedeleted=\'true\' and ';
 
 
   static readonly INSERT_INTO_NOTES_HELP = 'insert into notes_help(title, json_object, lastmodificationdate, userid) values ';
@@ -412,5 +416,13 @@ export class Query{
   //   }
   //   return result;
   // }
+  static readonly GET_LOGS_BY_NOTE = 'select json_object, action from notes join logs_sequence '+
+  'on title=notetitle and notes.userid=logs_sequence.userid where notes.userid=? and action='+
+  '\'set-done\' or action=\'change-text\' or action=\'set-link\' or action=\'add-tag\' or '
+  'action=\'remove-tag\' and title=?';
+
+  static readonly FORCE_DELETE_NOTE_MULTI = 'delete from notes where userid=? and ';
+  static readonly FORCE_DELETE_TAG_MULTI = 'delete from tags where userid=? and ';
+
 
  }

@@ -131,6 +131,26 @@ export class NoteMin extends NoteBarebon{
     return array;
   }
 
+  public static safeNewTagFullFromJsonString(json:string):NoteMin{
+    return NoteMin.safeNewNoteFromJsObject(JSON.parse(json));
+  }
+
+  public static safeNewNoteFromJsObject(obj:any):NoteMin{
+    let note:NoteMin = new NoteMin();
+    note.title=obj.title;
+    note.text=obj.text;
+    note.creationdate=obj.creationdate;
+    note.lastmodificationdate=obj.lastmodificationdate;
+    note.isdone=obj.isdone;
+    note.maintags=obj.maintags;
+    note.othertags=obj.othertags;
+    return note;
+  }
+
+  public getNoteExtraMin():NoteExtraMin{
+    return NoteExtraMin.NewNoteExtraMin(this.title);
+  }
+
 }
 
 // export class NoteFull extends NoteBarebon{
