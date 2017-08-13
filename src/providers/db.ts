@@ -1107,7 +1107,7 @@ private getJsonObjNote(title:string, userid:string):Promise<NoteExtraMinWithDate
 
 private static getNoteFullFromRes(res:any):NoteFull{
   /*try the parsing.*/
-  let note:NoteFull;
+  let note:NoteFull=null;
   let rawResult:any = JSON.parse(res.rows.item(0).json_object);
   if(rawResult.text == null || !rawResult.text || rawResult.text == undefined){
     console.log('throw the error, note is not full!');
@@ -1159,6 +1159,19 @@ public getNoteFull(title: string, userid: string):Promise<NoteFull>{
 //   )
 // }
 
+private static getTagFullFromRes(result:any):TagFull{
+  let tag:TagFull=null;
+  let rawResult:any = JSON.parse(result.rows.item(0).json_object);
+  /*check if it's full.*/
+  if(rawResult.notes == null || rawResult.notes.length < 0 || rawResult.notes == undefined){
+    console.log('throw the error, tag is not full!');
+  }else{
+    tag = TagFull.safeNewTagFullFromJsObject(rawResult);
+  }
+  console.log('the tag that I get is');console.log(JSON.stringify(tag));
+  return tag;
+}
+
 public getTagFull(title: string, userid: string):Promise<TagFull>{
   return new Promise<TagFull>((resolve, reject)=>{
     this.db.executeSql(Query.GET_TAG_FULL_JSON, [title, userid])
@@ -1167,20 +1180,22 @@ public getTagFull(title: string, userid: string):Promise<TagFull>{
       if(result.rows.length<=0){
         resolve(null);
       }else{
-        /*try the parsing.*/
-        let rawResult:any = JSON.parse(result.rows.item(0).json_object);
-
-        console.log('the tag is');
-        console.log(JSON.stringify(tag));
-        /*check if it's full.*/
-        if(rawResult.notes == null || rawResult.notes.length < 0 || rawResult.notes == undefined){
-          console.log('throw the error, tag is not full!');
-
-          resolve(null);
-        }else{
-          /*if here the note is ok.*/
-          resolve(TagFull.safeNewTagFullFromJsObject(rawResult));
-        }
+        // /*try the parsing.*/
+        // let rawResult:any = JSON.parse(result.rows.item(0).json_object);
+        //
+        //
+        // console.log('the tag is');
+        // console.log(JSON.stringify(tag));
+        // /*check if it's full.*/
+        // if(rawResult.notes == null || rawResult.notes.length < 0 || rawResult.notes == undefined){
+        //   console.log('throw the error, tag is not full!');
+        //
+        //   resolve(null);
+        // }else{
+        //   /*if here the note is ok.*/
+        //   resolve(TagFull.safeNewTagFullFromJsObject(rawResult));
+        // }
+        resolve(Db.getTagFullFromRes(result));
       }
     })
     .catch(error=>{

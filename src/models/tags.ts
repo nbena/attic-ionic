@@ -157,7 +157,7 @@ export class TagFull extends TagAlmostMin{
     let tag:TagFull = new TagFull();
     tag.title = jsonTag.title;
     tag.noteslength = jsonTag.noteslength;
-    tag.notes = tag.notes;
+    tag.notes =jsonTag.notes;
     if(jsonTag.noteslength==null || tag.noteslength==null){
       tag.noteslength=0;
     }
