@@ -101,7 +101,7 @@ export class AtticTags {
         .then(result=>{
           // console.log('the resul from network is: ');
           // console.log(JSON.stringify(result.tag));
-          let tag:TagFull = TagFull.safeNewTagFullFromJsObject(result);
+          let tag:TagFull = TagFull.safeNewTagFromJsObject(result);
           if(!this.synch.isTagLocked()){
             this.db.insertOrUpdateTag(tag, this.auth.userid);
           }else{

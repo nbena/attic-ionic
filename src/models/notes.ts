@@ -323,6 +323,15 @@ export class NoteFull extends NoteBarebon{
   }
 
 
+  public hasTags():boolean{
+    let ret:boolean = false;
+    if(this.maintags.length>0 && this.othertags.length>0){
+      ret=true;
+    }
+    return ret;
+  }
+
+
 }
 // export class NoteSQLite extends NoteFull{
 //   mainTagsToAdd: TagFull[];

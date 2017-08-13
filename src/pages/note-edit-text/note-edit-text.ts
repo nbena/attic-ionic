@@ -25,6 +25,8 @@ export class NoteEditTextPage {
 
   editTextPageForm: FormGroup;
 
+  tmpLastmodificationdate: Date;
+
 
   constructor(public navCtrl: NavController, public navParams: NavParams,
     private atticNotes: AtticNotes,
@@ -33,6 +35,7 @@ export class NoteEditTextPage {
   ) {
       this.note=navParams.get('note');
       // this.text=this.note.text;
+      this.tmpLastmodificationdate=this.note.lastmodificationdate;
 
       this.editTextPageForm=this.formBuilder.group({
         text:[this.note.text, Validators.compose([Validators.required, Validators.minLength(2)])]
@@ -53,6 +56,7 @@ export class NoteEditTextPage {
     // this.note.text = this.text;
     if(this.editTextPageForm.valid){
       this.note.text = this.editTextPageForm.value.text;
+      this.note.lastmodificationdate = new Date();
       this.atticNotes.changeText(this.note)
         .then(result=>{
           console.log(result);
@@ -60,6 +64,7 @@ export class NoteEditTextPage {
           this.navCtrl.pop();
         })
         .catch(error=>{
+          this.note.lastmodificationdate=this.tmpLastmodificationdate;
           console.log(JSON.stringify('change text error: '+error));
           this.graphicProvider.showErrorAlert(error);
         })

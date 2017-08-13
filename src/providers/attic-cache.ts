@@ -467,4 +467,10 @@ export class AtticCache {
     }
   }
 
+
+
+  public moveToHead(){
+    
+  }
+
 }

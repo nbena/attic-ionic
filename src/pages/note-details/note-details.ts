@@ -83,6 +83,8 @@ export class NoteDetailsPage {
 
   reallyAvailableTags: TagExtraMin[] = [];
 
+  tmpLastmodificationdate: Date;
+
 
 
   constructor(public navCtrl: NavController, public navParams: NavParams,
@@ -125,7 +127,7 @@ export class NoteDetailsPage {
         // this._otherTags=this.note.otherTags;
         // this._links=this.note.links;
         //error is here.
-        try{
+        // try{
           this.mainTags=this.note.maintags as TagExtraMin[];
           this.otherTags=this.note.othertags as TagExtraMin[];
           //
@@ -142,11 +144,14 @@ export class NoteDetailsPage {
           this.shownOtherTags = this.otherTags.slice();
           this.shownLinks = this.links.slice();
           this.shownIsDone = this.isDone;
-        }
-        catch(e){
-          console.log('the real error');console.log(e.message);
-          console.log(JSON.stringify(e));
-        }
+
+          this.tmpLastmodificationdate=this.note.lastmodificationdate;
+
+        // }
+        // catch(e){
+        //   console.log('the real error');console.log(e.message);
+        //   console.log(JSON.stringify(e));
+        // }
 
 
 
@@ -493,12 +498,22 @@ export class NoteDetailsPage {
   }
 
 
+  haveToDoSomething(){
+    return this.haveToRemoveTags || this.haveToAddMainTags || this.haveToChangeLinks
+     || this.haveToAddOtherTags || this.isDoneChanged
+  }
+
+
   submit(){
     /*decide which actions must be taken.*/
-    console.log('now I try');
-    try{
-      this.note.forceCastToNoteExtraMin();
-    }catch(e){console.log('the fucking error is here');console.log(JSON.stringify(e.message))}
+    // console.log('now I try');
+    // try{
+      // this.note.forceCastToNoteExtraMin();
+    // }catch(e){console.log('the fucking error is here');console.log(JSON.stringify(e.message))}
+
+    if(this.haveToDoSomething()){
+      this.note.lastmodificationdate=new Date();
+    }
 
     if(this.haveToRemoveTags){
       this.removeTagsAPI()
@@ -508,6 +523,7 @@ export class NoteDetailsPage {
         this.haveToRemoveTags = false;
       })
       .catch(error=>{
+        this.revertToOldDate();
         console.log('remove tags error: '+JSON.stringify(error));
         this.graphicProvider.showErrorAlert(error);
       })
@@ -522,6 +538,7 @@ export class NoteDetailsPage {
         this.haveToAddOtherTags = false;
       })
       .catch(error=>{
+        this.revertToOldDate();
         console.log('add tags error: '+JSON.stringify(error.message));
         this.graphicProvider.showErrorAlert(error);
       })
@@ -534,6 +551,7 @@ export class NoteDetailsPage {
           this.haveToAddMainTags = false;
         })
         .catch(error=>{
+          this.revertToOldDate();
           console.log('add tags error: '+JSON.stringify(error.message));
           this.graphicProvider.showErrorAlert(error);
         })
@@ -546,6 +564,7 @@ export class NoteDetailsPage {
           this.haveToAddOtherTags = false;
         })
         .catch(error=>{
+          this.revertToOldDate();
           console.log('add tags error: '+JSON.stringify(error.message));
           this.graphicProvider.showErrorAlert(error);
         })
@@ -558,6 +577,7 @@ export class NoteDetailsPage {
       this.haveToChangeLinks = false;
     })
     .catch(error=>{
+      this.revertToOldDate();
       console.log('change links error: '+JSON.stringify(error.message));
       this.graphicProvider.showErrorAlert(error);
     })
@@ -570,6 +590,7 @@ export class NoteDetailsPage {
           this.isDoneChanged =  false;
         })
         .catch(error=>{
+          this.revertToOldDate();
           console.log('set done error: '+JSON.stringify(error.message));
           this.graphicProvider.showErrorAlert(error);
         })
@@ -583,6 +604,10 @@ export class NoteDetailsPage {
     return this.haveToChangeLinks == false && this.haveToAddMainTags == false
       && this.haveToAddOtherTags == false && this.haveToRemoveTags &&
       this.isDoneChanged == false;
+  }
+
+  revertToOldDate(){
+    this.note.lastmodificationdate=this.tmpLastmodificationdate;
   }
 
 }

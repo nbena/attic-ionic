@@ -32,6 +32,15 @@ export class TagExtraMin {
   }
 
 
+  public static safeNewTagFromJsonString(json:string):TagExtraMin{
+    return TagExtraMin.safeNewTagFromJsObject(JSON.parse(json));
+  }
+
+  public static safeNewTagFromJsObject(json:any):TagExtraMin{
+    return TagExtraMin.NewTag(json.title);
+  }
+
+
 }
 
 export class TagAlmostMin extends TagExtraMin{
@@ -149,11 +158,11 @@ export class TagFull extends TagAlmostMin{
     return tag;
   }
 
-  public static safeNewTagFullFromJsonString(json:string):TagFull{
-    return TagFull.safeNewTagFullFromJsObject(JSON.parse(json));
+  public static safeNewTagFromJsonString(json:string):TagFull{
+    return TagFull.safeNewTagFromJsObject(JSON.parse(json));
   }
 
-  public static safeNewTagFullFromJsObject(jsonTag:any):TagFull{
+  public static safeNewTagFromJsObject(jsonTag:any):TagFull{
     let tag:TagFull = new TagFull();
     tag.title = jsonTag.title;
     tag.noteslength = jsonTag.noteslength;

@@ -538,6 +538,14 @@ private updateJsonObjNoteIfAllowed(noteToUpdate:NoteFull,oldNote:NoteFull, useri
 }
 
 
+//tag are no longer insterted because they aren't almost min so it's useless.
+/**
+From the given note it trys to find out if there's need to update (only if allowed,
+that means, no pending mdofication on this. If any, only the other part of the note
+will be touched.). If not found, a fresh insert will be done.
+The tags of the note won't be inserted because they are just 'TagExtraMin' while
+we require at least TagAlmostMin.
+*/
 public insertOrUpdateNote(note:NoteFull, userid:string):Promise<void>{
   return new Promise<void>((resolve, reject)=>{
     // let isPresent:boolean;
@@ -574,35 +582,48 @@ public insertOrUpdateNote(note:NoteFull, userid:string):Promise<void>{
       }
       return p;
     })
-    .then(result=>{
-      console.log('executed the update of json');
-      let p:Promise<TagAlmostMin[][]>;
-      let query:string = this.prepareQueryTagExistAndAreFull(tags.length);
-      return this.db.executeSql(query, [userid].concat(tags.map(obj=>{return obj.title})));
-    })
-    .then(result=>{
-      console.log('get the tag full');
-      let p:Promise<void>;
-      if(result.rows.length<=0){
-        console.log('this note has no tags');
-        p = new Promise<void>((resolve ,reject)=>{resolve()});
-      }else{
-        for(let i=0;i<result.rows.length;i++){
-          let t:any = JSON.parse(result.rows.item(i).json_object);
-          selectedTags.push(t as TagExtraMin);
-        }
-        diffTags = Utils.arrayDiff(tags,selectedTags, TagExtraMin.ascendingCompare);
-        console.log('diff is:');
-        console.log(JSON.stringify(diffTags));
-        let query:string = this.prepareQueryInsertMultiTags(diffTags.length);
-        p=this.db.executeSql(query, this.expandArrayTagsMinWithEverything(diffTags, userid));
-      }
-      return p;
-    })
+
+
+    // .then(result=>{
+    //   console.log('executed the update of json');
+    //   let p:Promise<any>;
+    //   if(note.hasTags()){
+    //     let query:string = this.prepareQueryTagExistAndAreFull(tags.length);
+    //     p = this.db.executeSql(query, [userid].concat(tags.map(obj=>{return obj.title})));
+    //   }else{
+    //       console.log('the note has no tags');resolve();
+    //       p=Promise.resolve();
+    //   }
+    //   return p;
+    // })
+    // .then(result=>{
+    //   console.log('get the tag full');
+    //   let p:Promise<void>;
+    //
+    //   if(!note.hasTags()){
+    //     console.log('this note has no tags');
+    //     p = Promise.resolve();
+    //   }else{
+    //     console.log('this note has tags, wait');
+    //     for(let i=0;i<result.rows.length;i++){
+    //       // let t:any = JSON.parse(result.rows.item(i).json_object);
+    //       selectedTags.push(TagExtraMin.safeNewTagFromJsonString(result.rows.item(i)));
+    //       diffTags = Utils.arrayDiff(tags,selectedTags, TagExtraMin.ascendingCompare);
+    //       console.log('diff is:');
+    //       console.log(JSON.stringify(diffTags));
+    //       let query:string = this.prepareQueryInsertMultiTags(diffTags.length);
+    //       p=this.db.executeSql(query, this.expandArrayTagsMinWithEverything(diffTags, userid));
+    //     }
+    //   }
+    //   return p;
+    // })
     .then(result=>{
       //now here I could update every other notes if necessary...but no.
-      console.log('inserted the eventual tags');
+      console.log('ok note inserted');
       resolve();
+      // if(note.hasTags())
+      //   resolve();
+      /*else promise has been already resolved*/
     })
     .catch(error=>{
       console.log('error in insert note full');
@@ -851,7 +872,7 @@ private addTagsToNoteUpdateOnlyTags(tx:any, extraMin:NoteExtraMin, userid:string
           let rawTag:any = JSON.parse(res.rows.item(i).json_object);
           if(rawTag.notes == null){rawTag.notes=[];}
           if(rawTag.noteslength ==  null){rawTag.noteslength=0;}
-          let tag:TagFull = TagFull.safeNewTagFullFromJsObject(rawTag);
+          let tag:TagFull = TagFull.safeNewTagFromJsObject(rawTag);
           console.log('item:');console.log(JSON.stringify(tag));
           usedTag.push(tag);
         }
@@ -1176,7 +1197,7 @@ private static getTagFullFromRes(result:any):TagFull{
   if(rawResult.notes == null || rawResult.notes.length < 0 || rawResult.notes == undefined){
     console.log('throw the error, tag is not full!');
   }else{
-    tag = TagFull.safeNewTagFullFromJsObject(rawResult);
+    tag = TagFull.safeNewTagFromJsObject(rawResult);
   }
   console.log('the tag that I get is');console.log(JSON.stringify(tag));
   return tag;

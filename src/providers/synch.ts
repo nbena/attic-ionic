@@ -970,7 +970,7 @@ export class Synch {
                 //   {title:obj.note.tile,
                 //     text:obj.note.text
                 //   }}), this.http, this.auth.token)
-                this.http.post('/api/mod/change-text/', JSON.stringify({note:
+                this.http.post('/api/notes/mod/change-text/', JSON.stringify({note:
                   {title:obj.note.tile,
                     text:obj.note.text
                   }}))
