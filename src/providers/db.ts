@@ -117,21 +117,31 @@ export class Db {
               });
             })
             .then(transactionResult=>{
-              return this.db.executeSql(Query.GET_TOKEN, []);
-            })
-            .then(tokenResult=>{
-              this.open = true;
-              if(tokenResult.rows.length > 0){
-                // this.token = tokenResult.rows.item(0).token;
-                // this.userid = tokenResult.rows.item(0).userid;
-                /*return this.count(this.userid);*/
-              }else{
-                resolve(this.db);
-              }
-            })
-            .then(count=>{
+              // return this.db.executeSql(Query.GET_TOKEN, []);
+              this.open=true;
               resolve(this.db);
+              // return this.db.executeSql(Query.EMPTY_RESULT_SET, ['ciao']);
             })
+
+            // .then(()=>{
+            //   console.log('not an error');
+            //   resolve();
+            // })
+
+            // .then(tokenResult=>{
+            //   this.open = true;
+            //   if(tokenResult.rows.length > 0){
+            //   }else{
+            //     resolve(this.db);
+            //   }
+            // })
+            // .then(count=>{
+            //   resolve(this.db);
+            // })
+            // .then(token=>{
+            //   this.open=true;
+            //   resolve(this.db)
+            // })
             .catch(error=>{
               this.open=false;
               console.log('error in creating tables.');
