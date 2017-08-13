@@ -103,7 +103,7 @@ export class AtticTags {
           // console.log(JSON.stringify(result.tag));
           let tag:TagFull = TagFull.safeNewTagFullFromJsObject(result);
           if(!this.synch.isTagLocked()){
-            this.db.insertTag(tag, this.auth.userid);
+            this.db.insertOrUpdateTag(tag, this.auth.userid);
           }else{
             console.log('fetched tag by title but it is locked')
           }

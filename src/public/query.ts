@@ -138,7 +138,7 @@ export class Query{
   */
 
   // static readonly UPDATE_NOTE = 'update notes set title=?, userid=?, text=?, remote_lastmodificationdate=?, isdone=?, links=?, json_object=? where title=? and json_object <> ?';
-  static readonly UPDATE_NOTE_2 = 'update notes set text=?, lastmodificationdate=?, creationdate=?, isdone=?, links=?, json_object=? where title=? and json_object <> ? and userid=?';
+  //static readonly UPDATE_NOTE_2 = 'update notes set text=?, lastmodificationdate=?, creationdate=?, isdone=?, links=?, json_object=? where title=? and json_object <> ? and userid=?';
   // static readonly UPDATE_TAG = 'update tags set title=?, userid=?, json_obectj=? where title=?';
   static readonly UPDATE_TAG_2 = 'update tags set json_object=? where title=? and json_object <> ? and userid=?';
   // static readonly UPDATE_NOTES_TAGS = 'update notes_tags set notetitle=?, tagtitle=?, role=?, userid=?, where notetitle=? and tagtitle=?';
@@ -165,8 +165,11 @@ export class Query{
 
   // static readonly UPDATE_JSON_OBJ_IF_NECESSARY_TAG = 'update tags set json_object=? where title=? and json_object <> ?';
 
-  static readonly UPDATE_JSON_OBJ_TAG ='update tags set json_object=? where title=? and userid=?';
-  static readonly UPDATE_JSON_OBJ_NOTE ='update notes set json_object=? where title=? and userid=?';
+  // static readonly UPDATE_JSON_OBJ_TAG ='update tags set json_object=? where title=? and userid=?';
+  // static readonly UPDATE_JSON_OBJ_NOTE ='update notes set json_object=? where title=? and userid=?';
+
+  static readonly UPDATE_JSON_OBJ_TAG_IF_NEEDED ='update tags set json_object=? where title=? and json_object <> ? and userid=?';
+  static readonly UPDATE_JSON_OBJ_NOTE_IF_NEEDED ='update notes set json_object=? where title=? and json_object <> ? and userid=?';
 
   static readonly GET_TITLE_AND_JSON_OF_NOTES_TO_UPDATE = 'select title, role, json_object from notes join notes_tags on title=notetitle where notes.mustbedeleted=\'false\' and notes_tags.mustbedeleted=\'false\' and tagtitle=? and notes.userid=? and notes_tags.userid=notes.userid';
   // static readonly EMPLTY_NOTES = 'delete from notes';
@@ -264,8 +267,8 @@ export class Query{
   */
 
   //tags-to-add and tags-to-remove
-  static readonly DELETE_FROM_LOGS_TAGS_TO_DELETE_FROM_NOTE_WHERE_NOTE_AND_TAG_MULTI = 'delete from logs_sequence where tagtitle is not null and role is not null and action=\'remove-tag\' and notetitle=? userid=?  and ';
-  static readonly DELETE_FROM_LOGS_TAGS_TO_ADD_TO_NOTE_WHERE_NOTE_AND_TAG_MULTI = 'delete from logs_sequence where tagtitle is not null and role is not null and action=\'add-tag\' and notetitle=? userid=?  and ';
+  static readonly DELETE_FROM_LOGS_TAGS_TO_DELETE_FROM_NOTE_WHERE_NOTE_AND_TAG_MULTI = 'delete from logs_sequence where tagtitle is not null and role is not null and action=\'remove-tag\' and notetitle=? and userid=?  and ';
+  static readonly DELETE_FROM_LOGS_TAGS_TO_ADD_TO_NOTE_WHERE_NOTE_AND_TAG_MULTI = 'delete from logs_sequence where tagtitle is not null and role is not null and action=\'add-tag\' and notetitle=? and userid=?  and ';
   static readonly DELETE_FROM_LOGS_TAGS_TO_ADD_TO_NOTE_WHERE_NOTE_AND_TAG = 'delete from logs_sequence where tagtitle is not null and role is not null and action=\'add-tag\' and notetitle=? and tagtitle=? and userid=?';
   static readonly DELETE_FROM_LOGS_TAGS_TO_ADD_TO_NOTE_WHERE_NOTE = 'delete from logs_sequence where userid=? and tagtitle is not null and role is not null and action=\'add-tag\' and (notetitle=?)';
   static readonly DELETE_FROM_LOGS_TAGS_TO_DELETE_FROM_NOTE_WHERE_NOTE = 'delete from logs_sequence where userid=? and tagtitle is not null and role is not null and action=\'remove-tag\' and (notetitle=?)';

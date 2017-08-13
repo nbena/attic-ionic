@@ -143,6 +143,7 @@ export class NoteDetailsPage {
       })
       .catch(err=>{
         this.note.title=this.title;
+        console.log('load note error');console.log(JSON.stringify(err.messsage));
         console.log(JSON.stringify(err));
         this.graphicProvider.showErrorAlert(err);
       })

@@ -112,8 +112,15 @@ export class SummaryPage {
         .then(synched=>{
           console.log('synching done');
           this.graphicProvider.presentToast('synching done');
-          this.setSynchState();
-          this.summary.data.logscount=0;
+          try{
+            this.setSynchState();
+            this.summary.data.logscount=0;
+          }catch(e){
+            console.log('the post synch error');
+            console.log(JSON.stringify(e));
+            console.log(JSON.stringify(e.message))
+          }
+
         })
         .catch(error=>{
           // console.log('error in synch');
