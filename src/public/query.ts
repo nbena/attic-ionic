@@ -421,10 +421,10 @@ export class Query{
   //   }
   //   return result;
   // }
-  static readonly GET_LOGS_BY_NOTE = 'select json_object, action from notes join logs_sequence '+
-  'on title=notetitle and notes.userid=logs_sequence.userid where notes.userid=? and action='+
-  '\'set-done\' or action=\'change-text\' or action=\'set-link\' or action=\'add-tag\' or '
-  'action=\'remove-tag\' and title=?';
+  static readonly GET_LOGS_BY_NOTE = "select json_object, action from notes join logs_sequence "+
+  "on title=notetitle and notes.userid=logs_sequence.userid where notes.userid=? and action="+
+  "'set-done' or action='change-text' or action='set-link' or action='add-tag' or "+
+  "action='remove-tag' and title=?";
 
   static readonly FORCE_DELETE_NOTE_MULTI = 'delete from notes where userid=? and ';
   static readonly FORCE_DELETE_TAG_MULTI = 'delete from tags where userid=? and ';

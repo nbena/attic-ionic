@@ -520,7 +520,7 @@ private updateJsonObjNoteIfAllowed(noteToUpdate:NoteFull,oldNote:NoteFull, useri
           finalNote.isdone=oldNote.isdone;
         }
       })
-      return this.updateJsonObjNote(finalNote, userid);
+      return this.updateJsonObjNote(finalNote, userid) as Promise<void>;
     })
     .then(()=>{console.log('ok updated not if allowed');resolve();})
     .catch(error=>{console.log('error update note if allowed');console.log(JSON.stringify(error));reject(error)})
@@ -530,7 +530,7 @@ private updateJsonObjNoteIfAllowed(noteToUpdate:NoteFull,oldNote:NoteFull, useri
 
 public insertOrUpdateNote(note:NoteFull, userid:string):Promise<void>{
   return new Promise<void>((resolve, reject)=>{
-    let isPresent:boolean;
+    // let isPresent:boolean;
     let jsonNote:string = JSON.stringify(note);
     let tags = note.maintags.concat(note.othertags);
     let selectedTags:TagExtraMin[]=[];
@@ -545,15 +545,22 @@ public insertOrUpdateNote(note:NoteFull, userid:string):Promise<void>{
     //     isPresent=false;}
     //   return p;
     // })
-    this.getNoteFull(note.title, userid)
+    this.getJsonObjNote(note.title, userid)
     .then(noteFull=>{
       let p:Promise<void>
-      if(noteFull!=null){
-        isPresent=true;
-        p = this.updateJsonObjNoteIfAllowed(note, noteFull, userid);
-      }else{
-        isPresent=false;
+      // if(noteFull!=null){console.log('is present');
+      //   isPresent=true;
+      //   p = this.updateJsonObjNoteIfAllowed(note, noteFull, userid);
+      // }else{console.log('is not present');
+      //   isPresent=false;
+      //   p = this.db.executeSql(Query.INSERT_INTO_NOTES_2, [note.title, jsonNote, note.text, note.lastmodificationdate, userid]);
+      // }
+      if(noteFull==null){console.log('is not present');/*isPresent=false;*/
         p = this.db.executeSql(Query.INSERT_INTO_NOTES_2, [note.title, jsonNote, note.text, note.lastmodificationdate, userid]);
+      }else if(noteFull instanceof NoteFull){console.log('is present and it\'s full');/*isPresent=true;*/
+        p = this.updateJsonObjNoteIfAllowed(note, noteFull as NoteFull, userid);
+      }else{console.log('is present and is min');
+        p = this.updateJsonObjNote(note, userid) as Promise<void>;
       }
       return p;
     })
@@ -815,24 +822,14 @@ private removeTagsFromNoteCore(tx:any, extraMin:NoteExtraMin, userid:string,tags
 
 
 private addTagsToNoteUpdateOnlyTags(tx:any, extraMin:NoteExtraMin, userid:string,tags:TagExtraMin[], usedTag?:TagFull[]){
+
+  console.log('the tags to work on: ');console.log(JSON.stringify(tags));
+
   //TmpTag contains the list of the tags that need to be got from the db.
   let tmpTag:TagExtraMin[]=Utils.arrayDiff(tags, ((usedTag)==null) ? [] : usedTag, TagExtraMin.ascendingCompare);
-  //updateTag contains the list of the tag that will effectively be updated.
-  //which is, beasically, just a matter of adding the note to the notes array and increment
-  //the count.
-  //
-  // console.log('tmp tag');console.log(JSON.stringify(tmpTag));
 
   let updatedTag:TagFull[]=[];
 
-  // if(usedTag!=null){
-  //   updatedTag=usedTag.map(obj=>{
-  //     let tag:TagFull =obj;
-  //     tag.notes.push(extraMin);
-  //     tag.noteslength++;
-  //     return tag;
-  //   })
-  // }
 
   if(tmpTag.length>0){//get full_tag from the db.
     let query:string = this.prepareQueryTagExistAndAreFull(tmpTag.length);
@@ -844,40 +841,38 @@ private addTagsToNoteUpdateOnlyTags(tx:any, extraMin:NoteExtraMin, userid:string
           let rawTag:any = JSON.parse(res.rows.item(i).json_object);
           if(rawTag.notes == null){rawTag.notes=[];}
           if(rawTag.noteslength ==  null){rawTag.noteslength=0;}
-          let tag:TagFull = rawTag as TagFull;
-          // console.log('item:');
-          // console.log(JSON.stringify(tag));
+          let tag:TagFull = TagFull.safeNewTagFullFromJsObject(rawTag);
+          console.log('item:');console.log(JSON.stringify(tag));
           usedTag.push(tag);
         }
+
+
+        if(usedTag!=null && usedTag.length>0){
+          //update each object;
+          usedTag.forEach(obj=>{
+            console.log('now I update the object: ');console.log(JSON.stringify(obj));
+            let tag:TagFull =  obj;
+            tag.notes.push(extraMin);
+            tag.noteslength++;
+            updatedTag.push(tag);
+          })
+        }
+
+        console.log('finally, the tag to update:');console.log(JSON.stringify(updatedTag));
+        if(updatedTag.length>0){
+          let query:string = this.prepareQueryInsertMultiTags(updatedTag.length);
+          console.log('and the query: '+query);
+          for(let i=0;i<updatedTag.length;i++){
+            this.updateJsonObjTag(updatedTag[i], userid, tx);
+          }
+        }
+
+
       }, (tx:any, error:any)=>{console.log('error in get tag full to update');console.log(JSON.stringify(error));}
   );
   }
 
   // console.log('used tag:');console.log(JSON.stringify(usedTag));
-
-  if(usedTag!=null && usedTag.length>0){
-    //update each object;
-    usedTag.forEach(obj=>{
-      let tag:TagFull =  obj;
-      tag.notes.push(extraMin);
-      tag.noteslength++;
-      updatedTag.push(tag);
-    })
-  }
-
-  console.log('finally, the tag to update:');
-  console.log(JSON.stringify(updatedTag));
-  if(updatedTag.length>0){
-    let query:string = this.prepareQueryInsertMultiTags(updatedTag.length);
-    console.log('and the query: '+query);
-    // tx.executeSql(query, this.expandArrayTagsMinWithEverything(updatedTag, userid),
-    //   (tx:any, res:any)=>{console.log('ok updated full tags too');},
-    //   (tx:any, error:any)=>{console.log('error in update full tags');console.log(JSON.stringify(error));}
-    for(let i=0;i<updatedTag.length;i++){
-      this.updateJsonObjTag(updatedTag[i], userid, tx);
-    }
-
-  }
 
 }
 
@@ -1090,6 +1085,23 @@ public isTagFull(title: string, userid: string):Promise<boolean>{
       reject(error);
     })
   });
+}
+
+private getJsonObjNote(title:string, userid:string):Promise<NoteExtraMinWithDate>{
+  return new Promise<NoteExtraMinWithDate>((resolve, reject)=>{
+    let note:any;
+    this.db.executeSql(Query.GET_NOTE_FULL_JSON, [title, userid])
+    .then(res=>{
+      if(res.rows.length<=0){resolve(null);}
+      let raw:any = JSON.parse(res.rows.item(0).json_object);
+      if(raw.text==null){note = NoteExtraMinWithDate.safeNewNoteFromJsObject(raw);}
+      else{note = NoteFull.safeNewNoteFromJsObject(raw);}
+      resolve(note);
+    })
+    .catch(error=>{
+      console.log('error in get note json_obj');console.log(JSON.stringify(error));resolve(null);
+    })
+  })
 }
 
 
@@ -2175,8 +2187,8 @@ public getNotesByTags(tags: TagAlmostMin[], userid: string):Promise<NoteExtraMin
       }else{
         result+='(?,?,\'otherTags\',\'add-tag\', ?),';
       }
-      result=result.substr(0, result.length-1);
     }
+    result=result.substr(0, result.length-1);
     return result;
   }
 
@@ -2198,11 +2210,12 @@ public getNotesByTags(tags: TagAlmostMin[], userid: string):Promise<NoteExtraMin
 
       let query:string = this.prepareQueryInsertNotesTagsIntoLogs(tags, roles);
 
+      console.log('query is: '+query);
         tx.executeSql(query, this.expandInsertNoteTagsIntoLogs(note.title, userid, tags),
           (tx: any, res: any)=>{/*nothing*/console.log('insert notes-tags into logs ok');},
           (tx: any, error: any)=>{
             console.log('error in inserting notes-tags');
-            console.log(JSON.stringify(error))
+            console.log(JSON.stringify(error));
           }
         );
 
@@ -3185,14 +3198,14 @@ public removeTagsFromNote(note: NoteFull, userid: string, tags: TagExtraMin[]):P
         let query2: string = this.prepareTagsMultiVersion(tagTitles.length, Query.DELETE_FROM_TAGS_TAGS_TO_DELETE_WHERE_TAG, false);
         console.log('query 2');
         console.log(query2);
-        tx.executeSql(query1, [userid, tagTitles],
+        tx.executeSql(query1, [userid].concat(tagTitles),
           (tx:any, res:any)=>{console.log('delete tags-to-delete-logs ok.')},
           (tx: any, err:any)=>{
             console.log('error in deleting tags-to-delete-logs.');
             console.log(JSON.stringify(err));
           }
         )
-        tx.executeSql(query2, [userid, tagTitles],
+        tx.executeSql(query2, [userid].concat(tagTitles),
           (tx:any, res: any)=>{console.log('delete tags-to-delete-tags ok')},
           (tx:any, err: any)=>{
             console.log('error in deleting tags-to-delete-tags ok.')
@@ -3220,7 +3233,7 @@ public removeTagsFromNote(note: NoteFull, userid: string, tags: TagExtraMin[]):P
     return new Promise<any>((resolve, reject)=>{
       this.db.transaction(tx=>{
         let query: string = this.prepareNotesMultiVersion(noteTitles.length, Query.DELETE_FROM_LOGS_TAGS_TO_ADD_TO_NOTE_WHERE_NOTE, true);
-        tx.executeSql(query, [userid, noteTitles],
+        tx.executeSql(query, [userid].concat(noteTitles),
           (tx:any, res:any)=>{console.log('delete tags-to-add from single note ok.')},
           (tx: any, err:any)=>{
             console.log('error in deleting tags-to-add from single note.');
@@ -3249,7 +3262,7 @@ public removeTagsFromNote(note: NoteFull, userid: string, tags: TagExtraMin[]):P
     return new Promise<any>((resolve, reject)=>{
       this.db.transaction(tx=>{
         let query: string = this.prepareNotesMultiVersion(noteTitles.length, Query.DELETE_FROM_LOGS_TAGS_TO_DELETE_FROM_NOTE_WHERE_NOTE, true);
-        tx.executeSql(query, [userid, noteTitles],
+        tx.executeSql(query, [userid].concat(noteTitles),
           (tx:any, res:any)=>{console.log('delete tags-to-remove from single note ok.')},
           (tx: any, err:any)=>{
             console.log('error in deleting tags-to-remove from single note.');
@@ -3310,7 +3323,7 @@ public removeTagsFromNote(note: NoteFull, userid: string, tags: TagExtraMin[]):P
   private deleteTagsFromTagsBasicCore(tx:any, tagTitles:string[], userid:string):Promise<void>{
     return new Promise<void>((resolve, reject)=>{
       let query = this.prepareTagsMultiVersion(tagTitles.length, Query.FORCE_DELETE_TAG_MULTI, false);
-        tx.executeSql(query, [userid, tagTitles],
+        tx.executeSql(query, [userid].concat(tagTitles),
           (tx:any, res:any)=>{console.log('delete tags from tags ok.');},
           (tx: any, err:any)=>{console.log('error in deleting tags from tags.');console.log(JSON.stringify(err));}
         )
@@ -3320,7 +3333,7 @@ public removeTagsFromNote(note: NoteFull, userid: string, tags: TagExtraMin[]):P
   private deleteNotesFromNotesBasciCore(tx:any, noteTitles:string[], userid: string):Promise<void>{
     return new Promise<void>((resolve, reject)=>{
       let query = this.prepareNotesMultiVersion(noteTitles.length, Query.FORCE_DELETE_NOTE_MULTI, false);
-        tx.executeSql(query, [userid, noteTitles],
+        tx.executeSql(query, [userid].concat(noteTitles),
           (tx:any, res:any)=>{console.log('delete notes from notes ok.');},
           (tx: any, err:any)=>{console.log('error in deleting notes from notes.');console.log(JSON.stringify(err));}
         )
@@ -3330,7 +3343,7 @@ public removeTagsFromNote(note: NoteFull, userid: string, tags: TagExtraMin[]):P
   private deleteNotesToCreateFromLogsMultiVersionCore(tx:any, noteTitles:string[], userid:string):Promise<void>{
     return new Promise<void>((resolve, reject)=>{
       let query = this.prepareNotesMultiVersion(noteTitles.length, Query.DELETE_FROM_LOGS_NOTE_CREATED_WHERE_NOTE, true);
-        tx.executeSql(query, [userid, noteTitles],
+        tx.executeSql(query, [userid].concat(noteTitles),
           (tx:any, res:any)=>{console.log('delete notes-to-create ok.');},
           (tx: any, err:any)=>{console.log('error in deleting notes-to-create.');console.log(JSON.stringify(err));}
         )
@@ -3342,7 +3355,7 @@ public removeTagsFromNote(note: NoteFull, userid: string, tags: TagExtraMin[]):P
   private deleteTagsToCreateFromLogsMultiVersionCore(tx:any, tagTitles:string[], userid:string):Promise<void>{
     return new Promise<void>((resolve, reject)=>{
       let query = this.prepareTagsMultiVersion(tagTitles.length, Query.DELETE_FROM_LOGS_TAG_CREATED_WHERE_TAG, true);
-        tx.executeSql(query, [userid, tagTitles],
+        tx.executeSql(query, [userid].concat(tagTitles),
           (tx:any, res:any)=>{console.log('delete tags-to-create ok.');},
           (tx: any, err:any)=>{console.log('error in deleting tags-to-create.');console.log(JSON.stringify(err));}
         )

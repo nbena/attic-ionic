@@ -132,9 +132,11 @@ export class AtticNotes {
     return new Promise<NoteFull>((resolve, reject)=>{
       this.http.get('/api/notes/'+title)
       .then(result=>{
-        // console.log('the resul from network is: ');console.log(JSON.stringify(result.note));
+        console.log('the resul from network is: ');console.log(JSON.stringify(result.note));
         /*inserting in the DB.*/
-        let note:NoteFull = NoteFull.safeNewNoteFromJsObject(result);
+
+        let note:NoteFull = NoteFull.safeNewNoteFromJsObject(result.note);
+        console.log('the safe result is: ');console.log(JSON.stringify(note));
         if(!this.synch.isNoteFullyLocked()){
           this.db.insertOrUpdateNote(note, this.auth.userid); /*promise is resolved before is done.*/
         }else{

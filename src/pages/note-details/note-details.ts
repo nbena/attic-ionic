@@ -114,7 +114,9 @@ export class NoteDetailsPage {
   noteByTitle(force: boolean){
     this.atticNotes.noteByTitle(this.title, force)
       .then(result=>{
+        console.log('I\'v received the result and the note is');
         this.note=result as NoteFull;
+        console.log(JSON.stringify(result));
         // console.log('the note is:');
         // console.log(JSON.stringify(this.note));
         // this.lastModificationDateString=this.note.lastModificationDate.toDateString();
@@ -122,22 +124,30 @@ export class NoteDetailsPage {
         // this._mainTags=this.note.mainTags;
         // this._otherTags=this.note.otherTags;
         // this._links=this.note.links;
-        this.mainTags=this.note.maintags as TagExtraMin[];
-        this.otherTags=this.note.othertags as TagExtraMin[];
-        //
-        // console.log('the main tags:');
-        // console.log(JSON.stringify(this.mainTags));
+        //error is here.
+        try{
+          this.mainTags=this.note.maintags as TagExtraMin[];
+          this.otherTags=this.note.othertags as TagExtraMin[];
+          //
+          // console.log('the main tags:');
+          // console.log(JSON.stringify(this.mainTags));
 
-        this.links=this.note.links;
-        this.submitChangeEnabled=false;
-        this.isDone=this.note.isdone;
+          this.links=this.note.links;
+          this.submitChangeEnabled=false;
+          this.isDone=this.note.isdone;
 
-        this.makeAllFalse();
+          this.makeAllFalse();
 
-        this.shownMainTags = this.mainTags.slice();
-        this.shownOtherTags = this.otherTags.slice();
-        this.shownLinks = this.links.slice();
-        this.shownIsDone = this.isDone;
+          this.shownMainTags = this.mainTags.slice();
+          this.shownOtherTags = this.otherTags.slice();
+          this.shownLinks = this.links.slice();
+          this.shownIsDone = this.isDone;
+        }
+        catch(e){
+          console.log('the real error');console.log(e.message);
+          console.log(JSON.stringify(e));
+        }
+
 
 
       })
