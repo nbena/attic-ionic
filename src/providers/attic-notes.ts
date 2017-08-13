@@ -479,6 +479,7 @@ export class AtticNotes {
     if(!this.synch.isNoteFullyLocked()){
       return this.db.addTags(note, this.auth.userid, mainTags, otherTags);
     }else{
+      this.atticCache.updateNote(note, true, true);
       return new Promise<void>((resolve, reject)=>{
         console.log('trying to add tags but it is locked');
         reject(Utils.getSynchingError(DbAction.DbAction.add_tag));
@@ -489,6 +490,7 @@ export class AtticNotes {
 
   addMainTags(note: NoteFull, mainTags: TagExtraMin[]){
     if(!this.synch.isNoteFullyLocked()){
+      this.atticCache.updateNote(note, true, true);
       return this.db.addTags(note, this.auth.userid, mainTags);
     }else{
       return new Promise<void>((resolve, reject)=>{
@@ -500,6 +502,7 @@ export class AtticNotes {
 
   addOtherTags(note: NoteFull, otherTags: TagExtraMin[]){
     if(!this.synch.isNoteFullyLocked()){
+      this.atticCache.updateNote(note, true, true);
       return this.db.addTags(note, this.auth.userid, null, otherTags);
     }else{
       return new Promise<void>((resolve, reject)=>{
@@ -511,6 +514,7 @@ export class AtticNotes {
 
   removeTags(note: NoteFull, tags: TagExtraMin[]){
     if(!this.synch.isNoteFullyLocked()){
+      this.atticCache.updateNote(note, true, true);
       return this.db.removeTagsFromNote(note, this.auth.userid, tags);
     }else{
       return new Promise<void>((resolve, reject)=>{
@@ -523,6 +527,7 @@ export class AtticNotes {
 
   changeLinks(/*noteTitle: string, links:string[]*/note:NoteFull){
     if(!this.synch.isNoteFullyLocked()){
+      this.atticCache.updateNote(note, true, true);
       return this.db.setLinks(note, this.auth.userid);
     }else{
       return new Promise<any>((resolve, reject)=>{
@@ -534,6 +539,7 @@ export class AtticNotes {
 
   changeText(/*noteTitle: string, text:string*/note:NoteFull){
     if(!this.synch.isNoteFullyLocked()){
+      this.atticCache.updateNote(note, true, true);
       return this.db.setText(note, this.auth.userid);
     }else{
       return new Promise<any>((resolve, reject)=>{
@@ -544,6 +550,7 @@ export class AtticNotes {
   }
 
   changeDone(/*noteTitle: string, done: boolean*/note: NoteFull){
+    this.atticCache.updateNote(note, true, true);
     if(!this.synch.isNoteFullyLocked()){
       return this.db.setDone(note, this.auth.userid);
     }else{

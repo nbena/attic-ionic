@@ -1588,13 +1588,13 @@ public getTagsMin(userid: string):Promise<TagAlmostMin[]>{
 }
 
 private setDoneJustLocal(note: NoteFull, userid: string):Promise<any>{
-  return this.db.executeSql(Query.UPDATE_NOTE_SET_DONE, [note.isdone, JSON.stringify(note), note.title, userid]);
+  return this.db.executeSql(Query.UPDATE_NOTE_SET_DONE, [note.lastmodificationdate, note.isdone, JSON.stringify(note), note.title, userid]);
 }
 
 private setDoneAlsoRemote(note: NoteFull, userid: string):Promise<any>{
   return new Promise<any>((resolve, reject)=>{
     this.db.transaction(tx=>{
-      tx.executeSql(Query.UPDATE_NOTE_SET_DONE, [note.isdone, JSON.stringify(note), note.title, userid]);
+      tx.executeSql(Query.UPDATE_NOTE_SET_DONE, [note.lastmodificationdate, note.isdone, JSON.stringify(note), note.title, userid]);
       tx.executeSql(Query.INSERT_NOTE_OLDTITLE_INTO_LOGS, [note.title, note.title, 'set-done', userid]);
     })
     .then(txResult=>{
@@ -1646,13 +1646,13 @@ public setDone(note :NoteFull, userid: string):Promise<any>{
 
 
 private setTextJustLocal(note: NoteFull, userid: string):Promise<any>{
-  return this.db.executeSql(Query.UPDATE_NOTE_SET_TEXT, [note.text, JSON.stringify(note), note.title, userid]);
+  return this.db.executeSql(Query.UPDATE_NOTE_SET_TEXT, [note.lastmodificationdate, note.text, JSON.stringify(note), note.title, userid]);
 }
 
 private setTextAlsoRemote(note: NoteFull, userid: string):Promise<any>{
   return new Promise<any>((resolve, reject)=>{
     this.db.transaction(tx=>{
-      tx.executeSql(Query.UPDATE_NOTE_SET_TEXT, [note.text, JSON.stringify(note), note.title, userid]);
+      tx.executeSql(Query.UPDATE_NOTE_SET_TEXT, [note.lastmodificationdate, note.text, JSON.stringify(note), note.title, userid]);
       tx.executeSql(Query.INSERT_NOTE_OLDTITLE_INTO_LOGS, [note.title, note.title,'change-text', userid]);
     })
     .then(txResult=>{
@@ -1704,13 +1704,13 @@ public setText(note :NoteFull, userid: string):Promise<any>{
 
 
 private setLinksJustLocal(note: NoteFull, userid: string):Promise<any>{
-  return this.db.executeSql(Query.UPDATE_NOTE_SET_LINKS, [JSON.stringify(note.links), JSON.stringify(note), note.title, userid]);
+  return this.db.executeSql(Query.UPDATE_NOTE_SET_LINKS, [note.lastmodificationdate, JSON.stringify(note.links), JSON.stringify(note), note.title, userid]);
 }
 
 private setLinksAlsoRemote(note: NoteFull, userid: string):Promise<any>{
   return new Promise<any>((resolve, reject)=>{
     this.db.transaction(tx=>{
-      tx.executeSql(Query.UPDATE_NOTE_SET_LINKS, [JSON.stringify(note.links), JSON.stringify(note), note.title, userid]);
+      tx.executeSql(Query.UPDATE_NOTE_SET_LINKS, [note.lastmodificationdate, JSON.stringify(note.links), JSON.stringify(note), note.title, userid]);
       tx.executeSql(Query.INSERT_NOTE_OLDTITLE_INTO_LOGS, [note.title, note.title,'set-link', userid]);
     })
     .then(txResult=>{
@@ -1827,7 +1827,7 @@ public setLinks(note :NoteFull, userid: string):Promise<any>{
 public setNoteTitle(note: NoteFull, newTitle: string, userid: string):Promise<any>{
   let oldTitle:string = note.title;
   note.title = newTitle;
-  return this.db.executeSql(Query.UPDATE_NOTE_SET_TITLE, [newTitle, JSON.stringify(note), oldTitle, userid]);
+  return this.db.executeSql(Query.UPDATE_NOTE_SET_TITLE, [note.lastmodificationdate,newTitle, JSON.stringify(note), oldTitle, userid]);
 }
 
 /*a changing on tags will make it lose its fullness*/
@@ -2537,9 +2537,12 @@ public removeTagsFromNote(note: NoteFull, userid: string, tags: TagExtraMin[]):P
         /*the first two are now done by two triggers.*/
         // tx.executeSql(Query.CLEAN_UP_NOTES_CREATE, [userid, userid]);
         // tx.executeSql(Query.CLEAN_UP_TAGS_CREATE, [userid, userid]);
-        tx.executeSql(Query.CLEAN_UP_NOTES_SET_DONE, [userid, userid]);
-        tx.executeSql(Query.CLEAN_UP_NOTES_SET_TEXT, [userid, userid]);
-        tx.executeSql(Query.CLEAN_UP_NOTES_SET_LINK, [userid, userid]);
+        // tx.executeSql(Query.CLEAN_UP_NOTES_SET_DONE, [userid, userid]);
+        // tx.executeSql(Query.CLEAN_UP_NOTES_SET_TEXT, [userid, userid]);
+        // tx.executeSql(Query.CLEAN_UP_NOTES_SET_LINK, [userid, userid]);
+        tx.executeSql(Query.NOTES_TO_CLEAN_UP_SET_TEXT, [userid, userid]);
+        tx.executeSql(Query.NOTES_TO_CLEAN_UP_SET_LINK, [userid, userid]);
+        tx.executeSql(Query.NOTES_TO_CLEAN_UP_SET_DONE, [userid, userid]);
       })
       .then(txResult=>{
         console.log('cleanup completed');
@@ -2903,8 +2906,10 @@ public removeTagsFromNote(note: NoteFull, userid: string, tags: TagExtraMin[]):P
                 obj.note = note;
                 obj.action = DbAction.DbAction.change_text;
                 obj.userid = userid;
+                // console.log('the current obj');console.log(JSON.stringify(obj));
                 results.push(obj);
               }
+              // console.log('so the results are: ');console.log(JSON.stringify(results));
               resolve(results);
             }
           },

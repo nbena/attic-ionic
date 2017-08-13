@@ -204,10 +204,35 @@ export class AtticCache {
     return this.summary;
   }
 
+  private getIndexOfNoteFull(note:NoteExtraMin):number{
+    return Utils.binarySearch(this.cachedFullNotes, note, NoteExtraMin.ascendingCompare);
+  }
+
+  private getIndexOfTagFull(tag:TagExtraMin):number{
+    return Utils.binarySearch(this.cachedFullTags, tag, TagExtraMin.ascendingCompare);
+  }
+
+  private getIndexOfNoteFromDifferentlyCachedNotes(note:NoteExtraMinWithDate):number{
+    return Utils.binarySearch(this.differentlySortedCachedExtraMinNotes, note, NoteExtraMinWithDate.descendingCompare);
+  }
+
+  private getIndexOfTagFromDifferentlyCachedTags(tag:TagAlmostMin):number{
+    return Utils.binarySearch(this.differentlySortedCachedAlmostMinTags, tag, TagAlmostMin.descendingCompare);
+  }
+
+  private getIndexOfNoteFromExtraMin(note:NoteExtraMin):number{
+    return Utils.binarySearch(this.cachedExtraMinNotes, note, NoteExtraMin.ascendingCompare);
+  }
+
+  private getIndexOfTagFromAlmostMin(tag:TagExtraMin):number{
+    return Utils.binarySearch(this.cachedAlmostMinTags, tag, TagExtraMin.ascendingCompare);
+  }
+
 
   public getNoteFullOrNull(note:NoteExtraMin):NoteFull{
     let res:NoteFull=null;
-    let n:number = Utils.binarySearch(this.cachedFullNotes, note, NoteExtraMin.ascendingCompare);
+    let n:number = /*Utils.binarySearch(this.cachedFullNotes, note, NoteExtraMin.ascendingCompare);*/
+      this.getIndexOfNoteFull(note);
     if(n!=-1){
       res = this.cachedFullNotes[n];
     }
@@ -216,7 +241,8 @@ export class AtticCache {
 
   public getTagFullOrNull(tag:TagExtraMin):TagFull{
     let res:TagFull=null;
-    let n:number = Utils.binarySearch(this.cachedFullTags, tag, TagExtraMin.ascendingCompare);
+    let n:number = /*Utils.binarySearch(this.cachedFullTags, tag, TagExtraMin.ascendingCompare);*/
+      this.getIndexOfTagFull(tag);
     if(n!=-1){
       res = this.cachedFullTags[n];
     }
@@ -224,24 +250,33 @@ export class AtticCache {
   }
 
 
-  //is it necessary...?
-  public getNoteExtraMinOrNull(note:NoteExtraMin):NoteExtraMin{
-    let res:NoteExtraMin=null;
-    let n:number = Utils.binarySearch(this.cachedExtraMinNotes, note, NoteExtraMin.ascendingCompare);
-    if(n!=-1){
-      res = this.cachedExtraMinNotes[n];
-    }
-    return res;
-  }
+  // //is it necessary...?
+  // public getNoteExtraMinOrNull(note:NoteExtraMin):NoteExtraMin{
+  //   let res:NoteExtraMin=null;
+  //   let n:number = Utils.binarySearch(this.cachedExtraMinNotes, note, NoteExtraMin.ascendingCompare);
+  //   if(n!=-1){
+  //     res = this.cachedExtraMinNotes[n];
+  //   }
+  //   return res;
+  // }
+  //
+  // public getTagAlmostMinOrNull(tag:TagExtraMin):TagAlmostMin{
+  //   let res:TagAlmostMin=null;
+  //   let n:number = Utils.binarySearch(this.cachedAlmostMinTags, tag, TagExtraMin.ascendingCompare);
+  //   if(n!=-1){
+  //     res = this.cachedAlmostMinTags[n];
+  //   }
+  //   return res;
+  // }
 
-  public getTagAlmostMinOrNull(tag:TagExtraMin):TagAlmostMin{
-    let res:TagAlmostMin=null;
-    let n:number = Utils.binarySearch(this.cachedAlmostMinTags, tag, TagExtraMin.ascendingCompare);
-    if(n!=-1){
-      res = this.cachedAlmostMinTags[n];
-    }
-    return res;
-  }
+
+  // private getIndexOfTagAlmostMin(tag:TagExtraMin):number{
+  //   return Utils.binarySearch(this.cachedAlmostMinTags, tag, TagExtraMin.ascendingCompare);
+  // }
+  //
+  // private getIndexOfTagAlmostMinInDifferentlyCached(tag:TagAlmostMin):number{
+  //
+  // }
 
   //for everything unless title.
   // public upsertNoteFull(note:NoteFull):void{
@@ -279,16 +314,19 @@ export class AtticCache {
   // }
 
 
-  public changeNoteTitle(note:NoteExtraMin, newTitle:string, upsert:boolean):void{
-    let n1:number = Utils.binarySearch(this.cachedExtraMinNotes, note, NoteExtraMin.ascendingCompare);
+  public changeNoteTitle(note:NoteExtraMinWithDate, newTitle:string, upsert:boolean):void{
+    let n1:number = /*Utils.binarySearch(this.cachedExtraMinNotes, note, NoteExtraMin.ascendingCompare);*/
+      this.getIndexOfNoteFromExtraMin(note);
     if(n1!=-1){
       this.cachedExtraMinNotes[n1].title = newTitle;
     }
-    let n2:number = Utils.binarySearch(this.cachedFullNotes, note, NoteExtraMin.ascendingCompare);
+    let n2:number = /*Utils.binarySearch(this.cachedFullNotes, note, NoteExtraMin.ascendingCompare);*/
+      this.getIndexOfNoteFull(note);
     if(n2!=-1){
       this.cachedFullNotes[n2].title=newTitle;
     }
-    let n3:number = Utils.binarySearch(this.differentlySortedCachedExtraMinNotes, note, NoteExtraMinWithDate.descendingCompare);
+    let n3:number = /*Utils.binarySearch(this.differentlySortedCachedExtraMinNotes, note, NoteExtraMinWithDate.descendingCompare);*/
+      this.getIndexOfNoteFromDifferentlyCachedNotes(note)
     if(n3!=-1){
       this.differentlySortedCachedExtraMinNotes[n3].title=newTitle;
     }
@@ -309,15 +347,18 @@ export class AtticCache {
 
 
   public changeTagTitle(tag:TagAlmostMin, newTitle:string, upsert:boolean):void{
-    let n1:number = Utils.binarySearch(this.cachedAlmostMinTags, tag, TagAlmostMin.ascendingCompare);
+    let n1:number = /*Utils.binarySearch(this.cachedAlmostMinTags, tag, TagAlmostMin.ascendingCompare);*/
+      this.getIndexOfTagFromAlmostMin(tag);
     if(n1!=-1){
       this.cachedAlmostMinTags[n1].title = newTitle;
     }
-    let n2:number = Utils.binarySearch(this.cachedFullTags, tag, TagAlmostMin.ascendingCompare);
+    let n2:number = /*Utils.binarySearch(this.cachedFullTags, tag, TagAlmostMin.ascendingCompare);*/
+      this.getIndexOfTagFull(tag);
     if(n2!=-1){
       this.cachedFullTags[n2].title=newTitle;
     }
-    let n3:number = Utils.binarySearch(this.differentlySortedCachedAlmostMinTags, tag, TagAlmostMin.descendingCompare);
+    let n3:number = /*Utils.binarySearch(this.differentlySortedCachedAlmostMinTags, tag, TagAlmostMin.descendingCompare);*/
+      this.getIndexOfTagFromDifferentlyCachedTags(tag);
     if(n3!=-1){
       this.differentlySortedCachedAlmostMinTags[n3].title=newTitle;
     }
@@ -419,48 +460,40 @@ export class AtticCache {
   }
 
 
-
-
-  public removeNote(note:NoteExtraMin):void{
+  private removeNoteFromDifferentlyCachedNotes(note:NoteExtraMin):void{
     let n3:number;
-    // console.log(typeof  note);
-    // console.log(JSON.stringify(note as NoteExtraMinWithDate));
-    if(note instanceof NoteExtraMinWithDate && note.lastmodificationdate!=null){
-      // console.log('using binary search');
-      n3 = Utils.binarySearch(this.differentlySortedCachedExtraMinNotes, note as NoteExtraMinWithDate, NoteExtraMinWithDate.descendingCompare);
+    if((note instanceof NoteExtraMinWithDate || note instanceof NoteFull) && note.lastmodificationdate!=null){
+      n3 = /*Utils.binarySearch(this.differentlySortedCachedExtraMinNotes, note as NoteExtraMinWithDate, NoteExtraMinWithDate.descendingCompare);*/
+        this.getIndexOfNoteFromDifferentlyCachedNotes(note as NoteExtraMinWithDate);
     }else{
-      // console.log('using search');
       n3 = Utils.search(this.differentlySortedCachedExtraMinNotes, note, NoteExtraMin.ascendingCompare);
     }
-    // console.log(n3);
+    if(n3!=-1){
+      this.differentlySortedCachedExtraMinNotes.splice(n3, 1);
+    }
+  }
 
-    let n1:number = Utils.binarySearch(this.cachedFullNotes, note, NoteExtraMin.ascendingCompare);
-    let n2:number = Utils.binarySearch(this.cachedExtraMinNotes, note, NoteExtraMin.ascendingCompare);
-    //let n3:number = Utils.binarySearch(this.differentlySortedCachedExtraMinNotes, note, NoteExtraMinWithDate.descendingCompare);
+  private removeNoteFromNotesFull(note:NoteExtraMin):void{
+    let n1:number = this.getIndexOfNoteFull(note);
     if(n1!=-1){
       this.cachedFullNotes.splice(n1, 1);
     }
-    if(n2!=-1){
-      this.cachedExtraMinNotes.splice(n2, 1);
-    }
-    if(n3!=-1){
-      // console.log('going to delete');
-      this.differentlySortedCachedExtraMinNotes.splice(n3, 1);
-      // console.log('deleted');
-      // console.log(JSON.stringify(this.differentlySortedCachedExtraMinNotes));
+  }
+
+  private removeNoteFromNotesExtraMin(note:NoteExtraMin):void{
+    let n1:number = this.getIndexOfNoteFromExtraMin(note);
+    if(n1!=-1){
+      this.cachedExtraMinNotes.splice(n1, 1);
     }
   }
 
 
-  public removeTag(tag:TagAlmostMin):void{
-    let n1:number = Utils.binarySearch(this.cachedFullTags, tag, TagExtraMin.ascendingCompare);
-    let n2:number = Utils.binarySearch(this.cachedAlmostMinTags, tag, TagExtraMin.ascendingCompare);
-    let n3:number = Utils.binarySearch(this.differentlySortedCachedAlmostMinTags, tag, TagAlmostMin.descendingCompare);
-    if(n1!=-1){
-      this.cachedFullTags.splice(n1, 1);
-    }
-    if(n2!=-1){
-      this.cachedAlmostMinTags.splice(n2, 1);
+  private removeTagFromDifferentlyCachedTags(tag:TagExtraMin):void{
+    let n3:number;
+    if((tag instanceof TagAlmostMin || tag instanceof TagFull) && tag.noteslength!=null){
+      n3 = this.getIndexOfTagFromDifferentlyCachedTags(tag as TagAlmostMin);
+    }else{
+      n3 = Utils.search(this.differentlySortedCachedAlmostMinTags, tag, TagExtraMin.ascendingCompare);
     }
     if(n3!=-1){
       this.differentlySortedCachedAlmostMinTags.splice(n3, 1);
@@ -468,9 +501,138 @@ export class AtticCache {
   }
 
 
+  private removeTagFromTagFull(tag:TagExtraMin):void{
+    let n1:number = this.getIndexOfTagFull(tag);
+    if(n1!=-1){
+      this.cachedFullTags.splice(n1, 1);
+    }
+  }
 
-  public moveToHead(){
-    
+  private removeTagFromAlmostMin(tag:TagExtraMin):void{
+    let n1:number = this.getIndexOfTagFromAlmostMin(tag);
+    if(n1!=-1){
+      this.cachedAlmostMinTags.splice(n1, 1);
+    }
+  }
+
+
+  public removeNote(note:NoteExtraMin):void{
+    // let n3:number;
+    // // console.log(typeof  note);
+    // // console.log(JSON.stringify(note as NoteExtraMinWithDate));
+    // if((note instanceof NoteExtraMinWithDate || note instanceof NoteFull) && note.lastmodificationdate!=null){
+    //   // console.log('using binary search');
+    //   n3 = Utils.binarySearch(this.differentlySortedCachedExtraMinNotes, note as NoteExtraMinWithDate, NoteExtraMinWithDate.descendingCompare);
+    // }else{
+    //   // console.log('using search');
+    //   n3 = Utils.search(this.differentlySortedCachedExtraMinNotes, note, NoteExtraMin.ascendingCompare);
+    // }
+    // // console.log(n3);
+    //
+    // let n1:number = Utils.binarySearch(this.cachedFullNotes, note, NoteExtraMin.ascendingCompare);
+    // let n2:number = Utils.binarySearch(this.cachedExtraMinNotes, note, NoteExtraMin.ascendingCompare);
+    // //let n3:number = Utils.binarySearch(this.differentlySortedCachedExtraMinNotes, note, NoteExtraMinWithDate.descendingCompare);
+    // if(n1!=-1){
+    //   this.cachedFullNotes.splice(n1, 1);
+    // }
+    // if(n2!=-1){
+    //   this.cachedExtraMinNotes.splice(n2, 1);
+    // }
+    // if(n3!=-1){
+    //   // console.log('going to delete');
+    //   this.differentlySortedCachedExtraMinNotes.splice(n3, 1);
+    //   // console.log('deleted');
+    //   // console.log(JSON.stringify(this.differentlySortedCachedExtraMinNotes));
+    // }
+    this.removeNoteFromDifferentlyCachedNotes(note);
+    this.removeNoteFromNotesFull(note);
+    this.removeNoteFromNotesExtraMin(note);
+  }
+
+
+  public removeTag(tag:TagAlmostMin):void{
+    // let n1:number = Utils.binarySearch(this.cachedFullTags, tag, TagExtraMin.ascendingCompare);
+    // let n2:number = Utils.binarySearch(this.cachedAlmostMinTags, tag, TagExtraMin.ascendingCompare);
+    // let n3:number = Utils.binarySearch(this.differentlySortedCachedAlmostMinTags, tag, TagAlmostMin.descendingCompare);
+    // if(n1!=-1){
+    //   this.cachedFullTags.splice(n1, 1);
+    // }
+    // if(n2!=-1){
+    //   this.cachedAlmostMinTags.splice(n2, 1);
+    // }
+    // if(n3!=-1){
+    //   this.differentlySortedCachedAlmostMinTags.splice(n3, 1);
+    // }
+    this.removeTagFromDifferentlyCachedTags(tag);
+    this.removeTagFromTagFull(tag);
+    this.removeTagFromAlmostMin(tag);
+  }
+
+
+
+  public moveToHeadDifferentlyCachedNotes(note:NoteFull, throwError?:boolean){
+    // this.removeNote(note);
+    // this.cachedFullNotes.unshift(note);
+    // this.cachedExtraMinNotes.
+    if(NoteExtraMinWithDate.descendingCompare(note, this.differentlySortedCachedExtraMinNotes[0])<=0){
+      console.log('ok modification allowed');
+      this.removeNoteFromDifferentlyCachedNotes(note);
+      this.differentlySortedCachedExtraMinNotes.unshift(note.forceCastToNoteExtraMinWithDate());
+    }else{
+      console.log('modification not allowed');
+      if(throwError){
+        throw new Error('you cannot move to head');
+      }
+    }
+
+  }
+
+  public moveToHeadDifferentlyCachedTags(tag:TagFull, throwError?:boolean){
+    if(TagAlmostMin.descendingCompare(tag, this.differentlySortedCachedAlmostMinTags[0])<=0){
+      console.log('ok modification allowed');
+      this.removeTagFromDifferentlyCachedTags(tag);
+      this.differentlySortedCachedAlmostMinTags.unshift(tag.forceCastToTagAlmostMin());
+    }else{
+      console.log('modification not allowed');
+      if(throwError){
+        throw new Error('you cannot move to head');
+      }
+    }
+  }
+
+  public updateNote(note:NoteFull, moveToHead:boolean, throwError?:boolean){
+    let n:number = this.getIndexOfNoteFull(note);
+    if(n!=-1){
+      if(this.cachedFullNotes[n].title!=note.title){
+        throw new Error('you cannot change the title');
+      }
+      this.cachedFullNotes[n]=note;
+    }else{
+      if(throwError){
+        throw new Error('note not found');
+      }else{console.log('note not found');}
+    }
+    if(moveToHead){
+      this.moveToHeadDifferentlyCachedNotes(note, true);
+    }
+  }
+
+
+  public updateTag(tag:TagFull, moveToHead:boolean, throwError?:boolean){
+    let n:number = this.getIndexOfTagFull(tag);
+    if(n!=-1){
+      if(this.cachedFullTags[n].title!=tag.title){
+        throw new Error('you cannot change the title');
+      }
+      this.cachedFullTags[n]=tag;
+    }else{
+      if(throwError){
+        throw new Error('tag not found');
+      }else{console.log('tag not found');}
+    }
+    if(moveToHead){
+      this.moveToHeadDifferentlyCachedTags(tag, true);
+    }
   }
 
 }

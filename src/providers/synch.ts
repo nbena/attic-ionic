@@ -5,13 +5,13 @@ import { Db/*, LogObject */, LogObjSmart} from './db';
 import { Auth } from './auth';
 import { AtticTags } from './attic-tags';
 import { AtticNotes } from './attic-notes';
-import { NoteExtraMin, NoteFull, /*NoteSQLite, */NoteMin } from '../models/notes';
+import { NoteExtraMin, NoteFull, /*NoteSQLite, NoteMin*/ } from '../models/notes';
 import { TagExtraMin, TagFull/*, TagSQLite/*, TagMin*/ } from '../models/tags';
-//import * as Collections from 'typescript-collections';
-import { DbAction } from '../public/const';
+// //import * as Collections from 'typescript-collections';
+// import { DbAction } from '../public/const';
 import { Network } from '@ionic-native/network';
 import { Platform } from 'ionic-angular';
-import { Utils } from '../public/utils';
+// import { Utils } from '../public/utils';
 
 import { NetManager } from './net-manager';
 import { HttpProvider} from './http';
@@ -961,6 +961,7 @@ export class Synch {
           //     correctResult.push(obj.note.title);
           //   })
           // }))
+          // console.log('here in synch we have');console.log(JSON.stringify(objs));
           let promises:Promise<any>[]=[];
           objs.forEach(obj=>{
             currentLog = obj;
@@ -970,8 +971,12 @@ export class Synch {
                 //   {title:obj.note.tile,
                 //     text:obj.note.text
                 //   }}), this.http, this.auth.token)
+                // console.log('going to send');console.log(JSON.stringify({note:
+                //   {title:obj.note.title,
+                //     text:obj.note.text
+                //   }}))
                 this.http.post('/api/notes/mod/change-text/', JSON.stringify({note:
-                  {title:obj.note.tile,
+                  {title:obj.note.title,
                     text:obj.note.text
                   }}))
                 .then(result=>{
@@ -1049,7 +1054,7 @@ export class Synch {
                 //   links: obj.note.links
                 //   }}), this.http, this.auth.token)
                 this.http.post('/api/mod/change-links/', JSON.stringify({note:
-                  {title:obj.note.tile,
+                  {title:obj.note.title,
                   links: obj.note.links
                   }}))
                 .then(result=>{
@@ -1127,7 +1132,7 @@ export class Synch {
                   //     isdone: obj.note.isdone
                   //   }}), this.http, this.auth.token)
                   this.http.post('/api/mod/set-done/', JSON.stringify({note:
-                    {title:obj.note.tile,
+                    {title:obj.note.title,
                       isdone: obj.note.isdone
                     }}))
                 .then(result=>{

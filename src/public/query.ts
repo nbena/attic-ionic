@@ -182,10 +182,10 @@ export class Query{
 
   static readonly GET_TOKEN = 'select * from auth where token is not null limit 1;';
 
-  static readonly UPDATE_NOTE_SET_DONE = 'update notes set isdone=?, json_object=? where title=? and userid=?';
-  static readonly UPDATE_NOTE_SET_TEXT = 'update notes set text=?, json_object=? where title=? and userid=?';
-  static readonly UPDATE_NOTE_SET_LINKS = 'update notes set links=?, json_object=? where title=? and userid=?';
-  static readonly UPDATE_NOTE_SET_TITLE = 'update notes set title=?, json_object=? where title=? and userid=?';
+  static readonly UPDATE_NOTE_SET_DONE = 'update notes set lastmodificationdate=?, isdone=?, json_object=? where title=? and userid=?';
+  static readonly UPDATE_NOTE_SET_TEXT = 'update notes set lastmodificationdate=?, text=?, json_object=? where title=? and userid=?';
+  static readonly UPDATE_NOTE_SET_LINKS = 'update notes set lastmodificationdate=?, links=?, json_object=? where title=? and userid=?';
+  static readonly UPDATE_NOTE_SET_TITLE = 'update notes set lastmodificationdate=?, title=?, json_object=? where title=? and userid=?';
 
   static readonly UPDATE_TAG_SET_TITLE = 'update tags set title=?, json_object=? where title=? and userid=?;';
 
