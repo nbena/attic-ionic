@@ -530,7 +530,7 @@ private updateJsonObjNoteIfAllowed(noteToUpdate:NoteFull,oldNote:NoteFull, useri
           finalNote.isdone=oldNote.isdone;
         }
       })
-      return this.updateJsonObjNote(finalNote, userid) as Promise<void>;
+      return this.updateJsonObjNote(finalNote, userid, false) as Promise<void>;
     })
     .then(()=>{console.log('ok updated not if allowed');resolve();})
     .catch(error=>{console.log('error update note if allowed');console.log(JSON.stringify(error));reject(error)})
@@ -578,7 +578,7 @@ public insertOrUpdateNote(note:NoteFull, userid:string):Promise<void>{
       }else if(noteFull instanceof NoteFull){console.log('is present and it\'s full');/*isPresent=true;*/
         p = this.updateJsonObjNoteIfAllowed(note, noteFull as NoteFull, userid);
       }else{console.log('is present and is min');
-        p = this.updateJsonObjNote(note, userid) as Promise<void>;
+        p = this.updateJsonObjNote(note, userid, false) as Promise<void>;
       }
       return p;
     })
@@ -1587,27 +1587,42 @@ public getTagsMin(userid: string):Promise<TagAlmostMin[]>{
   });
 }
 
-private setDoneJustLocal(note: NoteFull, userid: string):Promise<any>{
-  return this.db.executeSql(Query.UPDATE_NOTE_SET_DONE, [note.lastmodificationdate, note.isdone, JSON.stringify(note), note.title, userid]);
-}
+  private updateNoteChangeDoneCore(note:NoteFull, userid:string, tx?:any):Promise<void>|void{
+    if(tx!=null){
+      this.updateJsonObjNote(note, userid, true, tx);
+    }else{
+      return this.updateJsonObjNote(note, userid, true) as Promise<void>;
+    }
+  }
 
-private setDoneAlsoRemote(note: NoteFull, userid: string):Promise<any>{
-  return new Promise<any>((resolve, reject)=>{
-    this.db.transaction(tx=>{
-      tx.executeSql(Query.UPDATE_NOTE_SET_DONE, [note.lastmodificationdate, note.isdone, JSON.stringify(note), note.title, userid]);
-      tx.executeSql(Query.INSERT_NOTE_OLDTITLE_INTO_LOGS, [note.title, note.title, 'set-done', userid]);
-    })
-    .then(txResult=>{
-      console.log('tx completed');
-      resolve(true);
-    })
-    .catch(error=>{
-      console.log('tx set done error');
-      console.log(JSON.stringify(error));
-      reject(error);
-    })
-  })
-}
+  private updateNoteChangeDoneCoreAddToLogs(tx:any, note:NoteExtraMin, userid:string/*, tx?:any*/):/*Promise<void>|*/void{
+    /*/ if(tx!=null){*/
+       tx.executeSql(Query.INSERT_NOTE_OLDTITLE_INTO_LOGS, [note.title, note.title, 'set-done', userid]);
+    /* }*/
+  }
+
+//
+// private setDoneJustLocal(note: NoteFull, userid: string):Promise<any>{
+//   return this.db.executeSql(Query.UPDATE_NOTE_SET_DONE, [note.lastmodificationdate, note.isdone, JSON.stringify(note), note.title, userid]);
+// }
+//
+// private setDoneAlsoRemote(note: NoteFull, userid: string):Promise<any>{
+//   return new Promise<any>((resolve, reject)=>{
+//     this.db.transaction(tx=>{
+//       tx.executeSql(Query.UPDATE_NOTE_SET_DONE, [note.lastmodificationdate, note.isdone, JSON.stringify(note), note.title, userid]);
+//       tx.executeSql(Query.INSERT_NOTE_OLDTITLE_INTO_LOGS, [note.title, note.title, 'set-done', userid]);
+//     })
+//     .then(txResult=>{
+//       console.log('tx completed');
+//       resolve(true);
+//     })
+//     .catch(error=>{
+//       console.log('tx set done error');
+//       console.log(JSON.stringify(error));
+//       reject(error);
+//     })
+//   })
+// }
 
 /*a full object in order to re-calculate the json_object and insert it directly.
 If i use just the title, I'd have to get to json_object, modify and reinsert. */
@@ -1625,11 +1640,14 @@ public setDone(note :NoteFull, userid: string):Promise<any>{
       if(result.rows.length > 0){
         // console.log('the note is not in the server');
         // inTheServer = false;
-        return this.setDoneJustLocal(note, userid);
+        return this.updateNoteChangeDoneCore(note, userid);
       }else{
         // console.log('the note is already in the server');
         // inTheServer = true;
-        return this.setDoneAlsoRemote(note, userid);
+        return this.db.transaction(tx=>{
+          this.updateNoteChangeDoneCore(note, userid, tx);
+          this.updateNoteChangeDoneCoreAddToLogs(tx,note, userid);
+        })
       }
     })
     .then(upadteResuullt=>{
@@ -1644,28 +1662,42 @@ public setDone(note :NoteFull, userid: string):Promise<any>{
   })
 }
 
-
-private setTextJustLocal(note: NoteFull, userid: string):Promise<any>{
-  return this.db.executeSql(Query.UPDATE_NOTE_SET_TEXT, [note.lastmodificationdate, note.text, JSON.stringify(note), note.title, userid]);
+private updateNoteChangeTextCoreAddToLogs(tx:any, note:NoteFull, userid:string):void{
+  tx.executeSql(Query.INSERT_NOTE_OLDTITLE_INTO_LOGS, [note.title, note.title,'change-text', userid]);
 }
 
-private setTextAlsoRemote(note: NoteFull, userid: string):Promise<any>{
-  return new Promise<any>((resolve, reject)=>{
-    this.db.transaction(tx=>{
-      tx.executeSql(Query.UPDATE_NOTE_SET_TEXT, [note.lastmodificationdate, note.text, JSON.stringify(note), note.title, userid]);
-      tx.executeSql(Query.INSERT_NOTE_OLDTITLE_INTO_LOGS, [note.title, note.title,'change-text', userid]);
-    })
-    .then(txResult=>{
-      console.log('tx completed');
-      resolve(true);
-    })
-    .catch(error=>{
-      console.log('tx set text error');
-      console.log(JSON.stringify(error));
-      reject(error);
-    })
-  })
+private updateNoteChangeTextCore(note:NoteFull, userid:string, tx?:any):Promise<void>|void{
+  if(tx!=null){
+    tx.executeSql(Query.UPDATE_NOTE_SET_TEXT, [note.lastmodificationdate, note.text, JSON.stringify(note), note.title, userid]);
+  }else{
+    return this.db.executeSql(Query.UPDATE_NOTE_SET_TEXT, [note.lastmodificationdate, note.text, JSON.stringify(note), note.title, userid]);
+  }
 }
+
+
+// private setTextJustLocal(note: NoteFull, userid: string):Promise<void>{
+//   // return this.db.executeSql(Query.UPDATE_NOTE_SET_TEXT, [note.lastmodificationdate, note.text, JSON.stringify(note), note.title, userid]);
+//   return this.updateNoteChangeTextCore(note, userid) as Promise<void>;
+// }
+
+// private setTextAlsoRemote(note: NoteFull, userid: string):Promise<void>{
+//   return new Promise<void>((resolve, reject)=>{
+//     this.db.transaction(tx=>{
+//       /*tx.executeSql(Query.UPDATE_NOTE_SET_TEXT, [note.lastmodificationdate, note.text, JSON.stringify(note), note.title, userid]);*/
+//       this.updateNoteChangeTextCore(note, userid, tx);
+//       tx.executeSql(Query.INSERT_NOTE_OLDTITLE_INTO_LOGS, [note.title, note.title,'change-text', userid]);
+//     })
+//     .then(txResult=>{
+//       console.log('tx completed');
+//       resolve();
+//     })
+//     .catch(error=>{
+//       console.log('tx set text error');
+//       console.log(JSON.stringify(error));
+//       reject(error);
+//     })
+//   })
+// }
 
 /*a full object in order to re-calculate the json_object and insert it directly.
 If i use just the title, I'd have to get to json_object, modify and reinsert. */
@@ -1683,11 +1715,14 @@ public setText(note :NoteFull, userid: string):Promise<any>{
       if(result.rows.length > 0){
         // console.log('the note is not in the server');
         // inTheServer = false;
-        return this.setTextJustLocal(note, userid);
+        return this.updateNoteChangeTextCore(note, userid) as Promise<void>;
       }else{
         // console.log('the note is already in the server');
         // inTheServer = true;
-        return this.setTextAlsoRemote(note, userid);
+        return this.db.transaction(tx=>{
+          this.updateNoteChangeTextCore(note, userid, tx);
+          this.updateNoteChangeTextCoreAddToLogs(tx, note, userid);
+        })
       }
     })
     .then(upadteResuullt=>{
@@ -1702,55 +1737,73 @@ public setText(note :NoteFull, userid: string):Promise<any>{
   })
 }
 
-
-private setLinksJustLocal(note: NoteFull, userid: string):Promise<any>{
-  return this.db.executeSql(Query.UPDATE_NOTE_SET_LINKS, [note.lastmodificationdate, JSON.stringify(note.links), JSON.stringify(note), note.title, userid]);
+private updateNoteChangeLinksCoreAddToLogs(tx:any,note:NoteFull, userid:string):void{
+  tx.executeSql(Query.INSERT_NOTE_OLDTITLE_INTO_LOGS, [note.title, note.title,'set-link', userid]);
 }
 
-private setLinksAlsoRemote(note: NoteFull, userid: string):Promise<any>{
-  return new Promise<any>((resolve, reject)=>{
-    this.db.transaction(tx=>{
-      tx.executeSql(Query.UPDATE_NOTE_SET_LINKS, [note.lastmodificationdate, JSON.stringify(note.links), JSON.stringify(note), note.title, userid]);
-      tx.executeSql(Query.INSERT_NOTE_OLDTITLE_INTO_LOGS, [note.title, note.title,'set-link', userid]);
-    })
-    .then(txResult=>{
-      console.log('tx completed');
-      resolve(true);
-    })
-    .catch(error=>{
-      console.log('tx set link error');
-      console.log(JSON.stringify(error));
-      reject(error);
-    })
-  })
+private updateNoteChangeLinksCore(note:NoteFull, userid:string, tx?:any):Promise<void>|void{
+  if(tx!=null){
+    this.updateJsonObjNote(note, userid,true, tx);
+  }else{
+    return this.updateJsonObjNote(note, userid, true) as Promise<void>;
+  }
 }
+
+
+// private setLinksJustLocal(note: NoteFull, userid: string):Promise<void>{
+//   //return this.db.executeSql(Query.UPDATE_NOTE_SET_LINKS, [note.lastmodificationdate, JSON.stringify(note.links), JSON.stringify(note), note.title, userid]);
+//   return this.updateNoteChangeLinksCore(note, userid) as Promise<void>;
+// }
+//
+// private setLinksAlsoRemote(note: NoteFull, userid: string):Promise<void>{
+//   return new Promise<void>((resolve, reject)=>{
+//     this.db.transaction(tx=>{
+//       //tx.executeSql(Query.UPDATE_NOTE_SET_LINKS, [note.lastmodificationdate, JSON.stringify(note.links), JSON.stringify(note), note.title, userid]);
+//       this.updateNoteChangeLinksCore(note, userid, tx);
+//       tx.executeSql(Query.INSERT_NOTE_OLDTITLE_INTO_LOGS, [note.title, note.title,'set-link', userid]);
+//     })
+//     .then(txResult=>{
+//       console.log('tx completed');
+//       resolve();
+//     })
+//     .catch(error=>{
+//       console.log('tx set link error');
+//       console.log(JSON.stringify(error));
+//       reject(error);
+//     })
+//   })
+// }
 
 /*a full object in order to re-calculate the json_object and insert it directly.
 If i use just the title, I'd have to get to json_object, modify and reinsert. */
-public setLinks(note :NoteFull, userid: string):Promise<any>{
+public setLinks(note :NoteFull, userid: string):Promise<void>{
   /*UODATE_NOTE_SET_DONE = 'update note set isdone=?, json_object=? where title=?';*/
   /*'select * from logs where notetitle=? and action=\'create\'';*/
   /*first check if the note must be sent to the server, if so,
   I can only update it.
   If the note is already in the server, I need to write modification to the log.
   */
-  return new Promise<any>((resolve, reject)=>{
+  return new Promise<void>((resolve, reject)=>{
     let inTheServer: boolean = false;
     this.db.executeSql(Query.IS_NOTE_NOT_IN_THE_SERVER, [note.title, userid])
     .then(result=>{
       if(result.rows.length > 0){
         // console.log('the note is not in the server');
         // inTheServer = false;
-        return this.setLinksJustLocal(note, userid);
+        return this.updateNoteChangeLinksCore(note, userid) as Promise<void>;
       }else{
         // console.log('the note is already in the server');
         // inTheServer = true;
-        return this.setLinksAlsoRemote(note, userid);
+        // return this.setLinksAlsoRemote(note, userid);
+        return this.db.transaction(tx=>{
+          this.updateNoteChangeLinksCore(note, userid, tx);
+          this.updateNoteChangeLinksCoreAddToLogs(tx, note, userid);
+        })
       }
     })
     .then(upadteResuullt=>{
       console.log('set links ok'),
-      resolve(true);
+      resolve();
     })
     .catch(error=>{
       console.log('error in set-links');
@@ -2128,7 +2181,7 @@ public getNotesByTags(tags: TagAlmostMin[], userid: string):Promise<NoteExtraMin
         if(notesFull!=null && notesFull.length>0){
           for(let i=0;i<notesFull.length;i++){
             notesFull[i].removeTag(notesFull[i].getTagIndex(tag));
-            this.updateJsonObjNote(notesFull[i], userid, tx);
+            this.updateJsonObjNote(notesFull[i], userid, false, tx);
           }
         }
 
@@ -2242,7 +2295,7 @@ public getNotesByTags(tags: TagAlmostMin[], userid: string):Promise<NoteExtraMin
     console.log('the note I received as input is:');console.log(JSON.stringify(note));
     return new Promise<any>((resolve, reject)=>{
       this.db.transaction(tx=>{
-      this.updateJsonObjNote(note, userid,tx);
+      this.updateJsonObjNote(note, userid, true, tx);
       let roles:TagType[]=[];
       let tags:TagExtraMin[]=[];
       if(mainTags==null){mainTags=[];}
@@ -2266,7 +2319,7 @@ public getNotesByTags(tags: TagAlmostMin[], userid: string):Promise<NoteExtraMin
         );
 
         this.addTagsToNoteUpdateOnlyTags(tx, note.forceCastToNoteExtraMin(), userid, tags);
-        this.addTagsToNoteUpdateOnlyNote(tx, note, userid, mainTags, otherTags);
+        this.addTagsToNoteUpdateOnlyNote(tx, note, userid, true, mainTags, otherTags);
 
 
         //   (tx: any, res: any)=>{
@@ -2515,7 +2568,7 @@ public removeTagsFromNote(note: NoteFull, userid: string, tags: TagExtraMin[]):P
     //     console.log(JSON.stringify(error));
     //   }
     // )
-    this.updateJsonObjNote(note, userid, tx);
+    this.updateJsonObjNote(note, userid, true, tx);
     this.removeTagsFromNoteCore(tx, note.forceCastToNoteExtraMin()/*note.getNoteExtraMin()*/, userid, tags);
     })
     .then(txResult=>{
@@ -3858,18 +3911,34 @@ private prepareQueryInsertNotesMinQuietly(length:number, userid:string):string{
 
 //TODO use this everytime is necessary.
 
-private updateJsonObjNote(fullNote:NoteFull, userid:string, tx?:any):void|Promise<void>{
+private updateJsonObjNote(fullNote:NoteFull, userid:string, updateLastModificationDateToo:boolean,tx?:any):void|Promise<void>{
   let json:string = JSON.stringify(fullNote);
   if(tx!=null){
-    tx.executeSql(Query.UPDATE_JSON_OBJ_NOTE_IF_NEEDED, [json, fullNote.title, json, userid],
-      (tx:any, res:any)=>{
-        console.log('updated json obj note');
-      },
-      (tx:any, error:any)=>{console.log('error in update json obj note');
-                          console.log(JSON.stringify(error));}
-      )
+    if(updateLastModificationDateToo){
+      tx.executeSql(Query.UPDATE_JSON_OBJ_NOTE_IF_NEEDED_LAST_MOD, [json, fullNote.lastmodificationdate, fullNote.title, json, userid],
+        (tx:any, res:any)=>{
+          console.log('updated json obj note');
+        },
+        (tx:any, error:any)=>{console.log('error in update json obj note');
+                            console.log(JSON.stringify(error));}
+        )
+    }else{
+      tx.executeSql(Query.UPDATE_JSON_OBJ_NOTE_IF_NEEDED, [json, fullNote.title, json, userid],
+        (tx:any, res:any)=>{
+          console.log('updated json obj note');
+        },
+        (tx:any, error:any)=>{console.log('error in update json obj note');
+                            console.log(JSON.stringify(error));}
+        )
+    }
   }else{
-    return this.db.executeSql(Query.UPDATE_JSON_OBJ_NOTE_IF_NEEDED, [json, fullNote.title, json, userid]);
+    let p:Promise<void>;
+    if(updateLastModificationDateToo){
+      p = this.db.executeSql(Query.UPDATE_JSON_OBJ_NOTE_IF_NEEDED_LAST_MOD, [json, fullNote.lastmodificationdate, fullNote.title, json, userid]);
+    }else{
+      p = this.db.executeSql(Query.UPDATE_JSON_OBJ_NOTE_IF_NEEDED, [json, fullNote.title, json, userid]);
+    }
+    return p;
   }
 }
 
@@ -3984,18 +4053,18 @@ private rollbackDeleteTagFromNote(note:NoteMin, error:boolean[],userid:string, n
 }
 */
 
-private addTagsToNoteUpdateOnlyNote(tx:any, note:NoteFull,  userid:string, mainTags?:TagExtraMin[], otherTags?:TagExtraMin[]):void{
+private addTagsToNoteUpdateOnlyNote(tx:any, note:NoteFull,  userid:string, updateLastModificationDateToo: boolean, mainTags?:TagExtraMin[], otherTags?:TagExtraMin[]):void{
   if(mainTags!=null){
     note.maintags.concat(mainTags);
   }
   if(otherTags!=null){
     note.othertags.concat(otherTags);
   }
-  this.updateJsonObjNote(note, userid, tx);
+  this.updateJsonObjNote(note, userid, updateLastModificationDateToo, tx);
 }
 
 /*maybe in the future I'll pass full objects.*/
-private addTagsToNoteUpdateBoth(tx:any, note:NoteFull|NoteExtraMin, userid:string, mainTags?: TagExtraMin[], otherTags?:TagExtraMin[]):void{
+private addTagsToNoteUpdateBoth(tx:any, note:NoteFull|NoteExtraMin, userid:string, updateLastModificationDateToo:boolean,mainTags?: TagExtraMin[], otherTags?:TagExtraMin[]):void{
 
   let fullNote:NoteFull;
   if(mainTags!=null && otherTags!=null){
@@ -4011,7 +4080,7 @@ private addTagsToNoteUpdateBoth(tx:any, note:NoteFull|NoteExtraMin, userid:strin
     this.getNoteFull(note.title, userid)
     .then(note=>{
       if(note!=null){fullNote=note;
-        this.addTagsToNoteUpdateOnlyNote(tx, note, userid, mainTags, otherTags);
+        this.addTagsToNoteUpdateOnlyNote(tx, note, userid, updateLastModificationDateToo,mainTags, otherTags);
       }
     })
   }
@@ -4019,7 +4088,7 @@ private addTagsToNoteUpdateBoth(tx:any, note:NoteFull|NoteExtraMin, userid:strin
 
 
 
-private removeTagFromNotesFullJsonUpdatingCore(tx:any, note:NoteMin, tags: TagExtraMin[], userid:string):void{
+private removeTagFromNotesFullJsonUpdatingCore(tx:any, note:NoteMin,tags: TagExtraMin[], userid:string):void{
   let fullTags:TagFull[]=[];
   Promise.all(tags.map(obj=>{return this.getTagFull(obj.title, userid)}))
   .then(tags=>{

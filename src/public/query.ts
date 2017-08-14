@@ -170,6 +170,7 @@ export class Query{
 
   static readonly UPDATE_JSON_OBJ_TAG_IF_NEEDED ='update tags set json_object=? where title=? and json_object <> ? and userid=?';
   static readonly UPDATE_JSON_OBJ_NOTE_IF_NEEDED ='update notes set json_object=? where title=? and json_object <> ? and userid=?';
+  static readonly UPDATE_JSON_OBJ_NOTE_IF_NEEDED_LAST_MOD ='update notes set json_object=?, lastmodificationdate=? where title=? and json_object <> ? and userid=?';
 
   static readonly GET_TITLE_AND_JSON_OF_NOTES_TO_UPDATE = 'select title, role, json_object from notes join notes_tags on title=notetitle where notes.mustbedeleted=\'false\' and notes_tags.mustbedeleted=\'false\' and tagtitle=? and notes.userid=? and notes_tags.userid=notes.userid';
   // static readonly EMPLTY_NOTES = 'delete from notes';
