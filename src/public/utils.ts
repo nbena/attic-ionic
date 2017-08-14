@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Http, Headers } from '@angular/http';
 /* importing auth because I need the token. */
 // import { Auth } from '../providers/auth';
-import { Const,/* PostgresError, SqliteError,*/ DbAction } from '../public/const';
+import { Const,/* PostgresError, SqliteError,*/ DbActionNs } from '../public/const';
 import { NoteBarebon, NoteFull, NoteMin, NoteExtraMin } from '../models/notes';
 import { TagExtraMin, TagFull/*, TagSQLite*/ } from '../models/tags';
 import { ToastController, AlertController } from 'ionic-angular';
@@ -277,12 +277,7 @@ public static search<T>(array:T[], item:T,  cmp: ((a:T,b:T)=>number)):number{
 
 
 
- public static getSynchingError(action:DbAction.DbAction):string{
-   let result:string = 'cannot ';
-   result+=DbAction.getHumandReadableAction(action);
-   result+='while there is synching in action';
-   return result;
- }
+
 
  public static getFullObjectNote(arg0:NoteFull[], arg1:NoteExtraMin[]):NoteFull[]{
    let array:NoteFull[]=[];

@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { SQLite } from 'ionic-native';
 import { Platform } from 'ionic-angular';
 import { Query } from '../public/query';
-import { Const, DbAction,/*SqliteError,*/ IndexTagType, TagType } from '../public/const';
+import { Const, DbActionNs,/*SqliteError,*/ IndexTagType, TagType } from '../public/const';
 import { Utils } from '../public/utils';
 import { NoteExtraMin, NoteFull, /*NoteSQLite,*/NoteMin, NoteExtraMinWithDate } from '../models/notes';
 import { TagExtraMin, TagFull, /*TagMin,*/ TagAlmostMin/*, TagSQLite */} from '../models/tags';
@@ -16,7 +16,7 @@ export class LogObjMin{
   note: string;
   userid: string;
   tag: string;
-  action: DbAction.DbAction;
+  action: DbActionNs.DbAction;
   role: string;
 }
 
@@ -24,7 +24,7 @@ export class LobObjFull{
   note: NoteFull;
   userid: string;
   tag: TagExtraMin;
-  action: DbAction.DbAction;
+  action: DbActionNs.DbAction;
   role: string;
 }
 
@@ -32,7 +32,7 @@ export class LogObjSmart{
   note: any;
   userid: string;
   tag: any;
-  action: DbAction.DbAction;
+  action: DbActionNs.DbAction;
   role: string;
 
   // constructor(){
@@ -480,7 +480,7 @@ private static getLogsByNoteFromDbResult(res:any):LogObjSmart[]{
     let note:NoteExtraMinWithDate = NoteExtraMinWithDate.safeNewNoteFromJsonString(res.rows.item(i).json_object);
     let logObj = new LogObjSmart();
     logObj.note = note;
-    logObj.action = DbAction.asDbActionFromString(res.rows.item(i).action);
+    logObj.action = DbActionNs.asDbActionFromString(res.rows.item(i).action);
     logs.push(logObj);
   }
   return logs;
@@ -522,11 +522,11 @@ private updateJsonObjNoteIfAllowed(noteToUpdate:NoteFull,oldNote:NoteFull, useri
     this.getLogsByNote(noteToUpdate.title, userid)
     .then(logs=>{
       logs.forEach(obj=>{
-        if(obj.action==DbAction.DbAction.change_text){
+        if(obj.action==DbActionNs.DbAction.change_text){
           finalNote.text=oldNote.text;
-        }if(obj.action==DbAction.DbAction.set_link){
+        }if(obj.action==DbActionNs.DbAction.set_link){
           finalNote.links=oldNote.links;
-        }if(obj.action==DbAction.DbAction.set_done){
+        }if(obj.action==DbActionNs.DbAction.set_done){
           finalNote.isdone=oldNote.isdone;
         }
       })
@@ -2648,7 +2648,7 @@ public removeTagsFromNote(note: NoteFull, userid: string, tags: TagExtraMin[]):P
                 note.maintags=mainTags;
                 note.othertags =otherTags;
                 obj.note = note;
-                obj.action = DbAction.DbAction.create;
+                obj.action = DbActionNs.DbAction.create;
                 obj.userid = userid;
                 results.push(obj);
               }
@@ -2695,7 +2695,7 @@ public removeTagsFromNote(note: NoteFull, userid: string, tags: TagExtraMin[]):P
                 obj.note = note;
                 // console.log('obj is:');
                 // console.log(JSON.stringify(obj.note));
-                obj.action = DbAction.DbAction.create;
+                obj.action = DbActionNs.DbAction.create;
                 obj.userid = userid;
                 results.push(obj);
               }
@@ -2740,7 +2740,7 @@ public removeTagsFromNote(note: NoteFull, userid: string, tags: TagExtraMin[]):P
                 obj.tag = tag;
                 // console.log('obj is:');
                 // console.log(JSON.stringify(obj.note));
-                obj.action = DbAction.DbAction.create;
+                obj.action = DbActionNs.DbAction.create;
                 obj.userid = userid;
                 results.push(obj);
               }
@@ -2786,7 +2786,7 @@ public removeTagsFromNote(note: NoteFull, userid: string, tags: TagExtraMin[]):P
                 obj.tag = tag;
                 // console.log('obj is:');
                 // console.log(JSON.stringify(obj.note));
-                obj.action = DbAction.DbAction.delete;
+                obj.action = DbActionNs.DbAction.delete;
                 obj.userid = userid;
                 results.push(obj);
               }
@@ -2838,7 +2838,7 @@ public removeTagsFromNote(note: NoteFull, userid: string, tags: TagExtraMin[]):P
                   }else{
                     result[result.length-1].note.othertags.push(res.rows.item(i).tagtitle);
                   }
-                  result[result.length-1].action = DbAction.DbAction.add_tag;
+                  result[result.length-1].action = DbActionNs.DbAction.add_tag;
                   result[result.length-1].userid = userid;
                 }else{
                   /*create new note.*/
@@ -2851,7 +2851,7 @@ public removeTagsFromNote(note: NoteFull, userid: string, tags: TagExtraMin[]):P
                     note.othertags.push(res.rows.item(i).tagtitle);
                   }
                   obj.userid=userid;
-                  obj.action = DbAction.DbAction.add_tag;
+                  obj.action = DbActionNs.DbAction.add_tag;
                   obj.note = note;
                   result.push(obj)
                 }
@@ -2903,7 +2903,7 @@ public removeTagsFromNote(note: NoteFull, userid: string, tags: TagExtraMin[]):P
 
                 if(result.length > 0 && (result[result.length-1].note.title == res.rows.item(i).notetitle)){
                   result[result.length-1].note.maintags.push(res.rows.item(i).tagtitle);
-                  result[result.length-1].action = DbAction.DbAction.remove_tag;
+                  result[result.length-1].action = DbActionNs.DbAction.remove_tag;
                   result[result.length-1].userid = userid;
                 }else{
                   /*create new note.*/
@@ -2912,7 +2912,7 @@ public removeTagsFromNote(note: NoteFull, userid: string, tags: TagExtraMin[]):P
                   note.title=res.rows.item(i).notetitle;
                   note.maintags.push(res.rows.item(i).tagtitle);
                   obj.userid=userid;
-                  obj.action = DbAction.DbAction.remove_tag;
+                  obj.action = DbActionNs.DbAction.remove_tag;
                   obj.note = note;
                   result.push(obj)
                 }
@@ -2957,7 +2957,7 @@ public removeTagsFromNote(note: NoteFull, userid: string, tags: TagExtraMin[]):P
                 note.title = res.rows.item(i).notetitle;
                 note.text = res.rows.item(i).text;
                 obj.note = note;
-                obj.action = DbAction.DbAction.change_text;
+                obj.action = DbActionNs.DbAction.change_text;
                 obj.userid = userid;
                 // console.log('the current obj');console.log(JSON.stringify(obj));
                 results.push(obj);
@@ -3007,7 +3007,7 @@ public removeTagsFromNote(note: NoteFull, userid: string, tags: TagExtraMin[]):P
                 note.links = raw.links;
 
                 obj.note = note;
-                obj.action = DbAction.DbAction.set_link;
+                obj.action = DbActionNs.DbAction.set_link;
                 obj.userid = userid;
                 results.push(obj);
               }
@@ -3055,7 +3055,7 @@ public removeTagsFromNote(note: NoteFull, userid: string, tags: TagExtraMin[]):P
                 note.isdone = raw.isdone;
 
                 obj.note = note;
-                obj.action = DbAction.DbAction.set_done;
+                obj.action = DbActionNs.DbAction.set_done;
                 obj.userid = userid;
                 results.push(obj);
               }
@@ -3258,23 +3258,19 @@ public removeTagsFromNote(note: NoteFull, userid: string, tags: TagExtraMin[]):P
   deleteNotesToDeleteMultiVersion(noteTitles: string[], userid: string):Promise<void>{
     return new Promise<void>((resolve, reject)=>{
       this.db.transaction(tx=>{
-        // let query1: string = this.prepareNotesMultiVersion(noteTitles.length, Query.DELETE_FROM_LOGS_NOTES_TO_DELETE_WHERE_NOTE, true);
-        // let query2: string = this.prepareNotesMultiVersion(noteTitles.length, Query.DELETE_FROM_NOTES_NOTES_TO_DELETE_WHERE_NOTE, false); //this one is the problem
+        let query1: string = this.prepareNotesMultiVersion(noteTitles.length, Query.DELETE_FROM_LOGS_NOTES_TO_DELETE_WHERE_NOTE, true);
+        let query2: string = this.prepareNotesMultiVersion(noteTitles.length, Query.DELETE_FROM_NOTES_NOTES_TO_DELETE_WHERE_NOTE, false); //this one is the problem
         // console.log('query1: '+query1);
         // console.log('query2: '+query2);
-        // tx.executeSql(query1, [userid].concat(noteTitles),
-        //   (tx:any, res:any)=>{console.log('delete notes-to-delete-logs ok.')},
-        //   (tx: any, err:any)=>{
-        //     console.log('error in deleting notes-to-delete-logs.');
-        //     console.log(JSON.stringify(err));
-        //   }
-        // )
-        // tx.executeSql(query2, [userid].concat(noteTitles),
-        //   (tx:any, res: any)=>{console.log('delete notes-to-delete-tags ok')},
-        //   (tx:any, err: any)=>{
-        //     console.log('error in deleting tags-to-delete-notes.')
-        //     console.log(JSON.stringify(err));
-        //   })
+        tx.executeSql(query1, [userid].concat(noteTitles),
+          (tx:any, res:any)=>{console.log('delete notes-to-delete-logs ok.')},
+          (tx: any, err:any)=>{console.log('error in deleting notes-to-delete-logs.');console.log(JSON.stringify(err));
+          }
+        )
+        tx.executeSql(query2, [userid].concat(noteTitles),
+          (tx:any, res: any)=>{console.log('delete notes-to-delete-tags ok')},
+          (tx:any, err: any)=>{console.log('error in deleting tags-to-delete-notes.');console.log(JSON.stringify(err));
+          })
       })
       .then(txResult=>{
         console.log('tx completed');
@@ -4499,23 +4495,23 @@ public rollbackModification(logObj: LogObjSmart,userid:string, errorArray?:boole
   return new Promise<void>((resolve, reject)=>{
     let p:Promise<void>;
     switch(logObj.action){
-      // case DbAction.DbAction.remove_tag:
+      // case DbActionNs.DbAction.remove_tag:
       //   /*the note to delete are in the maintags of the note.*/
       //   p=this.rollbackDeleteTagFromNote(logObj.note, errorArray, userid);
       //   break;
-      case DbAction.DbAction.add_tag:
+      case DbActionNs.DbAction.add_tag:
         p=this.rollbackAddTagToNote(logObj.note,errorArray, userid);
         break;
-      case DbAction.DbAction.change_text:
+      case DbActionNs.DbAction.change_text:
         p=this.rollbackChangeText(logObj.note, userid);
         break;
-      case DbAction.DbAction.set_done:
+      case DbActionNs.DbAction.set_done:
         p=this.rollbackSetDone(logObj.note,userid);
         break;
-      case DbAction.DbAction.set_link:
+      case DbActionNs.DbAction.set_link:
         p=this.rollbackSetLink(logObj.note,userid);
         break;
-      case DbAction.DbAction.create:
+      case DbActionNs.DbAction.create:
         if(logObj.note!=null){
           p=this.rollbackCreateNote(logObj.note as NoteMin,errorArray, userid);
         }else{

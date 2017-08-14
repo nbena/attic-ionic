@@ -13,7 +13,7 @@ import {NoteExtraMin, NoteFull} from '../models/notes';
 import { Db } from './db';
 import { NetManager } from './net-manager';
 import { Synch } from './synch';
-import { DbAction, Const } from '../public/const';
+import { DbActionNs, Const } from '../public/const';
 
 import { AtticCache } from './attic-cache';
 import { HttpProvider } from './http';
@@ -200,7 +200,7 @@ export class AtticTags {
       }
       else{
         console.log('trying to create tag but it is locked');
-        reject(Utils.getSynchingError(DbAction.DbAction.create));
+        reject(AtticError.getSynchingError(DbActionNs.DbAction.create));
       }
     })
   }
@@ -269,7 +269,7 @@ export class AtticTags {
     }else{
       return new Promise<void>((resolve, reject)=>{
         console.log('trying to change title but it is locked');
-        reject(Utils.getSynchingError(DbAction.DbAction.change_title));
+        reject(AtticError.getSynchingError(DbActionNs.DbAction.change_title));
       });
     }
   }
@@ -288,7 +288,7 @@ export class AtticTags {
     }else{
       return new Promise<any>((resolve, reject)=>{
         console.log('trying to delete tag but it is locked');
-        reject(Utils.getSynchingError(DbAction.DbAction.delete));
+        reject(AtticError.getSynchingError(DbActionNs.DbAction.delete));
       })
     }
   }

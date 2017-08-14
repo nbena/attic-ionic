@@ -56,7 +56,7 @@ export namespace FilterNs{
 // }
 
 
-export namespace DbAction {
+export namespace DbActionNs {
   export function asDbActionToString(action: DbAction){
     let res: string = '';
     switch(action){

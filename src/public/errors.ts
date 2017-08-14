@@ -1,5 +1,14 @@
-
+import {DbActionNs} from './const';
 export class AtticError{
+
+
+  public static getSynchingError(action:DbActionNs.DbAction):string{
+    let result:string = 'cannot ';
+    result+=DbActionNs.getHumandReadableAction(action);
+    result+='while there is synching in action';
+    return result;
+  }
+
 
   //public static readonly DUPLICATE_KEY_NOTES:string = 'UNIQUE constraint failed: notes.title, notes.userid, notes.mustbedeleted';
   public static readonly SQLITE_DUPLICATE_KEY_NOTES:string ='a statement error callback did not return false: sqlite3_step failure: UNIQUE constraint failed: notes.title, notes.userid, notes.mustbedeleted';
