@@ -55,7 +55,7 @@ export class CreateNotePage {
     private formBuilder: FormBuilder
   ) {
 
-    this.createNotePageForm = formBuilder.group({
+    this.createNotePageForm = this.formBuilder.group({
       title:['', Validators.compose([Validators.required, Validators.minLength(2), Validators.maxLength(64)])],
       text: ['', Validators.compose([Validators.required, Validators.minLength(2)])],
       mainTags:[[]],

@@ -1903,7 +1903,7 @@ private expandTagsRegex(tags:TagAlmostMin[]):string{
   tags.forEach(obj=>{
     let t:TagExtraMin = TagExtraMin.NewTag(obj.title);
     let json:string=JSON.stringify(t);
-    json+='+';
+    json+='%';
     result+=json;
   })
   result=result.substr(0, result.length-1);

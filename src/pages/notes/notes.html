@@ -39,7 +39,10 @@
     <!-- <ion-card detail-push *ngFor="let note of shownNotes" (click)="displayNoteDetails(note._id, note.title)">
       {{note.title}}
     </ion-card> -->
-    <ion-item-sliding *ngFor="let note of shownNotes" (click)="displayNoteDetails(note.title)">
+
+
+
+    <!-- <ion-item-sliding *ngFor="let note of shownNotes" (click)="displayNoteDetails(note.title)">
       <ion-item>
         {{note.title}}
       </ion-item>
@@ -50,8 +53,13 @@
         </button>
       </ion-item-options>
 
-    </ion-item-sliding>
+    </ion-item-sliding> -->
 
+    <ion-list>
+      <ion-item *ngFor="let note of shownNotes" (click)="displayNoteDetails(note.title)">
+        <ion-label>{{note.title}}</ion-label>
+      </ion-item>
+    </ion-list>
 
 
 

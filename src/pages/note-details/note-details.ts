@@ -379,8 +379,7 @@ export class NoteDetailsPage {
      this.shownMainTags.splice(i, 1);
      /*detect if there is the need to remove from mainTags.*/
      /*(user can remove a links added by him that not really exists)*/
-     let obj = new TagExtraMin();
-     obj.title=title;
+     let obj:TagExtraMin = TagExtraMin.NewTag(title);
      let index = Utils.myIndexOf(this.mainTags,obj);
      if(index!=-1){
        this.tagsToRemove.push(this.mainTags[index]);
@@ -401,8 +400,7 @@ export class NoteDetailsPage {
     /*remove from the shown.*/
     this.shownOtherTags.splice(i, 1);
     /*detect if there is the need to remove from otherTags.*/
-    let obj = new TagExtraMin();
-    obj.title=title;
+    let obj:TagExtraMin = TagExtraMin.NewTag(title);
     let index = Utils.myIndexOf(this.otherTags,obj);
     if(index!=-1){
       this.tagsToRemove.push(this.otherTags[index]);
@@ -521,11 +519,13 @@ export class NoteDetailsPage {
         //Utils.presentToast(this.toastCtrl, 'tags removed');
         this.graphicProvider.presentToast('tags removed');
         this.haveToRemoveTags = false;
+        this.submitChangeEnabled=false;
       })
       .catch(error=>{
         this.revertToOldDate();
         console.log('remove tags error: '+JSON.stringify(error));
         this.graphicProvider.showErrorAlert(error);
+        this.submitChangeEnabled=true;
       })
     }
 
@@ -536,11 +536,13 @@ export class NoteDetailsPage {
         this.graphicProvider.presentToast('tags added');
         this.haveToAddMainTags = false;
         this.haveToAddOtherTags = false;
+        this.submitChangeEnabled=false;
       })
       .catch(error=>{
         this.revertToOldDate();
         console.log('add tags error: '+JSON.stringify(error.message));
         this.graphicProvider.showErrorAlert(error);
+        this.submitChangeEnabled=true;
       })
     }
 
@@ -549,11 +551,13 @@ export class NoteDetailsPage {
         .then(result=>{
           this.graphicProvider.presentToast('tags added');
           this.haveToAddMainTags = false;
+          this.submitChangeEnabled=false;
         })
         .catch(error=>{
           this.revertToOldDate();
           console.log('add tags error: '+JSON.stringify(error.message));
           this.graphicProvider.showErrorAlert(error);
+          this.submitChangeEnabled=true;
         })
     }
 
@@ -562,11 +566,13 @@ export class NoteDetailsPage {
         .then(result=>{
           this.graphicProvider.presentToast('tags added');
           this.haveToAddOtherTags = false;
+          this.submitChangeEnabled=false;
         })
         .catch(error=>{
           this.revertToOldDate();
           console.log('add tags error: '+JSON.stringify(error.message));
           this.graphicProvider.showErrorAlert(error);
+          this.submitChangeEnabled=true;
         })
     }
 
@@ -575,11 +581,13 @@ export class NoteDetailsPage {
     .then(result=>{
       this.graphicProvider.presentToast('links changed');
       this.haveToChangeLinks = false;
+      this.submitChangeEnabled=false;
     })
     .catch(error=>{
       this.revertToOldDate();
       console.log('change links error: '+JSON.stringify(error.message));
       this.graphicProvider.showErrorAlert(error);
+      this.submitChangeEnabled=true;
     })
   }
 
@@ -588,16 +596,20 @@ export class NoteDetailsPage {
         .then(result=>{
           this.graphicProvider.presentToast('\'done\' modified');
           this.isDoneChanged =  false;
+          this.submitChangeEnabled=false;
         })
         .catch(error=>{
           this.revertToOldDate();
           console.log('set done error: '+JSON.stringify(error.message));
           this.graphicProvider.showErrorAlert(error);
+          this.submitChangeEnabled=true;
         })
     }
-    if(this.allFalse()){
-      this.submitChangeEnabled = false;
-    }
+    // useless because it's synchronous.
+    // if(this.allFalse()){
+    //   this.submitChangeEnabled = false;
+    // }
+
   }
 
   allFalse():boolean{
