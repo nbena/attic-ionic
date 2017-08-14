@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { NavController, NavParams, PopoverController,/* ToastController, */Events,
-  ViewController
+  ViewController,Popover
   } from 'ionic-angular';
 
 import { AtticNotes } from '../../providers/attic-notes';
@@ -9,7 +9,7 @@ import { NoteExtraMin, /*NoteSmart, */NoteMin/*, NoteFull*/,NoteExtraMinWithDate
 import { NoteDetailsPage } from '../note-details/note-details';
 import { CreateNotePage } from '../create-note/create-note';
 
-import { Filter/*, Table*/ } from '../../public/const';
+import { FilterNs/*, Table*/, } from '../../public/const';
 import { FormControl } from '@angular/forms';
 
 // import { Db } from '../../providers/db';
@@ -50,7 +50,7 @@ export class NotesPage {
   /*defining the result from the API.*/
   shownNotes: NoteExtraMinWithDate[] = null;
   allNotes : NoteExtraMinWithDate[] = null;
-  currentFilter : Filter = Filter.None;
+  currentFilter : FilterNs.Filter = FilterNs.Filter.None;
   currentFilterValue: any = null;
 
   searchCtrl: FormControl;
@@ -93,7 +93,7 @@ export class NotesPage {
         this.currentFilterValue = filterValue;
 
         if(filterValue==null){
-          this.currentFilter=Filter.None;
+          this.currentFilter=FilterNs.Filter.None;
         }
 
           if(this.allNotes==null){
@@ -142,6 +142,13 @@ export class NotesPage {
 
   }
 
+
+  setGoBack(goback:boolean){
+    console.log('going to set goback: '+goback);
+    this.viewCtrl.showBackButton(goback);
+    console.log('done');
+  }
+
   refreshIfNecessary(r:boolean){
     // let defaultRefresh:boolean = true;
     // let refresh = this.navParams.get('refresh');
@@ -159,23 +166,38 @@ export class NotesPage {
 
 
   showPopover(event){
-    let popover=this.popoverCtrl.create(NotesPopoverPage);
-    popover.present({
-      ev: event
-    });
+    // try{
+      let popover:Popover;
+      if(this.currentFilter==FilterNs.Filter.None/*|| this.currentFilter==null*/){
+        popover=this.popoverCtrl.create(NotesPopoverPage, {filterEnabled:false});
+      }else{
+        popover=this.popoverCtrl.create(NotesPopoverPage, {filterEnabled:true});
+      }
+      popover.present({
+        ev: event
+      });
+    // }catch(e){
+    //   console.log('error:');console.log(JSON.stringify(e));console.log(JSON.stringify(e.message));
+    // }
   }
 
   //important to call this in that function if we do not want
   //any error to be thrown.
   ionViewWillEnter(){
-    this.viewCtrl.showBackButton(false);
-    console.log('so I\'m here');
+    console.log('will enter, the current filter is: '+FilterNs.toString(this.currentFilter));
+    if(/*this.currentFilter==null ||  */this.currentFilter==FilterNs.Filter.None){
+      this.setGoBack(false);
+    }else{
+      this.setGoBack(true); /*when arriving from note details this is doesn't work.*/
+    }
+    // this.viewCtrl.showBackButton(false);
+    // console.log('so I\'m here');
   }
 
 
   //calling the new page, passing the _id.
   displayNoteDetails(title: string){
-    this.navCtrl.push(NoteDetailsPage, {title});
+    this.navCtrl.push(NoteDetailsPage, {title}).then(()=>{});
   }
 
   // unshiftIfPossible(note:string){
@@ -197,7 +219,7 @@ export class NotesPage {
 
     this.searchCtrl.valueChanges.debounceTime(700).subscribe(event=>{
       this.currentFilterValue=this.searchTerm;
-      this.currentFilter=Filter.Title;
+      this.currentFilter=FilterNs.Filter.Title;
       if(this.searchTerm.trim()===''){
         this.shownNotes=this.allNotes;
       }else{
@@ -267,7 +289,7 @@ export class NotesPage {
     Cast is not required by the compiler, but it's better to use it.
     */
     switch(this.currentFilter){
-      case Filter.Tags:
+      case FilterNs.Filter.Tags:
         this.loadByTags(<TagAlmostMin[]>this.currentFilterValue/*, firstTime*/, force);
       break;
       // case Filter.MainTags:
@@ -276,10 +298,10 @@ export class NotesPage {
       // case Filter.OtherTags:
       //   this.loadByOtherTags(<string[]>this.currentFilterValue);
       // break;
-      case Filter.Text:
+      case FilterNs.Filter.Text:
         this.loadByText(<string>this.currentFilterValue/*, firstTime*/, force);
       break;
-      case Filter.Title:
+      case FilterNs.Filter.Title:
         this.loadByTitle(<string>this.currentFilterValue);
       break;
       default:

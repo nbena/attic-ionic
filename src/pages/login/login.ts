@@ -10,7 +10,7 @@ import { RegisterPage } from '../register/register';
 
 import { TabsPage } from '../tabs/tabs';
 
-import { Filter } from '../../public/const';
+// import { FilterNs } from '../../public/const';
 
 import { GraphicProvider} from '../../providers/graphic'
 
@@ -127,7 +127,7 @@ export class LoginPage {
         .then(()=>{
           this.graphicProvider.showErrorAlert('error during the authentication')
         })
-      });  
+      });
     }
   }
 

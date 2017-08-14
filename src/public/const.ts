@@ -1,10 +1,28 @@
-export enum Filter{
-  Tags,
-  // MainTags,
-  // OtherTags,
-  Text,
-  Title,
-  None
+
+
+export namespace FilterNs{
+  export enum Filter{
+    Tags,
+    // MainTags,
+    // OtherTags,
+    Text,
+    Title,
+    None
+  }
+  export function toString(input:Filter):string{
+    let res:string;
+    switch(input){
+      case Filter.None:
+        res='None';break;
+      case Filter.Text:
+        res='Text';break;
+      case Filter.Title:
+        res='Title';break;
+      case Filter.Tags:
+        res='Tags';break;
+    }
+    return res;
+  }
 }
 
 // export enum Table{

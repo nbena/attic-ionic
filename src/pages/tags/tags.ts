@@ -6,7 +6,7 @@ import { /*TagExtraMi, TagMin, */TagFull, TagAlmostMin } from '../../models/tags
 import { AtticTags } from '../../providers/attic-tags';
 import { TagDetailsPage } from '../tag-details/tag-details';
 import { NotesPage } from '../notes/notes';
-import { Filter } from '../../public/const';
+import { FilterNs } from '../../public/const';
 import { FormControl } from '@angular/forms';
 import { Utils } from '../../public/utils';
 import { GraphicProvider} from '../../providers/graphic'
@@ -177,7 +177,7 @@ export class TagsPage {
   notesByTag(event, tag: TagAlmostMin){
     event.stopPropagation();
     let tags = [tag];
-    let filterType = Filter.Tags;
+    let filterType = FilterNs.Filter.Tags;
     // console.log("proper event fired");
     // console.log("is array: "+(tags instanceof Array).toString());
     this.navCtrl.push(NotesPage, {filterType: filterType, filterValue: tags});

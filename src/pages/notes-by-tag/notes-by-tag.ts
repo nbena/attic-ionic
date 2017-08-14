@@ -4,7 +4,7 @@ import { AtticTags } from '../../providers/attic-tags';
 import { TagAlmostMin, TagExtraMin } from '../../models/tags';
 import { FormControl } from '@angular/forms';
 import { NotesPage } from '../notes/notes';
-import { Filter } from '../../public/const';
+import { FilterNs } from '../../public/const';
 import {GraphicProvider} from '../../providers/graphic';
 
 /*
@@ -144,7 +144,7 @@ export class NotesByTagPage {
     // console.log('passed:');
     // console.log(JSON.stringify(passed));
     if(passed.length>0){
-      this.navCtrl.push(NotesPage, {filterType: Filter.Tags, filterValue: passed})
+      this.navCtrl.push(NotesPage, {filterType: FilterNs.Filter.Tags, filterValue: passed})
       //see if works.
       .then(()=>{
         this.viewCtrl.dismiss();

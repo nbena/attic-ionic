@@ -21,7 +21,9 @@
   <ion-list-header color="lightblue">
     Search by
   </ion-list-header>
-  <!-- <button ion-item (click)="unfilter()" enabled="removeFilterEnabled"> Remove filter</button> -->
+  <button
+  [class.generic-gray]="!removeFilterEnabled"
+  ion-item (click)="unfilter()" enabled="removeFilterEnabled"> Remove filter</button>
   <button ion-item (click)="filterByText()">Search by text</button>
   <button ion-item (click)="filterByTagsNoRole()">Search by tags</button>
   <!--<button ion-item (click)="filterByTagsWithRole()">Search by tags (advanced)</button>-->

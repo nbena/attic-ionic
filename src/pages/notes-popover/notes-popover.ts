@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
-import { NavController, /*NavParams, AlertController*/ViewController } from 'ionic-angular';
+import { NavController, NavParams/*, AlertController*/,ViewController } from 'ionic-angular';
 import { NotesPage } from '../notes/notes';
 import { NotesByTagPage } from '../notes-by-tag/notes-by-tag';
-import { Filter} from '../../public/const';
+import { FilterNs} from '../../public/const';
 import {GraphicProvider} from '../../providers/graphic';
 
 
@@ -20,15 +20,27 @@ import {GraphicProvider} from '../../providers/graphic';
 })
 export class NotesPopoverPage {
 
+  private removeFilterEnabled:boolean = false;
+
 
 // private removeFilterEnabled: boolean = true;
 //find a method, maybe, to check if there is some filter applied.
 
-  constructor(public navCtrl: NavController, /*private navParams: NavParams,*/
+  constructor(public navCtrl: NavController, private navParams: NavParams,
     /*private alertCtrl: AlertController, */private viewCtrl: ViewController,
     private graphicProvider:GraphicProvider
-  ) {
 
+  ) {
+    try{
+      let enable:boolean = this.navParams.get('filterEnabled');
+      if(enable==null){
+        this.removeFilterEnabled=false;
+      }else{
+        this.removeFilterEnabled=enable;
+      }
+    }catch(e){
+      this.removeFilterEnabled=false;
+    }
   }
 
 
@@ -72,7 +84,7 @@ export class NotesPopoverPage {
 
 
   filterByTextAPI(value: string){
-    this.navCtrl.push(NotesPage, {filterType: Filter.Text, filterValue: value})
+    this.navCtrl.push(NotesPage, {filterType: FilterNs.Filter.Text, filterValue: value})
     .then(()=>{
       this.viewCtrl.dismiss();
     })
@@ -86,12 +98,12 @@ export class NotesPopoverPage {
     })
   }
 
-  // unfilter(){
-  //   this.navCtrl.push(NotesPage, {filterType: Filter.None})
-  //   .then(()=>{
-  //     this.viewCtrl.dismiss();
-  //   })
-  // }
+  unfilter(){
+    this.navCtrl.push(NotesPage, {filterType: FilterNs.Filter.None})
+    .then(()=>{
+      this.viewCtrl.dismiss();
+    })
+  }
 
   // filterByTagsWithRole(){
   //
