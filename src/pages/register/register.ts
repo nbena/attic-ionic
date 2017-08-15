@@ -9,7 +9,7 @@ import { Auth } from '../../providers/auth';
 import { GraphicProvider} from '../../providers/graphic'
 
 import { FormBuilder, FormGroup, Validators } from '@angular/forms'
-
+//import { AtticUserProvider } from '../../providers/attic-user';
 /*
   Generated class for the Register page.
 
@@ -38,11 +38,17 @@ export class RegisterPage {
       // public loadingCtrl:LoadingController
       private graphicProvider:GraphicProvider,
       private formBuilder:FormBuilder
+      //,private atticUser: AtticUserProvider
     ) {
-      this.registerPageForm = this.formBuilder.group({
-        email:['', Validators.compose([Validators.required, Validators.email, Validators.maxLength(64)])],
-        password:['', Validators.compose([Validators.required/*, Validators.pattern('')*/])]
-      })
+
+      try{
+        this.registerPageForm = this.formBuilder.group({
+          email:['', Validators.compose([Validators.required, Validators.email, Validators.maxLength(64)])/*, this.atticUser.isUserValid*/],
+          password:['', Validators.compose([Validators.required/*, Validators.pattern('')*/])]
+        })
+      }catch(e){console.log('error in reg');
+      console.log(JSON.stringify(e));console.log(JSON.stringify(e.message));
+    }
     }
 
   ionViewDidLoad() {
@@ -74,7 +80,7 @@ export class RegisterPage {
         .then(()=>{
           this.graphicProvider.showErrorAlert('error while creating account')
         })
-      })  
+      })
     }
   }
 

@@ -39,7 +39,7 @@
                 ></ion-input>
               </ion-item>
 
-              <ion-item *ngIf="!registerPageForm.controls.emails.valid && (registerPageForm.controls.email.dirty || tryingToSubmit)">
+              <ion-item *ngIf="!registerPageForm.controls.email.valid && (registerPageForm.controls.email.dirty || tryingToSubmit)">
                 <ion-label class="error">Please enter a valid username.</ion-label>
               </ion-item>
 
@@ -59,14 +59,14 @@
                 ></ion-input>
               </ion-item>
 
-              <ion-item *ngIf="!regsiterPageForm.controls.password.valid && (registerPageForm.controls.password.dirty || tryingToSubmit)">
+              <ion-item *ngIf="!registerPageForm.controls.password.valid && (registerPageForm.controls.password.dirty || tryingToSubmit)">
                 <ion-label class="error">Please enter a valid password.</ion-label>
               </ion-item>
 
 
 
 
-          <button ion-button (click)="register()" color="primary">Register</button>
+          <button ion-button full (click)="register()" color="primary">Register</button>
 
         </form>
         </ion-list>

@@ -6,6 +6,7 @@ import { AtticCache } from './attic-cache';
 import { Db } from './db';
 import 'rxjs/add/operator/map';
 import {HttpProvider} from './http';
+import { FormControl  } from '@angular/forms';
 
 /*
   Generated class for the AtticUserProvider provider.
@@ -69,6 +70,20 @@ export class AtticUserProvider {
       .catch(error=>{
         console.log('error in get summary provider');
         console.log(JSON.stringify(error.message));
+        reject(error);
+      })
+    })
+  }
+
+
+  //not used.
+  public isUserValid(control:FormControl):Promise<boolean>{
+    return new Promise<boolean>((resolve, reject)=>{
+      this.http.post('/api/users/is-available', JSON.stringify({userid: control.value.userid}))
+      .then(value=>{
+        resolve(value);
+      }).catch(error=>{
+        console.log('error in get user available');console.log(error.message);
         reject(error);
       })
     })

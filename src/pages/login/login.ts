@@ -60,36 +60,28 @@ export class LoginPage {
   ionViewDidLoad() {
     console.log('ionViewDidLoad LoginPage');
 
-    this.loading=this.graphicProvider.showLoading('Authenticating'); //maybe I'll remove it.
+    // this.loading=this.graphicProvider.showLoading('Authenticating'); //maybe I'll remove it.
+    //
+    // console.log('is auth?');
+    // // console.log(this.auth.checkAuthentication());
+    //
+    // this.auth.checkAuthentication()
+    // .then(isAuth=>{
+    //   if(isAuth){
+    //     console.log('true');
+    //     // try{
+    //       this.graphicProvider.dismissLoading(this.loading);
+    //     // }catch(e){console.log('the error');console.log(JSON.stringify(e));console.log(JSON.stringify(e.message))}
+    //
+    //     //this.navCtrl.setRoot(NotesPage, this.getParams());
+    //     this.navCtrl.setRoot(TabsPage);
+    //   }else{
+    //     console.log('false');
+    //     // this.loading.dismiss();
+    //     this.graphicProvider.dismissLoading(this.loading);
+    //   }
+    // });
 
-    console.log('is auth?');
-    // console.log(this.auth.checkAuthentication());
-
-    this.auth.checkAuthentication()
-    .then(isAuth=>{
-      if(isAuth){
-        console.log('true');
-        // try{
-          this.graphicProvider.dismissLoading(this.loading);
-        // }catch(e){console.log('the error');console.log(JSON.stringify(e));console.log(JSON.stringify(e.message))}
-
-        //this.navCtrl.setRoot(NotesPage, this.getParams());
-        this.navCtrl.setRoot(TabsPage);
-      }else{
-        console.log('false');
-        // this.loading.dismiss();
-        this.graphicProvider.dismissLoading(this.loading);
-      }
-    });
-
-    // if(this.auth.checkAuthentication()){
-    //   // console.log("already auth");
-    //   this.loading.dismiss();
-    //   this.navCtrl.setRoot(NotesPage, this.getParams());
-    // }else{
-    //   // console.log("not auth");
-    //   this.loading.dismiss();
-    // }
 
   }
 
@@ -133,8 +125,15 @@ export class LoginPage {
 
 
   //called from the page
-  register(){
-    this.navCtrl.push(RegisterPage);
+  pushToRegister(){
+    try{
+      //this.navCtrl.push(RegisterPage);
+      console.log('click');
+      this.navCtrl.setRoot(RegisterPage);
+    }catch(e){
+      console.log('there was the error');
+      console.log(JSON.stringify(e));console.log(JSON.stringify(e.message));
+    }
   }
 
   makeEmpty(){
