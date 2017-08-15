@@ -79,4 +79,18 @@ export class AtticUserProvider {
     return this.db.empty(this.auth.userid);
   }
 
+  public logout():Promise<void>{
+    return new Promise<void>((resolve, reject)=>{
+      this.db.logout(this.auth.userid)
+      .then(()=>{
+        console.log('ok logout now remove userid');
+        this.auth.userid=null;
+        resolve();
+      }).catch(error=>{
+        console.log('error in logout');console.log(JSON.stringify(error.message));
+        reject(error);
+      })
+    })
+  }
+
 }

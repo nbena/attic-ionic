@@ -368,7 +368,7 @@ public getLogsCount(userid: string):Promise<number>{
 //
 // }
 /*use this because they are 'promise-safe'*/
-/*JUST ONE TOKEN WILL BE IN THE DB.*/
+/*JUST ONE WILL BE IN THE DB.*/
 public getToken():Promise<any>{
   return new Promise<any>((resolve, reject)=>{
 
@@ -4673,6 +4673,23 @@ insertSetFree(free:boolean, userid:string):Promise<void>{
     .catch(error=>{
       console.log('error in set free');
       console.log(JSON.stringify(error));
+      reject(error);
+    })
+  })
+}
+
+/*
+@
+*/
+
+logout(userid:string):Promise<void>{
+  return new Promise<void>((resolve, reject)=>{
+    this.db.executeSql(Query.DELETE_TOKEN, [userid])
+    .then(()=>{
+      console.log('ok delete token');
+      resolve();
+    }).catch(error=>{
+      console.log('delete token error');console.log(JSON.stringify(error.message));
       reject(error);
     })
   })

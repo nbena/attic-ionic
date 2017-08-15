@@ -1,4 +1,4 @@
-import { NoteExtraMin, NoteFull } from './notes'
+import { NoteExtraMin/*, NoteFull*/ } from './notes'
 //import {TagType } from '../public/const';
 /*
 Defining interfaces for the API.

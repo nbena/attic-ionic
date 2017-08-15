@@ -1,11 +1,13 @@
+/*
 import { Injectable } from '@angular/core';
 import { Http, Headers } from '@angular/http';
+*/
 /* importing auth because I need the token. */
 // import { Auth } from '../providers/auth';
-import { Const,/* PostgresError, SqliteError,*/ DbActionNs } from '../public/const';
-import { NoteBarebon, NoteFull, NoteMin, NoteExtraMin } from '../models/notes';
+import { /*Const,/* PostgresError, SqliteError,*/ DbActionNs } from '../public/const';
+import { /*NoteBarebon, */NoteFull/*, NoteMin*/, NoteExtraMin } from '../models/notes';
 import { TagExtraMin, TagFull/*, TagSQLite*/ } from '../models/tags';
-import { ToastController, AlertController } from 'ionic-angular';
+//import { ToastController, AlertController } from 'ionic-angular';
 
 
 
@@ -164,7 +166,7 @@ static fromTagsToString(tags: TagExtraMin[]):string[]{
 //generic utility method for a smart insert into a generic array.
 //surely we assume array is already sorted.
  public static binaryArrayInsert<T>(array: T[], item: T, cmp: ((a:T,b:T)=>number)):T[]{
-     let returned: T[];
+     /*let returned: T[];*/
      let start: number, end: number, current:number, cmpValue;
      start = 0;
      end = array.length;
@@ -196,7 +198,7 @@ public static search<T>(array:T[], item:T,  cmp: ((a:T,b:T)=>number)):number{
 
 
  public static binaryArrayInsertNoDuplicate<T>(array: T[], item: T, cmp: ((a:T,b:T)=>number)):T[]{
-     let returned: T[];
+     /*let returned: T[];*/
      let start: number, end: number, current:number, cmpValue;
      let found:boolean = false;
      start = 0;

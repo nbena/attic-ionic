@@ -430,5 +430,7 @@ export class Query{
   static readonly FORCE_DELETE_NOTE_MULTI = 'delete from notes where userid=? and ';
   static readonly FORCE_DELETE_TAG_MULTI = 'delete from tags where userid=? and ';
 
+  static readonly DELETE_TOKEN = 'delete from auth where userid=?';
+
 
  }

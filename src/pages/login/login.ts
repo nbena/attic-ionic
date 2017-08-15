@@ -125,7 +125,7 @@ export class LoginPage {
         console.log('auth error');console.log(JSON.stringify(error));
         this.graphicProvider.dismissLoading(this.loading)
         .then(()=>{
-          this.graphicProvider.showErrorAlert('error during the authentication')
+          this.graphicProvider.showErrorAlert(error/*'error during the authentication'}*/)
         })
       });
     }

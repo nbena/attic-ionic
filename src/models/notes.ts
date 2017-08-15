@@ -1,4 +1,4 @@
-import { TagFull, TagExtraMin } from './tags';
+import { /*TagFull, */TagExtraMin } from './tags';
 import { IndexTagType, TagType } from '../public/const';
 /*
 Defining interface for note API.

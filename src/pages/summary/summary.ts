@@ -5,6 +5,8 @@ import { Synch } from '../../providers/synch';
 import { UserSummary } from '../../models/user_summary';
 import { Const } from '../../public/const';
 import { GraphicProvider} from '../../providers/graphic'
+import { NavController,ViewController, App } from 'ionic-angular';
+import { LoginPage } from '../login/login';
 
 /**
  * Generated class for the SummaryPage page.
@@ -30,9 +32,13 @@ export class SummaryPage {
 
   synchingEnabled: boolean = false;
 
-   constructor(/*public navCtrl: NavController, public navParams: NavParams*/
+   constructor(
+     public navCtrl: NavController,
+     private viewCtrl: ViewController,
+     /*public navParams: NavParams*/
     //  private toastCtrl: ToastController,
     //  private alertCtrl: AlertController,
+      private app: App,
      private atticUser: AtticUserProvider,
      private synch: Synch,
      private graphicProvider:GraphicProvider
@@ -166,6 +172,37 @@ export class SummaryPage {
       this.graphicProvider.showErrorAlert(error);
     })
     // console.log('looooser');
+  }
+
+
+  logout(){
+    this.graphicProvider.askConfirm('Question', 'Do you really want to logout?',
+      (confirmed:boolean)=>{
+        if(confirmed){
+          this.logoutAPI();
+        }
+      }
+    )
+  }
+
+  logoutAPI(){
+    this.atticUser.logout()
+    // .then(()=>{
+    //   // this.navCtrl.popToRoot
+    //   // let length:number =this.navCtrl.getViews().length;
+    //   // return this.navCtrl.remove(1, length-2);
+    //   return this.navCtrl.setRoot(LoginPage);
+    // }).then(()=>{
+    //   // return this.navCtrl.setRoot(LoginPage);
+    //   return this.navCtrl.popToRoot();
+    .then(()=>{
+      return this.app.getRootNav().setRoot(LoginPage);
+    }).then(()=>{
+      this.viewCtrl.dismiss();
+    }).catch(error=>{
+      console.log('error in logout');console.log(JSON.stringify(error));
+      this.graphicProvider.showErrorAlert(error);
+    })
   }
 
 }
