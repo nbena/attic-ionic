@@ -123,6 +123,37 @@ export class HttpProvider {
    }
 
 
+   public unauthenticatedPut(finalUri:string, body:any):Promise<any>{
+     return new Promise<any>((resolve, reject)=>{
+           let headers = new Headers();
+           headers.append('Content-Type', 'application/json');
+
+           var uri = Const.API_URI+finalUri;
+
+           this.http.put(uri, JSON.stringify(body), {headers: headers})
+             .subscribe(res => {
+
+               if(res.status!=200){
+                 reject(new Error(res.statusText));
+               }
+
+               let data = res.json();
+               //one we get the token, save it to local storage.
+               // this.token = data.result;
+               // this.userid = user.userid;
+               // this.db.setToken(data.result, user.userid);
+               //
+               // resolve(data);
+               // resolve(res.json());
+               resolve(data.result);
+
+             }, (err) => {
+               reject(err);
+             });
+     })
+    }
+
+
   public post(finalUri: string, body: any):Promise<any>{
     return new Promise((resolve, reject)=>{
 

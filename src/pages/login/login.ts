@@ -50,7 +50,7 @@ export class LoginPage {
 
       this.loginPageForm = this.formBuilder.group({
         email:['', Validators.compose([Validators.required, Validators.email, Validators.maxLength(64)])],
-        password:['', Validators.compose([Validators.required/*, Validators.pattern('')*/])]
+        password:['', Validators.compose([Validators.required, Validators.minLength(8)  /*, Validators.pattern('')*/])]
       })
 
   }
@@ -117,7 +117,7 @@ export class LoginPage {
         console.log('auth error');console.log(JSON.stringify(error));
         this.graphicProvider.dismissLoading(this.loading)
         .then(()=>{
-          this.graphicProvider.showErrorAlert(error/*'error during the authentication'}*/)
+          this.graphicProvider.showErrorAlert(error/*'error during the authentication'}*/, 'Please check your userid/password')
         })
       });
     }
@@ -125,14 +125,43 @@ export class LoginPage {
 
 
   //called from the page
-  pushToRegister(){
-    try{
-      //this.navCtrl.push(RegisterPage);
-      console.log('click');
-      this.navCtrl.setRoot(RegisterPage);
-    }catch(e){
-      console.log('there was the error');
-      console.log(JSON.stringify(e));console.log(JSON.stringify(e.message));
+  registerUser(){
+    // try{
+    //   //this.navCtrl.push(RegisterPage);
+    //   console.log('click');
+    //   this.navCtrl.setRoot(RegisterPage);
+    // }catch(e){
+    //   console.log('there was the error');
+    //   console.log(JSON.stringify(e));console.log(JSON.stringify(e.message));
+    // }
+    this.registerAPI();
+  }
+
+  registerAPI(){
+    if(this.loginPageForm.valid){
+      this.loading=this.graphicProvider.showLoading('Authenticating'); //maybe I'll remove it.
+
+      var user = new User(
+        // this.e_mail,
+        // this.password
+        this.loginPageForm.value.email,
+        this.loginPageForm.value.password
+      );
+
+      this.auth.createAccount(user)
+        .then(result=>{
+        // this.loading.dismiss();
+        this.graphicProvider.dismissLoading(this.loading);
+        // console.log(result);
+        this.navCtrl.setRoot(TabsPage);
+      })
+      .catch(error=>{
+        console.log('auth error');console.log(JSON.stringify(error.message));
+        this.graphicProvider.dismissLoading(this.loading)
+        .then(()=>{
+          this.graphicProvider.showErrorAlert(/*'error while creating account'*/error)
+        })
+      })
     }
   }
 

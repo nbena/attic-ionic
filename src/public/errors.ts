@@ -116,14 +116,34 @@ private static readonly NETWORK_JSON_ERROR = '{"_body":{"isTrusted":true},"statu
 //directly taken from the server.
 public static readonly POSTGRES_DUPLICATE_KEY_NOTES:string = 'DbError another note with the same title';
 public static readonly POSTGRES_DUPLICATE_KEY_TAGS:string = 'DbError another tag with the same title';
+public static readonly POSTGRES_DUPLICATE_KEY_USERS:string = 'DbError another user with the same userid';
 public static readonly POSTGRES_DUPLICATE_KEY_NOTES_TAGS:string = 'DbError the tag is already with this note';
 public static readonly POSTGRES_USER_REACHED_MAX_NOTES:string = 'DbError a free user cannot have more than 50 notes';
 public static readonly POSTGRES_USER_REACHED_MAX_TAGS:string = 'DbError a free user cannot have more than 50 tags';
 public static readonly POSTGRES_MAINTAGS_LIMIT:string = 'DbError maintags cannot be more than 3';
 public static readonly POSTGRES_OTHERTAGS_LIMIT:string = 'DbError othetags cannot be more than 15';
 public static readonly POSTGRES_FINAL_TAGS_FKEY:string = 'DbError tags not found'; /*whe trying to add a not-found tags*/
+/*
+private  static getBetterSqliteError(error:any):any{
+  let ret:any = error;
+  if(error.message!=null){
+    ret.message = AtticError.getBetterSqliteErrorString(error.message);
+  }
+  return ret;
+}
+*/
 
-
+private static getBetterPostgresError(error:any):string{
+  let ret:any = error;
+  if(error.message!=null){
+    ret.message = error.message;
+    ret.message = ret.message.replace('DbError ','');
+  }
+  // let ret:string = error;
+  // ret=ret.replace('DbError ','');
+  console.log('the ret: ');console.log(JSON.stringify(ret));console.log(JSON.stringify(ret.message));
+  return ret;
+}
 
 public static isPostgresError(error:string):boolean{
   let ret:boolean = false;
@@ -131,6 +151,7 @@ public static isPostgresError(error:string):boolean{
     || error==AtticError.POSTGRES_DUPLICATE_KEY_TAGS || error==AtticError.POSTGRES_FINAL_TAGS_FKEY
     || error==AtticError.POSTGRES_MAINTAGS_LIMIT || error==AtticError.POSTGRES_OTHERTAGS_LIMIT
     || error==AtticError.POSTGRES_USER_REACHED_MAX_NOTES || error==AtticError.POSTGRES_USER_REACHED_MAX_TAGS
+    || error==AtticError.POSTGRES_DUPLICATE_KEY_USERS
     //|| error.startsWith('JsonError') no thins because is a paramter that should NEVER happen.
   ){
     ret=true;
@@ -139,6 +160,10 @@ public static isPostgresError(error:string):boolean{
 }
 
 
+/**
+check if the input message is a duplicate message. It will search for
+notes, tags and notes_tags, not user.
+*/
 public static isDuplicateError(error:string):boolean{
   let ret:boolean = false;
   if(error==AtticError.POSTGRES_DUPLICATE_KEY_NOTES || error==AtticError.POSTGRES_DUPLICATE_KEY_NOTES_TAGS
@@ -226,7 +251,11 @@ public static isNotFoundErrorFromArray(array:boolean[]):boolean{
         // console.log('the better sqlite error is:');console.log(JSON.stringify(errData));
         isSpecific = true;
         // console.log('is specific sqlite error');
-        }
+      }else if(AtticError.isPostgresError(error.message)){
+        errData = AtticError.getBetterPostgresError(error);
+        isSpecific = true;
+        console.log('is postgres');
+      }
     }
     if(!isSpecific){
       if(AtticError.isNetworkError(error)){
@@ -234,6 +263,14 @@ public static isNotFoundErrorFromArray(array:boolean[]):boolean{
         isSpecific = true;
       }
     }
+    //////
+    // if(!isSpecific){
+    //   if(AtticError.isPostgresError(error)){
+    //     errData = AtticError.getBetterPostgresError(error.message);
+    //     isSpecific = true;
+    //     console.log('is postgres');
+    //   }
+    //}
     errorOut = ErrData.NewErrData(errData, isSpecific);
     // console.log('the error out is:');console.log(JSON.stringify(errorOut));
     return errorOut;

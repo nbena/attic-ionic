@@ -12,6 +12,21 @@
 
 </ion-header>
 
+<!--
+<style>
+.scroll-content {
+  display: table !important;
+  width: 100% !important;
+  height: 100% !important;
+}
+.scroll {
+  display: table-cell;
+  vertical-align: middle;
+  text-align: center;
+}
+</style>
+-->
+
 
 <ion-content padding>
 
@@ -20,7 +35,7 @@
       <ion-list inset> -->
       <ion-list>
 
-      <form [formGroup]="loginPageForm">
+      <form [formGroup]="loginPageForm" style="height:100%;display:block;vertical-align:middle">
 
         <!-- <ion-item>
           <ion-label>
@@ -63,7 +78,7 @@
 
 
 
-      <button ion-button full (click)="login()" color="primary">Login</button>
+      <button ion-button full (click)="login(); $event.stopPropagation()" color="primary">Login</button>
 
     <!-- </ion-col>
   </ion-row> -->
@@ -71,10 +86,15 @@
   <!-- <ion-row class="login-form">
     <ion-col> -->
 
+    <div text-center>
+      Or, if you don't have an accout:
+    </div>
+
     <!-- </ion-col>
   </ion-row> -->
+    <button ion-button full (click)="registerUser(); $event.stopPropagation()" color="primary">Register</button>
   </form>
-  <button ion-button full (click)="pushToRegister()" color="primary">Register</button>
+
   </ion-list>
 
 </ion-content>

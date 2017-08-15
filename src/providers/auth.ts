@@ -16,6 +16,8 @@ import { Db } from './db';
 import { Platform } from 'ionic-angular';
 import { HttpProvider} from './http';
 
+import { AtticError } from '../public/errors'
+
 /*
   Generated class for the Auth provider.
 
@@ -34,15 +36,14 @@ export class Auth {
     console.log('Hello Auth Provider');
   }
 
-  checkAuthentication(){
-
-    //return this.platform.ready().then(ready=>{
+  checkAuthentication():Promise<boolean>{
+    return new Promise<boolean>((resolve, reject)=>{
       console.log('checking auth');
-      return this.db.getToken()
+      this.db.getToken()
       .then(result=>{
 
-        console.log('not-raw result is:');
-        console.log(JSON.stringify(result));
+        // console.log('not-raw result is:');
+        // console.log(JSON.stringify(result));
 
         if(result==null){
           return false;
@@ -52,15 +53,15 @@ export class Auth {
 
           this.http.setToken(result.token);
 
-          return true;
+          resolve(true);
         }
       })
       .catch(error=>{
         console.log('error while trying to get token');
         console.log(JSON.stringify(error));
-        return false;
+        reject(error);
       })
-    //})
+    })
   }
 
 
@@ -84,19 +85,23 @@ export class Auth {
       //   }, (err) => {
       //     reject(err);
       //   });
-      this.http.unauthenticatedPost('/api/users/create', user)
+      this.http.unauthenticatedPut('/api/users/create',user)
       .then(token=>{
-        this.token = token;
-        this.userid = user.userid;
+        if(token as boolean){
+          this.token = token;
+          this.userid = user.userid;
 
-        this.http.setToken(token);
+          this.http.setToken(token);
 
-        this.db.setToken(token, user.userid); //done asynchronously.
-        resolve();
+          this.db.setToken(token, user.userid); //done asynchronously.
+          resolve();
+        }else{
+          reject(new Error(AtticError.POSTGRES_DUPLICATE_KEY_USERS));
+        }
       })
       .catch(error=>{
         console.log('error in auth');
-        console.log(JSON.stringify(error));
+        console.log(JSON.stringify(error.message));
         reject(error);
       })
 

@@ -22,7 +22,7 @@ import { SummaryPage } from '../pages/summary/summary';
 
 //login
 import { LoginPage } from '../pages/login/login';
-import { RegisterPage } from '../pages/register/register';
+// import { RegisterPage } from '../pages/register/register';
 
 import { TabsPage } from '../pages/tabs/tabs';
 
@@ -52,7 +52,7 @@ import { AutosizeDirective } from '../directives/autosize/autosize';
     NoteDetailsPage,
     TagDetailsPage,
     LoginPage,
-    RegisterPage,
+    // RegisterPage,
     CreateNotePage,
     NoteDetailsPopoverPage,
     NoteEditTextPage,
@@ -80,7 +80,7 @@ import { AutosizeDirective } from '../directives/autosize/autosize';
     NoteDetailsPage,
     TagDetailsPage,
     LoginPage,
-    RegisterPage,
+    // RegisterPage,
     CreateNotePage,
     NoteDetailsPopoverPage,
     NoteEditTextPage,
