@@ -27,14 +27,33 @@
       Account
     </ion-list-header>
 
-    <ion-item>
-      <ion-label stacked color="primary">E-mail</ion-label>
-      <ion-label>{{summary?.userid}}</ion-label>
+    <!-- <ion-item>
+      <ion-label item-left stacked color="primary">E-mail</ion-label>
+      <ion-label item-right>{{summary?.userid}}</ion-label>
     </ion-item>
 
     <ion-item>
-      <ion-label stacked color="primary">Profile type</ion-label>
-      <ion-label>{{profileType}}</ion-label>
+      <ion-label item-left stacked color="primary">Profile type</ion-label>
+      <ion-label item-right>{{profileType}}</ion-label>
+    </ion-item> -->
+
+    <ion-item>
+      <ion-label style="color: #808080">E-mail:</ion-label>
+      <!--<ion-label item-end>{{summary?.userid}}</ion-label>-->
+      <div item-end text-left>{{summary?.userid}}</div>
+    </ion-item>
+
+    <ion-item>
+      <!--<ion-label text-color="#808080">Profile type:</ion-label>-->
+      <ion-label style="color: #808080">Profile type:</ion-label>
+      <!---<ion-label item-end style="text-align:left">{{profileType}}</ion-label>-->
+      <div item-end text-left>{{profileType}}</div>
+    </ion-item>
+
+    <ion-item>
+      <button ion-button (click)="logout()">
+        Logout
+      </button>
     </ion-item>
 
   </ion-list>
@@ -46,29 +65,33 @@
       Items
     </ion-list-header>
 
+    <!-- line separator, one for each item-->
+
     <ion-item>
       <ion-label>Notes</ion-label>
-      <ion-badge item-right> {{summary?.data.notescount}}</ion-badge>
+      <ion-badge item-end> {{summary?.data.notescount}}</ion-badge>
     </ion-item>
 
     <ion-item>
       <ion-label>Tags</ion-label>
-      <ion-badge item-right> {{summary?.data.tagscount}}</ion-badge>
+      <ion-badge item-end> {{summary?.data.tagscount}}</ion-badge>
     </ion-item>
 
     <ion-item>
       <ion-label>Available notes</ion-label>
-      <ion-badge item-right> {{availableNotes}}</ion-badge>
+      <ion-badge item-end> {{availableNotes}}</ion-badge>
+    </ion-item>
+
+    <ion-item> <!-- if use an item is is properly centered-->
+      <ion-label>Available tags</ion-label>
+      <ion-badge item-end> {{availableTags}}</ion-badge>
     </ion-item>
 
     <ion-item>
-      <ion-label>Available tags</ion-label>
-      <ion-badge item-right> {{availableTags}}</ion-badge>
+      <button ion-button (click)="empty()">
+        Clean cache
+      </button>
     </ion-item>
-
-    <button ion-button (click)="empty()">
-      Clean cache
-    </button>
 
   </ion-list>
 
@@ -89,9 +112,11 @@
       <ion-label> {{synchState}} </ion-label>
     </ion-item>
 
-    <button ion-button enabled="synchEnabled" (click)="startSynching()">
-      Start Synching
-    </button>
+    <ion-item>
+      <button ion-button enabled="synchEnabled" (click)="startSynching()">
+        Start Synching
+      </button>
+    </ion-item>
 
   </ion-list>
 
