@@ -407,30 +407,52 @@ public getToken():Promise<any>{
   });
 }
 
-public setToken(token: any, userid: string):Promise<any>{
-  return new Promise<any>((resolve, reject)=>{
-    try{
-      this.promise.then(db=>{
-        db.executeSql(Query.INSERT_TOKEN,[token, userid])
-        .then(result=>{
-          resolve(true);
-        })
-      })
-    }catch(e){
-      if(e.message == AtticError.SQLITE_DUPLICATE_KEY_AUTH){
-        //user is already there.
-        this.db.executeSql(Query.INSERT_ONLY_TOKEN, [token, userid])
-        .then(result=>{
-          resolve(true);
-        })
-        .catch(error=>{
-          reject(error);
-          /*don't know if it's correct.*/
-        })
-      }
-      reject(e);
-    }
+public setToken(token: string, userid: string):Promise<void>{
+  // return new Promise<void>((resolve, reject)=>{
+  //   try{
+  //     this.promise.then(db=>{
+  //       db.executeSql(Query.INSERT_TOKEN,[token, userid])
+  //       .then(result=>{
+  //         console.log('ok token set');
+  //         resolve();
+  //       })
+  //     })
+  //   }catch(e){
+  //     if(e.message == AtticError.SQLITE_DUPLICATE_KEY_AUTH){
+  //       //user is already there.
+  //       this.db.executeSql(Query.INSERT_ONLY_TOKEN, [token, userid])
+  //       .then(result=>{
+  //         console.log('ok token set');
+  //         resolve();
+  //       })
+  //       .catch(error=>{
+  //         reject(error);
+  //         /*don't know if it's correct.*/
+  //       })
+  //     }
+  //     reject(e);
+  //   }
+  // })
+  return new Promise<void>((resolve,reject)=>{
+    let db2: SQLite;
+    this.promise.then(db=>{
+      db2 = db;
+      return db.executeSql(Query.INSERT_TOKEN, [token, userid])
+    })
+    .then(()=>{
+      console.log('ok token set'); resolve();
+    })
+    .catch((error)=>{
+      console.log('first error is');console.log(JSON.stringify(error));
+      if(error.message == AtticError.SQLITE_DUPLICATE_KEY_AUTH || error==AtticError.SQLITE_DUPLICATE_KEY_AUTH){
+        console.log('is found');
+        db2.executeSql(Query.INSERT_ONLY_TOKEN, [token, userid])
+        .then(()=>{console.log('ok token set');resolve();})
+        .catch(error=>{reject(error);})
+      }else{reject(error);}
+    })
   })
+
 }
 
 /*

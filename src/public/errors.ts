@@ -15,7 +15,7 @@ export class AtticError{
   //a statement error callback did not return false: sqlite3_step failure: UNIQUE constraint failed: tags.title, tags.userid, tags.mustbedeleted
   public static readonly SQLITE_DUPLICATE_KEY_TAGS:string = 'a statement error callback did not return false: sqlite3_step failure: UNIQUE constraint failed: tags.title, tags.userid, tags.mustbedeleted';
   //public static readonly DUPLICATE_KEY_TAGS:string = 'UNIQUE constraint failed: tags.title, tags.userid, tags.mustbedeleted';
-  public static readonly SQLITE_DUPLICATE_KEY_AUTH:string = 'UNIQUE constraint failed: auth.userid';
+  public static readonly SQLITE_DUPLICATE_KEY_AUTH:string = 'sqlite3_step failure: UNIQUE constraint failed: auth.userid';
 
   public static readonly SQLITE_FINAL_DUPLICATE_KEY_NOTES:string='Another note with the same title already exists';
   public static readonly SQLITE_FINAL_DUPLICATE_KEY_TAGS:string='Another tag with the same title already exists';

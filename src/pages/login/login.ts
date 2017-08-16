@@ -81,6 +81,26 @@ export class LoginPage {
     //     this.graphicProvider.dismissLoading(this.loading);
     //   }
     // });
+    this.loading = this.graphicProvider.showLoading('Authenticating');
+    let auth:boolean;
+    this.auth.checkAuthentication()
+    .then(isAuth=>{
+      auth=isAuth;
+      return this.graphicProvider.dismissLoading(this.loading);
+    })
+    .then(()=>{
+      if(auth){
+        this.navCtrl.setRoot(TabsPage);
+      }else{
+
+      }
+    })
+    .catch(error=>{
+      console.log('error in check auth');console.log(JSON.stringify(error.message));
+      this.graphicProvider.dismissLoading(this.loading).then(()=>{
+        this.graphicProvider.showErrorAlert(error);
+      })
+    })
 
 
   }

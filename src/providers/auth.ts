@@ -42,8 +42,7 @@ export class Auth {
       this.db.getToken()
       .then(result=>{
 
-        // console.log('not-raw result is:');
-        // console.log(JSON.stringify(result));
+        console.log('not-raw result is:');console.log(JSON.stringify(result));
 
         if(result==null){
           return false;
@@ -142,17 +141,19 @@ login(user: User){
   return new Promise<void>((resolve, reject)=>{
     this.http.unauthenticatedPost('/api/auth/login', user)
     .then(token=>{
+      console.log('token is');console.log(JSON.stringify(token));
       this.token = token;
       this.userid = user.userid;
 
       this.http.setToken(token);
-
-      this.db.setToken(token, user.userid); //done asynchronously.
+      return this.db.setToken(token, user.userid); //done asynchronously.
+    })
+    .then(()=>{
       resolve();
     })
     .catch(error=>{
       console.log('error in auth');
-      console.log(JSON.stringify(error));
+      console.log(JSON.stringify(error.message));
       reject(error);
     })
   })
