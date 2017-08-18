@@ -98,6 +98,15 @@ export class Query{
   static readonly GET_TAGS_COUNT = 'select count from counts where userid=? and type=\'tags\'';
   */
 
+  //for join with logs.
+  static readonly CREATE_INDEX_NOTE_1 = 'create index if not exists index_note_title_userid on notes(title, userid)';
+
+  //for get_notes_min
+  static readonly CREATE_INDEX_NOTE_2 = 'create index if not exists index_note_min_for_sort on notes(lastmodificationdate desc, title asc, userid, mustbedeleted)';
+
+  //for general searches on logs.
+  static readonly CREATE_INDEX_LOGS = 'create index if not exists index_logs on logs_sequence(id asc, userid, action)';
+
   static readonly GET_TAGS_COUNT = 'select case when not exists(select * from counts where userid=? and type=\'tags\') then 0 else count end as count from counts where type=\'tags\'';
   static readonly GET_NOTES_COUNT = 'select case when not exists(select * from counts where userid=? and type=\'notes\') then 0 else count end as count from counts where type=\'notes\'';
   static readonly GET_LOGS_COUNT = 'select case when not exists(select * from counts where userid=? and type=\'logs\') then 0 else count end as count from counts where type=\'logs\'';

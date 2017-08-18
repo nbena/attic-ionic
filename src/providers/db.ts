@@ -77,43 +77,46 @@ export class Db {
               return this.db.transaction(tx=>{
                 tx.executeSql('pragma foreign_keys = ON;',[]);
                 tx.executeSql(Query.CREATE_AUTH_TABLE,[]
-                  ,(tx:any,res:any)=>{console.log('ok auth');},
-                  (tx:any, error:any)=>{console.log(JSON.stringify(error))}
+                  // ,(tx:any,res:any)=>{console.log('ok auth');},
+                  // (tx:any, error:any)=>{console.log(JSON.stringify(error))}
                 );
                 tx.executeSql(Query.CREATE_NOTES_TABLE,[]
-                  ,(tx:any,res:any)=>{console.log('ok notes');},
-                  (tx:any, error:any)=>{console.log(JSON.stringify(error))}
+                  // ,(tx:any,res:any)=>{console.log('ok notes');},
+                  // (tx:any, error:any)=>{console.log(JSON.stringify(error))}
                 )
                 tx.executeSql(Query.CREATE_TAGS_TABLE,[]
-                  ,(tx:any,res:any)=>{console.log('ok tags');},
-                  (tx:any, error:any)=>{console.log(JSON.stringify(error))}
+                //   ,(tx:any,res:any)=>{console.log('ok tags');},
+                //   (tx:any, error:any)=>{console.log(JSON.stringify(error))}
                 );
                 //tx.executeSql(Query.CREATE_NOTES_TAGS_TABLE,[]);
                 tx.executeSql(Query.CREATE_LOGS_TABLE,[]
-                  ,(tx:any,res:any)=>{console.log('ok logs');},
-                  (tx:any, error:any)=>{console.log(JSON.stringify(error))}
+                  // ,(tx:any,res:any)=>{console.log('ok logs');},
+                  // (tx:any, error:any)=>{console.log(JSON.stringify(error))}
                 );
 
                 tx.executeSql(Query.CREATE_NOTES_HELP_TABLE,[]
-                  ,(tx:any,res:any)=>{console.log('ok notes_help');},
-                  (tx:any, error:any)=>{console.log(JSON.stringify(error))}
+                  // ,(tx:any,res:any)=>{console.log('ok notes_help');},
+                  // (tx:any, error:any)=>{console.log(JSON.stringify(error))}
                 );
                 tx.executeSql(Query.CREATE_TAGS_HELP_TABLE,[]
-                  ,(tx:any,res:any)=>{console.log('ok tags_help');},
-                  (tx:any, error:any)=>{console.log(JSON.stringify(error))}
+                  // ,(tx:any,res:any)=>{console.log('ok tags_help');},
+                  // (tx:any, error:any)=>{console.log(JSON.stringify(error))}
                 );
                 tx.executeSql(Query.CREATE_VIEW_COUNTS, []
-                  ,(tx:any,res:any)=>{console.log('ok view');},
-                  (tx:any, error:any)=>{console.log(JSON.stringify(error))}
+                  // ,(tx:any,res:any)=>{console.log('ok view');},
+                  // (tx:any, error:any)=>{console.log(JSON.stringify(error))}
                 );
                 tx.executeSql(Query.CREATE_TRIGGER_DELETE_NOTE_COMPRESSION, []
-                  ,(tx:any,res:any)=>{console.log('ok trigger1');},
-                  (tx:any, error:any)=>{console.log(JSON.stringify(error))}
+                  // ,(tx:any,res:any)=>{console.log('ok trigger1');},
+                  // (tx:any, error:any)=>{console.log(JSON.stringify(error))}
                 );
                 tx.executeSql(Query.CREATE_TRIGGER_DELETE_TAG_COMPRESSION, []
-                  ,(tx:any,res:any)=>{console.log('ok trigger2');},
-                  (tx:any, error:any)=>{console.log(JSON.stringify(error))}
+                  // ,(tx:any,res:any)=>{console.log('ok trigger2');},
+                  // (tx:any, error:any)=>{console.log(JSON.stringify(error))}
                 );
+                tx.executeSql(Query.CREATE_INDEX_NOTE_1,[]);
+                tx.executeSql(Query.CREATE_INDEX_NOTE_2,[]);
+                tx.executeSql(Query.CREATE_INDEX_LOGS,[]);
               });
             })
             .then(transactionResult=>{
