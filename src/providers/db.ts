@@ -2573,6 +2573,7 @@ public removeTagsFromNote(note: NoteFull, userid: string, tags: TagExtraMin[]):P
       let query:string = this.prepareQueryRemoveTagsFromNotesLogs(tags.length);
       let param:string[]=this.expandInsertNoteTagsIntoLogs(note.title, userid, tags);
       tx.executeSql(query, param,
+      (tx:any, res:any)=>{console.log('ok updating logs delete notes_tags')},
       (tx:any, error:any)=>{
         console.log('error while updating logs in delete notes_tags');
         console.log(JSON.stringify(error));
