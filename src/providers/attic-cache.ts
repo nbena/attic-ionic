@@ -213,7 +213,10 @@ export class AtticCache {
   }
 
   private getIndexOfNoteFromDifferentlyCachedNotes(note:NoteExtraMinWithDate):number{
-    return Utils.binarySearch(this.differentlySortedCachedExtraMinNotes, note, NoteExtraMinWithDate.descendingCompare);
+    let index:number;
+    index = Utils.binarySearch(this.differentlySortedCachedExtraMinNotes, note, NoteExtraMinWithDate.descendingCompare);
+    // console.log('the index is'+index);
+    return index;
   }
 
   private getIndexOfTagFromDifferentlyCachedTags(tag:TagAlmostMin):number{
@@ -461,10 +464,10 @@ export class AtticCache {
 
 
   private removeNoteFromDifferentlyCachedNotes(note:NoteExtraMin):void{
-    let n3:number;
+    let n3:number=-1;
     if((note instanceof NoteExtraMinWithDate || note instanceof NoteFull) && note.lastmodificationdate!=null){
       n3 = /*Utils.binarySearch(this.differentlySortedCachedExtraMinNotes, note as NoteExtraMinWithDate, NoteExtraMinWithDate.descendingCompare);*/
-        this.getIndexOfNoteFromDifferentlyCachedNotes(note as NoteExtraMinWithDate);
+        this.getIndexOfNoteFromDifferentlyCachedNotes(note);
     }else{
       n3 = Utils.search(this.differentlySortedCachedExtraMinNotes, note, NoteExtraMin.ascendingCompare);
     }
@@ -570,14 +573,25 @@ export class AtticCache {
 
 
 
-  public moveToHeadDifferentlyCachedNotes(note:NoteFull, throwError?:boolean){
+  public moveToHeadDifferentlyCachedNotes(note:NoteExtraMinWithDate, lastmod:Date, throwError:boolean){
     // this.removeNote(note);
     // this.cachedFullNotes.unshift(note);
     // this.cachedExtraMinNotes.
+
+    let oldExtra: NoteExtraMinWithDate = new NoteExtraMinWithDate();
+    oldExtra.title=note.title;
+    oldExtra.lastmodificationdate=lastmod;
+
     if(NoteExtraMinWithDate.descendingCompare(note, this.differentlySortedCachedExtraMinNotes[0])<=0){
-      console.log('ok modification allowed');
-      this.removeNoteFromDifferentlyCachedNotes(note);
-      this.differentlySortedCachedExtraMinNotes.unshift(note.forceCastToNoteExtraMinWithDate());
+      // console.log('ok modification allowed');
+      //
+      // console.log('before remove:');console.log(JSON.stringify(this.differentlySortedCachedExtraMinNotes));
+      // try{
+        this.removeNoteFromDifferentlyCachedNotes(oldExtra);
+      //   console.log('after remove:');console.log(JSON.stringify(this.differentlySortedCachedExtraMinNotes));
+      // }catch(e){console.log(JSON.stringify(e));console.log(JSON.stringify(e.message))}
+      this.differentlySortedCachedExtraMinNotes.unshift(note);
+      // console.log('after adding:');console.log(JSON.stringify(this.differentlySortedCachedExtraMinNotes));
     }else{
       console.log('modification not allowed');
       if(throwError){
@@ -587,11 +601,11 @@ export class AtticCache {
 
   }
 
-  public moveToHeadDifferentlyCachedTags(tag:TagFull, throwError?:boolean){
+  public moveToHeadDifferentlyCachedTags(tag:TagAlmostMin, throwError:boolean){
     if(TagAlmostMin.descendingCompare(tag, this.differentlySortedCachedAlmostMinTags[0])<=0){
       console.log('ok modification allowed');
       this.removeTagFromDifferentlyCachedTags(tag);
-      this.differentlySortedCachedAlmostMinTags.unshift(tag.forceCastToTagAlmostMin());
+      this.differentlySortedCachedAlmostMinTags.unshift(tag);
     }else{
       console.log('modification not allowed');
       if(throwError){
@@ -600,7 +614,7 @@ export class AtticCache {
     }
   }
 
-  public updateNote(note:NoteFull, moveToHead:boolean, throwError?:boolean){
+  public updateNote(note:NoteFull, moveToHead:boolean, throwError:boolean, lastmod: Date){
     let n:number = this.getIndexOfNoteFull(note);
     if(n!=-1){
       if(this.cachedFullNotes[n].title!=note.title){
@@ -613,7 +627,10 @@ export class AtticCache {
       }else{console.log('note not found');}
     }
     if(moveToHead){
-      this.moveToHeadDifferentlyCachedNotes(note, true);
+      // let noteExtraMin:NoteExtraMinWithDate = new NoteExtraMinWithDate();
+      // noteExtraMin.title = note.title;
+      // noteExtraMin.lastmodificationdate = lastmod;
+      this.moveToHeadDifferentlyCachedNotes(note.forceCastToNoteExtraMinWithDate(),lastmod, true);
     }
   }
 
@@ -631,7 +648,7 @@ export class AtticCache {
       }else{console.log('tag not found');}
     }
     if(moveToHead){
-      this.moveToHeadDifferentlyCachedTags(tag, true);
+      this.moveToHeadDifferentlyCachedTags(tag.forceCastToTagAlmostMin(), true);
     }
   }
 

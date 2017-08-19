@@ -86,6 +86,9 @@ export class NoteDetailsPage {
   tmpLastmodificationdate: Date;
 
 
+  lastmod: Date;
+
+
 
   constructor(public navCtrl: NavController, public navParams: NavParams,
     public popoverCtrl: PopoverController,
@@ -116,9 +119,8 @@ export class NoteDetailsPage {
   noteByTitle(force: boolean){
     this.atticNotes.noteByTitle(this.title, force)
       .then(result=>{
-        console.log('I\'v received the result and the note is');
-        this.note=result as NoteFull;
-        console.log(JSON.stringify(result));
+        this.note=result/* as NoteFull;*/;
+        // console.log('I\'v received the result and the note is');console.log(JSON.stringify(result));
         // console.log('the note is:');
         // console.log(JSON.stringify(this.note));
         // this.lastModificationDateString=this.note.lastModificationDate.toDateString();
@@ -146,6 +148,8 @@ export class NoteDetailsPage {
           this.shownIsDone = this.isDone;
 
           this.tmpLastmodificationdate=this.note.lastmodificationdate;
+
+          this.lastmod = this.note.lastmodificationdate;
 
         // }
         // catch(e){
@@ -454,9 +458,9 @@ export class NoteDetailsPage {
   }
 
   addTagsAPI(){
-    this.note.maintags = this.note.maintags.concat(this.mainTagsToAdd);
-    this.note.othertags = this.note.othertags.concat(this.otherTagsToAdd);
-    return this.atticNotes.addTags(this.note, this.mainTagsToAdd, this.otherTagsToAdd);
+    // this.note.maintags = this.note.maintags.concat(this.mainTagsToAdd);
+    // this.note.othertags = this.note.othertags.concat(this.otherTagsToAdd);
+    return this.atticNotes.addTags(this.note, this.mainTagsToAdd, this.otherTagsToAdd, this.lastmod);
   }
 
   /*
@@ -464,29 +468,31 @@ export class NoteDetailsPage {
   */
   addMainTagsAPI(){
     //try{
-      this.note.maintags = this.note.maintags.concat(this.mainTagsToAdd);
-      return this.atticNotes.addMainTags(this.note, this.mainTagsToAdd);
+      // this.note.maintags = this.note.maintags.concat(this.mainTagsToAdd);
+      // done in the db.
+      return this.atticNotes.addMainTags(this.note, this.mainTagsToAdd, this.lastmod);
     // }catch(e){
     //   console.log('errorss here:');console.log(JSON.stringify(e));console.log(JSON.stringify(e.message));
     // }
   }
 
   addOtherTagsAPI(){
-    this.note.othertags = this.note.othertags.concat(this.otherTagsToAdd);
-    return this.atticNotes.addOtherTags(this.note, this.otherTagsToAdd);
+    // this.note.othertags = this.note.othertags.concat(this.otherTagsToAdd);
+    // done in the db.
+    return this.atticNotes.addOtherTags(this.note, this.otherTagsToAdd, this.lastmod);
   }
 
 
   changeLinksAPI(){
     // return this.atticNotes.changeLinks(this.note.title, this.shownLinks);
     this.note.links = this.shownLinks;
-    return this.atticNotes.changeLinks(this.note);
+    return this.atticNotes.changeLinks(this.note, this.lastmod);
   }
 
   changeDoneAPI(){
     //  return this.atticNotes.changeDone(this.note.title, this.shownIsDone);
     this.note.isdone = this.shownIsDone;
-    return this.atticNotes.changeDone(this.note);
+    return this.atticNotes.changeDone(this.note, this.lastmod);
   }
 
   removeTagsAPI(){
@@ -494,7 +500,7 @@ export class NoteDetailsPage {
     this.tagsToRemove.forEach(obj=>{this.note.removeTag(obj)});
     // console.log('the new note');console.log(JSON.stringify(this.note));
     // return Promise.resolve();
-    return this.atticNotes.removeTags(this.note, this.tagsToRemove);
+    return this.atticNotes.removeTags(this.note, this.tagsToRemove, this.lastmod);
   }
 
 
@@ -511,9 +517,10 @@ export class NoteDetailsPage {
       // this.note.forceCastToNoteExtraMin();
     // }catch(e){console.log('the fucking error is here');console.log(JSON.stringify(e.message))}
 
-    if(this.haveToDoSomething()){
-      this.note.lastmodificationdate=new Date();
-    }
+    // if(this.haveToDoSomething()){
+    //   this.note.lastmodificationdate=new Date();
+    // }
+    //can't be done here, if so, the cache won't be able to find it.
 
     if(this.haveToRemoveTags){
       this.removeTagsAPI()

@@ -475,11 +475,11 @@ export class AtticNotes {
   }
 
 
-  addTags(note: NoteFull, mainTags: TagExtraMin[], otherTags: TagExtraMin[]){
+  addTags(note: NoteFull, mainTags: TagExtraMin[], otherTags: TagExtraMin[], oldlastmod: Date){
     if(!this.synch.isNoteFullyLocked()){
       return this.db.addTags(note, this.auth.userid, mainTags, otherTags);
     }else{
-      this.atticCache.updateNote(note, true, true);
+      this.atticCache.updateNote(note, true, true, oldlastmod);
       return new Promise<void>((resolve, reject)=>{
         console.log('trying to add tags but it is locked');
         reject(AtticError.getSynchingError(DbActionNs.DbAction.add_tag));
@@ -488,9 +488,9 @@ export class AtticNotes {
   }
 
 
-  addMainTags(note: NoteFull, mainTags: TagExtraMin[]){
+  addMainTags(note: NoteFull, mainTags: TagExtraMin[], oldlastmod: Date){
     if(!this.synch.isNoteFullyLocked()){
-      this.atticCache.updateNote(note, true, true);
+      this.atticCache.updateNote(note, true, true, oldlastmod);
       return this.db.addTags(note, this.auth.userid, mainTags);
     }else{
       return new Promise<void>((resolve, reject)=>{
@@ -500,9 +500,9 @@ export class AtticNotes {
     }
   }
 
-  addOtherTags(note: NoteFull, otherTags: TagExtraMin[]){
+  addOtherTags(note: NoteFull, otherTags: TagExtraMin[], oldlastmod: Date){
     if(!this.synch.isNoteFullyLocked()){
-      this.atticCache.updateNote(note, true, true);
+      this.atticCache.updateNote(note, true, true, oldlastmod);
       return this.db.addTags(note, this.auth.userid, null, otherTags);
     }else{
       return new Promise<void>((resolve, reject)=>{
@@ -512,9 +512,9 @@ export class AtticNotes {
     }
   }
 
-  removeTags(note: NoteFull, tags: TagExtraMin[]){
+  removeTags(note: NoteFull, tags: TagExtraMin[], oldlastmod: Date){
     if(!this.synch.isNoteFullyLocked()){
-      this.atticCache.updateNote(note, true, true);
+      this.atticCache.updateNote(note, true, true, oldlastmod);
       return this.db.removeTagsFromNote(note, this.auth.userid, tags);
     }else{
       return new Promise<void>((resolve, reject)=>{
@@ -525,9 +525,9 @@ export class AtticNotes {
   }
 
 
-  changeLinks(/*noteTitle: string, links:string[]*/note:NoteFull){
+  changeLinks(/*noteTitle: string, links:string[]*/note:NoteFull, oldlastmod: Date){
     if(!this.synch.isNoteFullyLocked()){
-      this.atticCache.updateNote(note, true, true);
+      this.atticCache.updateNote(note, true, true, oldlastmod);
       return this.db.setLinks(note, this.auth.userid);
     }else{
       return new Promise<any>((resolve, reject)=>{
@@ -537,9 +537,9 @@ export class AtticNotes {
     }
   }
 
-  changeText(/*noteTitle: string, text:string*/note:NoteFull){
+  changeText(/*noteTitle: string, text:string*/note:NoteFull, oldlastmod: Date){
     if(!this.synch.isNoteFullyLocked()){
-      this.atticCache.updateNote(note, true, true);
+      this.atticCache.updateNote(note, true, true, oldlastmod);
       return this.db.setText(note, this.auth.userid);
     }else{
       return new Promise<any>((resolve, reject)=>{
@@ -549,8 +549,8 @@ export class AtticNotes {
     }
   }
 
-  changeDone(/*noteTitle: string, done: boolean*/note: NoteFull){
-    this.atticCache.updateNote(note, true, true);
+  changeDone(/*noteTitle: string, done: boolean*/note: NoteFull, oldlastmod: Date){
+    this.atticCache.updateNote(note, true, true, oldlastmod);
     if(!this.synch.isNoteFullyLocked()){
       return this.db.setDone(note, this.auth.userid);
     }else{
@@ -561,7 +561,7 @@ export class AtticNotes {
     }
   }
 
-  deleteNote(note: NoteExtraMin):Promise<any>{
+  deleteNote(note: NoteExtraMin):Promise<void>{
     console.log('the note in: '+JSON.stringify(note));
     if(!this.synch.isNoteFullyLocked()){
 
@@ -578,7 +578,7 @@ export class AtticNotes {
 
       return this.db.deleteNote(note, this.auth.userid, necessaryTags);
     }else{
-      return new Promise<any>((resolve, reject)=>{
+      return new Promise<void>((resolve, reject)=>{
         console.log('trying to delete but it is locked');
         reject(AtticError.getSynchingError(DbActionNs.DbAction.delete));
       })

@@ -599,7 +599,7 @@ public insertOrUpdateNote(note:NoteFull, userid:string):Promise<void>{
       //   p = this.db.executeSql(Query.INSERT_INTO_NOTES_2, [note.title, jsonNote, note.text, note.lastmodificationdate, userid]);
       // }
       if(noteFull==null){console.log('is not present');/*isPresent=false;*/
-        p = this.db.executeSql(Query.INSERT_INTO_NOTES_2, [note.title, jsonNote, note.text, note.lastmodificationdate, userid]);
+        p = this.db.executeSql(Query.INSERT_INTO_NOTES_2, [note.title, jsonNote, note.text, note.lastmodificationdate.toISOString(), userid]);
       }else if(noteFull instanceof NoteFull){console.log('is present and it\'s full');/*isPresent=true;*/
         p = this.updateJsonObjNoteIfAllowed(note, noteFull as NoteFull, userid);
       }else{console.log('is present and is min');
@@ -1717,9 +1717,9 @@ private updateNoteChangeTextCoreAddToLogs(tx:any, note:NoteFull, userid:string):
 
 private updateNoteChangeTextCore(note:NoteFull, userid:string, tx?:any):Promise<void>|void{
   if(tx!=null){
-    tx.executeSql(Query.UPDATE_NOTE_SET_TEXT, [note.lastmodificationdate, note.text, JSON.stringify(note), note.title, userid]);
+    tx.executeSql(Query.UPDATE_NOTE_SET_TEXT, [note.lastmodificationdate.toISOString(), note.text, JSON.stringify(note), note.title, userid]);
   }else{
-    return this.db.executeSql(Query.UPDATE_NOTE_SET_TEXT, [note.lastmodificationdate, note.text, JSON.stringify(note), note.title, userid]);
+    return this.db.executeSql(Query.UPDATE_NOTE_SET_TEXT, [note.lastmodificationdate.toISOString(), note.text, JSON.stringify(note), note.title, userid]);
   }
 }
 
@@ -1929,7 +1929,7 @@ public setLinks(note :NoteFull, userid: string):Promise<void>{
 public setNoteTitle(note: NoteFull, newTitle: string, userid: string):Promise<any>{
   let oldTitle:string = note.title;
   note.title = newTitle;
-  return this.db.executeSql(Query.UPDATE_NOTE_SET_TITLE, [note.lastmodificationdate,newTitle, JSON.stringify(note), oldTitle, userid]);
+  return this.db.executeSql(Query.UPDATE_NOTE_SET_TITLE, [note.lastmodificationdate.toISOString(),newTitle, JSON.stringify(note), oldTitle, userid]);
 }
 
 /*a changing on tags will make it lose its fullness*/
@@ -2341,7 +2341,7 @@ public getNotesByTags(tags: TagAlmostMin[], userid: string):Promise<NoteExtraMin
   }
 
   public addTags(note: NoteFull,  userid: string, mainTags? :  TagExtraMin[], otherTags?: TagExtraMin[]):Promise<any>{
-    console.log('the note I received as input is:');console.log(JSON.stringify(note));
+    // console.log('the note I received as input is:');console.log(JSON.stringify(note));
     return new Promise<any>((resolve, reject)=>{
       this.db.transaction(tx=>{
       this.updateJsonObjNote(note, userid, true, tx);
@@ -2351,7 +2351,7 @@ public getNotesByTags(tags: TagAlmostMin[], userid: string):Promise<NoteExtraMin
       if(otherTags==null){otherTags=[];}
       tags = mainTags.concat(otherTags);
 
-      roles =this.expandTagType(mainTags, TagType.MAIN);
+      roles = this.expandTagType(mainTags, TagType.MAIN);
       roles = roles.concat(this.expandTagType(otherTags, TagType.OTHER));
 
 
@@ -2368,7 +2368,9 @@ public getNotesByTags(tags: TagAlmostMin[], userid: string):Promise<NoteExtraMin
         );
 
         this.addTagsToNoteUpdateOnlyTags(tx, note.forceCastToNoteExtraMin(), userid, tags);
-        this.addTagsToNoteUpdateOnlyNote(tx, note, userid, true, mainTags, otherTags);
+        // this.addTagsToNoteUpdateOnlyNote(tx, note, userid, true, mainTags, otherTags);
+        //because tags are added in note-details.
+        this.updateJsonObjNote(note, userid, tx);
 
 
         //   (tx: any, res: any)=>{
@@ -3961,7 +3963,7 @@ private updateJsonObjNote(fullNote:NoteFull, userid:string, updateLastModificati
   let json:string = JSON.stringify(fullNote);
   if(tx!=null){
     if(updateLastModificationDateToo){
-      tx.executeSql(Query.UPDATE_JSON_OBJ_NOTE_IF_NEEDED_LAST_MOD, [json, fullNote.lastmodificationdate, fullNote.title, json, userid],
+      tx.executeSql(Query.UPDATE_JSON_OBJ_NOTE_IF_NEEDED_LAST_MOD, [json, fullNote.lastmodificationdate.toISOString(), fullNote.title, json, userid],
         (tx:any, res:any)=>{
           console.log('updated json obj note');
         },
@@ -3980,7 +3982,7 @@ private updateJsonObjNote(fullNote:NoteFull, userid:string, updateLastModificati
   }else{
     let p:Promise<void>;
     if(updateLastModificationDateToo){
-      p = this.db.executeSql(Query.UPDATE_JSON_OBJ_NOTE_IF_NEEDED_LAST_MOD, [json, fullNote.lastmodificationdate, fullNote.title, json, userid]);
+      p = this.db.executeSql(Query.UPDATE_JSON_OBJ_NOTE_IF_NEEDED_LAST_MOD, [json, fullNote.lastmodificationdate.toISOString(), fullNote.title, json, userid]);
     }else{
       p = this.db.executeSql(Query.UPDATE_JSON_OBJ_NOTE_IF_NEEDED, [json, fullNote.title, json, userid]);
     }
@@ -4101,10 +4103,10 @@ private rollbackDeleteTagFromNote(note:NoteMin, error:boolean[],userid:string, n
 
 private addTagsToNoteUpdateOnlyNote(tx:any, note:NoteFull,  userid:string, updateLastModificationDateToo: boolean, mainTags?:TagExtraMin[], otherTags?:TagExtraMin[]):void{
   if(mainTags!=null){
-    note.maintags.concat(mainTags);
+    note.maintags=note.maintags.concat(mainTags);
   }
   if(otherTags!=null){
-    note.othertags.concat(otherTags);
+    note.othertags=note.othertags.concat(otherTags);
   }
   this.updateJsonObjNote(note, userid, updateLastModificationDateToo, tx);
 }
@@ -4156,24 +4158,20 @@ private removeTagFromNoteJsonUpdatingOnlyNoteCore(tx:any, note:NoteMin, tags:Tag
         let jsonTag: string = JSON.stringify(tags[i]);
         tx.executeSql(Query.REMOVE_TAGS_FROM_NOTES_SMART_REPLACE, [jsonTag, jsonTag, userid],
           (tx:any, res:any)=>{console.log('remove tags smart replace ok');},
-          (tx:any, error:any)=>{console.log('error in smart replace');
-            console.log(JSON.stringify(error));}
+          (tx:any, error:any)=>{console.log('error in smart replace');console.log(JSON.stringify(error));}
         );
       }
       tx.executeSql(Query.REMOVE_TAGS_FROM_NOTES_CLEANUP_ONE, [userid],
         (tx:any, res:any)=>{console.log('remove tags tags cleanup one ok');},
-        (tx:any, error:any)=>{console.log('error remove tags tags cleanup one');
-          console.log(JSON.stringify(error));}
+        (tx:any, error:any)=>{console.log('error remove tags tags cleanup one');console.log(JSON.stringify(error));}
       );
       tx.executeSql(Query.REMOVE_TAGS_FROM_NOTES_CLEANUP_TWO, [userid],
         (tx:any, res:any)=>{console.log('remove tags tags cleanup two ok');},
-        (tx:any, error:any)=>{console.log('error remove tags tags cleanup two');
-          console.log(JSON.stringify(error));}
+        (tx:any, error:any)=>{console.log('error remove tags tags cleanup two');console.log(JSON.stringify(error));}
       );
       tx.executeSql(Query.REMOVE_TAGS_FROM_NOTES_CLEANUP_THREE, [userid],
         (tx:any, res:any)=>{console.log('remove tags tags cleanup three ok');},
-        (tx:any, error:any)=>{console.log('error remove tags tags cleanup three');
-          console.log(JSON.stringify(error));}
+        (tx:any, error:any)=>{console.log('error remove tags tags cleanup three');console.log(JSON.stringify(error));}
       );
       //this is where it changes.
 }
@@ -4570,6 +4568,8 @@ public rollbackModification(logObj: LogObjSmart,userid:string, errorArray?:boole
         break;
       default:
         console.log('nothing to rollback');
+        p=Promise.resolve();
+        break;
     }
     p.then(result=>{
       console.log('rollback done');
@@ -4589,18 +4589,15 @@ public rollbackModification(logObj: LogObjSmart,userid:string, errorArray?:boole
       this.db.transaction(tx=>{
         tx.executeSql(Query.DELETE_EVERYTHING_FROM_NOTES, [userid],
           (tx:any, res:any)=>{console.log('ok delete everything from notes')},
-          (tx:any, error:any)=>{console.log('error delete everything from notes');
-            console.log(JSON.stringify(error));}
+          (tx:any, error:any)=>{console.log('error delete everything from notes');console.log(JSON.stringify(error));}
         );
         tx.executeSql(Query.DELETE_EVERYTHING_FROM_TAGS, [userid],
           (tx:any, res:any)=>{console.log('ok delete everything from tags')},
-          (tx:any, error:any)=>{console.log('error delete everything from tags');
-            console.log(JSON.stringify(error));}
+          (tx:any, error:any)=>{console.log('error delete everything from tags');console.log(JSON.stringify(error));}
         );
         tx.executeSql(Query.DELETE_EVERYTHING_FROM_LOGS, [userid],
           (tx:any, res:any)=>{console.log('ok delete everything from logs')},
-          (tx:any, error:any)=>{console.log('error delete everything from logs');
-            console.log(JSON.stringify(error));}
+          (tx:any, error:any)=>{console.log('error delete everything from logs');console.log(JSON.stringify(error));}
         );
       })
       .then(txResult=>{
@@ -4616,6 +4613,10 @@ public rollbackModification(logObj: LogObjSmart,userid:string, errorArray?:boole
   }
 
 
+  /**
+  select title from notes where the title matches
+  exactly with one title in the db. If none, null is returned.
+  */
   selectTitleFromNotes(title:string, userid:string):Promise<string>{
     return new Promise<string>((resolve, reject)=>{
       this.db.executeSql(Query.SELECT_TITLE_FROM_NOTES, [title, userid])
@@ -4634,6 +4635,10 @@ public rollbackModification(logObj: LogObjSmart,userid:string, errorArray?:boole
     })
   }
 
+  /**
+  select title from tags where the title matches
+  exactly with one title in the db. If none, null is returned.
+  */
   selectTitleFromTags(title:string, userid:string):Promise<string>{
     return new Promise<string>((resolve, reject)=>{
       this.db.executeSql(Query.SELECT_TITLE_FROM_TAGS, [title, userid])

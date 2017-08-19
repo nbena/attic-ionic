@@ -342,7 +342,8 @@ export class NoteFull extends NoteBarebon{
     tmpNote.othertags = jsonNote.othertags;
     tmpNote.isdone = jsonNote.isdone;
     tmpNote.creationdate = jsonNote.creationdate;
-    tmpNote.lastmodificationdate = jsonNote.lastmodificationdate;
+    //here is the point.
+    tmpNote.lastmodificationdate = new Date(jsonNote.lastmodificationdate);
     tmpNote.links = jsonNote.links;
     return tmpNote;
   }
