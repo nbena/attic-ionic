@@ -182,6 +182,6 @@ export class Const{
   public static readonly NOTES_LIMIT = 50;
   public static readonly TAGS_LIMIT = 50;
 
-  public static readonly CURRENTLY_SYNCHING = 'Synching is in progress';
-  public static readonly CURRENTLY_NOT_SYNCHING = 'No synching now';
+  public static readonly CURRENTLY_SYNCHING = 'Synchronization is in progress...';
+  public static readonly CURRENTLY_NOT_SYNCHING = 'No ynchronization now';
 }

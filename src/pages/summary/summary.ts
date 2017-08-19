@@ -58,7 +58,7 @@ export class SummaryPage {
     this.atticUser.getUserSummary2(force)
     .then(summary=>{
       this.summary = summary;
-      console.log('summary is:');console.log(JSON.stringify(summary));
+      // console.log('summary is:');console.log(JSON.stringify(summary));
 
       this.profileType = (this.summary.data.isfree) ? 'Free' : 'Premium';
       this.availableNotes = (this.summary.data.isfree) ? this.summary.data.availablenotes.toString() : 'Unlimited';
@@ -112,11 +112,11 @@ export class SummaryPage {
       if(this.synchingEnabled){ //even if it's
       //not necessary let's keep it here.
         //Utils.presentToast(this.toastCtrl, 'synching...');
-        this.graphicProvider.presentToast('synching...');
+        this.graphicProvider.presentToast('synchronizing...');
         this.synch.synch()
         .then(synched=>{
-          console.log('synching done');
-          this.graphicProvider.presentToast('synching done');
+          console.log('Synchronization done');
+          this.graphicProvider.presentToast('Synchronization done');
           try{
             this.setSynchState();
             this.summary.data.logscount=0;
