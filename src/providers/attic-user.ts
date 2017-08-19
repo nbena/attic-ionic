@@ -43,7 +43,7 @@ export class AtticUserProvider {
       if(useDb){
         if(!this.atticCache.isSummaryEmpty()){
           console.log('using cache');
-          p=new Promise<UserSummary>((resolve, reject)=>{resolve(this.atticCache.getSummary())});
+          p=Promise.resolve(this.atticCache.getSummary());
         }else{
           console.log('the summary is not in the cache');
           p=this.db.getUserSummary(this.auth.userid);
@@ -51,16 +51,17 @@ export class AtticUserProvider {
       }else{
         p=this.http.get('/api/users/'+this.auth.userid);
       }
+
       p.then(fetchingResult=>{
         // userSummary = fetchingResult as UserSummary;
         resolve(fetchingResult);
         if(useDb){
           //resolve(userSummary);
-          return new Promise<UserSummary>((resolve, reject)=>{resolve(fetchingResult as UserSummary)});
+          p=Promise.resolve(fetchingResult as UserSummary);
         }else{
           /*just set free*/
           this.db.insertSetFree((fetchingResult as UserSummary).data.isfree, this.auth.userid);
-          return new Promise<UserSummary>((resolve, reject)=>{resolve(fetchingResult as UserSummary)});
+          return Promise.resolve(fetchingResult as UserSummary);
         }
       })
       .then(summary=>{

@@ -281,7 +281,7 @@ export class Query{
   static readonly DELETE_FROM_LOGS_TAGS_TO_ADD_TO_NOTE_WHERE_NOTE_AND_TAG_MULTI = 'delete from logs_sequence where tagtitle is not null and role is not null and action=\'add-tag\' and notetitle=? and userid=?  and ';
   static readonly DELETE_FROM_LOGS_TAGS_TO_ADD_TO_NOTE_WHERE_NOTE_AND_TAG = 'delete from logs_sequence where tagtitle is not null and role is not null and action=\'add-tag\' and notetitle=? and tagtitle=? and userid=?';
   static readonly DELETE_FROM_LOGS_TAGS_TO_ADD_TO_NOTE_WHERE_NOTE = 'delete from logs_sequence where userid=? and tagtitle is not null and role is not null and action=\'add-tag\' and ';
-  static readonly DELETE_FROM_LOGS_TAGS_TO_DELETE_FROM_NOTE_WHERE_NOTE = 'delete from logs_sequence where userid=? and tagtitle is not null and role is not null and action=\'remove-tag\' and ';
+  static readonly DELETE_FROM_LOGS_TAGS_TO_DELETE_FROM_NOTE_WHERE_NOTE = 'delete from logs_sequence where userid=? and tagtitle is not null and action=\'remove-tag\' and ';
 
 
   //note and tag to create

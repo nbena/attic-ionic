@@ -58,8 +58,7 @@ export class SummaryPage {
     this.atticUser.getUserSummary(force)
     .then(summary=>{
       this.summary = summary;
-      // console.log('summary is:');
-      // console.log(JSON.stringify(summary));
+      console.log('summary is:');console.log(JSON.stringify(summary));
 
       this.profileType = (this.summary.data.isfree) ? 'Free' : 'Premium';
       this.availableNotes = (this.summary.data.isfree) ? this.summary.data.availablenotes.toString() : 'Unlimited';

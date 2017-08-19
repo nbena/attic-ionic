@@ -191,7 +191,7 @@ export class HttpProvider {
       // let headers = new Headers();
       // headers.append('Authorization',  this.token);
       let headers:Headers = this.mkAuthHeader();
-      console.log('the fucking headers:');console.log(JSON.stringify(headers));
+      //console.log('the fucking headers:');console.log(JSON.stringify(headers));
 
       let uri = Const.API_URI+finalUri;
       this.http.delete(uri, {headers:headers})
