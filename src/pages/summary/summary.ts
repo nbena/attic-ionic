@@ -55,7 +55,7 @@ export class SummaryPage {
   }
 
   load(force: boolean){
-    this.atticUser.getUserSummary(force)
+    this.atticUser.getUserSummary2(force)
     .then(summary=>{
       this.summary = summary;
       console.log('summary is:');console.log(JSON.stringify(summary));

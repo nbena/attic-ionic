@@ -26,7 +26,7 @@ export class AtticCache {
   private differentlySortedCachedExtraMinNotes: NoteExtraMinWithDate[] = null;
   private differentlySortedCachedAlmostMinTags: TagAlmostMin[] =null;
 
-  private summary:UserSummary = null;
+  // private summary:UserSummary = null;
 
 
 //TODO when insert single item before check that it's not present.
@@ -191,18 +191,18 @@ export class AtticCache {
   }
 
 
-  public setSummary(summary:UserSummary):void{
-    if(this.summary==null){
-      this.summary=summary;
-    }
-    else if(!this.summary.equals(summary)){
-      this.summary=summary;
-    }
-  }
+  // public setSummary(summary:UserSummary):void{
+  //   if(this.summary==null){
+  //     this.summary=summary;
+  //   }
+  //   else if(!this.summary.equals(summary)){
+  //     this.summary=summary;
+  //   }
+  // }
 
-  public getSummary():UserSummary{
-    return this.summary;
-  }
+  // public getSummary():UserSummary{
+  //   return this.summary;
+  // }
 
   private getIndexOfNoteFull(note:NoteExtraMin):number{
     return Utils.binarySearch(this.cachedFullNotes, note, NoteExtraMin.ascendingCompare);
@@ -455,9 +455,9 @@ export class AtticCache {
     return this.differentlySortedCachedAlmostMinTags.length==0;
   }
 
-  public isSummaryEmpty():boolean{
-    return this.summary==null;
-  }
+  // public isSummaryEmpty():boolean{
+  //   return this.summary==null;
+  // }
 
 
   private removeNoteFromDifferentlyCachedNotes(note:NoteExtraMin):void{

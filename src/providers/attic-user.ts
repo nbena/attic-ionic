@@ -26,6 +26,50 @@ export class AtticUserProvider {
     console.log('Hello AtticUserProvider Provider');
   }
 
+  private mixSummary(fromDb:UserSummary, fromNet:UserSummary):UserSummary{
+    let ret:UserSummary = fromNet;
+    ret.data.logscount = fromDb.data.logscount;
+    return ret;
+  }
+
+
+  //summary is not cachable because it requires a db query for the count.
+  public getUserSummary2(force:boolean):Promise<UserSummary>{
+    return new Promise<UserSummary>((resolve, reject)=>{
+      let useDb: boolean = true;
+      let isNteworkAvailable: boolean = this.netManager.isConnected;
+      if(force){
+        useDb=false;
+      }
+      if(!isNteworkAvailable){
+        useDb = true;
+      }
+      console.log('use db summary');console.log(JSON.stringify(useDb));
+      let p:Promise<UserSummary>[];
+      if(useDb){
+        p = [this.db.getUserSummary(this.auth.userid)];
+      }else{
+        p = [this.db.getUserSummary(this.auth.userid), this.http.get('/api/users/'+this.auth.userid)];
+      }
+      Promise.all(p)
+      .then(results=>{
+        if(useDb){
+          resolve(results[0]);
+        }else{
+          //create a new summary object by mixing the two.
+          let trueRes:UserSummary = this.mixSummary(results[0], results[1]);
+          resolve(trueRes);
+          this.db.insertSetFree(results[1].data.isfree, this.auth.userid);
+        }
+      })
+      .catch(error=>{
+        console.log('error in get summary provider');
+        console.log(JSON.stringify(error.message));
+        reject(error);
+      })
+    })
+  }
+
 
   getUserSummary(force: boolean):Promise<UserSummary>{
     return new Promise<UserSummary>((resolve, reject)=>{
@@ -41,13 +85,13 @@ export class AtticUserProvider {
       let p:Promise<UserSummary>;
       // let userSummary:UserSummary;
       if(useDb){
-        if(!this.atticCache.isSummaryEmpty()){
-          console.log('using cache');
-          p=Promise.resolve(this.atticCache.getSummary());
-        }else{
-          console.log('the summary is not in the cache');
+        // if(!this.atticCache.isSummaryEmpty()){
+        //   console.log('using cache');
+        //   p=Promise.resolve(this.atticCache.getSummary());
+        // }else{
+        //   console.log('the summary is not in the cache');
           p=this.db.getUserSummary(this.auth.userid);
-        }
+        // }
       }else{
         p=this.http.get('/api/users/'+this.auth.userid);
       }
@@ -57,17 +101,17 @@ export class AtticUserProvider {
         resolve(fetchingResult);
         if(useDb){
           //resolve(userSummary);
-          p=Promise.resolve(fetchingResult as UserSummary);
+          // p=Promise.resolve(fetchingResult as UserSummary);
         }else{
           /*just set free*/
           this.db.insertSetFree((fetchingResult as UserSummary).data.isfree, this.auth.userid);
-          return Promise.resolve(fetchingResult as UserSummary);
+          // return Promise.resolve(fetchingResult as UserSummary);
         }
       })
-      .then(summary=>{
-        this.atticCache.setSummary(summary);
-        // resolve(summary);
-      })
+      // .then(summary=>{
+      //   this.atticCache.setSummary(summary);
+      //   // resolve(summary);
+      // })
       .catch(error=>{
         console.log('error in get summary provider');
         console.log(JSON.stringify(error.message));
