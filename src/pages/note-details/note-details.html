@@ -77,7 +77,7 @@
             {{mainTag.title}}
             </ion-label>
             <!--<ion-icon name="pin" color="primary"></ion-icon>-->
-            <button ion-button (click)="deleteMainTags($event, i, mainTag.title)">
+            <button ion-button (click)="deleteMainTags($event, i, mainTag)">
               <ion-icon name="close"></ion-icon>
             </button>
           </ion-chip>
@@ -102,7 +102,7 @@
             <ion-label>
             {{otherTag.title}}
           </ion-label>
-          <button ion-button (click)="deleteOtherTags($event, i, otherTag.title)">
+          <button ion-button (click)="deleteOtherTags($event, i, otherTag)">
             <ion-icon name="close"></ion-icon>
           </button>
           </ion-chip>

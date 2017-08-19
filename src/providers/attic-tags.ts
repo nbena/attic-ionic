@@ -74,7 +74,7 @@ export class AtticTags {
         .then(fetchingResult=>{
           let res:TagAlmostMin[];
           if(!useDb){
-            res = fetchingResult.map(obj=>{return TagAlmostMin.safeNewTagFullFromJsObject(obj)});
+            res = fetchingResult.map(obj=>{return TagAlmostMin.safeNewTagFromJsObject(obj)});
           }else{res=fetchingResult;}
           resolve(res/*fetchingResult as TagAlmostMin[]*/);
           if(!this.synch.isTagLocked() && !useDb){

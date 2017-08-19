@@ -34,7 +34,7 @@ export class AtticUserProvider {
 
 
   //summary is not cachable because it requires a db query for the count.
-  public getUserSummary2(force:boolean):Promise<UserSummary>{
+  public getUserSummary(force:boolean):Promise<UserSummary>{
     return new Promise<UserSummary>((resolve, reject)=>{
       let useDb: boolean = true;
       let isNteworkAvailable: boolean = this.netManager.isConnected;
@@ -71,68 +71,68 @@ export class AtticUserProvider {
   }
 
 
-  getUserSummary(force: boolean):Promise<UserSummary>{
-    return new Promise<UserSummary>((resolve, reject)=>{
-      let useDb: boolean = true;
-      let isNteworkAvailable: boolean = this.netManager.isConnected;
-      if(force){
-        useDb=false;
-      }
-      if(!isNteworkAvailable){
-        useDb = true;
-      }
-      console.log('use db summary');console.log(JSON.stringify(useDb));
-      let p:Promise<UserSummary>;
-      // let userSummary:UserSummary;
-      if(useDb){
-        // if(!this.atticCache.isSummaryEmpty()){
-        //   console.log('using cache');
-        //   p=Promise.resolve(this.atticCache.getSummary());
-        // }else{
-        //   console.log('the summary is not in the cache');
-          p=this.db.getUserSummary(this.auth.userid);
-        // }
-      }else{
-        p=this.http.get('/api/users/'+this.auth.userid);
-      }
-
-      p.then(fetchingResult=>{
-        // userSummary = fetchingResult as UserSummary;
-        resolve(fetchingResult);
-        if(useDb){
-          //resolve(userSummary);
-          // p=Promise.resolve(fetchingResult as UserSummary);
-        }else{
-          /*just set free*/
-          this.db.insertSetFree((fetchingResult as UserSummary).data.isfree, this.auth.userid);
-          // return Promise.resolve(fetchingResult as UserSummary);
-        }
-      })
-      // .then(summary=>{
-      //   this.atticCache.setSummary(summary);
-      //   // resolve(summary);
-      // })
-      .catch(error=>{
-        console.log('error in get summary provider');
-        console.log(JSON.stringify(error.message));
-        reject(error);
-      })
-    })
-  }
+  // getUserSummary(force: boolean):Promise<UserSummary>{
+  //   return new Promise<UserSummary>((resolve, reject)=>{
+  //     let useDb: boolean = true;
+  //     let isNteworkAvailable: boolean = this.netManager.isConnected;
+  //     if(force){
+  //       useDb=false;
+  //     }
+  //     if(!isNteworkAvailable){
+  //       useDb = true;
+  //     }
+  //     console.log('use db summary');console.log(JSON.stringify(useDb));
+  //     let p:Promise<UserSummary>;
+  //     // let userSummary:UserSummary;
+  //     if(useDb){
+  //       // if(!this.atticCache.isSummaryEmpty()){
+  //       //   console.log('using cache');
+  //       //   p=Promise.resolve(this.atticCache.getSummary());
+  //       // }else{
+  //       //   console.log('the summary is not in the cache');
+  //         p=this.db.getUserSummary(this.auth.userid);
+  //       // }
+  //     }else{
+  //       p=this.http.get('/api/users/'+this.auth.userid);
+  //     }
+  //
+  //     p.then(fetchingResult=>{
+  //       // userSummary = fetchingResult as UserSummary;
+  //       resolve(fetchingResult);
+  //       if(useDb){
+  //         //resolve(userSummary);
+  //         // p=Promise.resolve(fetchingResult as UserSummary);
+  //       }else{
+  //         /*just set free*/
+  //         this.db.insertSetFree((fetchingResult as UserSummary).data.isfree, this.auth.userid);
+  //         // return Promise.resolve(fetchingResult as UserSummary);
+  //       }
+  //     })
+  //     // .then(summary=>{
+  //     //   this.atticCache.setSummary(summary);
+  //     //   // resolve(summary);
+  //     // })
+  //     .catch(error=>{
+  //       console.log('error in get summary provider');
+  //       console.log(JSON.stringify(error.message));
+  //       reject(error);
+  //     })
+  //   })
+  // }
 
 
   //not used.
-  public isUserValid(control:FormControl):Promise<boolean>{
-    return new Promise<boolean>((resolve, reject)=>{
-      this.http.post('/api/users/is-available', JSON.stringify({userid: control.value.userid}))
-      .then(value=>{
-        resolve(value);
-      }).catch(error=>{
-        console.log('error in get user available');console.log(error.message);
-        reject(error);
-      })
-    })
-  }
+  // public isUserValid(control:FormControl):Promise<boolean>{
+  //   return new Promise<boolean>((resolve, reject)=>{
+  //     this.http.post('/api/users/is-available', JSON.stringify({userid: control.value.userid}))
+  //     .then(value=>{
+  //       resolve(value);
+  //     }).catch(error=>{
+  //       console.log('error in get user available');console.log(error.message);
+  //       reject(error);
+  //     })
+  //   })
+  // }
 
 
   public deleteEverything():Promise<void>{

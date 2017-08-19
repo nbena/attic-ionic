@@ -72,7 +72,7 @@ export class TagAlmostMin extends TagExtraMin{
   }
 
 
-  public static safeNewTagFullFromJsObject(jsonTag:any):TagAlmostMin{
+  public static safeNewTagFromJsObject(jsonTag:any):TagAlmostMin{
     let tag:TagAlmostMin= new TagAlmostMin();
     tag.title=jsonTag.title;
     tag.noteslength=jsonTag.noteslength;
@@ -83,7 +83,7 @@ export class TagAlmostMin extends TagExtraMin{
   }
 
   public static safeNewTagFromJsonString(json:string):TagAlmostMin{
-    return TagAlmostMin.safeNewTagFullFromJsObject(JSON.parse(json));
+    return TagAlmostMin.safeNewTagFromJsObject(JSON.parse(json));
   }
 
 }
@@ -143,10 +143,15 @@ export class TagFull extends TagAlmostMin{
   }
 
   public removeNote(ind:NoteExtraMin|Number){
+    let index:number=-1;
     if(ind instanceof Number){
-      this.notes.splice(ind as number, 1);
+      index = ind as number;
     }else{
-      this.removeNote(this.getNoteIndex(ind));
+      index = this.getNoteIndex(ind);
+    }
+    if(index>=0){
+      this.notes.splice(index, 1);
+      this.noteslength--;
     }
   }
 

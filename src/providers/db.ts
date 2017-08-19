@@ -828,7 +828,7 @@ IMPORTANT: I assume that tags, if present, ARE ALREADY SORTED.
 */
 private removeTagsFromNoteCore(tx:any, extraMin:NoteExtraMin, userid:string,tags:TagExtraMin[], usedTag?:TagFull[]){
   let tmpTag:TagExtraMin[]=Utils.binaryArrayDiff(tags, ((usedTag)==null) ? [] : usedTag, TagExtraMin.ascendingCompare);
-  let updatedTag:TagFull[]=[];
+  //let updatedTag:TagFull[]=[];
 
   // if(usedTag!=null){
   //   updatedTag=usedTag.map(obj=>{
@@ -838,6 +838,9 @@ private removeTagsFromNoteCore(tx:any, extraMin:NoteExtraMin, userid:string,tags
   //     return tag;
   //   })
   // }
+  // let lock:boolean = true;
+  // console.log('the tmp tags');console.log(JSON.stringify(tmpTag));
+  // console.log('the basic tags');console.log(JSON.stringify(tags));
 
   if(tmpTag.length>0){//get full_tag from the db.
     let query:string = this.prepareQueryTagExistAndAreFull(tmpTag.length);
@@ -846,33 +849,53 @@ private removeTagsFromNoteCore(tx:any, extraMin:NoteExtraMin, userid:string,tags
         if(usedTag==null){usedTag=[];}
         for(let i=0;i<res.rows.length;i++){
           let rawTag:any = JSON.parse(res.rows.item(i).json_object);
-          if(rawTag.notes == null){rawTag.notes=[];}
-          if(rawTag.noteslength ==  null){rawTag.noteslength=0;}
-          let tag:TagFull = rawTag as TagFull;
+          if(rawTag.notes == null || rawTag.notes==undefined){rawTag.notes=[];}
+          if(rawTag.noteslength ==  null || rawTag.notes==undefined){rawTag.noteslength=0;}
+          let tag:TagFull = TagFull.safeNewTagFromJsObject(rawTag);
+          //console.log('tag is');console.log(JSON.stringify(tag));
           usedTag.push(tag);
+
+          //here I have the tag.
+          // tag.removeNote(extraMin);
+          // updatedTag.push(tag);
+
         }
+
+        if(usedTag!=null && usedTag.length>0){
+          usedTag.forEach(tag=>{
+            tag.removeNote(extraMin);
+            this.updateJsonObjTag(tag, userid, tx);
+          })
+          // for(let tag of usedTag){
+          //   tag.removeNote(extraMin);
+          //   this.updateJsonObjTag(tag, userid, tx);
+          // }
+        }
+
+        // for(let tag of updatedTag){
+        //   this.updateJsonObjTag(tag, userid, tx);
+        // }
+
       }, (tx:any, error:any)=>{console.log('error in get tag full to update');console.log(JSON.stringify(error));}
   );
   }
-  if(usedTag!=null && usedTag.length>0){
-    //update each object;
-    usedTag.forEach(obj=>{
-      let tag:TagFull =  obj;
-      tag.removeNote(extraMin);
-      if(tag.noteslength>0){tag.noteslength--;}
-      updatedTag.push(tag);
-    })
-  }
-  if(updatedTag.length>0){
-  //   let query:string = this.prepareQueryInsertMultiTags(updatedTag.length);
-  //   tx.executeSql(query, this.expandArrayTagsMinWithEverything(updatedTag, userid),
-  //     (tx:any, res:any)=>{console.log('ok updated full tags too');},
-  //     (tx:any, error:any)=>{console.log('error in update full tags');console.log(JSON.stringify(error));}
-  // );
-    for(let i=0;i<updatedTag.length;i++){
-      this.updateJsonObjTag(updatedTag[i], userid, tx);
-    }
-  }
+  // console.log('the true tags to update are:');console.log(JSON.stringify(usedTag));
+  // if(usedTag!=null && usedTag.length>0){
+  //   //update each object;
+  //   usedTag.forEach(obj=>{
+  //     let tag:TagFull =  obj;
+  //     tag.removeNote(extraMin);
+  //     // if(tag.noteslength>0){tag.noteslength--;}
+  //     updatedTag.push(tag);
+  //   })
+  // }
+  // if(updatedTag.length>0 && !lock){
+  //
+  // console.log('the updated tag are: ');console.log(JSON.stringify(updatedTag));
+  //   for(let i=0;i<updatedTag.length;i++){
+  //     this.updateJsonObjTag(updatedTag[i], userid, tx);
+  //   }
+  // }
   console.log('ok removed the note from tags');
 }
 
@@ -884,7 +907,7 @@ private addTagsToNoteUpdateOnlyTags(tx:any, extraMin:NoteExtraMin, userid:string
   //TmpTag contains the list of the tags that need to be got from the db.
   let tmpTag:TagExtraMin[]=Utils.arrayDiff(tags, ((usedTag)==null) ? [] : usedTag, TagExtraMin.ascendingCompare);
 
-  let updatedTag:TagFull[]=[];
+  // let updatedTag:TagFull[]=[];
 
 
   if(tmpTag.length>0){//get full_tag from the db.
@@ -898,30 +921,31 @@ private addTagsToNoteUpdateOnlyTags(tx:any, extraMin:NoteExtraMin, userid:string
           if(rawTag.notes == null){rawTag.notes=[];}
           if(rawTag.noteslength ==  null){rawTag.noteslength=0;}
           let tag:TagFull = TagFull.safeNewTagFromJsObject(rawTag);
-          console.log('item:');console.log(JSON.stringify(tag));
+          // console.log('item:');console.log(JSON.stringify(tag));
           usedTag.push(tag);
         }
 
 
         if(usedTag!=null && usedTag.length>0){
           //update each object;
-          usedTag.forEach(obj=>{
-            console.log('now I update the object: ');console.log(JSON.stringify(obj));
-            let tag:TagFull =  obj;
+          usedTag.forEach(tag=>{
+            // console.log('now I update the object: ');console.log(JSON.stringify(obj));
+            // let tag:TagFull =  obj;
             tag.notes.push(extraMin);
             tag.noteslength++;
-            updatedTag.push(tag);
+            // updatedTag.push(tag);
+            this.updateJsonObjTag(tag, userid, tx);
           })
         }
 
-        console.log('finally, the tag to update:');console.log(JSON.stringify(updatedTag));
-        if(updatedTag.length>0){
-          let query:string = this.prepareQueryInsertMultiTags(updatedTag.length);
-          console.log('and the query: '+query);
-          for(let i=0;i<updatedTag.length;i++){
-            this.updateJsonObjTag(updatedTag[i], userid, tx);
-          }
-        }
+        // console.log('finally, the tag to update:');console.log(JSON.stringify(updatedTag));
+        // if(updatedTag.length>0){
+        //   //// let query:string = this.prepareQueryInsertMultiTags(updatedTag.length);
+        //   //// console.log('and the query: '+query);
+        //   for(let i=0;i<updatedTag.length;i++){
+        //     this.updateJsonObjTag(updatedTag[i], userid, tx);
+        //   }
+        // }
 
 
       }, (tx:any, error:any)=>{console.log('error in get tag full to update');console.log(JSON.stringify(error));}
@@ -2573,7 +2597,7 @@ private prepareQueryRemoveTagsFromNotesLogs(length:number):string{
 public removeTagsFromNote(note: NoteFull, userid: string, tags: TagExtraMin[]):Promise<any>{
   return new Promise<any>((resolve, reject)=>{
     this.db.transaction(tx=>{
-      let query:string = this.prepareQueryRemoveTagsFromNotesLogs(tags.length);
+      let query:string = this.prepareQueryRemoveTagsFromNotesLogs(tags.length); /*this one is ok*/
       let param:string[]=this.expandInsertNoteTagsIntoLogs(note.title, userid, tags);
       tx.executeSql(query, param,
       (tx:any, res:any)=>{console.log('ok updating logs delete notes_tags')},

@@ -373,47 +373,48 @@ export class NoteDetailsPage {
     )
   }
 
-  deleteMainTags(event, i: number, title: string){
+  deleteMainTags(event, i: number, tag:TagExtraMin){
      event.stopPropagation();
      /*remove from the shown.*/
      this.shownMainTags.splice(i, 1);
      /*detect if there is the need to remove from mainTags.*/
      /*(user can remove a links added by him that not really exists)*/
-     let obj:TagExtraMin = TagExtraMin.NewTag(title);
-     let index = Utils.myIndexOf(this.mainTags,obj);
-     if(index!=-1){
+    //  let obj:TagExtraMin = TagExtraMin.NewTag(title);
+    //  let index = Utils.myIndexOf(this.mainTags,obj);
+    //  if(index!=-1){
+    //    this.tagsToRemove.push(this.mainTags[index]);
+    //    this.haveToRemoveTags = true;
+    //    this.submitChangeEnabled = true;
+    //  }
+    // console.log('the maintags');console.log(JSON.stringify(this.mainTags));
+    // console.log('the tags to remove');console.log(JSON.stringify(tag));
+    let index = Utils.myIndexOf(this.mainTags, tag);
+     if(index!=-1){ //so I avoid useless remotion.
        this.tagsToRemove.push(this.mainTags[index]);
+      //  console.log('the tag pushed');console.log(JSON.stringify(this.mainTags[index]));
        this.haveToRemoveTags = true;
-       /*
-       delete from this.mainTags: it will be done when the call to the API will
-       will be done.
-       */
-       /*enable changes.*/
        this.submitChangeEnabled = true;
-      //  console.log('enable changes');
      }
-    //  this.haveToRemoveMainTags = true;
   }
 
-  deleteOtherTags(event, i: number,title: string){
+  deleteOtherTags(event, i: number,tag:TagExtraMin){
     event.stopPropagation();
     /*remove from the shown.*/
     this.shownOtherTags.splice(i, 1);
     /*detect if there is the need to remove from otherTags.*/
-    let obj:TagExtraMin = TagExtraMin.NewTag(title);
-    let index = Utils.myIndexOf(this.otherTags,obj);
+    // let obj:TagExtraMin = TagExtraMin.NewTag(title);
+    // let index = Utils.myIndexOf(this.otherTags,obj);
+    // if(index!=-1){
+    //   this.tagsToRemove.push(this.otherTags[index]);
+    //   this.haveToRemoveTags = true;
+    //   this.submitChangeEnabled = true;
+    // }
+    let index = Utils.myIndexOf(this.otherTags, tag);
     if(index!=-1){
       this.tagsToRemove.push(this.otherTags[index]);
       this.haveToRemoveTags = true;
-      /*
-      delete from this.otherTags: it will be done when the call to the API will
-      will be done.
-      */
-      /*enable changes.*/
       this.submitChangeEnabled = true;
-     //  console.log('enable changes');
     }
-   //  this.haveToRemoveOtherTags = true;
   }
 
   deleteLinks(event, i: number, link: string){
@@ -453,6 +454,8 @@ export class NoteDetailsPage {
   }
 
   addTagsAPI(){
+    this.note.maintags = this.note.maintags.concat(this.mainTagsToAdd);
+    this.note.othertags = this.note.othertags.concat(this.otherTagsToAdd);
     return this.atticNotes.addTags(this.note, this.mainTagsToAdd, this.otherTagsToAdd);
   }
 
@@ -460,24 +463,19 @@ export class NoteDetailsPage {
   defining real APIs
   */
   addMainTagsAPI(){
-    try{
+    //try{
+      this.note.maintags = this.note.maintags.concat(this.mainTagsToAdd);
       return this.atticNotes.addMainTags(this.note, this.mainTagsToAdd);
-    }catch(e){
-      console.log('errorss here:');console.log(JSON.stringify(e));console.log(JSON.stringify(e.message));
-    }
+    // }catch(e){
+    //   console.log('errorss here:');console.log(JSON.stringify(e));console.log(JSON.stringify(e.message));
+    // }
   }
 
   addOtherTagsAPI(){
+    this.note.othertags = this.note.othertags.concat(this.otherTagsToAdd);
     return this.atticNotes.addOtherTags(this.note, this.otherTagsToAdd);
   }
 
-  removeMainTagsAPI(){
-    // return this.atticNotes.removeMainTags(this.note.title, Utils.fromTagsToString(this.mainTagsToRemove));
-  }
-
-  removeOtherTagsAPI(){
-    // return this.atticNotes.removeOtherTags(this.note.title, Utils.fromTagsToString(this.otherTagsToRemove));
-  }
 
   changeLinksAPI(){
     // return this.atticNotes.changeLinks(this.note.title, this.shownLinks);
@@ -492,6 +490,10 @@ export class NoteDetailsPage {
   }
 
   removeTagsAPI(){
+    // console.log('the tags to remove');console.log(JSON.stringify(this.tagsToRemove));
+    this.tagsToRemove.forEach(obj=>{this.note.removeTag(obj)});
+    // console.log('the new note');console.log(JSON.stringify(this.note));
+    // return Promise.resolve();
     return this.atticNotes.removeTags(this.note, this.tagsToRemove);
   }
 

@@ -185,18 +185,41 @@ export class NoteFull extends NoteBarebon{
   }
 
 
-  public removeTag(ind:IndexTagType | TagExtraMin):void{
+  public removeTag(ind:IndexTagType|TagExtraMin):void{
+    let iTag:IndexTagType = new IndexTagType();
     if(ind instanceof IndexTagType){
       if(ind.type==TagType.MAIN){
-        this.maintags=this.maintags.splice(ind.index, 1);
+        iTag.type = TagType.MAIN;
       }else{
-        this.othertags=this.othertags.splice(ind.index, 1);
+        iTag.type==TagType.OTHER;
       }
+      iTag.index = ind.index;
     }else{
-      let index = this.getTagIndex(ind);
-      this.removeTag(index);
+      iTag = this.getTagIndex(ind);
+    }
+
+    if(iTag.index>=0){
+      if(iTag.type==TagType.MAIN){
+        this.maintags.splice(iTag.index,1);
+      }else{
+        this.othertags.splice(iTag.index, 1);
+      }
     }
   }
+
+
+  // public removeTag(ind:IndexTagType | TagExtraMin):void{
+  //   if(ind instanceof IndexTagType){
+  //     if(ind.type==TagType.MAIN){
+  //       this.maintags=this.maintags.splice(ind.index, 1);
+  //     }else{
+  //       this.othertags=this.othertags.splice(ind.index, 1);
+  //     }
+  //   }else{
+  //     let index = this.getTagIndex(ind);
+  //     this.removeTag(index);
+  //   }
+  // }
 
   private getMainTagsIndex(tag:TagExtraMin):IndexTagType{
     let result:IndexTagType = new IndexTagType();
@@ -227,12 +250,14 @@ export class NoteFull extends NoteBarebon{
     let result:IndexTagType = new IndexTagType();
     if(type==null || type==TagType.MAIN){
       result = this.getMainTagsIndex(tag);
-      if(type==TagType.OTHER || (type==null && result.index==-1)){
+      if(type==TagType.OTHER || (result.index==-1)){
         result = this.getOtherTagsIndex(tag);
       }
     }
     return result;
   }
+
+
 
   //for misterious reason it doesn't work.
   // public getNoteExtraMin():NoteExtraMin{
