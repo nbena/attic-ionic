@@ -517,9 +517,9 @@ export class NoteDetailsPage {
       // this.note.forceCastToNoteExtraMin();
     // }catch(e){console.log('the fucking error is here');console.log(JSON.stringify(e.message))}
 
-    // if(this.haveToDoSomething()){
-    //   this.note.lastmodificationdate=new Date();
-    // }
+    if(this.haveToDoSomething()){
+      this.note.lastmodificationdate=new Date();
+    }
     //can't be done here, if so, the cache won't be able to find it.
 
     if(this.haveToRemoveTags){
