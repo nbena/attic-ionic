@@ -199,6 +199,8 @@ public static search<T>(array:T[], item:T,  cmp: ((a:T,b:T)=>number)):number{
 
  public static binaryArrayInsertNoDuplicate<T>(array: T[], item: T, cmp: ((a:T,b:T)=>number)):T[]{
      /*let returned: T[];*/
+    //  console.log('received as in');console.log(JSON.stringify(item));
+    //  console.log('the array is');console.log(JSON.stringify(array));
      let start: number, end: number, current:number, cmpValue;
      let found:boolean = false;
      start = 0;
@@ -216,7 +218,9 @@ public static search<T>(array:T[], item:T,  cmp: ((a:T,b:T)=>number)):number{
        }
        else if (cmpValue==0){
          found = true;
-         break;
+        //  console.log('found it');
+         /*break;*/
+         end = start-1;
        }
        else{
          start = current+1;
@@ -224,7 +228,7 @@ public static search<T>(array:T[], item:T,  cmp: ((a:T,b:T)=>number)):number{
        current = Math.floor((start+end)/2);
    }
    if(!found){
-    //  console.log('not found');
+    console.log('not found at '+current);
      array.splice(current, 0, item);
    }
    else{console.log('found');}

@@ -172,8 +172,7 @@ export class NoteDetailsPage {
   loadTags(force: boolean){
     this.atticTags.loadTagsMin(force)
       .then(result=>{
-        // console.log('the tags:');
-        // console.log(JSON.stringify(result));
+        console.log('the tags:');console.log(JSON.stringify(result));
         this.availableTags=result as TagExtraMin[];
         this.areTagsAvailable=true;
         this.makeReallyAvailable();

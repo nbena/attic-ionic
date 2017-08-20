@@ -184,9 +184,11 @@ export class AtticCache {
 
   public pushTagFullToAll(tag:TagFull):void{
     if(tag!=null){
+      // console.log('before insert in diff:');console.log(JSON.stringify(this.differentlySortedCachedAlmostMinTags));
       Utils.binaryArrayInsertNoDuplicate(this.differentlySortedCachedAlmostMinTags, tag.forceCastToTagAlmostMin(), TagAlmostMin.descendingCompare);
+      // console.log('afetr insert in diff:');console.log(JSON.stringify(this.differentlySortedCachedAlmostMinTags));
       Utils.binaryArrayInsertNoDuplicate(this.cachedAlmostMinTags, tag.forceCastToTagAlmostMin(), TagAlmostMin.ascendingCompare);
-      Utils.binaryArrayInsertNoDuplicate(this.cachedFullTags, tag, TagFull.ascendingCompare);
+      Utils.binaryArrayInsertNoDuplicate(this.cachedFullTags, tag, TagAlmostMin.ascendingCompare);
     }
   }
 

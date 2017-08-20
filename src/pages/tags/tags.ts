@@ -79,7 +79,7 @@ export class TagsPage {
     this.atticTags.loadTagsMin(force)
       .then(result=>{
         // console.log(JSON.stringify(result));
-        this.allTags=result as TagAlmostMin[];
+        this.allTags=result.slice(); //here to avoid duplicates.
         this.shownTags=this.allTags.slice();
       })
       .catch(error=>{
@@ -154,8 +154,10 @@ export class TagsPage {
     this.atticTags.createTag(tag)
       .then(result=>{
         //it needs to be done.
+
         Utils.binaryArrayInsert(this.allTags, tag, TagAlmostMin.descendingCompare);
         Utils.binaryArrayInsert(this.shownTags, tag, TagAlmostMin.descendingCompare);
+
         // this.allTags.push(<TagFull>tag);
         // this.shownTags.push(<TagFull>tag);
       })

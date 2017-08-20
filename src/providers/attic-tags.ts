@@ -188,6 +188,7 @@ export class AtticTags {
     return new Promise<void>((resolve, reject)=>{
       if(!this.synch.isTagLocked()){
         this.db.createTag(tag, this.auth.userid)
+        // Promise.resolve(tag)
         .then(result=>{
           //this.atticCache.pushToCachedFullTags(tag);
           this.atticCache.pushTagFullToAll(tag);
