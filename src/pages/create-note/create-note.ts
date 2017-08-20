@@ -1,9 +1,10 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, /*AlertController,*/ Events, ViewController,
+import { NavController, NavParams, /*AlertController,*/ Events
+  //, ViewController,
 
  } from 'ionic-angular';
 
-import { FormBuilder, FormGroup, Validators } from '@angular/forms'
+import { FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms'
 
 import { AtticNotes } from '../../providers/attic-notes';
 import { AtticTags } from '../../providers/attic-tags';
@@ -11,6 +12,7 @@ import { NoteFull/*, NoteSmart, NoteMin, NoteExtraMin*/ } from '../../models/not
 import { /*TagExtraMin, TagFull,*/ TagAlmostMin } from '../../models/tags';
 // import { Utils } from '../../public/utils'
 import {GraphicProvider} from '../../providers/graphic';
+//import { Utils } from '../../public/utils';
 
 //import {FORM_DIRECTIVES, FormBuilder,  ControlGroup, Validators, AbstractControl} from '@angular/common';
 
@@ -51,17 +53,21 @@ export class CreateNotePage {
     private atticTags: AtticTags,
     private events: Events,
     private graphicProvider:GraphicProvider,
-    private viewCtrl: ViewController,
+    // private viewCtrl: ViewController,
     private formBuilder: FormBuilder
   ) {
 
-    this.createNotePageForm = this.formBuilder.group({
-      title:['', Validators.compose([Validators.required, Validators.minLength(2), Validators.maxLength(64)])],
-      text: ['', Validators.compose([Validators.required, Validators.minLength(2)])],
-      mainTags:[[]],
-      otherTags:[[]],
-      isDone:[]
-    })
+
+    try{
+      this.createNotePageForm = this.formBuilder.group({
+        title:['', Validators.compose([Validators.required, Validators.minLength(2), Validators.maxLength(64)])],
+        text: ['', Validators.compose([Validators.required, Validators.minLength(2)])],
+        mainTags:[[], AtticNotes.areMainTagsArrayValid],
+        otherTags:[[],AtticNotes.areOtherTagsArrayValid],
+        isDone:[]
+      })
+    }catch(e){console.log(JSON.stringify(e));console.log(JSON.stringify(e.message));console.log(JSON.stringify(e.stack))}
+
 
       this.newNote = new NoteFull();
       this.newNote.isdone = false;
@@ -78,6 +84,8 @@ export class CreateNotePage {
   ionViewDidLoad() {
     console.log('ionViewDidLoad CreateNotePage');
   }
+
+
 
 
   loadMinTags(){

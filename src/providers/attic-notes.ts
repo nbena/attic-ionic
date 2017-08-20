@@ -17,6 +17,8 @@ import { HttpProvider } from './http';
 
 import { AtticError } from '../public/errors';
 
+import { /*FormControl*/AbstractControl } from '@angular/forms'
+
 import 'rxjs/add/operator/map';
 
 /*
@@ -46,7 +48,20 @@ export class AtticNotes {
   only one instance for all the pages.
   */
 
+  public static areMainTagsArrayValid(control: /*FormControl*/AbstractControl):any{
+    // try{
+    //   console.log('value');console.log(JSON.stringify(control.value.length));
+    //   return control.value.length <= 3 ? null : {error:true};
+    // }catch(e){console.log('h');console.log(JSON.stringify(e));console.log(JSON.stringify(e.messagee));console.log(JSON.stringify(e.stack));}
+    //return null;
+    return ((control.value.length <= 3) ? null : {error: true});
+  }
 
+  public static areOtherTagsArrayValid(control:/*FormControl*/AbstractControl):any{
+    //try{
+      return ((control.value.length) <= 10 ? null : {error:true});
+    //}catch(e){console.log('h');console.log(JSON.stringify(e));console.log(JSON.stringify(e.messagee));console.log(JSON.stringify(e.stack));}
+  }
   /**
   *loading all the notes.
   */
@@ -569,7 +584,7 @@ export class AtticNotes {
       let necessaryTags:TagFull[]=null;
       try{
         if(note instanceof NoteFull){
-          necessaryTags=Utils.binaryGetFullObjectTag(cachedTags, (note as NoteFull).getTagsAsTagsExtraMinArray().sort(TagExtraMin.ascendingCompare));
+          necessaryTags=Utils.binaryGetFullObjectTag(cachedTags, note.getTagsAsTagsExtraMinArray().sort(TagExtraMin.ascendingCompare));
         }
         this.atticCache.removeNote(note)
       }catch(e){

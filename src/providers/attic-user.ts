@@ -2,11 +2,11 @@ import { Injectable } from '@angular/core';
 import { Auth } from './auth';
 import { NetManager } from './net-manager';
 import { UserSummary } from '../models/user_summary';
-import { AtticCache } from './attic-cache';
+// import { AtticCache } from './attic-cache';
 import { Db } from './db';
 import 'rxjs/add/operator/map';
 import {HttpProvider} from './http';
-import { FormControl  } from '@angular/forms';
+// import { FormControl  } from '@angular/forms';
 
 /*
   Generated class for the AtticUserProvider provider.
@@ -21,7 +21,7 @@ export class AtticUserProvider {
     private auth: Auth,
     private netManager: NetManager,
     private db: Db,
-    private atticCache: AtticCache
+    // private atticCache: AtticCache
   ) {
     console.log('Hello AtticUserProvider Provider');
   }

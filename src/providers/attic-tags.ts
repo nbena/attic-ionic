@@ -101,7 +101,8 @@ export class AtticTags {
         .then(result=>{
           // console.log('the resul from network is: ');
           // console.log(JSON.stringify(result.tag));
-          let tag:TagFull = TagFull.safeNewTagFromJsObject(result);
+          let tag:TagFull = TagFull.safeNewTagFromJsObject(result.tag);
+          console.log('the tag from net');console.log(JSON.stringify(tag));
           if(!this.synch.isTagLocked()){
             this.db.insertOrUpdateTag(tag, this.auth.userid);
           }else{
@@ -124,6 +125,7 @@ export class AtticTags {
         .then(number=>{
           areThereTagsInTheDb = (number > 0) ? true : false;
           useDb = Utils.shouldUseDb(this.netManager.isConnected, areThereTagsInTheDb, force/*, this.synch.isSynching()*/);
+          console.log('use db tag: ');console.log(JSON.stringify(useDb));
           let p:Promise<TagFull>;
           if(useDb){
             let tag:TagFull=this.atticCache.getTagFullOrNull(TagExtraMin.NewTag(title));
@@ -155,6 +157,7 @@ export class AtticTags {
             resolve(tagFull);
             return Promise.resolve(tagFull);
           }else if(tagFull==null && useDb){
+            console.log('trying to load from network');
             return this.tagByTitle_loadFromNetworkAndInsert(title);
           }
         })
@@ -173,7 +176,7 @@ export class AtticTags {
         })
         .catch(error=>{
           console.log('error in getting full tag');
-          console.log(JSON.stringify(error));
+          console.log(JSON.stringify(error.message));
           reject(/*AtticError.getError(error)*/error);
         })
       })

@@ -6,7 +6,7 @@ import { NavController/*, NavParams */,Loading} from 'ionic-angular';
 import { User } from '../../models/user';
 import { Auth } from '../../providers/auth';
 // import { NotesPage } from '../notes/notes';
-import { RegisterPage } from '../register/register';
+// import { RegisterPage } from '../register/register';
 
 import { TabsPage } from '../tabs/tabs';
 

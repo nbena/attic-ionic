@@ -1,13 +1,14 @@
 import { Component } from '@angular/core';
 import { NavController, NavParams, PopoverController,/* ToastController, */Events,
   ViewController,Popover
+  //,App
   } from 'ionic-angular';
 
 import { AtticNotes } from '../../providers/attic-notes';
-import { NoteExtraMin, /*NoteSmart, */NoteMin/*, NoteFull*/,NoteExtraMinWithDate } from '../../models/notes';
+import {/* NoteExtraMin, /*NoteSmart, */NoteMin/*, NoteFull*/,NoteExtraMinWithDate } from '../../models/notes';
 
 import { NoteDetailsPage } from '../note-details/note-details';
-import { CreateNotePage } from '../create-note/create-note';
+//import { CreateNotePage } from '../create-note/create-note';
 
 import { FilterNs/*, Table*/, } from '../../public/const';
 import { FormControl } from '@angular/forms';
@@ -72,7 +73,8 @@ export class NotesPage {
     // private toastCtrl: ToastController,
     private synch: Synch,
     private graphicProvider:GraphicProvider,
-    private viewCtrl: ViewController
+    private viewCtrl: ViewController,
+    // private app:App
   ) {
 
       //try{
@@ -271,7 +273,11 @@ export class NotesPage {
   }
 
   createNewNote(){
-    this.navCtrl.push(CreateNotePage);
+    //this.navCtrl.push(CreateNotePage);
+    try{
+      this.events.publish('change-tab', 1);
+    }catch(e){console.log(JSON.stringify(e));console.log(JSON.stringify(e.error))}
+
   }
 
   //deprecated

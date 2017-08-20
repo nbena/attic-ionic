@@ -827,7 +827,8 @@ get the tag from the tag, remove note (if full), decrement noteslength, update t
 IMPORTANT: I assume that tags, if present, ARE ALREADY SORTED.
 */
 private removeTagsFromNoteCore(tx:any, extraMin:NoteExtraMin, userid:string,tags:TagExtraMin[], usedTag?:TagFull[]){
-  let tmpTag:TagExtraMin[]=Utils.binaryArrayDiff(tags, ((usedTag)==null) ? [] : usedTag, TagExtraMin.ascendingCompare);
+  usedTag = Utils.makeArraySafe(usedTag);
+  let tmpTag:TagExtraMin[]=Utils.binaryArrayDiff(tags, usedTag, TagExtraMin.ascendingCompare);
   //let updatedTag:TagFull[]=[];
 
   // if(usedTag!=null){
@@ -905,7 +906,8 @@ private addTagsToNoteUpdateOnlyTags(tx:any, extraMin:NoteExtraMin, userid:string
   console.log('the tags to work on: ');console.log(JSON.stringify(tags));
 
   //TmpTag contains the list of the tags that need to be got from the db.
-  let tmpTag:TagExtraMin[]=Utils.arrayDiff(tags, ((usedTag)==null) ? [] : usedTag, TagExtraMin.ascendingCompare);
+  Utils.makeArraySafe(usedTag);
+  let tmpTag:TagExtraMin[]=Utils.arrayDiff(tags, usedTag, TagExtraMin.ascendingCompare);
 
   // let updatedTag:TagFull[]=[];
 
@@ -961,6 +963,8 @@ private addTagsToNoteUpdateOnlyTags(tx:any, extraMin:NoteExtraMin, userid:string
 public createNewNote2(note:NoteFull, userid:string, usedTag?:TagFull[]):Promise<void>{
   console.log('received as help');
   console.log(JSON.stringify(usedTag));
+  usedTag = Utils.makeArraySafe(usedTag);
+
   return new Promise<void>((resolve, reject)=>{
     this.db.transaction(tx=>{
       let jsonNote:string = JSON.stringify(note);
@@ -1496,8 +1500,36 @@ public insertNotesMinSmartAndCleanify(notes: NoteExtraMinWithDate[], userid: str
   })
 }
 
+// private getBasicTag(title:string, userid:string):Promise<TagExtraMin>{
+//   return new Promise<TagExtraMin>((resolve, reject)=>{
+//     this.db.executeSql(Query.GET_TAG_FULL_JSON, [userid])
+//     .then(res=>{
+//       let ret = null;
+//       if(res.rows.length>0){
+//         let raw:any = JSON.parse(res.rows.item(0).json_object);
+//
+//       }
+//     })
+//   })
+// }
+
+private isTagThere(title:string, userid:string):Promise<boolean>{
+  return new Promise<boolean>((resolve, reject)=>{
+    this.db.executeSql(Query.GET_TAG_FULL_JSON, [title,userid])
+    .then(res=>{
+      let ret:boolean = ((res.rows.length<=0) ? false : true);
+      resolve(ret);
+    })
+    .catch(error=>{
+      console.log('error in is tag there');console.log(JSON.stringify(error));
+      resolve(false);
+    })
+  })
+}
+
 public insertOrUpdateTag(tag:TagFull, userid:string):Promise<void>{
   return new Promise<void>((resolve, reject)=>{
+
     // let json:string=JSON.stringify(tag);
     // //it has to be already there because:
     //   //it can be loaded from  notes full
@@ -1512,11 +1544,13 @@ public insertOrUpdateTag(tag:TagFull, userid:string):Promise<void>{
     //   console.log(JSON.stringify(error));
     //   reject(error);
     // })
+    // console.log('the tag I\'m going to insert is');console.log(JSON.stringify(tag));
+    // return Promise.resolve();
 
-    this.getTagFull(tag.title, userid)
-    .then(tagFull=>{
+    this.isTagThere(tag.title, userid)
+    .then(bool=>{
       let p:Promise<void>
-      if(tagFull!=null){
+      if(bool){
         p=this.updateJsonObjTag(tag, userid) as Promise<void>;
       }else{
         p=this.insertTagIntoTagCore(tag, userid) as Promise<void>;
@@ -1524,7 +1558,6 @@ public insertOrUpdateTag(tag:TagFull, userid:string):Promise<void>{
       return p;
     }).then(()=>{console.log('ok update or insert tag');resolve()})
     .catch(error=>{console.log('error in update or insert tag');console.log(JSON.stringify(error));reject(error)});
-    // return this.updateJsonObjTag(tag, userid);
   })
 }
 
@@ -1717,9 +1750,9 @@ private updateNoteChangeTextCoreAddToLogs(tx:any, note:NoteFull, userid:string):
 
 private updateNoteChangeTextCore(note:NoteFull, userid:string, tx?:any):Promise<void>|void{
   if(tx!=null){
-    tx.executeSql(Query.UPDATE_NOTE_SET_TEXT, [note.lastmodificationdate.toISOString(), note.text, JSON.stringify(note), note.title, userid]);
+    tx.executeSql(Query.UPDATE_NOTE_SET_TEXT_2, [note.lastmodificationdate.toISOString(), note.text, JSON.stringify(note), note.text, note.title, userid]);
   }else{
-    return this.db.executeSql(Query.UPDATE_NOTE_SET_TEXT, [note.lastmodificationdate.toISOString(), note.text, JSON.stringify(note), note.title, userid]);
+    return this.db.executeSql(Query.UPDATE_NOTE_SET_TEXT_2, [note.lastmodificationdate.toISOString(), note.text, JSON.stringify(note), note.text, note.title, userid]);
   }
 }
 
@@ -2191,6 +2224,7 @@ public getNotesByTags(tags: TagAlmostMin[], userid: string):Promise<NoteExtraMin
 
 
   deleteTag(tag: TagExtraMin, userid: string, usedNote?:NoteFull[]):Promise<any>{
+    usedNote = Utils.makeArraySafe(usedNote);
     return new Promise<any>((resolve, reject)=>{
       this.db.transaction(tx=>{
         tx.executeSql(Query.INSERT_TAG_OLDTITLE_INTO_LOGS, [tag.title, tag.title, 'delete', userid]);
@@ -4103,9 +4137,11 @@ private rollbackDeleteTagFromNote(note:NoteMin, error:boolean[],userid:string, n
 
 private addTagsToNoteUpdateOnlyNote(tx:any, note:NoteFull,  userid:string, updateLastModificationDateToo: boolean, mainTags?:TagExtraMin[], otherTags?:TagExtraMin[]):void{
   if(mainTags!=null){
+    mainTags = Utils.makeArraySafe(mainTags);
     note.maintags=note.maintags.concat(mainTags);
   }
   if(otherTags!=null){
+    otherTags = Utils.makeArraySafe(otherTags);
     note.othertags=note.othertags.concat(otherTags);
   }
   this.updateJsonObjNote(note, userid, updateLastModificationDateToo, tx);

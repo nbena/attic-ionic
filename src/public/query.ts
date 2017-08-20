@@ -441,5 +441,8 @@ export class Query{
 
   static readonly DELETE_TOKEN = 'delete from auth where userid=?';
 
+  static readonly UPDATE_NOTE_SET_TEXT_2 = 'update notes set lastmodificationdate=?, text=?, json_object=? where text <> ? and title=? and userid=?';
+
+
 
  }

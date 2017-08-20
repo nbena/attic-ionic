@@ -17,8 +17,17 @@
 
 
 //in order to make a border to the 'error' component
-.invalid {
-  border: 1px solid #ea6153;
+// .invalid {
+//   border: 1px solid #ea6153;
+// }
+
+// .invalid{
+//   border-style: solid;
+//   border-bottom-color: #ea6153;
+// }
+
+.invalid{
+  border-bottom: thin solid #ea6153;
 }
 
 .generic-gray{

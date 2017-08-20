@@ -59,8 +59,8 @@ export class TagDetailsPage {
     this.navCtrl.push(NoteDetailsPage, {title});
   }
 
-  refresh(refresher, force: boolean){
-    this.tagByTitle(this.title, force);
+  refresh(refresher){
+    this.tagByTitle(this.title, true);
     setTimeout(()=>{
       refresher.complete();
     },2000);

@@ -45,7 +45,7 @@ export class Auth {
         console.log('not-raw result is:');console.log(JSON.stringify(result));
 
         if(result==null){
-          return false;
+          resolve(false);
         }else{
           this.token = result.token;
           this.userid = result.userid;

@@ -337,8 +337,18 @@ public static search<T>(array:T[], item:T,  cmp: ((a:T,b:T)=>number)):number{
 
 
 
-
-
+ public static makeArraySafe<T>(array:T[]):T[]{
+   if(array==null){
+     array=[];
+   }else{
+     for(let i=0;i<array.length;i++){
+       if(array[i]==null){
+         array.splice(i,1);
+       }
+     }
+   }
+   return array;
+ }
 
 
 }

@@ -100,9 +100,12 @@ export class SummaryPage {
   setSynchState(){
     this.setSynchingEnabled();
     if(this.synch.isSynching()){
+      console.log('is synching');
       this.synchState = Const.CURRENTLY_SYNCHING;
     }else{
+      console.log('is not synching');
       this.synchState = Const.CURRENTLY_NOT_SYNCHING;
+      console.log(this.synchState); //not refreshed...
     }
   }
 
@@ -118,7 +121,10 @@ export class SummaryPage {
           console.log('Synchronization done');
           this.graphicProvider.presentToast('Synchronization done');
           try{
-            this.setSynchState();
+            //this.setSynchState();
+            this.synchingEnabled = false; //the user will do a refresh, will be
+            //enabled if there are items to synch.
+            this.synchState = Const.CURRENTLY_NOT_SYNCHING;
             this.summary.data.logscount=0;
           }catch(e){
             console.log('the post synch error');

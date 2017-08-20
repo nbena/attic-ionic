@@ -81,11 +81,18 @@
   </ion-item> -->
   <ion-item>
     <ion-label stacked color="primary">Main tags:</ion-label>
-    <ion-select multiple="true" formControlName="mainTags">
+    <ion-select
+    multiple="true" formControlName="mainTags"
+    [class.invalid]="!createNotePageForm.controls.mainTags.valid && (createNotePageForm.controls.mainTags.dirty || tryingToSubmit)"
+    >
       <ion-option *ngFor="let tag of tags" [value]="tag">
         {{tag.title}}
       </ion-option>
     </ion-select>
+  </ion-item>
+
+  <ion-item *ngIf="!createNotePageForm.controls.mainTags.valid && (createNotePageForm.controls.mainTags.dirty || tryingToSubmit)">
+    <ion-label class="error-label">You cannot have more than 3 main tags.</ion-label>
   </ion-item>
 
   <!-- <ion-item>
@@ -98,11 +105,18 @@
   </ion-item> -->
   <ion-item>
     <ion-label stacked color="primary">Other tags:</ion-label>
-    <ion-select multiple="true" formControlName="otherTags">
+    <ion-select
+    multiple="true" formControlName="otherTags"
+    [class.invalid]="!createNotePageForm.controls.otherTags.valid && (createNotePageForm.controls.otherTags.dirty || tryingToSubmit)"
+    >
       <ion-option *ngFor="let tag of tags" [value]="tag">
         {{tag.title}}
       </ion-option>
     </ion-select>
+  </ion-item>
+
+  <ion-item *ngIf="!createNotePageForm.controls.otherTags.valid && (createNotePageForm.controls.otherTags.dirty || tryingToSubmit)">
+    <ion-label class="error-label">You cannot have more than 10 other tags.</ion-label>
   </ion-item>
 
 

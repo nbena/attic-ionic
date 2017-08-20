@@ -1,10 +1,12 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, ViewController/*, ToastController, AlertController*/, App,Events } from 'ionic-angular';
-import { NoteFull, NoteExtraMinWithDate } from '../../models/notes';
+import { NavController, NavParams, ViewController/*, ToastController, AlertController*/
+  //, App
+  ,Events } from 'ionic-angular';
+import { NoteFull/*, NoteExtraMinWithDate*/ } from '../../models/notes';
 import { NoteEditTextPage } from '../note-edit-text/note-edit-text';
 import { AtticNotes } from '../../providers/attic-notes';
 // import { Utils } from '../../public/utils';
-import { NotesPage } from '../notes/notes';
+//import { NotesPage } from '../notes/notes';
 import { GraphicProvider} from '../../providers/graphic'
 /*
   Generated class for the NotesPopover page.
@@ -23,7 +25,7 @@ export class NoteDetailsPopoverPage {
 
   constructor(public navCtrl: NavController, public navParams: NavParams,
     public viewCtrl: ViewController, /*public alertCtrl: AlertController,*/
-    private app: App,
+    // private app: App,
     private events:Events,
     /*public toastCtrl: ToastController*/ private atticNotes: AtticNotes,
     private graphicProvider: GraphicProvider
