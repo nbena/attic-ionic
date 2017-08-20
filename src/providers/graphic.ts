@@ -21,10 +21,10 @@ export class GraphicProvider {
     console.log('Hello GraphicProvider Provider');
   }
 
-  public presentToast(message:string):Promise<any>{
+  public presentToast(message:string, duration?:number):Promise<any>{
     let toast = this.toastCtrl.create({
       message: message,
-      duration: 2000,
+      duration: duration!=null ? duration : 2000,
       position: 'bottom',
       showCloseButton: true,
       closeButtonText: 'Ok',

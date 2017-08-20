@@ -83,10 +83,13 @@ export class NoteDetailsPage {
 
   reallyAvailableTags: TagExtraMin[] = [];
 
-  tmpLastmodificationdate: Date;
+  // tmpLastmodificationdate: Date;
 
 
   lastmod: Date;
+
+  addMainTagsEnabled: boolean = true;
+  addOtherTagsEnabled: boolean = true;
 
 
 
@@ -147,7 +150,7 @@ export class NoteDetailsPage {
           this.shownLinks = this.links.slice();
           this.shownIsDone = this.isDone;
 
-          this.tmpLastmodificationdate=this.note.lastmodificationdate;
+          // this.tmpLastmodificationdate=this.note.lastmodificationdate;
 
           this.lastmod = this.note.lastmodificationdate;
 
@@ -273,8 +276,12 @@ export class NoteDetailsPage {
         }
     }), (data)=>{
       let tagsStr:string[]=data;
-      let tags:TagExtraMin[]=tagsStr.map(obj=>{return TagExtraMin.NewTag(obj)});
-      this.effectivelyAddMainTags(tags);
+      if(tagsStr.length+this.note.maintags.length>3){
+        this.graphicProvider.presentToast('You cannot have more than 3 main tags', 3000);
+      }else{
+        let tags:TagExtraMin[]=tagsStr.map(obj=>{return TagExtraMin.NewTag(obj)});
+        this.effectivelyAddMainTags(tags);
+      }
     });
   }
 
@@ -326,8 +333,12 @@ export class NoteDetailsPage {
         }
     }), (data)=>{
       let tagsStr:string[]=data;
-      let tags:TagExtraMin[]=tagsStr.map(obj=>{return TagExtraMin.NewTag(obj)});
-      this.effectivelyAddOtherTags(tags);
+      if(tagsStr.length+this.note.othertags.length>10){
+        this.graphicProvider.presentToast('You cannot have more than 10 other tags', 3000);
+      }else{
+        let tags:TagExtraMin[]=tagsStr.map(obj=>{return TagExtraMin.NewTag(obj)});
+        this.effectivelyAddOtherTags(tags);
+      }
     });
   }
 
@@ -627,7 +638,7 @@ export class NoteDetailsPage {
   }
 
   revertToOldDate(){
-    this.note.lastmodificationdate=this.tmpLastmodificationdate;
+    this.note.lastmodificationdate=this.lastmod
   }
 
 }
