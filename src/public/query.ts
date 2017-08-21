@@ -178,8 +178,11 @@ export class Query{
   // static readonly UPDATE_JSON_OBJ_NOTE ='update notes set json_object=? where title=? and userid=?';
 
   static readonly UPDATE_JSON_OBJ_TAG_IF_NEEDED ='update tags set json_object=? where title=? and json_object <> ? and userid=?';
-  static readonly UPDATE_JSON_OBJ_NOTE_IF_NEEDED ='update notes set json_object=? where title=? and json_object <> ? and userid=?';
-  static readonly UPDATE_JSON_OBJ_NOTE_IF_NEEDED_LAST_MOD ='update notes set json_object=?, lastmodificationdate=? where title=? and json_object <> ? and userid=?';
+  // static readonly UPDATE_JSON_OBJ_NOTE_IF_NEEDED ='update notes set json_object=? where title=? and json_object <> ? and userid=?';
+  // static readonly UPDATE_JSON_OBJ_NOTE_IF_NEEDED_LAST_MOD ='update notes set json_object=?, lastmodificationdate=? where title=? and json_object <> ? and userid=?';
+
+  static readonly UPDATE_JSON_OBJ_NOTE_IF_NEEDED_2 ='update notes set json_object=?, text=? where title=? and json_object <> ? and userid=?';
+  static readonly UPDATE_JSON_OBJ_NOTE_IF_NEEDED_LAST_MOD_2 ='update notes set json_object=? text=?, lastmodificationdate=? where title=? and json_object <> ? and userid=?';
 
   static readonly GET_TITLE_AND_JSON_OF_NOTES_TO_UPDATE = 'select title, role, json_object from notes join notes_tags on title=notetitle where notes.mustbedeleted=\'false\' and notes_tags.mustbedeleted=\'false\' and tagtitle=? and notes.userid=? and notes_tags.userid=notes.userid';
   // static readonly EMPLTY_NOTES = 'delete from notes';
@@ -207,8 +210,8 @@ export class Query{
 
   static readonly IS_NOTE_NOT_IN_THE_SERVER = 'select * from logs_sequence where notetitle=? and action=\'create\' and userid=?';
 
-  static readonly SELECT_NOTES_MIN_BY_TAGS = 'select notetitle from notes_tags where userid=? and mustbedeleted=\'false\' and tagtitle=?';
-  static readonly SELECT_NOTES_MIN_BY_TEXT = 'select title from notes where text like ? and mustbedeleted=\'false\' and userid=?';
+  //static readonly SELECT_NOTES_MIN_BY_TAGS = 'select notetitle from notes_tags where userid=? and mustbedeleted=\'false\' and tagtitle=?';
+  static readonly SELECT_NOTES_MIN_WITH_DATE_BY_TEXT = 'select title, lastmodificationdate from notes where text like ? and mustbedeleted=\'false\' and userid=?';
 
   static readonly SET_NOTE_DELETED = 'update notes set mustbedeleted=\'true\' where title=? and userid=?';
   static readonly SET_NOTE_DELETED_NOTES_TAGS = 'update notes_tags set mustbedeleted=\'true\' where notetitle=? and userid=?';
@@ -408,8 +411,8 @@ export class Query{
   // static readonly SELECT_NOTE_TITLE_BY_TAGS_NO_ROLE = 'select title from notes where json_object like ? and userid=?';
   // static readonly SELECT_NOTE_TITLE_JSON_BY_TAGS_NO_ROLE = 'select title, json_object from notes where json_object like ? and userid=?'
 
-  static readonly SELECT_NOTE_TITLE_BY_TAGS_NO_ROLE = 'select title from notes where userid=? and mustbedeleted=\'false\' and json_object like ?';
-  static readonly SELECT_NOTE_TITLE_JSON_BY_TAGS_NO_ROLE = 'select title, json_object from notes where userid=? and mustbedeleted=\'false\' and json_object like ?';
+  static readonly SELECT_NOTE_TITLE_BY_TAGS_NO_ROLE = 'select title,lastmodificationdate from notes where userid=? and mustbedeleted=\'false\' and json_object like ?';
+  //static readonly SELECT_NOTE_TITLE_JSON_BY_TAGS_NO_ROLE = 'select title, json_object from notes where userid=? and mustbedeleted=\'false\' and json_object like ?';
 
   static readonly SELECT_NOTES_FULL_BASE ='select json_object from notes where userid=? '
   /*

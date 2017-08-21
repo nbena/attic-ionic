@@ -1611,25 +1611,26 @@ public getNotesMin(userid: string):Promise<NoteExtraMinWithDate[]>{
     this.db.executeSql(Query.SELECT_NOTES_MIN, [userid])
     .then(result=>{
       let array:NoteExtraMinWithDate[] = [];
-      for(let i=0;i<result.rows.length;i++){
-        //let rawResult:any=result.rows.item(i).json_object;
-        // let date:any = JSON.parse(rawResult).lastmodificationdate;
-        //let obj:NoteExtraMinWithDate = JSON.parse(rawResult);
-        // console.log('object returned notes: ');
-        // console.log(JSON.stringify(obj));
-        // if(date!=null){
-        //   let tObject1
-        // }
-        let note:NoteExtraMinWithDate = new NoteExtraMinWithDate();
-        note.title=result.rows.item(i).title;
-        // let raw:any = result.rows.item(i).lastmodificationdate;
-        // let lastmod:Date = new Date(Date.parse(result.rows.item(i).lastmodificationdate));
-        // note.lastmodificationdate = lastmod;
-
-        note.lastmodificationdate = new Date(result.rows.item(i).lastmodificationdate);
-        array.push(note);
-      }
+      // for(let i=0;i<result.rows.length;i++){
+      //   //let rawResult:any=result.rows.item(i).json_object;
+      //   // let date:any = JSON.parse(rawResult).lastmodificationdate;
+      //   //let obj:NoteExtraMinWithDate = JSON.parse(rawResult);
+      //   // console.log('object returned notes: ');
+      //   // console.log(JSON.stringify(obj));
+      //   // if(date!=null){
+      //   //   let tObject1
+      //   // }
+      //   let note:NoteExtraMinWithDate = new NoteExtraMinWithDate();
+      //   note.title=result.rows.item(i).title;
+      //   // let raw:any = result.rows.item(i).lastmodificationdate;
+      //   // let lastmod:Date = new Date(Date.parse(result.rows.item(i).lastmodificationdate));
+      //   // note.lastmodificationdate = lastmod;
+      //
+      //   note.lastmodificationdate = new Date(result.rows.item(i).lastmodificationdate);
+      //   array.push(note);
+      // }
       // console.log('the array is:');console.log(JSON.stringify(array));
+      array = this.getArrayOfNotexExtraMinWithDate(result);
       resolve(array);
     })
     .catch(error=>{
@@ -1750,9 +1751,9 @@ private updateNoteChangeTextCoreAddToLogs(tx:any, note:NoteFull, userid:string):
 
 private updateNoteChangeTextCore(note:NoteFull, userid:string, tx?:any):Promise<void>|void{
   if(tx!=null){
-    tx.executeSql(Query.UPDATE_NOTE_SET_TEXT_2, [note.lastmodificationdate.toISOString(), note.text, JSON.stringify(note), note.text, note.title, userid]);
+    tx.executeSql(Query.UPDATE_NOTE_SET_TEXT, [note.lastmodificationdate.toISOString(), note.text, JSON.stringify(note),note.title, userid]);
   }else{
-    return this.db.executeSql(Query.UPDATE_NOTE_SET_TEXT_2, [note.lastmodificationdate.toISOString(), note.text, JSON.stringify(note), note.text, note.title, userid]);
+    return this.db.executeSql(Query.UPDATE_NOTE_SET_TEXT, [note.lastmodificationdate.toISOString(), note.text, JSON.stringify(note), note.title, userid]);
   }
 }
 
@@ -1994,15 +1995,26 @@ private expandTagsRegex(tags:TagAlmostMin[]):string{
   return result;
 }
 
-private getArrayOfNotexExtraMin(res:any):NoteExtraMin[]{
-  let array:NoteExtraMin[]=[];
-  console.log('res is');
-  console.log(JSON.stringify(res));
+// private getArrayOfNotexExtraMin(res:any):NoteExtraMin[]{
+//   let array:NoteExtraMin[]=[];
+//   console.log('res is');
+//   console.log(JSON.stringify(res));
+//   for(let i=0;i<res.rows.length;i++){
+//     array.push(NoteExtraMin.NewNoteExtraMin(res.rows.item(i).title));
+//   }
+//   console.log('the array');
+//   console.log(JSON.stringify(array));
+//   return array;
+// }
+
+private getArrayOfNotexExtraMinWithDate(res:any):NoteExtraMinWithDate[]{
+  let array:NoteExtraMinWithDate[]=[];
   for(let i=0;i<res.rows.length;i++){
-    array.push(NoteExtraMin.NewNoteExtraMin(res.rows.item(i).title));
+    array.push(NoteExtraMinWithDate.safeNewNoteFromJsObject({
+      title:res.rows.item(i).title,
+      lastmodificationdate:res.rows.item(i).lastmodificationdate
+    }))
   }
-  console.log('the array');
-  console.log(JSON.stringify(array));
   return array;
 }
 
@@ -2012,7 +2024,7 @@ private getNotesByTagsNoRoleCoreNoTx(tags:TagAlmostMin[], userid:string):Promise
     console.log('2');
     this.db.executeSql(Query.SELECT_NOTE_TITLE_BY_TAGS_NO_ROLE,[userid, secondParam])
     .then(res=>{
-      resolve(this.getArrayOfNotexExtraMin(res));
+      resolve(this.getArrayOfNotexExtraMinWithDate(res));
     })
     .catch(error=>{
       console.log('error in get notes by tags'); console.log(JSON.stringify(error));
@@ -2023,11 +2035,13 @@ private getNotesByTagsNoRoleCoreNoTx(tags:TagAlmostMin[], userid:string):Promise
 
 private getNotesByTagsNoRoleCoreTx(tags:TagAlmostMin[], userid:string, tx:any):NoteExtraMin[]{
   let secondParam:string =this.expandTagsRegex(tags);
+  let lock:boolean = true;
     console.log('1');
     let result:NoteExtraMin[];
     tx.executeSql(Query.SELECT_NOTE_TITLE_BY_TAGS_NO_ROLE, [userid, secondParam],
       (tx:any, res:any)=>{
-        result=this.getArrayOfNotexExtraMin(res);
+        lock = false;
+        result=this.getArrayOfNotexExtraMinWithDate(res);
       },(tx:any, error:any)=>{console.log('error in get notes by tags'); console.log(JSON.stringify(error));}
     )
     return result;
@@ -2101,22 +2115,22 @@ public getNotesByTags(tags: TagAlmostMin[], userid: string):Promise<NoteExtraMin
   //   })
   // }
 
-  getNotesByText(text: string, userid: string):Promise<NoteExtraMin[]>{
-    return new Promise<NoteExtraMin[]>((resolve, reject)=>{
+  getNotesByText(text: string, userid: string):Promise<NoteExtraMinWithDate[]>{
+    return new Promise<NoteExtraMinWithDate[]>((resolve, reject)=>{
       text = '%'+text+'%';
-      this.db.executeSql(Query.SELECT_NOTES_MIN_BY_TEXT, [text, userid])
+      this.db.executeSql(Query.SELECT_NOTES_MIN_WITH_DATE_BY_TEXT, [text, userid])
       .then(result=>{
-        let notes:NoteExtraMin[]=[];
-        if(result.rows.length <= 0){
+        let notes:NoteExtraMinWithDate[]=[];
+        // if(result.rows.length <= 0){
+        //   resolve(notes);
+        // }else{
+        //   for(let i=0;i<result.rows.length;i++){
+        //     // let note:NoteExtraMin = new NoteExtraMin();
+        //     // note.title=result.rows.item(i).title;
+        //     notes.push(NoteExtraMinWithDate.safeNewNoteFromJsObject({title: result.rows.item(i).title, lastmodificationdate: result.rows.item(i).lastmodificationdate}));
+        //   }
+          notes = this.getArrayOfNotexExtraMinWithDate(result);
           resolve(notes);
-        }else{
-          for(let i=0;i<result.rows.length;i++){
-            let note:NoteExtraMin = new NoteExtraMin();
-            note.title=result.rows.item(i).title;
-            notes.push(note);
-          }
-          resolve(notes);
-        }
       })
       .catch(error=>{
         console.log('error in notes by text');
@@ -3997,7 +4011,7 @@ private updateJsonObjNote(fullNote:NoteFull, userid:string, updateLastModificati
   let json:string = JSON.stringify(fullNote);
   if(tx!=null){
     if(updateLastModificationDateToo){
-      tx.executeSql(Query.UPDATE_JSON_OBJ_NOTE_IF_NEEDED_LAST_MOD, [json, fullNote.lastmodificationdate.toISOString(), fullNote.title, json, userid],
+      tx.executeSql(Query.UPDATE_JSON_OBJ_NOTE_IF_NEEDED_LAST_MOD_2, [json, fullNote.text, fullNote.lastmodificationdate.toISOString(), fullNote.title, json, userid],
         (tx:any, res:any)=>{
           console.log('updated json obj note');
         },
@@ -4005,7 +4019,7 @@ private updateJsonObjNote(fullNote:NoteFull, userid:string, updateLastModificati
                             console.log(JSON.stringify(error));}
         )
     }else{
-      tx.executeSql(Query.UPDATE_JSON_OBJ_NOTE_IF_NEEDED, [json, fullNote.title, json, userid],
+      tx.executeSql(Query.UPDATE_JSON_OBJ_NOTE_IF_NEEDED_2, [json, fullNote.text, fullNote.title, json, userid],
         (tx:any, res:any)=>{
           console.log('updated json obj note');
         },
@@ -4016,9 +4030,9 @@ private updateJsonObjNote(fullNote:NoteFull, userid:string, updateLastModificati
   }else{
     let p:Promise<void>;
     if(updateLastModificationDateToo){
-      p = this.db.executeSql(Query.UPDATE_JSON_OBJ_NOTE_IF_NEEDED_LAST_MOD, [json, fullNote.lastmodificationdate.toISOString(), fullNote.title, json, userid]);
+      p = this.db.executeSql(Query.UPDATE_JSON_OBJ_NOTE_IF_NEEDED_LAST_MOD_2, [json, fullNote.text, fullNote.lastmodificationdate.toISOString(), fullNote.title, json, userid]);
     }else{
-      p = this.db.executeSql(Query.UPDATE_JSON_OBJ_NOTE_IF_NEEDED, [json, fullNote.title, json, userid]);
+      p = this.db.executeSql(Query.UPDATE_JSON_OBJ_NOTE_IF_NEEDED_2, [json, fullNote.text, fullNote.title, json, userid]);
     }
     return p;
   }

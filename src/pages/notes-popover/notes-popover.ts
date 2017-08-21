@@ -73,7 +73,7 @@ export class NotesPopoverPage {
       // });
       // prompt.present();
       this.graphicProvider.genericAlert('Search by text', 'Enter the text to search for',
-        [{name:'title', placeholder:'text'}], 'Ok', (data:any)=>{this.filterByTextAPI(data as string);}
+        [{name:'title', placeholder:'text'}], 'Ok', (data:any)=>{this.filterByTextAPI(data.title as string);}
 
       );
       // this.close();

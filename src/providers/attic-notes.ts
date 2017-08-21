@@ -390,6 +390,8 @@ export class AtticNotes {
 
   notesByText(text: string, force: boolean):Promise<NoteExtraMin[]>{
 
+    console.log('text is '+text);
+
     return new Promise<NoteExtraMin[]>((resolve,reject)=>{
       let isNteworkAvailable: boolean = this.netManager.isConnected;
       let areThereNotesInTheDb: boolean;
@@ -415,6 +417,7 @@ export class AtticNotes {
         if(!useDb){
           res = fetchingResult.map(obj=>{return NoteExtraMin.safeNewNoteFromJsObject(obj);});
         }else{res=fetchingResult;}
+        console.log('the notes by text are: ');console.log(JSON.stringify(res));
         resolve(res);
       })
       .catch(error=>{
