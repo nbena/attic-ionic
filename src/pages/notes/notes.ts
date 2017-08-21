@@ -63,6 +63,8 @@ export class NotesPage {
 
   isRefreshingSet: boolean = false;
 
+  private isThereSomethingToShow: boolean = false;
+
   /*eventualNote: string = null;*/
 
   constructor(public navCtrl: NavController, private navParams: NavParams,
@@ -335,6 +337,7 @@ export class NotesPage {
         this.allNotes=result as NoteExtraMinWithDate[];
         this.shownNotes=this.allNotes;
         //console.log('the received note are: '+JSON.stringify(result));
+        this.isThereSomethingToShow = (this.shownNotes.length>0) ? true : false;
       })
       .catch(error=>{
         // console.log('load min error');
@@ -384,6 +387,9 @@ export class NotesPage {
       }else{
         this.shownNotes = result as NoteExtraMinWithDate[];
       }
+
+      this.isThereSomethingToShow = (this.shownNotes.length>0) ? true : false;
+
     })
     .catch(error=>{
       // console.log('load by tags error');
@@ -433,6 +439,7 @@ export class NotesPage {
         //if(firstTime){
           this.shownNotes = this.allNotes;
         //}
+        this.isThereSomethingToShow = (this.shownNotes.length>0) ? true : false;
       })
       .catch(error=>{
         // console.log('load by text error: ');
@@ -448,6 +455,7 @@ export class NotesPage {
         this.allNotes=result as NoteExtraMinWithDate[]; //ugly but needed.
         //if(firstTime){
           this.shownNotes = this.allNotes;
+          this.isThereSomethingToShow = (this.shownNotes.length>0) ? true : false;
         //}
       })
       .catch(error=>{

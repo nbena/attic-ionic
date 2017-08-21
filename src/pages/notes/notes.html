@@ -55,11 +55,22 @@
 
     </ion-item-sliding> -->
 
-    <ion-list>
-      <ion-item *ngFor="let note of shownNotes" (click)="displayNoteDetails(note.title)">
-        <ion-label>{{note.title}}</ion-label>
-      </ion-item>
-    </ion-list>
+    <div *ngIf="isThereSomethingToShow; then show_notes; else no_notes"></div>
+
+
+    <ng-template #show_notes>
+      <ion-list>
+        <ion-item *ngFor="let note of shownNotes" (click)="displayNoteDetails(note.title)">
+          <ion-label>{{note.title}}</ion-label>
+        </ion-item>
+      </ion-list>
+    </ng-template>
+
+    <ng-template #no_notes>
+      <div text-center class="generic-gray">
+        There are no notes to display.
+      </div>
+    </ng-template>
 
 
 
