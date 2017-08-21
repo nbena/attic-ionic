@@ -222,10 +222,16 @@ export class NotesPage {
     console.log('ionViewDidLoad NotesPage');
 
     this.searchCtrl.valueChanges.debounceTime(700).subscribe(event=>{
+      // console.log('allnotes');console.log(JSON.stringify(this.allNotes));
+      // console.log('shownnotes');console.log(JSON.stringify(this.shownNotes));
       this.currentFilterValue=this.searchTerm;
       this.currentFilter=FilterNs.Filter.Title;
       if(this.searchTerm.trim()===''){
-        this.shownNotes=this.allNotes;
+        this.shownNotes=this.allNotes.slice();
+        // console.log('is blank');
+        // console.log('allnotes');console.log(JSON.stringify(this.allNotes));
+        // console.log('shownnotes');console.log(JSON.stringify(this.shownNotes));
+        this.setIsThereSomethingToShow();
       }else{
         this.loadByTitle(this.searchTerm);
       }
@@ -335,14 +341,15 @@ export class NotesPage {
     this.atticNotes.loadNotesMin(force)
       .then(result=>{
         this.allNotes=result as NoteExtraMinWithDate[];
-        this.shownNotes=this.allNotes;
+        this.shownNotes=this.allNotes.slice();
         //console.log('the received note are: '+JSON.stringify(result));
-        this.isThereSomethingToShow = (this.shownNotes.length>0) ? true : false;
+        this.setIsThereSomethingToShow();
       })
       .catch(error=>{
         // console.log('load min error');
         console.log('load min error: ');console.log(JSON.stringify(error));
         this.graphicProvider.showErrorAlert(error);
+        this.setIsThereSomethingToShow();
       })
   }
 
@@ -388,13 +395,14 @@ export class NotesPage {
         this.shownNotes = result as NoteExtraMinWithDate[];
       }
 
-      this.isThereSomethingToShow = (this.shownNotes.length>0) ? true : false;
+      this.setIsThereSomethingToShow();
 
     })
     .catch(error=>{
       // console.log('load by tags error');
       console.log('load by tags error: ');console.log(JSON.stringify(error));
       this.graphicProvider.showErrorAlert(error);
+      this.setIsThereSomethingToShow();
     })
   }
 
@@ -418,6 +426,10 @@ export class NotesPage {
   //     })
   // }
 
+  private setIsThereSomethingToShow(){
+    this.isThereSomethingToShow = (this.shownNotes.length>0) ? true : false;
+  }
+
   /*
   Title searching is always done on what is shown.
   */
@@ -429,22 +441,28 @@ export class NotesPage {
     //   .catch(error=>{
     //     console.log(JSON.stringify(error));
     //   })
-    this.shownNotes = this.atticNotes.filterNotesByTitle(this.allNotes, this.searchTerm);
+    this.shownNotes = this.atticNotes.filterNotesByTitle(this.shownNotes, this.searchTerm);
+    this.setIsThereSomethingToShow();
   }
 
   loadByText(text: string/*, firstTime: boolean*/, force: boolean){
     this.atticNotes.notesByText(text, force)
       .then(result=>{
-        this.allNotes=result as NoteExtraMinWithDate[];
-        //if(firstTime){
-          this.shownNotes = this.allNotes;
+        if(this.allNotes==null){
+          this.allNotes=result as NoteExtraMinWithDate[];
+          this.shownNotes = this.allNotes.slice();
+        }else{
+          this.shownNotes = result as NoteExtraMinWithDate[];
+        }
         //}
-        this.isThereSomethingToShow = (this.shownNotes.length>0) ? true : false;
+        this.setIsThereSomethingToShow();
       })
       .catch(error=>{
         // console.log('load by text error: ');
         console.log('load by text error: ');console.log(JSON.stringify(error));
         this.graphicProvider.showErrorAlert(error);
+        this.setIsThereSomethingToShow();
+
       })
   }
 
@@ -452,16 +470,21 @@ export class NotesPage {
   loadByIsDone(isdone: boolean/*, firstTime: boolean*/, force: boolean){
     this.atticNotes.notesByIsDone(isdone, force)
       .then(result=>{
-        this.allNotes=result as NoteExtraMinWithDate[]; //ugly but needed.
-        //if(firstTime){
-          this.shownNotes = this.allNotes;
-          this.isThereSomethingToShow = (this.shownNotes.length>0) ? true : false;
+        if(this.allNotes==null){
+          this.allNotes=result as NoteExtraMinWithDate[]; //ugly but needed.
+          this.shownNotes = this.allNotes.slice();
+        }else{
+          this.shownNotes = result as NoteExtraMinWithDate[];
+        }
+          this.setIsThereSomethingToShow();
         //}
       })
       .catch(error=>{
         // console.log('load by text error: ');
         console.log('load by is done error: ');console.log(JSON.stringify(error));
         this.graphicProvider.showErrorAlert(error);
+        this.setIsThereSomethingToShow();
+
       })
   }
 

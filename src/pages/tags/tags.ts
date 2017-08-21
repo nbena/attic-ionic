@@ -29,6 +29,8 @@ export class TagsPage {
   searchCtrl: FormControl;
   searchTerm: string ='';
 
+  private isThereSomethingToShow: boolean = false;
+
   constructor(public navCtrl: NavController,
     // public alertCtrl: AlertController,
     private atticTags: AtticTags,
@@ -45,7 +47,8 @@ export class TagsPage {
 
     this.searchCtrl.valueChanges.debounceTime(700).subscribe(event=>{
       if(this.searchTerm.trim()===''){
-        this.shownTags = this.allTags/*.slice()*/;
+        this.shownTags = this.allTags.slice();
+        this.setIsThereSomethingToShow();
       }else{
         // this.loadByTitle(this.searchTerm);
         this.loadByTitle(this.searchTerm);
@@ -75,16 +78,23 @@ export class TagsPage {
   //     })
   // }
 
+  private setIsThereSomethingToShow(){
+    this.isThereSomethingToShow = (this.shownTags.length>0) ? true : false;
+  }
+
   loadAlmostMin(force: boolean){
     this.atticTags.loadTagsMin(force)
       .then(result=>{
         // console.log(JSON.stringify(result));
         this.allTags=result.slice(); //here to avoid duplicates.
         this.shownTags=this.allTags.slice();
+        this.setIsThereSomethingToShow();
       })
       .catch(error=>{
         console.log('load almost min error: '+JSON.stringify(error));
         this.graphicProvider.showErrorAlert(error);
+        this.setIsThereSomethingToShow();
+
       })
   }
 
@@ -97,6 +107,7 @@ export class TagsPage {
     //     console.log(JSON.stringify(error));
     //   })
     this.shownTags = this.atticTags.filterTagByTitle(this.shownTags, title);
+    this.setIsThereSomethingToShow();
   }
 
 
