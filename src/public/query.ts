@@ -211,7 +211,7 @@ export class Query{
   static readonly IS_NOTE_NOT_IN_THE_SERVER = 'select * from logs_sequence where notetitle=? and action=\'create\' and userid=?';
 
   //static readonly SELECT_NOTES_MIN_BY_TAGS = 'select notetitle from notes_tags where userid=? and mustbedeleted=\'false\' and tagtitle=?';
-  static readonly SELECT_NOTES_MIN_WITH_DATE_BY_TEXT = 'select title, lastmodificationdate from notes where text like ? and mustbedeleted=\'false\' and userid=?';
+  static readonly SELECT_NOTES_EXTRA_MIN_WITH_DATE_BY_TEXT = 'select title, lastmodificationdate from notes where text like ? and mustbedeleted=\'false\' and userid=? order by lastmodificationdate desc, title asc';
 
   static readonly SET_NOTE_DELETED = 'update notes set mustbedeleted=\'true\' where title=? and userid=?';
   static readonly SET_NOTE_DELETED_NOTES_TAGS = 'update notes_tags set mustbedeleted=\'true\' where notetitle=? and userid=?';
@@ -411,7 +411,7 @@ export class Query{
   // static readonly SELECT_NOTE_TITLE_BY_TAGS_NO_ROLE = 'select title from notes where json_object like ? and userid=?';
   // static readonly SELECT_NOTE_TITLE_JSON_BY_TAGS_NO_ROLE = 'select title, json_object from notes where json_object like ? and userid=?'
 
-  static readonly SELECT_NOTE_TITLE_BY_TAGS_NO_ROLE = 'select title,lastmodificationdate from notes where userid=? and mustbedeleted=\'false\' and json_object like ?';
+  static readonly SELECT_NOTES_EXTRA_MIN_WITH_DATE_BY_TAGS_NO_ROLE = 'select title,lastmodificationdate from notes where userid=? and mustbedeleted=\'false\' and json_object like ? order by lastmodificationdate desc, title asc';
   //static readonly SELECT_NOTE_TITLE_JSON_BY_TAGS_NO_ROLE = 'select title, json_object from notes where userid=? and mustbedeleted=\'false\' and json_object like ?';
 
   static readonly SELECT_NOTES_FULL_BASE ='select json_object from notes where userid=? '
@@ -446,6 +446,6 @@ export class Query{
 
   static readonly UPDATE_NOTE_SET_TEXT_2 = 'update notes set lastmodificationdate=?, text=?, json_object=? where text <> ? and title=? and userid=?';
 
-
+  static readonly SELECT_NOTES_EXTRA_MIN_WITH_DATE_BY_ISDONE = 'select title, lastmodificationdate from notes where json_object like ? and mustbedeleted=\'false\' and userid=? order by lastmodificationdate desc, title asc';
 
  }

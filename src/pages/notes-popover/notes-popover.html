@@ -24,16 +24,21 @@
   <button
   [class.generic-gray]="!btnRemoveFilterEnabled"
   ion-item (click)="unfilter()"
-  enabled="removeFilterEnabled"> Remove filter</button>
+  [disabled]="!removeFilterEnabled"> Remove filter</button>
+  <button
+  [class.generic-gray]="!btnFilterByIsDoneEnabled"
+  ion-item (click)="filterByIsDone()"
+  [disabled]="!btnFilterByIsDoneEnabled"
+  >Search by 'is done'</button>
   <button
   [class.generic-gray]="!btnFilterByTextEnabled"
   ion-item (click)="filterByText()"
-  enabled="btnFilterByTextEnabled"
+  [disabled]="!btnFilterByTextEnabled"
   >Search by text</button>
   <button
   [class.generic-gray]="!btnFilterByTagsEnabled"
   ion-item (click)="filterByTagsNoRole()"
-  enabled="btnFilterByTagsEnabled"
+  [disabled]="!btnFilterByTagsEnabled"
   >Search by tags</button>
   <!--<button ion-item (click)="filterByTagsWithRole()">Search by tags (advanced)</button>-->
 </ion-list>

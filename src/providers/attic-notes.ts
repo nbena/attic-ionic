@@ -428,6 +428,46 @@ export class AtticNotes {
     })
   }
 
+
+
+  notesByIsDone(isdone:boolean, force: boolean):Promise<NoteExtraMin[]>{
+
+    return new Promise<NoteExtraMin[]>((resolve,reject)=>{
+      let isNteworkAvailable: boolean = this.netManager.isConnected;
+      let areThereNotesInTheDb: boolean;
+      let useDb: boolean;
+      // let useCache: boolean = false;
+      this.db.getNotesCount(this.auth.userid)
+      .then(number=>{
+        areThereNotesInTheDb = (number > 0) ? true : false;
+        // console.log('the numberof notes is');console.log(number);
+        useDb = Utils.shouldUseDb(isNteworkAvailable, areThereNotesInTheDb, force/*, this.synch.isSynching()*/);
+        console.log('usedb note: ');console.log(JSON.stringify(useDb));
+        let p:Promise<NoteExtraMin[]>;
+        if(useDb){
+          p=this.db.getNotesByIsDone(isdone, this.auth.userid);
+        }else{
+          console.log('no notes, using the network');
+          p= this.http.post('/api/notes/by-is-done', JSON.stringify({note:{isdone:isdone}}));
+        }
+        return p;
+      })
+      .then(fetchingResult=>{
+        let res:NoteExtraMin[];
+        if(!useDb){
+          res = fetchingResult.map(obj=>{return NoteExtraMin.safeNewNoteFromJsObject(obj);});
+        }else{res=fetchingResult;}
+        console.log('the notes by is done are: ');console.log(JSON.stringify(res));
+        resolve(res);
+      })
+      .catch(error=>{
+        console.log('error in getting by is done');
+        console.log(JSON.stringify(error));
+        reject(/*AtticError.getError(error)*/error);
+      })
+    })
+  }
+
   isTitleModificationAllowed(title:string):Promise<boolean>{
     return new Promise<boolean>((resolve, reject)=>{
       this.db.selectTitleFromNotes(title, this.auth.userid)

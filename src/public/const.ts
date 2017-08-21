@@ -2,6 +2,7 @@
 
 export namespace FilterNs{
   export enum Filter{
+    IsDone,
     Tags,
     // MainTags,
     // OtherTags,
@@ -14,6 +15,8 @@ export namespace FilterNs{
     switch(input){
       case Filter.None:
         res='None';break;
+      case Filter.IsDone:
+        res='IsDone';break;
       case Filter.Text:
         res='Text';break;
       case Filter.Title:

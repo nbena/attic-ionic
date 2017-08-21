@@ -84,11 +84,11 @@ export class GraphicProvider {
     return prompt.present();
   }
 
-  public genericAlertInput(title:string, input:{type:string, label:string, value:string}[], callback:((_:any)=>void)):Promise<any>{
+  public genericAlertInput(title:string, inputs:{type:string, label:string, value:string}[], callback:((_:any)=>void)):Promise<any>{
     let alert = this.alertCtrl.create();
     alert.setTitle(title);
 
-    input.forEach(obj=>{
+    inputs.forEach(obj=>{
       alert.addInput(obj);
     })
 
@@ -102,6 +102,28 @@ export class GraphicProvider {
     })
     return alert.present();
 }
+
+// public altertRadio(title:string, inputs:{label:string, value:string}[], callback:((_:any)=>void)):Promise<any>{
+//   let alert = this.alertCtrl.create();
+//   alert.setTitle(title);
+//
+//   inputs.forEach(obj=>{
+//     alert.addInput({
+//       type:'radio',
+//       label: obj.label,
+//       value:obj.value
+//     });
+//   })
+//
+//   alert.addButton('Cancel');
+//   alert.addButton({
+//     text: 'Ok',
+//     handler: data => {
+//       callback(data);
+//     }
+//   })
+//   return alert.present();
+// }
 
     public showErrorAlert(errorIn:any, otherMsg?:string):Promise<any>{
       //console.log('the error');console.log(JSON.stringify(errorIn));console.log(JSON.stringify(errorIn.message));

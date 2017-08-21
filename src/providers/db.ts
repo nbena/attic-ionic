@@ -2028,7 +2028,7 @@ private getNotesByTagsNoRoleCoreNoTx(tags:TagAlmostMin[], userid:string):Promise
   let secondParam:string =this.expandTagsRegex(tags);
   return new Promise<NoteExtraMin[]>((resolve, reject)=>{
     console.log('2');
-    this.db.executeSql(Query.SELECT_NOTE_TITLE_BY_TAGS_NO_ROLE,[userid, secondParam])
+    this.db.executeSql(Query.SELECT_NOTES_EXTRA_MIN_WITH_DATE_BY_TAGS_NO_ROLE,[userid, secondParam])
     .then(res=>{
       resolve(this.getArrayOfNotexExtraMinWithDate(res));
     })
@@ -2044,7 +2044,7 @@ private getNotesByTagsNoRoleCoreTx(tags:TagAlmostMin[], userid:string, tx:any):N
   let lock:boolean = true;
     console.log('1');
     let result:NoteExtraMin[];
-    tx.executeSql(Query.SELECT_NOTE_TITLE_BY_TAGS_NO_ROLE, [userid, secondParam],
+    tx.executeSql(Query.SELECT_NOTES_EXTRA_MIN_WITH_DATE_BY_TAGS_NO_ROLE, [userid, secondParam],
       (tx:any, res:any)=>{
         lock = false;
         result=this.getArrayOfNotexExtraMinWithDate(res);
@@ -2124,7 +2124,7 @@ public getNotesByTags(tags: TagAlmostMin[], userid: string):Promise<NoteExtraMin
   getNotesByText(text: string, userid: string):Promise<NoteExtraMinWithDate[]>{
     return new Promise<NoteExtraMinWithDate[]>((resolve, reject)=>{
       text = '%'+text+'%';
-      this.db.executeSql(Query.SELECT_NOTES_MIN_WITH_DATE_BY_TEXT, [text, userid])
+      this.db.executeSql(Query.SELECT_NOTES_EXTRA_MIN_WITH_DATE_BY_TEXT, [text, userid])
       .then(result=>{
         let notes:NoteExtraMinWithDate[]=[];
         // if(result.rows.length <= 0){
@@ -2140,6 +2140,34 @@ public getNotesByTags(tags: TagAlmostMin[], userid: string):Promise<NoteExtraMin
       })
       .catch(error=>{
         console.log('error in notes by text');
+        console.log(JSON.stringify(error));
+        reject(error);
+      })
+    });
+  }
+
+
+
+  getNotesByIsDone(isdone:boolean, userid:string):Promise<NoteExtraMinWithDate[]>{
+    return new Promise<NoteExtraMinWithDate[]>((resolve, reject)=>{
+      let param:string = '"isdone":'+isdone.valueOf();
+      param = '%'+param+'%';
+      this.db.executeSql(Query.SELECT_NOTES_EXTRA_MIN_WITH_DATE_BY_ISDONE, [param, userid])
+      .then(result=>{
+        let notes:NoteExtraMinWithDate[]=[];
+        // if(result.rows.length <= 0){
+        //   resolve(notes);
+        // }else{
+        //   for(let i=0;i<result.rows.length;i++){
+        //     // let note:NoteExtraMin = new NoteExtraMin();
+        //     // note.title=result.rows.item(i).title;
+        //     notes.push(NoteExtraMinWithDate.safeNewNoteFromJsObject({title: result.rows.item(i).title, lastmodificationdate: result.rows.item(i).lastmodificationdate}));
+        //   }
+          notes = this.getArrayOfNotexExtraMinWithDate(result);
+          resolve(notes);
+      })
+      .catch(error=>{
+        console.log('error in notes by is done');
         console.log(JSON.stringify(error));
         reject(error);
       })

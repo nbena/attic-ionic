@@ -21,8 +21,9 @@ import {GraphicProvider} from '../../providers/graphic';
 export class NotesPopoverPage {
 
   private btnRemoveFilterEnabled:boolean = false;
-  private btnFilterByTextEnabled: boolean = true;
+  private btnFilterByTextEnabled:boolean = true;
   private btnFilterByTagsEnabled:boolean = true;
+  private btnFilterByIsDoneEnabled:boolean = true;
 
 
 // private removeFilterEnabled: boolean = true;
@@ -95,6 +96,21 @@ export class NotesPopoverPage {
   filterByTagsNoRole(){
     //this.close();
     this.navCtrl.push(NotesByTagPage)
+    .then(()=>{
+      this.viewCtrl.dismiss();
+    })
+  }
+
+  filterByIsDone(){
+    this.graphicProvider.genericAlertInput('Search by \'is done\'',
+    [{type:'radio', label:'True', value:'true'},{type:'radio', label:'False', value:'false'}],
+    (data:any)=>{
+      this.filterByIsDoneAPI( data as string == 'true' ? true : false );}
+  );
+  }
+
+  filterByIsDoneAPI(isdone:boolean){
+    this.navCtrl.push(NotesPage, {filterType: FilterNs.Filter.IsDone, filterValue: isdone})
     .then(()=>{
       this.viewCtrl.dismiss();
     })

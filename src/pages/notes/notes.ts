@@ -296,23 +296,21 @@ export class NotesPage {
     */
     switch(this.currentFilter){
       case FilterNs.Filter.Tags:
-        this.loadByTags(<TagAlmostMin[]>this.currentFilterValue/*, firstTime*/, force);
-      break;
+        this.loadByTags(this.currentFilterValue as TagAlmostMin[]/*, firstTime*/, force);break;
       // case Filter.MainTags:
       //   this.loadByMainTags(<string[]>this.currentFilterValue);
       // break;
       // case Filter.OtherTags:
       //   this.loadByOtherTags(<string[]>this.currentFilterValue);
       // break;
+      case FilterNs.Filter.IsDone:
+        this.loadByIsDone(this.currentFilterValue as boolean, force);break;
       case FilterNs.Filter.Text:
-        this.loadByText(<string>this.currentFilterValue/*, firstTime*/, force);
-      break;
+        this.loadByText(this.currentFilterValue as string/*, firstTime*/, force);break;
       case FilterNs.Filter.Title:
-        this.loadByTitle(<string>this.currentFilterValue);
-      break;
+        this.loadByTitle(this.currentFilterValue as string);break;
       default:
-        this.loadMin(force);
-      break;
+        this.loadMin(force);break;
     }
   }
 
@@ -431,7 +429,7 @@ export class NotesPage {
   loadByText(text: string/*, firstTime: boolean*/, force: boolean){
     this.atticNotes.notesByText(text, force)
       .then(result=>{
-        this.allNotes=<NoteMin[]>result;
+        this.allNotes=result as NoteExtraMinWithDate[];
         //if(firstTime){
           this.shownNotes = this.allNotes;
         //}
@@ -439,6 +437,22 @@ export class NotesPage {
       .catch(error=>{
         // console.log('load by text error: ');
         console.log('load by text error: ');console.log(JSON.stringify(error));
+        this.graphicProvider.showErrorAlert(error);
+      })
+  }
+
+
+  loadByIsDone(isdone: boolean/*, firstTime: boolean*/, force: boolean){
+    this.atticNotes.notesByIsDone(isdone, force)
+      .then(result=>{
+        this.allNotes=result as NoteExtraMinWithDate[]; //ugly but needed.
+        //if(firstTime){
+          this.shownNotes = this.allNotes;
+        //}
+      })
+      .catch(error=>{
+        // console.log('load by text error: ');
+        console.log('load by is done error: ');console.log(JSON.stringify(error));
         this.graphicProvider.showErrorAlert(error);
       })
   }
