@@ -28,7 +28,7 @@ import {GraphicProvider} from '../../providers/graphic';
 
 export class NoteDetailsPage {
 
-  note: NoteFull;
+  note: NoteFull = null;
   // _mainTags: TagExtraMin[];
   // _otherTags: TagExtraMin[];
   // _links: string[];
@@ -90,6 +90,8 @@ export class NoteDetailsPage {
 
   addMainTagsEnabled: boolean = true;
   addOtherTagsEnabled: boolean = true;
+
+  isNoteLoaded: boolean = false;
 
 
 
@@ -160,14 +162,17 @@ export class NoteDetailsPage {
         //   console.log(JSON.stringify(e));
         // }
 
-
+        this.isNoteLoaded = true;
 
       })
       .catch(err=>{
-        this.note.title=this.title;
-        console.log('load note error');console.log(JSON.stringify(err.messsage));
-        console.log(JSON.stringify(err));
+        //this.note.title=this.title;
+        this.note = null;
+        console.log('load note error');console.log(JSON.stringify(err.messsage));console.log(JSON.stringify(err));
         this.graphicProvider.showErrorAlert(err);
+        console.log('set note loaded to true');
+        this.isNoteLoaded = true;
+        console.log(this.isNoteLoaded);
       })
   }
 
@@ -175,7 +180,7 @@ export class NoteDetailsPage {
   loadTags(force: boolean){
     this.atticTags.loadTagsMin(force)
       .then(result=>{
-        console.log('the tags:');console.log(JSON.stringify(result));
+        // console.log('the tags:');console.log(JSON.stringify(result));
         this.availableTags=result as TagExtraMin[];
         this.areTagsAvailable=true;
         this.makeReallyAvailable();
@@ -239,10 +244,14 @@ export class NoteDetailsPage {
   }
 
   showPopover(event){
-    let popover=this.popoverCtrl.create(NoteDetailsPopoverPage, {note: this.note});
-    popover.present({
-      ev: event
-    });
+    // console.log('click and');console.log(this.isNoteLoaded);
+    // console.log('so this note is');console.log(JSON.stringify(this.note));
+    if(this.isNoteLoaded){
+      let popover=this.popoverCtrl.create(NoteDetailsPopoverPage, {title:this.title,note: this.note});
+      popover.present({
+        ev: event
+      });
+    }
   }
 
   /*

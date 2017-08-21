@@ -330,6 +330,7 @@ export class AtticNotes {
 
 
   //THIS IS DONE THROUGH THE CACHE.
+  //please remember that the research is done by AND.
   notesByTag2(tags:TagAlmostMin[], force: boolean):Promise<NoteExtraMin[]>{
     return new Promise<NoteExtraMin[]>((resolve, reject)=>{
       let isNteworkAvailable: boolean = this.netManager.isConnected;
@@ -388,9 +389,8 @@ export class AtticNotes {
   }
 
 
-  notesByText(text: string, force: boolean):Promise<NoteExtraMin[]>{
 
-    console.log('text is '+text);
+  notesByText(text: string, force: boolean):Promise<NoteExtraMin[]>{
 
     return new Promise<NoteExtraMin[]>((resolve,reject)=>{
       let isNteworkAvailable: boolean = this.netManager.isConnected;

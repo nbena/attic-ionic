@@ -21,7 +21,11 @@ import { GraphicProvider} from '../../providers/graphic'
 export class NoteDetailsPopoverPage {
 
   done: string;
-  note: NoteFull;
+  note: NoteFull = null;
+  title:string;
+
+  btnChangeTextEnabled:boolean = false;
+  btnChangeTitleEnabled:boolean = false;
 
   constructor(public navCtrl: NavController, public navParams: NavParams,
     public viewCtrl: ViewController, /*public alertCtrl: AlertController,*/
@@ -30,8 +34,37 @@ export class NoteDetailsPopoverPage {
     /*public toastCtrl: ToastController*/ private atticNotes: AtticNotes,
     private graphicProvider: GraphicProvider
   ) {
-      this.note=navParams.get('note');
+      // this.title =navParams.get('title');
+      // this.note=navParams.get('note');
+      // if(this.note!=null){
+      //   console.log('this note is not null');
+      //   this.btnChangeTextEnabled = true;
+      //   this.btnChangeTitleEnabled = true;
+      // }
+      this.title =this.navParams.get('title');
+      this.note=this.navParams.get('note');
+      if(this.note!=null){
+        // console.log('this note is not null');
+        this.btnChangeTextEnabled = true;
+        this.btnChangeTitleEnabled = true;
+        // console.log(this.btnChangeTitleEnabled);
+        // console.log(this.btnChangeTextEnabled);
+      }
     }
+
+    ionViewDidLoad() {
+      // this.title =this.navParams.get('title');
+      // this.note=this.navParams.get('note');
+      // if(this.note!=null){
+      //   // console.log('this note is not null');
+      //   this.btnChangeTextEnabled = true;
+      //   this.btnChangeTitleEnabled = true;
+      //   // console.log(this.btnChangeTitleEnabled);
+      //   // console.log(this.btnChangeTextEnabled);
+      // }
+      console.log('ionViewDidLoad NotesPopoverPage');
+    }
+
 
 
   changeText(){
@@ -41,6 +74,8 @@ export class NoteDetailsPopoverPage {
     //   this.viewCtrl.dismiss();
     // })
   }
+
+
 
   // changeMainTags(){
   //   this.close();
@@ -127,9 +162,6 @@ export class NoteDetailsPopoverPage {
   //   this.viewCtrl.dismiss();
   // }
 
-  ionViewDidLoad() {
-    console.log('ionViewDidLoad NotesPopoverPage');
-  }
 
   deleteNote(){
     // Utils.askConfirm(this.alertCtrl, 'Are you sure to delete note \''+this.note.title+'\'?',(_ : boolean)=>{
