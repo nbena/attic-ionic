@@ -411,7 +411,8 @@ export class Query{
   // static readonly SELECT_NOTE_TITLE_BY_TAGS_NO_ROLE = 'select title from notes where json_object like ? and userid=?';
   // static readonly SELECT_NOTE_TITLE_JSON_BY_TAGS_NO_ROLE = 'select title, json_object from notes where json_object like ? and userid=?'
 
-  static readonly SELECT_NOTES_EXTRA_MIN_WITH_DATE_BY_TAGS_NO_ROLE = 'select title,lastmodificationdate from notes where userid=? and mustbedeleted=\'false\' and json_object like ? order by lastmodificationdate desc, title asc';
+  static readonly SELECT_NOTES_EXTRA_MIN_WITH_DATE_BY_TAGS_NO_ROLE_OR = 'select title,lastmodificationdate from notes where userid=? and mustbedeleted=\'false\' and json_object like ? order by lastmodificationdate desc, title asc';
+  static readonly SELECT_NOTES_EXTRA_MIN_WITH_DATE_BY_TAGS_NO_ROLE_AND = 'select title,lastmodificationdate from notes where userid=? and mustbedeleted=\'false\' and json_object regexp ? order by lastmodificationdate desc, title asc';
   //static readonly SELECT_NOTE_TITLE_JSON_BY_TAGS_NO_ROLE = 'select title, json_object from notes where userid=? and mustbedeleted=\'false\' and json_object like ?';
 
   static readonly SELECT_NOTES_FULL_BASE ='select json_object from notes where userid=? '

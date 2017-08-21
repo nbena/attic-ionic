@@ -1981,6 +1981,16 @@ public setTagTitle(tag: TagExtraMin, newTitle: string, userid: string):Promise<a
 //   return result;
 // }
 
+private expandTagsRegex2(tags:TagAlmostMin[]):string{
+  let result:string='';
+  tags.forEach(obj=>{
+    let base:string = '.*\\{"title":"'+obj.title+'"\\}.*|';
+    result += base;
+  })
+  result = result.substr(0, result.length-1);
+  return result;
+}
+
 private expandTagsRegex(tags:TagAlmostMin[]):string{
   let result:string ='%';
   tags.forEach(obj=>{
@@ -2028,7 +2038,7 @@ private getNotesByTagsNoRoleCoreNoTx(tags:TagAlmostMin[], userid:string):Promise
   let secondParam:string =this.expandTagsRegex(tags);
   return new Promise<NoteExtraMin[]>((resolve, reject)=>{
     console.log('2');
-    this.db.executeSql(Query.SELECT_NOTES_EXTRA_MIN_WITH_DATE_BY_TAGS_NO_ROLE,[userid, secondParam])
+    this.db.executeSql(Query.SELECT_NOTES_EXTRA_MIN_WITH_DATE_BY_TAGS_NO_ROLE_OR,[userid, secondParam])
     .then(res=>{
       resolve(this.getArrayOfNotexExtraMinWithDate(res));
     })
@@ -2044,7 +2054,7 @@ private getNotesByTagsNoRoleCoreTx(tags:TagAlmostMin[], userid:string, tx:any):N
   let lock:boolean = true;
     console.log('1');
     let result:NoteExtraMin[];
-    tx.executeSql(Query.SELECT_NOTES_EXTRA_MIN_WITH_DATE_BY_TAGS_NO_ROLE, [userid, secondParam],
+    tx.executeSql(Query.SELECT_NOTES_EXTRA_MIN_WITH_DATE_BY_TAGS_NO_ROLE_OR, [userid, secondParam],
       (tx:any, res:any)=>{
         lock = false;
         result=this.getArrayOfNotexExtraMinWithDate(res);
