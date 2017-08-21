@@ -11,6 +11,10 @@
     <ion-list-header color='lightblue'>
       Modify
     </ion-list-header>
-    <button ion-item (click)="changeTitle()">Chage title</button>
+    <button
+    [class.generic-gray]="!btnChangeTitleEnabled"
+    ion-item (click)="changeTitle()"
+    [disabled]="!btnChangeTitleEnabled"
+    >Chage title</button>
     <button ion-item (click)="deleteTag()">Delete this tag</button>
   </ion-list>

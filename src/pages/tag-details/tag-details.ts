@@ -22,6 +22,9 @@ export class TagDetailsPage {
   tag: TagFull;
   title: string;
 
+  private isTagLoaded:boolean = false;
+  private isComplete:boolean = false;
+
   constructor(public navCtrl: NavController, public navParams: NavParams,
     private popoverCtrl: PopoverController,
     private atticTags: AtticTags,
@@ -46,12 +49,18 @@ export class TagDetailsPage {
         //   this.tag.notes.push(result.tag.notes[i].notetitle);
         // }
         this.tag=result;
+        if(this.tag.noteslength>0){
+          this.isComplete = true;
+        }
         // console.log('the tag is:');
         // console.log(JSON.stringify(this.tag));
+        this.isTagLoaded = true;
       })
       .catch(error=>{
         console.log('tag by title error:'+error);
         this.graphicProvider.showErrorAlert(error);
+        this.isTagLoaded=true;
+        this.tag = null;
       })
   }
 
@@ -67,10 +76,12 @@ export class TagDetailsPage {
   }
 
   showPopover(event){
-    let popover=this.popoverCtrl.create(TagDetailsPopoverPage, {tag: this.tag});
-    popover.present({
-      ev:event
-    });
+    if(this.isTagLoaded){
+      let popover=this.popoverCtrl.create(TagDetailsPopoverPage, {tag: this.tag});
+      popover.present({
+        ev:event
+      });
+    }
   }
 
 }

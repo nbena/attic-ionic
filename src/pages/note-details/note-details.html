@@ -65,7 +65,11 @@
           <ion-label stacked color="primary">
             Main tags
           </ion-label>
-          <button type="button" ion-button item-right color="primary" (click)="addMainTags()">
+          <button type="button"
+          ion-button item-right color="primary"
+          (click)="addMainTags()"
+          [disabled]="!isNoteReallyLoaded"
+          >
             <ion-icon name="add-circle"></ion-icon>
           </button>
         </ion-item>
@@ -91,7 +95,10 @@
         <ion-label stacked color="primary">
           Other tags
         </ion-label>
-        <button type="button" ion-button item-right color="primary" (click)="addOtherTags()">
+        <button type="button"
+        ion-button item-right color="primary" (click)="addOtherTags()"
+        [disabled]="!isNoteReallyLoaded"
+        >
           <ion-icon name="add-circle"></ion-icon>
         </button>
       </ion-item>
@@ -118,7 +125,9 @@
 
       <ion-item>
         <ion-label stacked color="primary">Done:</ion-label>
-        <ion-toggle [(ngModel)]="shownIsDone" (ionChange)="isDoneChanges()"></ion-toggle>
+        <ion-toggle
+        [disabled]="!isNoteReallyLoaded"
+        [(ngModel)]="shownIsDone" (ionChange)="isDoneChanges()"></ion-toggle>
       </ion-item>
 
 
@@ -126,7 +135,10 @@
         <ion-label stacked color="primary">
           Links
         </ion-label>
-        <button type="button" ion-button item-right color="primary" (click)="pushLinks()">
+        <button type="button"
+        ion-button item-right color="primary" (click)="pushLinks()"
+        [disabled]="!isNoteReallyLoaded"
+        >
           <ion-icon name="add-circle"></ion-icon>
         </button>
       </ion-item>

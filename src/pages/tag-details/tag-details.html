@@ -7,7 +7,7 @@
 <ion-header>
 
   <ion-navbar color="primary">
-    <ion-title>{{title}}</ion-title>
+    <ion-title>Tag details</ion-title>
     <ion-buttons start>
       <button ion-button icon-only right (click)="showPopover($event)">
         <ion-icon name="more"></ion-icon>
@@ -28,21 +28,38 @@
   <ion-list>
 
 
+
+
       <ion-item>
-        <ion-label>
-          {{tag?.title}}
+        <ion-label style="font-weight: bold">
+          {{title}}
         </ion-label>
       </ion-item>
 
+      <ion-item *ngIf="isComplete; then notes; else no_notes"></ion-item>
 
-      <ion-item>
-        Notes
-        <ion-list>
-          <ion-chip *ngFor="let note of tag?.notes" (click)="displayNoteDetails(note.title)">
-            {{note.title}}
-          </ion-chip>
-        </ion-list>
-      </ion-item>
+
+      <ng-template #notes>
+        <!--<ion-item>-->
+          Notes
+          <ion-list>
+            <ion-chip *ngFor="let note of tag?.notes" (click)="displayNoteDetails(note.title)">
+              {{note.title}}
+            </ion-chip>
+          </ion-list>
+        <!--</ion-item>-->
+      </ng-template>
+
+
+      <ng-template #no_notes>
+        <!--<ion-label class="generic-gray" style="tex-align: center">-->
+        <div text-center class="generic-gray">
+          This tag has no notes.
+        </div>
+        <!-- </ion-label> -->
+      </ng-template>
+
+
 
 
     </ion-list>

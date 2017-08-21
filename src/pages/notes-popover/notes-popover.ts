@@ -20,7 +20,9 @@ import {GraphicProvider} from '../../providers/graphic';
 })
 export class NotesPopoverPage {
 
-  private removeFilterEnabled:boolean = false;
+  private btnRemoveFilterEnabled:boolean = false;
+  private btnFilterByTextEnabled: boolean = true;
+  private btnFilterByTagsEnabled:boolean = true;
 
 
 // private removeFilterEnabled: boolean = true;
@@ -34,12 +36,12 @@ export class NotesPopoverPage {
     try{
       let enable:boolean = this.navParams.get('filterEnabled');
       if(enable==null){
-        this.removeFilterEnabled=false;
+        this.btnRemoveFilterEnabled=false;
       }else{
-        this.removeFilterEnabled=enable;
+        this.btnRemoveFilterEnabled=enable;
       }
     }catch(e){
-      this.removeFilterEnabled=false;
+      this.btnRemoveFilterEnabled=false;
     }
   }
 

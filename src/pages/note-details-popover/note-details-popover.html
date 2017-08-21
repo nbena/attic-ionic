@@ -23,10 +23,10 @@
   </ion-list-header>
   <button ion-item (click)="changeTitle()"
   [class.generic-gray]="!btnChangeTitleEnabled"
-  enabled="btnChangeTitleEnabled">Change title</button>
+  [disabled]="!btnChangeTitleEnabled">Change title</button>
   <button ion-item (click)="changeText()"
   [class.generic-gray]="!btnChangeTextEnabled"
-  enabled="btnChangeTextEnabled">Change text</button>
+  [disabled]="!btnChangeTextEnabled">Change text</button>
   <button ion-item (click)="deleteNote()">Delete this note</button>
   <!-- <button ion-item (click)="changeMainTags()">Change main tags</button>
   <button ion-item (click)="changeOtherTags()">Change other tags</button>

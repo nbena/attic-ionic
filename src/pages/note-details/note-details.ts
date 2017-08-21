@@ -92,6 +92,7 @@ export class NoteDetailsPage {
   addOtherTagsEnabled: boolean = true;
 
   isNoteLoaded: boolean = false;
+  isNoteReallyLoaded: boolean = false;
 
 
 
@@ -163,6 +164,7 @@ export class NoteDetailsPage {
         // }
 
         this.isNoteLoaded = true;
+        this.isNoteReallyLoaded = true;
 
       })
       .catch(err=>{
@@ -170,9 +172,10 @@ export class NoteDetailsPage {
         this.note = null;
         console.log('load note error');console.log(JSON.stringify(err.messsage));console.log(JSON.stringify(err));
         this.graphicProvider.showErrorAlert(err);
-        console.log('set note loaded to true');
+        //console.log('set note loaded to true');
         this.isNoteLoaded = true;
-        console.log(this.isNoteLoaded);
+        this.isNoteReallyLoaded = false;
+        console.log(this.isNoteReallyLoaded);
       })
   }
 
@@ -278,20 +281,22 @@ export class NoteDetailsPage {
     //   }
     // })
     // alert.present();
-    this.graphicProvider.genericAlertInput('Add main tags', this.reallyAvailableTags.map(obj=>{
-      return {type:'checkbox',
-        label:obj.title,
-        value:obj.title
+    //if(this.isNoteReallyLoaded){
+      this.graphicProvider.genericAlertInput('Add main tags', this.reallyAvailableTags.map(obj=>{
+        return {type:'checkbox',
+          label:obj.title,
+          value:obj.title
+          }
+      }), (data)=>{
+        let tagsStr:string[]=data;
+        if(tagsStr.length+this.note.maintags.length>3){
+          this.graphicProvider.presentToast('You cannot have more than 3 main tags', 3000);
+        }else{
+          let tags:TagExtraMin[]=tagsStr.map(obj=>{return TagExtraMin.NewTag(obj)});
+          this.effectivelyAddMainTags(tags);
         }
-    }), (data)=>{
-      let tagsStr:string[]=data;
-      if(tagsStr.length+this.note.maintags.length>3){
-        this.graphicProvider.presentToast('You cannot have more than 3 main tags', 3000);
-      }else{
-        let tags:TagExtraMin[]=tagsStr.map(obj=>{return TagExtraMin.NewTag(obj)});
-        this.effectivelyAddMainTags(tags);
-      }
-    });
+      });
+    //}
   }
 
   effectivelyAddMainTags(tags:TagExtraMin[]){
@@ -335,20 +340,22 @@ export class NoteDetailsPage {
     //   }
     // })
     // alert.present();
-    this.graphicProvider.genericAlertInput('Add other tags', this.reallyAvailableTags.map(obj=>{
-      return {type:'checkbox',
-        label:obj.title,
-        value:obj.title
+    // if(this.isNoteReallyLoaded){
+      this.graphicProvider.genericAlertInput('Add other tags', this.reallyAvailableTags.map(obj=>{
+        return {type:'checkbox',
+          label:obj.title,
+          value:obj.title
+          }
+      }), (data)=>{
+        let tagsStr:string[]=data;
+        if(tagsStr.length+this.note.othertags.length>10){
+          this.graphicProvider.presentToast('You cannot have more than 10 other tags', 3000);
+        }else{
+          let tags:TagExtraMin[]=tagsStr.map(obj=>{return TagExtraMin.NewTag(obj)});
+          this.effectivelyAddOtherTags(tags);
         }
-    }), (data)=>{
-      let tagsStr:string[]=data;
-      if(tagsStr.length+this.note.othertags.length>10){
-        this.graphicProvider.presentToast('You cannot have more than 10 other tags', 3000);
-      }else{
-        let tags:TagExtraMin[]=tagsStr.map(obj=>{return TagExtraMin.NewTag(obj)});
-        this.effectivelyAddOtherTags(tags);
-      }
-    });
+      });
+    // }
   }
 
 
@@ -384,16 +391,18 @@ export class NoteDetailsPage {
   pushLinks(){
 
     //Utils.pushLink(this.alertCtrl, (data)=>{this.addLinks(data)});
-    this.graphicProvider.genericAlert('New link', 'Insert the new link',
-      [
-        {
-          name:'link',
-          placeholder:'link'
-        }
-      ],
-      'Add',
-      (data)=>{this.addLinks(data)}
-    )
+    // if(this.isNoteReallyLoaded){
+      this.graphicProvider.genericAlert('New link', 'Insert the new link',
+        [
+          {
+            name:'link',
+            placeholder:'link'
+          }
+        ],
+        'Add',
+        (data)=>{this.addLinks(data)}
+      )
+    // }
   }
 
   deleteMainTags(event, i: number, tag:TagExtraMin){

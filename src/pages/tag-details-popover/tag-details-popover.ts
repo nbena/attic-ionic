@@ -18,7 +18,8 @@ import { GraphicProvider} from '../../providers/graphic'
 })
 export class TagDetailsPopoverPage {
 
-  tag: TagFull;
+  private tag: TagFull;
+  private btnChangeTitleEnabled:boolean = false;
 
   constructor(public navCtrl: NavController, public navParams: NavParams,
     // private toastCtrl: ToastController, private alertCtrl: AlertController,
@@ -28,6 +29,9 @@ export class TagDetailsPopoverPage {
     private graphicProvider:GraphicProvider
   ) {
       this.tag = navParams.get('tag');
+      if(this.tag!=null){
+        this.btnChangeTitleEnabled = true;
+      }
     }
 
   ionViewDidLoad() {

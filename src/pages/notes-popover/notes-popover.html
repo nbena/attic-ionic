@@ -22,9 +22,18 @@
     Search by
   </ion-list-header>
   <button
-  [class.generic-gray]="!removeFilterEnabled"
-  ion-item (click)="unfilter()" enabled="removeFilterEnabled"> Remove filter</button>
-  <button ion-item (click)="filterByText()">Search by text</button>
-  <button ion-item (click)="filterByTagsNoRole()">Search by tags</button>
+  [class.generic-gray]="!btnRemoveFilterEnabled"
+  ion-item (click)="unfilter()"
+  enabled="removeFilterEnabled"> Remove filter</button>
+  <button
+  [class.generic-gray]="!btnFilterByTextEnabled"
+  ion-item (click)="filterByText()"
+  enabled="btnFilterByTextEnabled"
+  >Search by text</button>
+  <button
+  [class.generic-gray]="!btnFilterByTagsEnabled"
+  ion-item (click)="filterByTagsNoRole()"
+  enabled="btnFilterByTagsEnabled"
+  >Search by tags</button>
   <!--<button ion-item (click)="filterByTagsWithRole()">Search by tags (advanced)</button>-->
 </ion-list>

@@ -113,7 +113,7 @@
     </ion-item>
 
     <ion-item>
-      <button ion-button enabled="synchEnabled" (click)="startSynching()">
+      <button ion-button [disabled]="!synchEnabled" (click)="startSynching()">
         Start Synchronization
       </button>
     </ion-item>
