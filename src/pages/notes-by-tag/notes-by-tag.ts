@@ -2,10 +2,11 @@ import { Component } from '@angular/core';
 import { NavController, NavParams, ViewController } from 'ionic-angular';
 import { AtticTags } from '../../providers/attic-tags';
 import { TagAlmostMin, TagExtraMin } from '../../models/tags';
-import { FormControl } from '@angular/forms';
 import { NotesPage } from '../notes/notes';
 import { FilterNs } from '../../public/const';
 import {GraphicProvider} from '../../providers/graphic';
+import { FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms'
+
 
 /*
   Generated class for the NotesByTag page.
@@ -30,15 +31,25 @@ export class NotesByTagPage {
   btnEnabled: boolean = false;
   checkedCount: number = 0;
 
+  searchPageForm: FormGroup;
+
   constructor(public navCtrl: NavController, public navParams: NavParams,
     private atticTags: AtticTags,
     private viewCtrl: ViewController,
-    private graphicProvider:GraphicProvider
+    private graphicProvider:GraphicProvider,
+    private formBuilder: FormBuilder
   ) {
     if(this.allTags==null){
       this.loadAlmostMin(false);
     }
     this.searchCtrl = new FormControl();
+
+    this.searchPageForm = this.formBuilder.group({
+      tags: this.formBuilder.array([, Validators.minLength(1)]),
+      searchOption: []
+    })
+
+
   }
 
   ionViewDidLoad() {
@@ -150,6 +161,27 @@ export class NotesByTagPage {
         this.viewCtrl.dismiss();
       })
     }
+  }
+
+  search(){
+    let passed:TagExtraMin[]=[];
+    // for(let i=0;i<this.shownTags.length;i++){
+    //   if(this.isChecked[i]){
+    //     passed.push(this.shownTags[i]);
+    //   }
+    // }
+    console.log(JSON.stringify(this.searchPageForm.value));
+    passed = this.searchPageForm.value.tags.map(obj=>{return TagExtraMin.NewTag(obj.title)});
+    // console.log('passed:');
+    // console.log(JSON.stringify(passed));
+    //if(passed.length>0){
+    let and:boolean = this.searchPageForm.value.searchOption=='and' ? true : false;
+      this.navCtrl.push(NotesPage, {filterType: FilterNs.Filter.Tags, filterValue: {tags:passed, and:false}})
+      //see if works.
+      .then(()=>{
+        this.viewCtrl.dismiss();
+      })
+    //}
   }
 
 }

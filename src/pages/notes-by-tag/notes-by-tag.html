@@ -22,12 +22,12 @@
   <ion-searchbar [(ngModel)]="searchTerm" [formControl]="searchCtrl">
   </ion-searchbar>
 
-  <form (ngSubmit)="searchNotesByTags()">
+  <!--<form (ngSubmit)="searchNotesByTags()">-->
+  <form [formGroup]="searchPageForm">
     <div text-center>
-      <button ion-button type="submit" [disabled]="!btnEnabled">Search</button>
+      <!--<button ion-button type="submit" [disabled]="!btnEnabled">Search</button>-->
+      <button ion-button (click)="search()">Search</button>
     </div>
-
-
   </form>
 
 
@@ -62,12 +62,34 @@
     </ion-item>
   </ion-card> -->
 
+  <ion-card>
+    Search option:
+    <ion-list radio-group formControlName="searchOption">
+      <ion-item>
+        <ion-label>
+          Notes with all of the selected tags
+        </ion-label>
+        <ion-radio value="and" checked></ion-radio>
+      </ion-item>
+      <ion-item>
+        <ion-label>
+          Notes with at least one of the selected tags
+        </ion-label>
+        <ion-radio value="or" checked></ion-radio>
+      </ion-item>
+    </ion-list>
+  </ion-card>
+
+  <ion-card>
   <ion-list>
-    <ion-item *ngFor="let tag of shownTags; let i=index">
-      <ion-checkbox (ionChange)="dataChanged2($event, i);"></ion-checkbox>
+    <ion-item *ngFor="let tag of shownTags; let i=index"  formArrayName="tags">
+      <!-- <ion-checkbox (ionChange)="dataChanged2($event, i);"></ion-checkbox> -->
+      <ion-checkbox [value]="tag.title"></ion-checkbox>
       <ion-label>{{tag.title}}</ion-label>
       <ion-badge item-right>{{tag.noteslength}}</ion-badge>
     </ion-item>
   </ion-list>
+
+  </ion-card>
 
 </ion-content>
