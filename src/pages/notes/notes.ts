@@ -304,7 +304,7 @@ export class NotesPage {
     */
     switch(this.currentFilter){
       case FilterNs.Filter.Tags:
-        this.loadByTags(this.currentFilterValue as TagAlmostMin[]/*, firstTime*/, force);break;
+        this.loadByTags(this.currentFilterValue.tags as TagAlmostMin[], this.currentFilterValue.and/*, firstTime*/, force);break;
       // case Filter.MainTags:
       //   this.loadByMainTags(<string[]>this.currentFilterValue);
       // break;
@@ -380,11 +380,11 @@ export class NotesPage {
   //     })
   // }
 
-  loadByTags(tags: TagAlmostMin[], force: boolean){
-  //  if(this.allNotes!=null){
+  loadByTags(tags: TagAlmostMin[], and:boolean, force: boolean){
+  //  if(this.allNotes!=null
       /*doing the filter on the note that I have.*/
   //  }
-    this.atticNotes.notesByTag2(tags, force)
+    this.atticNotes.notesByTag2(tags, and, force)
     .then(result=>{
       // console.log('result here is');
       // console.log(JSON.stringify(result));

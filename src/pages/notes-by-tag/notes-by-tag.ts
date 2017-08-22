@@ -144,7 +144,7 @@ export class NotesByTagPage {
     // console.log('passed:');
     // console.log(JSON.stringify(passed));
     if(passed.length>0){
-      this.navCtrl.push(NotesPage, {filterType: FilterNs.Filter.Tags, filterValue: passed})
+      this.navCtrl.push(NotesPage, {filterType: FilterNs.Filter.Tags, filterValue: {tags:passed, and:false}})
       //see if works.
       .then(()=>{
         this.viewCtrl.dismiss();

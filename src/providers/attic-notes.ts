@@ -327,11 +327,19 @@ export class AtticNotes {
   //   })
   // }
 
-
+  private static getAPINotesByTags(and:boolean){
+    let res:string;
+    if(and){
+      res='/api/notes/by-tags/and/with-date';
+    }else{
+      res='/api/notes/by-tags/or/with-date';
+    }
+    return res;
+  }
 
   //THIS IS DONE THROUGH THE CACHE.
   //please remember that the research is done by AND.
-  notesByTag2(tags:TagAlmostMin[], force: boolean):Promise<NoteExtraMin[]>{
+  notesByTag2(tags:TagAlmostMin[], and: boolean, force: boolean):Promise<NoteExtraMin[]>{
     return new Promise<NoteExtraMin[]>((resolve, reject)=>{
       let isNteworkAvailable: boolean = this.netManager.isConnected;
       let areThereNotesInTheDb: boolean;
@@ -351,10 +359,10 @@ export class AtticNotes {
         console.log('usedb note: ');console.log(JSON.stringify(useDb));
         let p:Promise<NoteExtraMin[]>;
         if(useDb){
-          p= this.db.getNotesByTags(tags, this.auth.userid);
+          p= this.db.getNotesByTags(tags, this.auth.userid, and);
         }else{
           console.log('no notes, using the network');
-          p= this.http.post('/api/notes/by-tags-no-role', JSON.stringify({tags: tags.map((tag)=>{return tag.title})}));
+          p= this.http.post(AtticNotes.getAPINotesByTags(and), JSON.stringify({tags: tags.map((tag)=>{return tag.title})}));
         }
         return p;
       })

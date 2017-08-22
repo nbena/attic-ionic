@@ -40,4 +40,5 @@
     <plugin name="cordova-plugin-splashscreen" spec="~4.0.1" />
     <engine name="android" spec="~6.1.2" />
     <allow-navigation href="http://192.168.1.101:8100" />
+    <plugin name="cordova-sqlite-ext" spec="~0.10.5" />
 </widget>

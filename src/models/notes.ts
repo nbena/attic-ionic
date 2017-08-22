@@ -26,6 +26,12 @@ export class NoteExtraMin{
     return returned;
   }
 
+  constructor(title?:string){
+    if(title!=null){
+      this.title=title;
+    }
+  }
+
 
   public static safeNewNoteFromJsonString(json:string):NoteExtraMin{
     return NoteExtraMin.safeNewNoteFromJsObject(JSON.parse(json));
@@ -41,8 +47,8 @@ export class NoteExtraMin{
 
 export class NoteExtraMinWithDate extends NoteExtraMin{
   lastmodificationdate: Date;
-  constructor(){
-    super();
+  constructor(title?:string){
+    super(title);
   }
 
   public static ascendingCompare(a: NoteExtraMinWithDate, b: NoteExtraMinWithDate):number{
@@ -112,8 +118,8 @@ export class NoteMin extends NoteBarebon{
   maintags: string[];
   othertags: string[];
 
-  constructor(){
-    super();
+  constructor(title?:string){
+    super(title);
     this.maintags = [];
     this.othertags = [];
   }
@@ -164,8 +170,8 @@ export class NoteMin extends NoteBarebon{
 export class NoteFull extends NoteBarebon{
   maintags: TagExtraMin[];
   othertags: TagExtraMin[];
-  constructor(){
-    super();
+  constructor(title?:string){
+    super(title);
     this.maintags = [];
     this.othertags = [];
   }
