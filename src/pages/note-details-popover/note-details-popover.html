@@ -19,14 +19,19 @@
 
 <ion-list>
   <ion-list-header color="lightblue">
-    Modify
+    Options
   </ion-list-header>
+  <!--
   <button ion-item (click)="changeTitle()"
   [class.generic-gray]="!btnChangeTitleEnabled"
   [disabled]="!btnChangeTitleEnabled">Change title</button>
   <button ion-item (click)="changeText()"
   [class.generic-gray]="!btnChangeTextEnabled"
-  [disabled]="!btnChangeTextEnabled">Change text</button>
+  [disabled]="!btnChangeTextEnabled">Change text</button>-->
+  <button ion-item *ngIf="btnChangeTitleEnabled"
+  (click)="changeTitle()">Change title</button>
+  <button ion-item *ngIf="bntChangeTextEnabled"
+  (click)="changeText()">Change text</button>
   <button ion-item (click)="deleteNote()">Delete this note</button>
   <!-- <button ion-item (click)="changeMainTags()">Change main tags</button>
   <button ion-item (click)="changeOtherTags()">Change other tags</button>

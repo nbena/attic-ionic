@@ -9,12 +9,16 @@
 
   <ion-list>
     <ion-list-header color='lightblue'>
-      Modify
+      Options
     </ion-list-header>
+    <!--
     <button
     [class.generic-gray]="!btnChangeTitleEnabled"
     ion-item (click)="changeTitle()"
     [disabled]="!btnChangeTitleEnabled"
+    >Chage title</button>-->
+    <button *ngIf="btnChangeTitleEnabled"
+    ion-item (click)="changeTitle()"
     >Chage title</button>
     <button ion-item (click)="deleteTag()">Delete this tag</button>
   </ion-list>

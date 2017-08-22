@@ -21,10 +21,14 @@
   <ion-list-header color="lightblue">
     Search by
   </ion-list-header>
-  <button
+  <!--
+  <button *ngIf="btnRemoveFilterEnabled"
   [class.generic-gray]="!btnRemoveFilterEnabled"
   ion-item (click)="unfilter()"
   [disabled]="!removeFilterEnabled"> Remove filter</button>
+  -->
+  <button *ngIf="btnRemoveFilterEnabled"
+  ion-item (click)="unfilter()"> Remove filter</button>
   <button
   [class.generic-gray]="!btnFilterByIsDoneEnabled"
   ion-item (click)="filterByIsDone()"
