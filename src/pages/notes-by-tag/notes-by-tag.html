@@ -22,11 +22,11 @@
   <ion-searchbar [(ngModel)]="searchTerm" [formControl]="searchCtrl">
   </ion-searchbar>
 
-  <!--<form (ngSubmit)="searchNotesByTags()">-->
-  <form [formGroup]="searchPageForm">
+  <form (ngSubmit)="searchNotesByTags()">
+  <!-- <form [formGroup]="searchPageForm"> -->
     <div text-center>
-      <!--<button ion-button type="submit" [disabled]="!btnEnabled">Search</button>-->
-      <button ion-button (click)="search()">Search</button>
+      <button ion-button type="submit" [disabled]="!btnEnabled && isThereSomethingToShow">Search</button>
+      <!-- <button ion-button (click)="search()">Search</button> -->
     </div>
   </form>
 
@@ -63,33 +63,54 @@
   </ion-card> -->
 
   <ion-card>
-    Search option:
-    <ion-list radio-group formControlName="searchOption">
-      <ion-item>
+    <ion-list radio-group [(ngModel)]="searchOption">
+      <ion-list-header>
+        <ion-label stacked color="primary">
+        Search option:
+        </ion-label>
+      </ion-list-header>
+      <ion-item text-wrap>
         <ion-label>
           Notes with all of the selected tags
         </ion-label>
-        <ion-radio value="and" checked></ion-radio>
+        <ion-radio value="and"></ion-radio>
       </ion-item>
-      <ion-item>
+      <ion-item text-wrap>
         <ion-label>
           Notes with at least one of the selected tags
         </ion-label>
-        <ion-radio value="or" checked></ion-radio>
+        <ion-radio value="or"></ion-radio>
       </ion-item>
     </ion-list>
   </ion-card>
 
   <ion-card>
+
+    <div *ngIf="isThereSomethingToShow; then show_tags; else no_tags"></div>
+
+  <ng-template #show_tags>
   <ion-list>
-    <ion-item *ngFor="let tag of shownTags; let i=index"  formArrayName="tags">
-      <!-- <ion-checkbox (ionChange)="dataChanged2($event, i);"></ion-checkbox> -->
-      <ion-checkbox [value]="tag.title"></ion-checkbox>
+    <ion-list-header>
+      <ion-label color="primary" stacked>
+        Tags:
+      </ion-label>
+    </ion-list-header>
+    <ion-item *ngFor="let tag of shownTags; let i=index"  >
+      <ion-checkbox (ionChange)="dataChanged2($event, i);"></ion-checkbox>
       <ion-label>{{tag.title}}</ion-label>
       <ion-badge item-right>{{tag.noteslength}}</ion-badge>
     </ion-item>
   </ion-list>
+  </ng-template>
+
+  <ng-template #no_tags>
+    <div text-center class="generic-gray">
+      There are no tags.
+    </div>
+  </ng-template>
 
   </ion-card>
+
+<!-- </form> -->
 
 </ion-content>

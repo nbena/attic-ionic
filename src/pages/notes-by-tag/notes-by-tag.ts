@@ -5,7 +5,7 @@ import { TagAlmostMin, TagExtraMin } from '../../models/tags';
 import { NotesPage } from '../notes/notes';
 import { FilterNs } from '../../public/const';
 import {GraphicProvider} from '../../providers/graphic';
-import { FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms'
+import { /*FormBuilder, FormGroup, Validators,*/ FormControl/*, FormArray*/ } from '@angular/forms'
 
 
 /*
@@ -31,25 +31,35 @@ export class NotesByTagPage {
   btnEnabled: boolean = false;
   checkedCount: number = 0;
 
-  searchPageForm: FormGroup;
+  isThereSomethingToShow: boolean = false;
+
+  // searchPageForm: FormGroup;
+
+  // array:any[];
+
+  searchOption:string='and';
 
   constructor(public navCtrl: NavController, public navParams: NavParams,
     private atticTags: AtticTags,
     private viewCtrl: ViewController,
     private graphicProvider:GraphicProvider,
-    private formBuilder: FormBuilder
+    // private formBuilder: FormBuilder
   ) {
     if(this.allTags==null){
       this.loadAlmostMin(false);
     }
     this.searchCtrl = new FormControl();
 
-    this.searchPageForm = this.formBuilder.group({
-      tags: this.formBuilder.array([, Validators.minLength(1)]),
-      searchOption: []
-    })
+    // this.searchPageForm = this.formBuilder.group({
+    //   tags: this.formBuilder.array([, Validators.minLength(1)]),
+    //   searchOption: []
+    // })
 
 
+  }
+
+  private setIsThereSomethingToShow(){
+    this.isThereSomethingToShow = (this.shownTags.length>0) ? true : false;
   }
 
   ionViewDidLoad() {
@@ -57,7 +67,8 @@ export class NotesByTagPage {
 
     this.searchCtrl.valueChanges.debounceTime(700).subscribe(event=>{
       if(this.searchTerm.trim()===''){
-        this.shownTags = this.allTags/*.slice()*/;
+        this.shownTags = this.allTags.slice();
+        this.setIsThereSomethingToShow();
       }else{
         // this.loadByTitle(this.searchTerm);
         this.loadByTitle(this.searchTerm);
@@ -68,6 +79,7 @@ export class NotesByTagPage {
   loadByTitle(title: string){
     this.shownTags = this.atticTags.filterTagByTitle(this.shownTags, title);
     this.mkIsChecked();
+    this.setIsThereSomethingToShow();
   }
 
   mkIsChecked(){
@@ -82,7 +94,7 @@ export class NotesByTagPage {
       .then(result=>{
         this.allTags=result as TagAlmostMin[];
         this.shownTags = this.allTags.slice();
-
+        this.setIsThereSomethingToShow();
         this.mkIsChecked();
       })
       .catch(error=>{
@@ -155,33 +167,35 @@ export class NotesByTagPage {
     // console.log('passed:');
     // console.log(JSON.stringify(passed));
     if(passed.length>0){
-      this.navCtrl.push(NotesPage, {filterType: FilterNs.Filter.Tags, filterValue: {tags:passed, and:false}})
-      //see if works.
+      let and:boolean = this.searchOption=='and' ? true : false;
+      this.navCtrl.push(NotesPage, {filterType: FilterNs.Filter.Tags, filterValue: {tags:passed, and:and}})
       .then(()=>{
         this.viewCtrl.dismiss();
       })
+
+      // console.log(this.searchOption);
     }
   }
 
-  search(){
-    let passed:TagExtraMin[]=[];
-    // for(let i=0;i<this.shownTags.length;i++){
-    //   if(this.isChecked[i]){
-    //     passed.push(this.shownTags[i]);
-    //   }
-    // }
-    console.log(JSON.stringify(this.searchPageForm.value));
-    passed = this.searchPageForm.value.tags.map(obj=>{return TagExtraMin.NewTag(obj.title)});
-    // console.log('passed:');
-    // console.log(JSON.stringify(passed));
-    //if(passed.length>0){
-    let and:boolean = this.searchPageForm.value.searchOption=='and' ? true : false;
-      this.navCtrl.push(NotesPage, {filterType: FilterNs.Filter.Tags, filterValue: {tags:passed, and:false}})
-      //see if works.
-      .then(()=>{
-        this.viewCtrl.dismiss();
-      })
-    //}
-  }
+  // search(){
+  //   let passed:TagExtraMin[]=[];
+  //   // for(let i=0;i<this.shownTags.length;i++){
+  //   //   if(this.isChecked[i]){
+  //   //     passed.push(this.shownTags[i]);
+  //   //   }
+  //   // }
+  //   console.log(JSON.stringify(this.searchPageForm.value));
+  //   passed = this.searchPageForm.value.tags.map(obj=>{return TagExtraMin.NewTag(obj.title)});
+  //   // console.log('passed:');
+  //   // console.log(JSON.stringify(passed));
+  //   //if(passed.length>0){
+  //   let and:boolean = this.searchPageForm.value.searchOption=='and' ? true : false;
+  //     this.navCtrl.push(NotesPage, {filterType: FilterNs.Filter.Tags, filterValue: {tags:passed, and:false}})
+  //     //see if works.
+  //     .then(()=>{
+  //       this.viewCtrl.dismiss();
+  //     })
+  //   //}
+  // }
 
 }
