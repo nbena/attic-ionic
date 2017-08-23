@@ -104,13 +104,14 @@ export class NoteDetailsPage {
     this.title=navParams.get('title');
     this.note = new NoteFull();
     this.note.title=this.title;
-    this.init();
+    //this.init();
+    this.load(false);
   }
 
-  init(){
-    this.noteByTitle(false);
-    this.loadTags(false);
-  }
+  // init(){
+  //   this.noteByTitle(false);
+  //   this.loadTags(false);
+  // }
 
   makeAllFalse(){
     this.haveToAddMainTags = false;
@@ -122,79 +123,138 @@ export class NoteDetailsPage {
     this.isDoneChanged = false;
   }
 
+  // noteByTitle(force: boolean){
+  //   this.atticNotes.noteByTitle(this.title, force)
+  //     .then(result=>{
+  //       this.note=result/* as NoteFull;*/;
+  //       // console.log('I\'v received the result and the note is');console.log(JSON.stringify(result));
+  //       // console.log('the note is:');
+  //       // console.log(JSON.stringify(this.note));
+  //       // this.lastModificationDateString=this.note.lastModificationDate.toDateString();
+  //       // this.creationDateString=this.note.creationDate.toDateString();
+  //       // this._mainTags=this.note.mainTags;
+  //       // this._otherTags=this.note.otherTags;
+  //       // this._links=this.note.links;
+  //       //error is here.
+  //       // try{
+  //         this.mainTags=this.note.maintags as TagExtraMin[];
+  //         this.otherTags=this.note.othertags as TagExtraMin[];
+  //         //
+  //         // console.log('the main tags:');
+  //         // console.log(JSON.stringify(this.mainTags));
+  //
+  //         this.links=this.note.links;
+  //         this.submitChangeEnabled=false;
+  //         this.isDone=this.note.isdone;
+  //
+  //         this.makeAllFalse();
+  //
+  //         this.shownMainTags = this.mainTags.slice();
+  //         this.shownOtherTags = this.otherTags.slice();
+  //         this.shownLinks = this.links.slice();
+  //         this.shownIsDone = this.isDone;
+  //
+  //         // this.tmpLastmodificationdate=this.note.lastmodificationdate;
+  //
+  //         this.lastmod = this.note.lastmodificationdate;
+  //
+  //       // }
+  //       // catch(e){
+  //       //   console.log('the real error');console.log(e.message);
+  //       //   console.log(JSON.stringify(e));
+  //       // }
+  //
+  //       this.isNoteLoaded = true;
+  //       this.isNoteReallyLoaded = true;
+  //
+  //     })
+  //     .catch(err=>{
+  //       //this.note.title=this.title;
+  //       this.note = null;
+  //       console.log('load note error');console.log(JSON.stringify(err.messsage));console.log(JSON.stringify(err));
+  //       this.graphicProvider.showErrorAlert(err);
+  //       //console.log('set note loaded to true');
+  //       this.isNoteLoaded = true;
+  //       this.isNoteReallyLoaded = false;
+  //       console.log(this.isNoteReallyLoaded);
+  //     })
+  // }
+
+  load(force:boolean, refresher?:any):void{
+    Promise.all([this.noteByTitle(force), this.loadTags(force)])
+    .then(()=>{
+      if(refresher!=null){
+          refresher.complete();
+      }
+    })
+    .catch(error=>{
+      if(refresher!=null){
+          refresher.complete();
+      }
+      this.graphicProvider.showErrorAlert(error);
+    })
+  }
+
   noteByTitle(force: boolean){
-    this.atticNotes.noteByTitle(this.title, force)
-      .then(result=>{
-        this.note=result/* as NoteFull;*/;
-        // console.log('I\'v received the result and the note is');console.log(JSON.stringify(result));
-        // console.log('the note is:');
-        // console.log(JSON.stringify(this.note));
-        // this.lastModificationDateString=this.note.lastModificationDate.toDateString();
-        // this.creationDateString=this.note.creationDate.toDateString();
-        // this._mainTags=this.note.mainTags;
-        // this._otherTags=this.note.otherTags;
-        // this._links=this.note.links;
-        //error is here.
-        // try{
-          this.mainTags=this.note.maintags as TagExtraMin[];
-          this.otherTags=this.note.othertags as TagExtraMin[];
-          //
-          // console.log('the main tags:');
-          // console.log(JSON.stringify(this.mainTags));
+    return new Promise<void>((resolve, reject)=>{
+      this.atticNotes.noteByTitle(this.title, force)
+        .then(result=>{
+          this.note=result/* as NoteFull;*/;
 
-          this.links=this.note.links;
-          this.submitChangeEnabled=false;
-          this.isDone=this.note.isdone;
+            this.mainTags=this.note.maintags as TagExtraMin[];
+            this.otherTags=this.note.othertags as TagExtraMin[];
 
-          this.makeAllFalse();
+            this.links=this.note.links;
+            this.submitChangeEnabled=false;
+            this.isDone=this.note.isdone;
 
-          this.shownMainTags = this.mainTags.slice();
-          this.shownOtherTags = this.otherTags.slice();
-          this.shownLinks = this.links.slice();
-          this.shownIsDone = this.isDone;
+            this.makeAllFalse();
 
-          // this.tmpLastmodificationdate=this.note.lastmodificationdate;
+            this.shownMainTags = this.mainTags.slice();
+            this.shownOtherTags = this.otherTags.slice();
+            this.shownLinks = this.links.slice();
+            this.shownIsDone = this.isDone;
 
-          this.lastmod = this.note.lastmodificationdate;
+            this.lastmod = this.note.lastmodificationdate;
 
-        // }
-        // catch(e){
-        //   console.log('the real error');console.log(e.message);
-        //   console.log(JSON.stringify(e));
-        // }
+          this.isNoteLoaded = true;
+          this.isNoteReallyLoaded = true;
 
-        this.isNoteLoaded = true;
-        this.isNoteReallyLoaded = true;
+          resolve();
 
-      })
-      .catch(err=>{
-        //this.note.title=this.title;
-        this.note = null;
-        console.log('load note error');console.log(JSON.stringify(err.messsage));console.log(JSON.stringify(err));
-        this.graphicProvider.showErrorAlert(err);
-        //console.log('set note loaded to true');
-        this.isNoteLoaded = true;
-        this.isNoteReallyLoaded = false;
-        console.log(this.isNoteReallyLoaded);
-      })
+        })
+        .catch(error=>{
+
+          //this.note = null;
+
+          console.log('load note error');console.log(JSON.stringify(error.messsage));console.log(JSON.stringify(error));
+          // this.graphicProvider.showErrorAlert(err);
+          //console.log('set note loaded to true');
+          this.isNoteLoaded = true;
+          this.isNoteReallyLoaded = false;
+          // console.log(this.isNoteReallyLoaded);
+          reject(error);
+        })
+    })
   }
 
 
+
   loadTags(force: boolean){
-    this.atticTags.loadTagsMin(force)
-      .then(result=>{
-        // console.log('the tags:');console.log(JSON.stringify(result));
-        this.availableTags=result as TagExtraMin[];
-        this.areTagsAvailable=true;
-        this.makeReallyAvailable();
-
-        // console.log(JSON.stringify(this.reallyAvailableTags));
-
-      })
-      .catch(error=>{
-        console.log('load tags error: '+JSON.stringify(error));
-        this.graphicProvider.showErrorAlert(error);
-      })
+    return new Promise<void>((resolve, reject)=>{
+      this.atticTags.loadTagsMin(force)
+        .then(result=>{
+          this.availableTags=result as TagExtraMin[];
+          this.areTagsAvailable=true;
+          this.makeReallyAvailable();
+          resolve();
+        })
+        .catch(error=>{
+          console.log('load tags error: '+JSON.stringify(error.message));
+          //this.graphicProvider.showErrorAlert(error);
+          reject(error);
+        })
+    })
   }
 
   makeFilter(filter: any[]){
@@ -240,11 +300,14 @@ export class NoteDetailsPage {
   refresh(refresher){
     // this.noteByTitle(true);
     // this.loadTags(true);
-    Promise.all([this.noteByTitle(true), this.loadTags(true)])
-    setTimeout(()=>{
-      refresher.complete();
-    },2000);
+    // Promise.all([this.noteByTitle(true), this.loadTags(true)])
+    // setTimeout(()=>{
+    //   refresher.complete();
+    // },2000);
+    this.load(true, refresher);
   }
+
+
 
   showPopover(event){
     // console.log('click and');console.log(this.isNoteLoaded);

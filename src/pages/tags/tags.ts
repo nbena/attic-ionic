@@ -37,7 +37,8 @@ export class TagsPage {
     private graphicProvider:GraphicProvider
   ) {
     if(this.allTags==null){
-      this.loadAlmostMin(false);
+      //this.loadAlmostMin(false);
+      this.load(false);
     }
     this.searchCtrl = new FormControl();
   }
@@ -78,27 +79,68 @@ export class TagsPage {
   //     })
   // }
 
+  load(force:boolean, title?:string, refresher?:any):void{
+    let p:Promise<void>;
+    if(title==null){
+      p=this.loadAlmostMin(force);
+    }else{
+      p=this.loadByTitle(title);
+    }
+    p.then(()=>{
+      this.setIsThereSomethingToShow();
+      if(refresher!=null){
+          refresher.complete();
+      }
+    })
+    .catch(error=>{
+      if(refresher!=null){
+        refresher.complete();
+      }
+      this.setIsThereSomethingToShow();
+      console.log('load error');console.log(JSON.stringify(error.message));
+      this.graphicProvider.showErrorAlert(error);
+    })
+  }
+
   private setIsThereSomethingToShow(){
     this.isThereSomethingToShow = (this.shownTags.length>0) ? true : false;
   }
 
-  loadAlmostMin(force: boolean){
-    this.atticTags.loadTagsMin(force)
-      .then(result=>{
-        // console.log(JSON.stringify(result));
-        this.allTags=result.slice(); //here to avoid duplicates.
-        this.shownTags=this.allTags.slice();
-        this.setIsThereSomethingToShow();
-      })
-      .catch(error=>{
-        console.log('load almost min error: '+JSON.stringify(error));
-        this.graphicProvider.showErrorAlert(error);
-        this.setIsThereSomethingToShow();
-
-      })
+  // loadAlmostMin(force: boolean){
+  //   this.atticTags.loadTagsMin(force)
+  //     .then(result=>{
+  //       // console.log(JSON.stringify(result));
+  //       this.allTags=result.slice(); //here to avoid duplicates.
+  //       this.shownTags=this.allTags.slice();
+  //       this.setIsThereSomethingToShow();
+  //     })
+  //     .catch(error=>{
+  //       console.log('load almost min error: '+JSON.stringify(error));
+  //       this.graphicProvider.showErrorAlert(error);
+  //       this.setIsThereSomethingToShow();
+  //
+  //     })
+  // }
+  loadAlmostMin(force: boolean):Promise<void>{
+    return new Promise<void>((resolve, reject)=>{
+      this.atticTags.loadTagsMin(force)
+        .then(result=>{
+          // console.log(JSON.stringify(result));
+          this.allTags=result.slice(); //here to avoid duplicates. NECESSARY.
+          this.shownTags=this.allTags.slice();
+          // this.setIsThereSomethingToShow();
+          resolve();
+        })
+        .catch(error=>{
+          // console.log('load almost min error: '+JSON.stringify(error));
+          // this.graphicProvider.showErrorAlert(error);
+          // this.setIsThereSomethingToShow();
+          reject(error);
+        })
+    })
   }
 
-  loadByTitle(title: string){
+  loadByTitle(title: string):Promise<void>{
     // this.atticTags.tagsByTitle(this.searchTerm)
     //   .then(result=>{
     //     this.shownTags=<TagAlmostMin[]>result;
@@ -107,7 +149,8 @@ export class TagsPage {
     //     console.log(JSON.stringify(error));
     //   })
     this.shownTags = this.atticTags.filterTagByTitle(this.shownTags, title);
-    this.setIsThereSomethingToShow();
+    // this.setIsThereSomethingToShow();
+    return Promise.resolve();
   }
 
 
@@ -116,11 +159,12 @@ export class TagsPage {
   }
 
   refresh(refresher){
-    this.loadAlmostMin(true);
-    //before it was this.loadFull();
-    setTimeout(()=>{
-      refresher.complete();
-    },2000);
+    // this.loadAlmostMin(true);
+    // //before it was this.loadFull();
+    // setTimeout(()=>{
+    //   refresher.complete();
+    // },2000);
+    this.load(true, null, refresher);
   }
 
 

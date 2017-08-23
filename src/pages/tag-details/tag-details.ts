@@ -31,37 +31,59 @@ export class TagDetailsPage {
     private graphicProvider:GraphicProvider
   ) {
       this.title=navParams.get('title');
-      this.tagByTitle(this.title, false);
+      //this.tagByTitle(this.title, false);
+      this.load(this.title, false);
   }
 
   ionViewDidLoad() {
     console.log('ionViewDidLoad TagDetailsPage');
   }
 
-  tagByTitle(title: string, force: boolean){
-    this.atticTags.tagByTitle(this.title, force)
-      .then(result=>{
+  // tagByTitle(title: string, force: boolean){
+  //   this.atticTags.tagByTitle(this.title, force)
+  //     .then(result=>{
+  //
+  //       // this.tag = new TagFull();
+  //       // this.tag.title = result.tag.title;
+  //       // this.tag.noteslength=result.tag.noteslength;
+  //       // for(let i=0;i<result.tag.notes.length;i++){
+  //       //   this.tag.notes.push(result.tag.notes[i].notetitle);
+  //       // }
+  //       this.tag=result;
+  //       if(this.tag.noteslength>0){
+  //         this.isComplete = true;
+  //       }
+  //       // console.log('the tag is:');
+  //       // console.log(JSON.stringify(this.tag));
+  //       this.isTagLoaded = true;
+  //     })
+  //     .catch(error=>{
+  //       console.log('tag by title error:'+error);
+  //       this.graphicProvider.showErrorAlert(error);
+  //       this.isTagLoaded=true;
+  //       this.tag = null;
+  //     })
+  // }
+  tagByTitle(title: string, force: boolean):Promise<void>{
+    return new Promise<void>((resolve, reject)=>{
+      this.atticTags.tagByTitle(this.title, force)
+        .then(result=>{
 
-        // this.tag = new TagFull();
-        // this.tag.title = result.tag.title;
-        // this.tag.noteslength=result.tag.noteslength;
-        // for(let i=0;i<result.tag.notes.length;i++){
-        //   this.tag.notes.push(result.tag.notes[i].notetitle);
-        // }
-        this.tag=result;
-        if(this.tag.noteslength>0){
-          this.isComplete = true;
-        }
-        // console.log('the tag is:');
-        // console.log(JSON.stringify(this.tag));
-        this.isTagLoaded = true;
-      })
-      .catch(error=>{
-        console.log('tag by title error:'+error);
-        this.graphicProvider.showErrorAlert(error);
-        this.isTagLoaded=true;
-        this.tag = null;
-      })
+          this.tag=result;
+          if(this.tag.noteslength>0){
+            this.isComplete = true;
+          }
+          this.isTagLoaded = true;
+          resolve();
+        })
+        .catch(error=>{
+          console.log('tag by title error:'+error);
+          // this.graphicProvider.showErrorAlert(error);
+          this.isTagLoaded=true;
+          //this.tag = null;
+          reject(error);
+        })
+    })
   }
 
   displayNoteDetails(title: string){
@@ -69,10 +91,26 @@ export class TagDetailsPage {
   }
 
   refresh(refresher){
-    this.tagByTitle(this.title, true);
-    setTimeout(()=>{
-      refresher.complete();
-    },2000);
+    // this.tagByTitle(this.title, true);
+    // setTimeout(()=>{
+    //   refresher.complete();
+    // },2000);
+    this.load(this.title, true, refresher);
+  }
+
+  load(title:string, force:boolean, refresher?:any){
+    this.tagByTitle(title, force)
+    .then(()=>{
+      if(refresher!=null){
+        refresher.complete();
+      }
+    })
+    .catch(error=>{
+      if(refresher!=null){
+        refresher.complete();
+      }
+      this.graphicProvider.showErrorAlert(error);
+    })
   }
 
   showPopover(event){
