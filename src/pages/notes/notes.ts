@@ -65,6 +65,10 @@ export class NotesPage {
 
   private isThereSomethingToShow: boolean = false;
 
+  //private refresher: any;
+  //private hasLoadingNoteCompleted: boolean = false;
+  //private hasLoadingTagCompleted: boolean = false;
+
   /*eventualNote: string = null;*/
 
   constructor(public navCtrl: NavController, private navParams: NavParams,
@@ -272,12 +276,17 @@ export class NotesPage {
     }
   }
 
-  refresh(refresher){
-    // this.loadMinAndSynch(true);
-    this.loadMin(true)
-    setTimeout(()=>{
-      refresher.complete();
-    },2000);
+  // refresh(refresher){
+  //   // this.loadMinAndSynch(true);
+  //   this.loadMin(true)
+  //   setTimeout(()=>{
+  //     refresher.complete();
+  //   },2000);
+  // }
+
+  refresh(refresher:any){
+    //this.refresher = refresher;
+    this.loadByFilter(true, refresher);
   }
 
   createNewNote(){
@@ -298,28 +307,48 @@ export class NotesPage {
   //   }
   // }
 
-  loadByFilter(/*firstTime: boolean, */force: boolean){
-    /*
-    Cast is not required by the compiler, but it's better to use it.
-    */
+  // loadByFilter(/*firsTime:boolean*/force: boolean){
+  //   switch(this.currentFilter){
+  //     case FilterNs.Filter.Tags:
+  //       this.loadByTags(this.currentFilterValue.tags as TagAlmostMin[], this.currentFilterValue.and/*, firstTime*/, force);break;
+  //     case FilterNs.Filter.IsDone:
+  //       this.loadByIsDone(this.currentFilterValue as boolean, force);break;
+  //     case FilterNs.Filter.Text:
+  //       this.loadByText(this.currentFilterValue as string/*, firstTime*/, force);break;
+  //     case FilterNs.Filter.Title:
+  //       this.loadByTitle(this.currentFilterValue as string);break;
+  //     default:
+  //       this.loadMin(force);break;
+  //   }
+  // }
+  loadByFilter(/*firsTime:boolean*/force: boolean, refresher?:any){
+    let p:Promise<void>
     switch(this.currentFilter){
       case FilterNs.Filter.Tags:
-        this.loadByTags(this.currentFilterValue.tags as TagAlmostMin[], this.currentFilterValue.and/*, firstTime*/, force);break;
-      // case Filter.MainTags:
-      //   this.loadByMainTags(<string[]>this.currentFilterValue);
-      // break;
-      // case Filter.OtherTags:
-      //   this.loadByOtherTags(<string[]>this.currentFilterValue);
-      // break;
+        p=this.loadByTags(this.currentFilterValue.tags as TagAlmostMin[], this.currentFilterValue.and/*, firstTime*/, force);break;
       case FilterNs.Filter.IsDone:
-        this.loadByIsDone(this.currentFilterValue as boolean, force);break;
+        p=this.loadByIsDone(this.currentFilterValue as boolean, force);break;
       case FilterNs.Filter.Text:
-        this.loadByText(this.currentFilterValue as string/*, firstTime*/, force);break;
+        p=this.loadByText(this.currentFilterValue as string/*, firstTime*/, force);break;
       case FilterNs.Filter.Title:
-        this.loadByTitle(this.currentFilterValue as string);break;
+        p=this.loadByTitle(this.currentFilterValue as string);break;
       default:
-        this.loadMin(force);break;
+        p=this.loadMin(force);break;
     }
+    p.then(()=>{
+      this.setIsThereSomethingToShow();
+      if(refresher!=null){
+          refresher.complete();
+      }
+    })
+    .catch(error=>{
+      if(refresher!=null){
+        refresher.complete();
+      }
+      this.setIsThereSomethingToShow();
+      console.log('load error');console.log(JSON.stringify(error.message));
+      this.graphicProvider.showErrorAlert(error);
+    })
   }
 
   // loadFull(){
@@ -337,20 +366,39 @@ export class NotesPage {
   //     })
   // }
 
-  loadMin(force: boolean){
-    this.atticNotes.loadNotesMin(force)
-      .then(result=>{
-        this.allNotes=result as NoteExtraMinWithDate[];
-        this.shownNotes=this.allNotes.slice();
-        //console.log('the received note are: '+JSON.stringify(result));
-        this.setIsThereSomethingToShow();
-      })
-      .catch(error=>{
-        // console.log('load min error');
-        console.log('load min error: ');console.log(JSON.stringify(error));
-        this.graphicProvider.showErrorAlert(error);
-        this.setIsThereSomethingToShow();
-      })
+  // loadMin(force: boolean){
+  //   this.atticNotes.loadNotesMin(force)
+  //     .then(result=>{
+  //       this.allNotes=result as NoteExtraMinWithDate[];
+  //       this.shownNotes=this.allNotes.slice();
+  //       //console.log('the received note are: '+JSON.stringify(result));
+  //       this.setIsThereSomethingToShow();
+  //     })
+  //     .catch(error=>{
+  //       // console.log('load min error');
+  //       console.log('load min error: ');console.log(JSON.stringify(error));
+  //       this.graphicProvider.showErrorAlert(error);
+  //       this.setIsThereSomethingToShow();
+  //     })
+  // }
+  loadMin(force: boolean):Promise<void>{
+     return new Promise<void>((resolve, reject)=>{
+      this.atticNotes.loadNotesMin(force)
+        .then(result=>{
+          this.allNotes=result as NoteExtraMinWithDate[];
+          this.shownNotes=this.allNotes.slice();
+          // this.setIsThereSomethingToShow();
+          resolve();
+        })
+        .catch(error=>{
+          // console.log('load min error');
+          // console.log('load min error: ');console.log(JSON.stringify(error));
+          // this.graphicProvider.showErrorAlert(error);
+          // this.setIsThereSomethingToShow();
+          reject(error);
+        })
+     })
+
   }
 
   // loadMinAndSynch(force: boolean){
@@ -380,10 +428,37 @@ export class NotesPage {
   //     })
   // }
 
-  loadByTags(tags: TagAlmostMin[], and:boolean, force: boolean){
+  // loadByTags(tags: TagAlmostMin[], and:boolean, force: boolean){
+  // //  if(this.allNotes!=null
+  //     /*doing the filter on the note that I have.*/
+  // //  }
+  //   this.atticNotes.notesByTag2(tags, and, force)
+  //   .then(result=>{
+  //     // console.log('result here is');
+  //     // console.log(JSON.stringify(result));
+  //     if(this.allNotes==null){
+  //       this.allNotes = result as NoteExtraMinWithDate[];
+  //       this.shownNotes = this.allNotes.slice();
+  //     }else{
+  //       this.shownNotes = result as NoteExtraMinWithDate[];
+  //     }
+  //
+  //     this.setIsThereSomethingToShow();
+  //
+  //   })
+  //   .catch(error=>{
+  //     // console.log('load by tags error');
+  //     console.log('load by tags error: ');console.log(JSON.stringify(error));
+  //     this.graphicProvider.showErrorAlert(error);
+  //     this.setIsThereSomethingToShow();
+  //   })
+  // }
+
+  loadByTags(tags: TagAlmostMin[], and:boolean, force: boolean):Promise<void>{
   //  if(this.allNotes!=null
       /*doing the filter on the note that I have.*/
   //  }
+  return new Promise<void>((resolve, reject)=>{
     this.atticNotes.notesByTag2(tags, and, force)
     .then(result=>{
       // console.log('result here is');
@@ -394,16 +469,15 @@ export class NotesPage {
       }else{
         this.shownNotes = result as NoteExtraMinWithDate[];
       }
-
-      this.setIsThereSomethingToShow();
-
+      resolve();
     })
     .catch(error=>{
-      // console.log('load by tags error');
-      console.log('load by tags error: ');console.log(JSON.stringify(error));
-      this.graphicProvider.showErrorAlert(error);
-      this.setIsThereSomethingToShow();
+      // console.log('load by tags error: ');console.log(JSON.stringify(error));
+      // this.graphicProvider.showErrorAlert(error);
+      // this.setIsThereSomethingToShow();
+      reject(error);
     })
+  })
   }
 
   // loadByMainTags(tags: string[]){
@@ -433,7 +507,19 @@ export class NotesPage {
   /*
   Title searching is always done on what is shown.
   */
-  loadByTitle(title: string){
+  // loadByTitle(title: string){
+  //   // this.atticNotes.notesByTitle(title)
+  //   //   .then(result=>{
+  //   //     this.notes=<NoteMin[]>result;
+  //   //   })
+  //   //   .catch(error=>{
+  //   //     console.log(JSON.stringify(error));
+  //   //   })
+  //   this.shownNotes = this.atticNotes.filterNotesByTitle(this.shownNotes, this.searchTerm);
+  //   this.setIsThereSomethingToShow();
+  // }
+
+  loadByTitle(title: string):Promise<void>{
     // this.atticNotes.notesByTitle(title)
     //   .then(result=>{
     //     this.notes=<NoteMin[]>result;
@@ -442,50 +528,93 @@ export class NotesPage {
     //     console.log(JSON.stringify(error));
     //   })
     this.shownNotes = this.atticNotes.filterNotesByTitle(this.shownNotes, this.searchTerm);
-    this.setIsThereSomethingToShow();
+    // this.setIsThereSomethingToShow();
+    return Promise.resolve();
   }
 
-  loadByText(text: string/*, firstTime: boolean*/, force: boolean){
-    this.atticNotes.notesByText(text, force)
-      .then(result=>{
-        if(this.allNotes==null){
-          this.allNotes=result as NoteExtraMinWithDate[];
-          this.shownNotes = this.allNotes.slice();
-        }else{
-          this.shownNotes = result as NoteExtraMinWithDate[];
-        }
-        //}
-        this.setIsThereSomethingToShow();
-      })
-      .catch(error=>{
-        // console.log('load by text error: ');
-        console.log('load by text error: ');console.log(JSON.stringify(error));
-        this.graphicProvider.showErrorAlert(error);
-        this.setIsThereSomethingToShow();
-
-      })
+  // loadByText(text: string/*, firstTime: boolean*/, force: boolean){
+  //   this.atticNotes.notesByText(text, force)
+  //     .then(result=>{
+  //       if(this.allNotes==null){
+  //         this.allNotes=result as NoteExtraMinWithDate[];
+  //         this.shownNotes = this.allNotes.slice();
+  //       }else{
+  //         this.shownNotes = result as NoteExtraMinWithDate[];
+  //       }
+  //       //}
+  //       this.setIsThereSomethingToShow();
+  //     })
+  //     .catch(error=>{
+  //       // console.log('load by text error: ');
+  //       console.log('load by text error: ');console.log(JSON.stringify(error));
+  //       this.graphicProvider.showErrorAlert(error);
+  //       this.setIsThereSomethingToShow();
+  //
+  //     })
+  // }
+  loadByText(text: string/*, firstTime: boolean*/, force: boolean):Promise<void>{
+    return new Promise<void>((resolve, reject)=>{
+      this.atticNotes.notesByText(text, force)
+        .then(result=>{
+          if(this.allNotes==null){
+            this.allNotes=result as NoteExtraMinWithDate[];
+            this.shownNotes = this.allNotes.slice();
+          }else{
+            this.shownNotes = result as NoteExtraMinWithDate[];
+          }
+          resolve();
+        })
+        .catch(error=>{
+          // // console.log('load by text error: ');
+          // console.log('load by text error: ');console.log(JSON.stringify(error));
+          // this.graphicProvider.showErrorAlert(error);
+          // this.setIsThereSomethingToShow();
+          reject(error);
+        })
+    })
   }
 
+  // loadByIsDone(isdone: boolean/*, firstTime: boolean*/, force: boolean){
+  //   this.atticNotes.notesByIsDone(isdone, force)
+  //     .then(result=>{
+  //       if(this.allNotes==null){
+  //         this.allNotes=result as NoteExtraMinWithDate[]; //ugly but needed.
+  //         this.shownNotes = this.allNotes.slice();
+  //       }else{
+  //         this.shownNotes = result as NoteExtraMinWithDate[];
+  //       }
+  //         this.setIsThereSomethingToShow();
+  //       //}
+  //     })
+  //     .catch(error=>{
+  //       // console.log('load by text error: ');
+  //       console.log('load by is done error: ');console.log(JSON.stringify(error));
+  //       this.graphicProvider.showErrorAlert(error);
+  //       this.setIsThereSomethingToShow();
+  //
+  //     })
+  // }
 
-  loadByIsDone(isdone: boolean/*, firstTime: boolean*/, force: boolean){
-    this.atticNotes.notesByIsDone(isdone, force)
-      .then(result=>{
-        if(this.allNotes==null){
-          this.allNotes=result as NoteExtraMinWithDate[]; //ugly but needed.
-          this.shownNotes = this.allNotes.slice();
-        }else{
-          this.shownNotes = result as NoteExtraMinWithDate[];
-        }
-          this.setIsThereSomethingToShow();
-        //}
-      })
-      .catch(error=>{
-        // console.log('load by text error: ');
-        console.log('load by is done error: ');console.log(JSON.stringify(error));
-        this.graphicProvider.showErrorAlert(error);
-        this.setIsThereSomethingToShow();
-
-      })
+  loadByIsDone(isdone: boolean/*, firstTime: boolean*/, force: boolean):Promise<void>{
+    return new Promise<void>((resolve, reject)=>{
+      this.atticNotes.notesByIsDone(isdone, force)
+        .then(result=>{
+          if(this.allNotes==null){
+            this.allNotes=result as NoteExtraMinWithDate[]; //ugly but needed.
+            this.shownNotes = this.allNotes.slice();
+          }else{
+            this.shownNotes = result as NoteExtraMinWithDate[];
+          }
+            // this.setIsThereSomethingToShow();
+            resolve();
+        })
+        .catch(error=>{
+          // console.log('load by is done error: ');console.log(JSON.stringify(error));
+          // this.graphicProvider.showErrorAlert(error);
+          // this.setIsThereSomethingToShow();
+          reject(error);
+        })
+    })
   }
 
   deleteNote(title: string){
