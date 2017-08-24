@@ -38,14 +38,20 @@ fieldset{
 }
 
 .generic-gray{
-  color: #808080;
+  color: map-get($colors, generic-gray);
+}
+
+.reduced-font{
+  font-size: 0.8em;
 }
 
 //gray label
+/*
 .error-label{
   font-size: 0.8em;
   color: #808080;
 }
+*/
 
 ion-chip{
   border: thin solid map-get($colors, primary);

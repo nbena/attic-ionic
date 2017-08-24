@@ -38,14 +38,14 @@
     </ion-item> -->
 
     <ion-item>
-      <ion-label style="color: #808080">E-mail:</ion-label>
+      <ion-label color="generic-gray">E-mail:</ion-label>
       <!--<ion-label item-end>{{summary?.userid}}</ion-label>-->
       <div item-end text-left>{{summary?.userid}}</div>
     </ion-item>
 
     <ion-item>
       <!--<ion-label text-color="#808080">Profile type:</ion-label>-->
-      <ion-label style="color: #808080">Profile type:</ion-label>
+      <ion-label color="generic-gray">Profile type:</ion-label>
       <!---<ion-label item-end style="text-align:left">{{profileType}}</ion-label>-->
       <div item-end text-left>{{profileType}}</div>
     </ion-item>
@@ -113,7 +113,7 @@
     </ion-item>
 
     <ion-item>
-      <button ion-button [disabled]="!synchEnabled" (click)="startSynching()">
+      <button ion-button [disabled]="!synchingEnabled" (click)="startSynching()">
         Start Synchronization
       </button>
     </ion-item>

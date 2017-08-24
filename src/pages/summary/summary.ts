@@ -107,6 +107,7 @@ export class SummaryPage {
       this.synchState = Const.CURRENTLY_NOT_SYNCHING;
       console.log(this.synchState); //not refreshed...
     }
+    console.log('is enabled?');console.log(this.synchingEnabled);
   }
 
   startSynching(){
