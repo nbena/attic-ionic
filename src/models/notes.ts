@@ -20,11 +20,11 @@ export class NoteExtraMin{
     return b.title.localeCompare(a.title);
 }
 
-  public static NewNoteExtraMin(title:string):NoteExtraMin{
-    let returned:NoteExtraMin = new NoteExtraMin();
-    returned.title = title;
-    return returned;
-  }
+  // public static NewNoteExtraMin(title:string):NoteExtraMin{
+  //   let returned:NoteExtraMin = new NoteExtraMin();
+  //   returned.title = title;
+  //   return returned;
+  // }
 
   constructor(title?:string){
     if(title!=null){
@@ -38,8 +38,8 @@ export class NoteExtraMin{
   }
 
   public static safeNewNoteFromJsObject(jsonNote:any):NoteExtraMin{
-    let note:NoteExtraMin=new NoteExtraMin();
-    note.title = jsonNote.title;
+    let note:NoteExtraMin=new NoteExtraMin(jsonNote.title);
+    // note.title = jsonNote.title;
     return note;
   }
 
@@ -80,8 +80,8 @@ export class NoteExtraMinWithDate extends NoteExtraMin{
   // }
 
   public static safeNewNoteFromJsObject(jsonNote:any):NoteExtraMinWithDate{
-    let note:NoteExtraMinWithDate=new NoteExtraMinWithDate();
-    note.title=jsonNote.title;
+    let note:NoteExtraMinWithDate=new NoteExtraMinWithDate(jsonNote.title);
+    // note.title=jsonNote.title;
     note.lastmodificationdate = new Date(jsonNote.lastmodificationdate);
     return note;
   }
@@ -133,7 +133,7 @@ export class NoteMin extends NoteBarebon{
   public getTagsAsTagsExtraMinArray():TagExtraMin[]{
     let array:TagExtraMin[]=[];
     let arrayStr:string[]=this.getTagsAsStringArray();
-    array=arrayStr.map(obj=>{return TagExtraMin.NewTag(obj)})
+    array=arrayStr.map(obj=>{return new TagExtraMin(obj)})
     return array;
   }
 
@@ -154,7 +154,7 @@ export class NoteMin extends NoteBarebon{
   }
 
   public getNoteExtraMin():NoteExtraMin{
-    return NoteExtraMin.NewNoteExtraMin(this.title);
+    return new NoteExtraMin(this.title);
   }
 
 }
@@ -288,8 +288,8 @@ export class NoteFull extends NoteBarebon{
 
   public getMinifiedVersionForCreation():NoteFull{
     let tmpNote:NoteFull = this.clone();
-    let maintags:TagExtraMin[]=tmpNote.maintags.map(obj=>{return TagExtraMin.NewTag(obj.title)});
-    let othertags:TagExtraMin[]=tmpNote.othertags.map(obj=>{return TagExtraMin.NewTag(obj.title)});
+    let maintags:TagExtraMin[]=tmpNote.maintags.map(obj=>{return new TagExtraMin(obj.title)});
+    let othertags:TagExtraMin[]=tmpNote.othertags.map(obj=>{return new TagExtraMin(obj.title)});
     tmpNote.maintags=maintags;
     tmpNote.othertags=othertags;
     return tmpNote;
@@ -297,8 +297,8 @@ export class NoteFull extends NoteBarebon{
 
 
   public clone():NoteFull{
-    let tmpNote:NoteFull = new NoteFull();
-    tmpNote.title=this.title;
+    let tmpNote:NoteFull = new NoteFull(this.title);
+    // tmpNote.title=this.title;
     tmpNote.text=this.text;
     tmpNote.maintags = this.maintags;
     tmpNote.othertags = this.othertags;
@@ -311,15 +311,15 @@ export class NoteFull extends NoteBarebon{
 
 
   public forceCastToNoteExtraMinWithDate():NoteExtraMinWithDate{
-    let note:NoteExtraMinWithDate = new NoteExtraMinWithDate();
-    note.title=this.title;
+    let note:NoteExtraMinWithDate = new NoteExtraMinWithDate(this.title);
+    // note.title=this.title;
     note.lastmodificationdate=this.lastmodificationdate;
     return note;
   }
 
   public forceCastToNoteExtraMin():NoteExtraMin{
-    let note:NoteExtraMin = new NoteExtraMin();
-    note.title=this.title;
+    let note:NoteExtraMin = new NoteExtraMin(this.title);
+    // note.title=this.title;
     return note;
   }
 
@@ -341,8 +341,8 @@ export class NoteFull extends NoteBarebon{
 
 
   public static safeNewNoteFromJsObject(jsonNote:any):NoteFull{
-    let tmpNote:NoteFull=new NoteFull();
-    tmpNote.title=jsonNote.title;
+    let tmpNote:NoteFull=new NoteFull(jsonNote.title);
+    // tmpNote.title=jsonNote.title;
     tmpNote.text=jsonNote.text;
     tmpNote.maintags = jsonNote.maintags;
     tmpNote.othertags = jsonNote.othertags;

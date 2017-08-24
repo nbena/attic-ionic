@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Http, Headers } from '@angular/http';
 import 'rxjs/add/operator/map';
 import { Const } from '../public/const';
-import { User } from '../models/user';
+//import { User } from '../models/user';
 
 /*
   Generated class for the HttpProvider provider.

@@ -355,7 +355,7 @@ export class NoteDetailsPage {
         if(tagsStr.length+this.note.maintags.length>3){
           this.graphicProvider.presentToast('You cannot have more than 3 main tags', 3000);
         }else{
-          let tags:TagExtraMin[]=tagsStr.map(obj=>{return TagExtraMin.NewTag(obj)});
+          let tags:TagExtraMin[]=tagsStr.map(obj=>{return new TagExtraMin(obj)});
           this.effectivelyAddMainTags(tags);
         }
       });
@@ -414,7 +414,7 @@ export class NoteDetailsPage {
         if(tagsStr.length+this.note.othertags.length>10){
           this.graphicProvider.presentToast('You cannot have more than 10 other tags', 3000);
         }else{
-          let tags:TagExtraMin[]=tagsStr.map(obj=>{return TagExtraMin.NewTag(obj)});
+          let tags:TagExtraMin[]=tagsStr.map(obj=>{return new TagExtraMin(obj)});
           this.effectivelyAddOtherTags(tags);
         }
       });

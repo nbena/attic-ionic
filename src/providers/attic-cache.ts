@@ -4,7 +4,7 @@ import { Injectable } from '@angular/core';
 import {NoteFull, NoteExtraMin, NoteExtraMinWithDate} from '../models/notes';
 import {TagFull, TagExtraMin, TagAlmostMin} from '../models/tags';
 import {Utils} from '../public/utils';
-import { UserSummary } from '../models/user_summary';
+//import { UserSummary } from '../models/user_summary';
 
 
 /*

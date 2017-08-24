@@ -3,14 +3,14 @@ import { Injectable } from '@angular/core';
 import 'rxjs/add/operator/map';
 import { Db/*, LogObject */, LogObjSmart} from './db';
 import { Auth } from './auth';
-import { AtticTags } from './attic-tags';
-import { AtticNotes } from './attic-notes';
-import { NoteExtraMin, NoteFull, /*NoteSQLite, NoteMin*/ } from '../models/notes';
-import { TagExtraMin, TagFull/*, TagSQLite/*, TagMin*/ } from '../models/tags';
+// import { AtticTags } from './attic-tags';
+// import { AtticNotes } from './attic-notes';
+import { /*NoteExtraMin, */NoteFull, /*NoteSQLite, NoteMin*/ } from '../models/notes';
+//import { TagExtraMin, TagFull/*, TagSQLite/*, TagMin*/ } from '../models/tags';
 // //import * as Collections from 'typescript-collections';
 // import { DbAction } from '../public/const';
-import { Network } from '@ionic-native/network';
-import { Platform } from 'ionic-angular';
+// import { Network } from '@ionic-native/network';
+// import { Platform } from 'ionic-angular';
 // import { Utils } from '../public/utils';
 
 import { NetManager } from './net-manager';
@@ -70,13 +70,13 @@ export class Synch {
 
   private someSynchError:boolean = false;
 
-  constructor(private network: Network, private db: Db,
+  constructor(/*private network: Network,*/ private db: Db,
     private netManager: NetManager,
     // private atticNotes: AtticNotes,
     // private atticTags: AtticTags,
     private auth: Auth,
     public http: HttpProvider,
-    private platform: Platform
+    // private platform: Platform
     ) {
 
     console.log('Hello Synch Provider');
@@ -141,13 +141,13 @@ export class Synch {
     this.lockNoteDelete = true;
   }
 
-  private makeAllNoteFalse(){
-    this.lockNoteDone = false;
-    this.lockNoteText = false;
-    this.lockNoteLinks = false;
-    this.lockNoteCreate = false;
-    this.lockNoteDelete = false;
-  }
+  // private makeAllNoteFalse(){
+  //   this.lockNoteDone = false;
+  //   this.lockNoteText = false;
+  //   this.lockNoteLinks = false;
+  //   this.lockNoteCreate = false;
+  //   this.lockNoteDelete = false;
+  // }
 
   private makeAllTagTrue(){
     this.lockTagCreate = true;
@@ -164,10 +164,10 @@ export class Synch {
     this.makeAllTagTrue();
   }
 
-  private makeAllFalse(){
-    this.makeAllTagTrue();
-    this.makeAllTagFalse();
-  }
+  // private makeAllFalse(){
+  //   this.makeAllTagTrue();
+  //   this.makeAllTagFalse();
+  // }
 
 
 
@@ -435,7 +435,7 @@ export class Synch {
   //note is NOTEEXTRAMIN!
   public sendNotesToSave():Promise<void>{
     let correctResult:string[] = [];
-    let current:NoteFull = null;
+    // let current:NoteFull = null;
     let currentLog:LogObjSmart;
     // this.makeAllTagTrue();
     // console.log('start sending notes-to-create');

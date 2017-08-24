@@ -4,16 +4,16 @@ to create a new account or to login.
 */
 import { Injectable } from '@angular/core';
 // import { Http, Headers } from '@angular/http';
-import { Storage } from '@ionic/storage';
+//import { Storage } from '@ionic/storage';
 // import { Storage} from 'ionic-angular';
 import 'rxjs/add/operator/map';
 
-import { tokenNotExpired } from 'angular2-jwt';
+// import { tokenNotExpired } from 'angular2-jwt';
 
-import { Const } from '../public/const';
+//import { Const } from '../public/const';
 import { User } from '../models/user';
 import { Db } from './db';
-import { Platform } from 'ionic-angular';
+//import { Platform } from 'ionic-angular';
 import { HttpProvider} from './http';
 
 import { AtticError } from '../public/errors'
@@ -31,8 +31,8 @@ export class Auth {
   public userid: string;
 
 
-  constructor(private http: HttpProvider, private platform: Platform,
-    public storage: Storage, private db: Db) {
+  constructor(private http: HttpProvider/*, private platform: Platform,
+    public storage: Storage, */,private db: Db) {
     console.log('Hello Auth Provider');
   }
 

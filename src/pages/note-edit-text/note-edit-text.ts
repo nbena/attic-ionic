@@ -1,4 +1,4 @@
-import { Component, Directive } from '@angular/core';
+import { Component/*, Directive */} from '@angular/core';
 import { NavController, NavParams/*, ToastController*/ } from 'ionic-angular';
 
 import { NoteFull } from '../../models/notes';

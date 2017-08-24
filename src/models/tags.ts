@@ -17,10 +17,15 @@ export class TagExtraMin {
   // toStringId(): string{
   //   return this._id;
   // }
-  public static NewTag(title:string):TagExtraMin{
-    let tag:TagExtraMin = new TagExtraMin();
-    tag.title=title;
-    return tag;
+  // public static NewTag(title:string):TagExtraMin{
+  //   let tag:TagExtraMin = new TagExtraMin();
+  //   tag.title=title;
+  //   return tag;
+  // }
+  public constructor(title?:string){
+    if(title!=null){
+      this.title=title;
+    }
   }
 
   public static ascendingCompare(a:TagExtraMin, b:TagAlmostMin):number{
@@ -37,7 +42,7 @@ export class TagExtraMin {
   }
 
   public static safeNewTagFromJsObject(json:any):TagExtraMin{
-    return TagExtraMin.NewTag(json.title);
+    return new TagExtraMin(json.title);
   }
 
 
@@ -66,8 +71,8 @@ export class TagAlmostMin extends TagExtraMin{
     return r;
   }
 
-  constructor(){
-    super();
+  constructor(title?:string){
+    super(title);
     this.noteslength=0;
   }
 
@@ -125,8 +130,8 @@ export class TagFull extends TagAlmostMin{
   //   super();
   //   this.title=title;
   // }
-  constructor(){
-    super();
+  constructor(title?:string){
+    super(title);
     this.notes =[];
   }
   userid: string;
@@ -157,8 +162,8 @@ export class TagFull extends TagAlmostMin{
 
 
   public forceCastToTagAlmostMin():TagAlmostMin{
-    let tag:TagAlmostMin = new TagAlmostMin();
-    tag.title=this.title;
+    let tag:TagAlmostMin = new TagAlmostMin(this.title);
+    // tag.title=this.title;
     tag.noteslength=this.noteslength;
     return tag;
   }
@@ -168,8 +173,8 @@ export class TagFull extends TagAlmostMin{
   }
 
   public static safeNewTagFromJsObject(jsonTag:any):TagFull{
-    let tag:TagFull = new TagFull();
-    tag.title = jsonTag.title;
+    let tag:TagFull = new TagFull(jsonTag.title);
+    // tag.title = jsonTag.title;
     tag.noteslength = jsonTag.noteslength;
     tag.notes =jsonTag.notes;
     if(jsonTag.noteslength==null || tag.noteslength==null){

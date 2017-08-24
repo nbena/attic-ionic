@@ -4,7 +4,7 @@ import { Http, Headers } from '@angular/http';
 */
 /* importing auth because I need the token. */
 // import { Auth } from '../providers/auth';
-import { /*Const,/* PostgresError, SqliteError,*/ DbActionNs } from '../public/const';
+//import { /*Const,/* PostgresError, SqliteError,*/ DbActionNs } from '../public/const';
 import { /*NoteBarebon, */NoteFull/*, NoteMin*/, NoteExtraMin } from '../models/notes';
 import { TagExtraMin, TagFull/*, TagSQLite*/ } from '../models/tags';
 //import { ToastController, AlertController } from 'ionic-angular';

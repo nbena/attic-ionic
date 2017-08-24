@@ -21,6 +21,8 @@ import {GraphicProvider} from '../../providers/graphic';
 export class NotesPopoverPage {
 
   private btnRemoveFilterEnabled:boolean = false;
+
+  //for now they're alwasy set to true.
   private btnFilterByTextEnabled:boolean = true;
   private btnFilterByTagsEnabled:boolean = true;
   private btnFilterByIsDoneEnabled:boolean = true;

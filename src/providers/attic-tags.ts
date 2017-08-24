@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import {  Headers } from '@angular/http';
+//import {  Headers } from '@angular/http';
 import 'rxjs/add/operator/map';
 
 import { Auth } from './auth';
@@ -9,11 +9,11 @@ import { Auth } from './auth';
 import { Utils } from '../public/utils';
 
 import { TagExtraMin, TagAlmostMin, TagFull } from '../models/tags';
-import {NoteExtraMin, NoteFull} from '../models/notes';
+import {/*NoteExtraMin, */NoteFull} from '../models/notes';
 import { Db } from './db';
 import { NetManager } from './net-manager';
 import { Synch } from './synch';
-import { DbActionNs, Const } from '../public/const';
+import { DbActionNs/*, Const*/ } from '../public/const';
 
 import { AtticCache } from './attic-cache';
 import { HttpProvider } from './http';
@@ -33,7 +33,8 @@ export class AtticTags {
   //private cachedFullTag:TagFull[]=null;
 
   constructor(private http: HttpProvider, public auth: Auth,
-    private db: Db, private netManager: NetManager,
+    private db: Db,
+    private netManager: NetManager,
     private synch: Synch,
     private atticCache: AtticCache
   ) {
@@ -42,7 +43,7 @@ export class AtticTags {
 
   loadTagsMin(force: boolean){
     return new Promise<TagAlmostMin[]>((resolve, reject)=>{
-        let useForce: boolean = force;
+        //let useForce: boolean = force;
         let isNteworkAvailable: boolean = this.netManager.isConnected;
         let areThereTagsInTheDb: boolean;
         let useCache: boolean = false;
@@ -128,7 +129,7 @@ export class AtticTags {
           console.log('use db tag: ');console.log(JSON.stringify(useDb));
           let p:Promise<TagFull>;
           if(useDb){
-            let tag:TagFull=this.atticCache.getTagFullOrNull(TagExtraMin.NewTag(title));
+            let tag:TagFull=this.atticCache.getTagFullOrNull(new TagExtraMin(title));
             if(tag!=null){
               console.log('the tag is in the cache');
               p=Promise.resolve(tag);

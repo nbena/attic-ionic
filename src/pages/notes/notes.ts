@@ -5,7 +5,7 @@ import { NavController, NavParams, PopoverController,/* ToastController, */Event
   } from 'ionic-angular';
 
 import { AtticNotes } from '../../providers/attic-notes';
-import {/* NoteExtraMin, /*NoteSmart, */NoteMin/*, NoteFull*/,NoteExtraMinWithDate } from '../../models/notes';
+import {/* NoteExtraMin, /*NoteSmart, NoteMin/*, NoteFull*/NoteExtraMinWithDate } from '../../models/notes';
 
 import { NoteDetailsPage } from '../note-details/note-details';
 //import { CreateNotePage } from '../create-note/create-note';

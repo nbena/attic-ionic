@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 // import { Http, Headers } from '@angular/http';
 /* importing auth because I need the token. */
 import { Auth } from './auth';
-import { DbActionNs, Const } from '../public/const';
+import { DbActionNs/*, Const */} from '../public/const';
 import { NoteExtraMin/*, NoteSmart,*/, NoteFull,/*NoteMin,/*, NoteBarebon,*/ NoteExtraMinWithDate } from '../models/notes';
 import { Utils } from '../public/utils';
 import { Db/*, LogObject*/ } from './db';
@@ -82,7 +82,7 @@ export class AtticNotes {
   */
   loadNotesMin(force: boolean):Promise<NoteExtraMinWithDate[]>{
     return new Promise<NoteExtraMinWithDate[]>((resolve, reject)=>{
-      let useForce: boolean = force;
+      // let useForce: boolean = force;
       let useCache: boolean = false;
       let isNteworkAvailable: boolean = this.netManager.isConnected;
       let areThereNotesInTheDb: boolean;
@@ -189,7 +189,7 @@ export class AtticNotes {
         console.log('use db note');console.log(JSON.stringify(useDb));
         let p:Promise<NoteFull>;
         if(useDb){
-          let note:NoteFull=this.atticCache.getNoteFullOrNull(NoteExtraMin.NewNoteExtraMin(title));
+          let note:NoteFull=this.atticCache.getNoteFullOrNull(new NoteExtraMin(title));
           if(note!=null){
             console.log('the note is in the cache'); useCache=true;
             //p=new Promise<NoteFull>((resolve, reject)=>{resolve(note)});
