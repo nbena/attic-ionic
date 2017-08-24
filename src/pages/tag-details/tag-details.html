@@ -40,14 +40,16 @@
 
 
       <ng-template #notes>
-        <!--<ion-item>-->
-          Notes
-          <ion-list>
-            <ion-chip *ngFor="let note of tag?.notes" (click)="displayNoteDetails(note.title)">
-              {{note.title}}
-            </ion-chip>
-          </ion-list>
-        <!--</ion-item>-->
+        <div text-center>
+          <!--<fieldset style="border-top-color: #e6e6e6; border-left-color:transparent; border-right-color:transparent; border-bottom-color:transparent">-->
+          <fieldset>
+            <legend class="generic-gray">Notes</legend>
+          </fieldset>
+          <ion-chip *ngFor="let note of tag?.notes" (click)="displayNoteDetails(note.title)">
+            <ion-icon name="book"></ion-icon>
+            <ion-label>{{note.title}}</ion-label>
+          </ion-chip>
+        </div>
       </ng-template>
 
 

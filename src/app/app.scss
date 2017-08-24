@@ -26,6 +26,13 @@
 //   border-bottom-color: #ea6153;
 // }
 
+fieldset{
+  border-top-color: #e6e6e6;
+  border-left-color:transparent;
+  border-right-color:transparent;
+  border-bottom-color:transparent
+}
+
 .invalid{
   border-bottom: thin solid #ea6153;
 }
@@ -38,4 +45,8 @@
 .error-label{
   font-size: 0.8em;
   color: #808080;
+}
+
+ion-chip{
+  border: thin solid map-get($colors, primary);
 }
