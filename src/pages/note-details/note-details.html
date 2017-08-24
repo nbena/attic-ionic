@@ -68,7 +68,7 @@
           <button type="button"
           ion-button item-right color="primary"
           (click)="addMainTags()"
-          [disabled]="!isNoteReallyLoaded"
+          [disabled]="(!isNoteReallyLoaded && !areTagsReallyLoaded)"
           >
             <ion-icon name="add-circle"></ion-icon>
           </button>
@@ -97,7 +97,7 @@
         </ion-label>
         <button type="button"
         ion-button item-right color="primary" (click)="addOtherTags()"
-        [disabled]="!isNoteReallyLoaded"
+        [disabled]="(!isNoteReallyLoaded && !areTagsReallyLoaded)"
         >
           <ion-icon name="add-circle"></ion-icon>
         </button>

@@ -78,10 +78,10 @@ export class NoteDetailsPage {
   availableOtherTags: TagExtraMin[] =[];
   availableMainTags: TagExtraMin[] = [];
 
-  availableTags: TagExtraMin[] = [];
-  areTagsAvailable: boolean = false;
+  availableTags: TagExtraMin[] = null; //before they were initialized.
+  //areTagsAvailable: boolean = false;
 
-  reallyAvailableTags: TagExtraMin[] = [];
+  reallyAvailableTags: TagExtraMin[] = null;
 
   // tmpLastmodificationdate: Date;
 
@@ -93,6 +93,8 @@ export class NoteDetailsPage {
 
   isNoteLoaded: boolean = false;
   isNoteReallyLoaded: boolean = false;
+
+  areTagsReallyLoaded: boolean = false;
 
 
 
@@ -231,7 +233,10 @@ export class NoteDetailsPage {
           // this.graphicProvider.showErrorAlert(err);
           //console.log('set note loaded to true');
           this.isNoteLoaded = true;
-          this.isNoteReallyLoaded = false;
+          // if(this.note==null){
+          //   this.isNoteReallyLoaded = false;
+          // }
+          this.isNoteReallyLoaded = (this.note==null) ? false : true;
           // console.log(this.isNoteReallyLoaded);
           reject(error);
         })
@@ -245,24 +250,32 @@ export class NoteDetailsPage {
       this.atticTags.loadTagsMin(force)
         .then(result=>{
           this.availableTags=result as TagExtraMin[];
-          this.areTagsAvailable=true;
+          //this.areTagsAvailable=true;
           this.makeReallyAvailable();
+          this.areTagsReallyLoaded=true;
           resolve();
         })
         .catch(error=>{
           console.log('load tags error: '+JSON.stringify(error.message));
           //this.graphicProvider.showErrorAlert(error);
+
+          this.areTagsReallyLoaded = (this.reallyAvailableTags==null) ? false : true;
+
           reject(error);
         })
     })
   }
 
-  makeFilter(filter: any[]){
-    // this.reallyAvailableTags=Utils.arrayDiff3(this.reallyAvailableTags, filter);
-  }
+  // makeFilter(filter: any[]){
+  //   // this.reallyAvailableTags=Utils.arrayDiff3(this.reallyAvailableTags, filter);
+  // }
 
   makeReallyAvailable(){
-    this.reallyAvailableTags=this.availableTags;
+    this.reallyAvailableTags = this.availableTags;
+  }
+
+  //makeReallyAvailable(){
+    //this.reallyAvailableTags=this.availableTags; --> the only one used.
     // console.log("the really available tags: \n");
     // console.log(JSON.stringify(this.reallyAvailableTags));
     // console.log("the main tags: \n");
@@ -286,7 +299,7 @@ export class NoteDetailsPage {
     // console.log((this.mainTags.length+this.otherTags.length).toString());
     // console.log("tags length");
     // console.log(this.reallyAvailableTags.length.toString());
-  }
+  //}
 
   ionViewDidLoad() {
     console.log('ionViewDidLoad NoteDetailsPage');
