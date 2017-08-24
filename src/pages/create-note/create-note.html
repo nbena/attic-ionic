@@ -32,7 +32,7 @@
   <form [formGroup]="createNotePageForm">
 
     <ion-item>
-      <ion-label stacked color="primary">Title</ion-label>
+      <ion-label stacked color="generic-gray">Title</ion-label>
       <!-- <ion-input
       name="title" [(ngModel)]="newNote.title">
     </ion-input> -->
@@ -51,7 +51,7 @@
 
 
     <ion-item>
-      <ion-label stacked color="primary">Text</ion-label>
+      <ion-label stacked color="generic-gray">Text</ion-label>
       <!-- <ion-textarea
       autosize
       name="text" [(ngModel)]="newNote.text">
@@ -80,7 +80,7 @@
     </ion-select>
   </ion-item> -->
   <ion-item>
-    <ion-label stacked color="primary">Main tags:</ion-label>
+    <ion-label stacked color="generic-gray">Main tags:</ion-label>
     <ion-select
     multiple="true" formControlName="mainTags"
     [class.invalid]="!createNotePageForm.controls.mainTags.valid && (createNotePageForm.controls.mainTags.dirty || tryingToSubmit)"
@@ -104,7 +104,7 @@
     </ion-select>
   </ion-item> -->
   <ion-item>
-    <ion-label stacked color="primary">Other tags:</ion-label>
+    <ion-label stacked color="generic-gray">Other tags:</ion-label>
     <ion-select
     multiple="true" formControlName="otherTags"
     [class.invalid]="!createNotePageForm.controls.otherTags.valid && (createNotePageForm.controls.otherTags.dirty || tryingToSubmit)"
@@ -121,7 +121,7 @@
 
 
   <ion-item>
-    <ion-label stacked color="primary"
+    <ion-label stacked color="generic-gray"
     >
       Links:
     </ion-label>
@@ -149,7 +149,7 @@
   </ion-item> -->
 
   <ion-item>
-    <ion-label stacked color="primary">Done:</ion-label>
+    <ion-label stacked color="generic-gray">Done:</ion-label>
     <ion-toggle formControlName="isDone"></ion-toggle>
   </ion-item>
 
