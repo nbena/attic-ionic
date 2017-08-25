@@ -16,7 +16,7 @@ import { Db } from './db';
 //import { Platform } from 'ionic-angular';
 import { HttpProvider} from './http';
 
-import { AtticError } from '../public/errors'
+//import { AtticError } from '../public/errors'
 
 /*
   Generated class for the Auth provider.

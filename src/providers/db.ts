@@ -4241,17 +4241,17 @@ private rollbackDeleteTagFromNote(note:NoteMin, error:boolean[],userid:string, n
 */
 
 
-private addTagsToNoteUpdateOnlyNote(tx:any, note:NoteFull,  userid:string, updateLastModificationDateToo: boolean, mainTags?:TagExtraMin[], otherTags?:TagExtraMin[]):void{
-  if(mainTags!=null){
-    mainTags = Utils.makeArraySafe(mainTags);
-    note.maintags=note.maintags.concat(mainTags);
-  }
-  if(otherTags!=null){
-    otherTags = Utils.makeArraySafe(otherTags);
-    note.othertags=note.othertags.concat(otherTags);
-  }
-  this.updateJsonObjNote(note, userid, updateLastModificationDateToo, tx);
-}
+// private addTagsToNoteUpdateOnlyNote(tx:any, note:NoteFull,  userid:string, updateLastModificationDateToo: boolean, mainTags?:TagExtraMin[], otherTags?:TagExtraMin[]):void{
+//   if(mainTags!=null){
+//     mainTags = Utils.makeArraySafe(mainTags);
+//     note.maintags=note.maintags.concat(mainTags);
+//   }
+//   if(otherTags!=null){
+//     otherTags = Utils.makeArraySafe(otherTags);
+//     note.othertags=note.othertags.concat(otherTags);
+//   }
+//   this.updateJsonObjNote(note, userid, updateLastModificationDateToo, tx);
+// }
 
 
 /*maybe in the future I'll pass full objects.*/

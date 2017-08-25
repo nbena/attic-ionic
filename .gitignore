@@ -41,3 +41,5 @@ src/providers/db.old.ts
 
 dump-local-db
 .icon
+my-release-key.jks
+.keys

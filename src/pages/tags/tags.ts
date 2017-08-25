@@ -215,6 +215,7 @@ export class TagsPage {
 
         // this.allTags.push(<TagFull>tag);
         // this.shownTags.push(<TagFull>tag);
+        this.setIsThereSomethingToShow();
       })
       .catch(error=>{
         // console.log('create new tag error: ');

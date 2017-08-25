@@ -222,6 +222,7 @@ export class NotesPage {
       this.allNotes.unshift(note);
       this.shownNotes.unshift(note);
     }
+    this.setIsThereSomethingToShow();
   }
 
   ionViewDidLoad() {
