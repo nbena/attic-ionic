@@ -13,6 +13,7 @@ import { NoteDetailsPopoverPage } from '../note-details-popover/note-details-pop
 
 import { Utils } from '../../public/utils';
 import {GraphicProvider} from '../../providers/graphic';
+import { InAppBrowser, InAppBrowserObject } from '@ionic-native/in-app-browser';
 
 /*
   Generated class for the NoteDetails page.
@@ -101,7 +102,8 @@ export class NoteDetailsPage {
   constructor(public navCtrl: NavController, public navParams: NavParams,
     public popoverCtrl: PopoverController,
     private atticNotes: AtticNotes, private atticTags: AtticTags,
-    private graphicProvider:GraphicProvider
+    private graphicProvider:GraphicProvider,
+    private iab: InAppBrowser
   ) {
     this.title=navParams.get('title');
     this.note = new NoteFull();
@@ -733,6 +735,12 @@ export class NoteDetailsPage {
 
   revertToOldDate(){
     this.note.lastmodificationdate=this.lastmod
+  }
+
+
+  browse(link:string){
+    const browser:InAppBrowserObject = this.iab.create(link, '_system');
+    //browser.show();
   }
 
 }

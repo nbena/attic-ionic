@@ -45,6 +45,7 @@ import { Network } from '@ionic-native/network';
 import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
 import { SQLite } from '@ionic-native/sqlite';
+import { InAppBrowser } from '@ionic-native/in-app-browser';
 
 
 
@@ -112,7 +113,8 @@ import { SQLite } from '@ionic-native/sqlite';
     GraphicProvider,
     SplashScreen,
     StatusBar,
-    SQLite
+    SQLite,
+    InAppBrowser
     ]
 })
 export class AppModule {}
