@@ -26,6 +26,12 @@
   [the dirty means that the user have touched it]
   -->
 
+
+  <ion-refresher (ionRefresh)="refresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+
   <ion-card>
 
   <!-- <form (ngSubmit)="createNote()" [formGroup]="createNotePageForm"> -->

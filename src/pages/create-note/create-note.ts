@@ -58,7 +58,7 @@ export class CreateNotePage {
   ) {
 
 
-    try{
+    //try{
       this.createNotePageForm = this.formBuilder.group({
         title:['', Validators.compose([Validators.required, Validators.minLength(2), Validators.maxLength(64)])],
         text: ['', Validators.compose([Validators.required, Validators.minLength(2)])],
@@ -66,13 +66,14 @@ export class CreateNotePage {
         otherTags:[[],AtticNotes.areOtherTagsArrayValid],
         isDone:[]
       })
-    }catch(e){console.log(JSON.stringify(e));console.log(JSON.stringify(e.message));console.log(JSON.stringify(e.stack))}
+    //}catch(e){console.log(JSON.stringify(e));console.log(JSON.stringify(e.message));console.log(JSON.stringify(e.stack))}
 
 
       this.newNote = new NoteFull();
       this.newNote.isdone = false;
       //
-      this.loadMinTags();
+      //this.loadMinTags(false);
+      this.load(false);
       this.links = [];
       //this.oldNote =  new NoteFull();
       //this.oldNote.isdone = false;
@@ -86,22 +87,61 @@ export class CreateNotePage {
   }
 
 
+  load(force:boolean, refresher?:any):void{
+    this.loadMinTags(force)
+    .then(()=>{
+      if(refresher!=null){
+        refresher.complete();
+      }
+    }).catch(error=>{
+      if(refresher!=null){
+        refresher.complete();
+      }
+      console.log(JSON.stringify(error.message));
+      this.graphicProvider.showErrorAlert(error, ' and so I cannot load/update tags');
+    })
+  }
 
 
-  loadMinTags(){
-    /*before it was true.*/
-    if(this.tags==null){
-      this.atticTags.loadTagsMin(false)
-        .then(result=>{
-          this.tags=<TagAlmostMin[]>result;
-        })
-        .catch(error=>{
-          console.log('load min tags error');
-          console.log(error);
-          this.graphicProvider.showErrorAlert(error,
-            ' and so I cannot load tags');
-        })
-    }
+
+  // loadMinTags(){
+  //   /*before it was true.*/
+  //   if(this.tags==null){
+  //     this.atticTags.loadTagsMin(false)
+  //       .then(result=>{
+  //         this.tags=<TagAlmostMin[]>result;
+  //       })
+  //       .catch(error=>{
+  //         console.log('load min tags error');
+  //         console.log(error);
+  //         this.graphicProvider.showErrorAlert(error,
+  //           ' and so I cannot load tags');
+  //       })
+  //   }
+  // }
+
+  loadMinTags(force:boolean){
+      // if(this.tags==null){
+      return new Promise<void>((resolve, reject)=>{
+        this.atticTags.loadTagsMin(force)
+          .then(result=>{
+            this.tags=result;
+            resolve();
+          })
+          .catch(error=>{
+          //   console.log('load min tags error');
+          //   console.log(error);
+          //   this.graphicProvider.showErrorAlert(error,
+          //     ' and so I cannot load tags');
+          reject(error);
+           })
+      })
+      //}
+  }
+
+
+  refresh(refresher){
+    this.load(true, refresher);
   }
 
   // getNote(){
