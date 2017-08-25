@@ -78,7 +78,7 @@ export class AtticTags {
             res = fetchingResult.map(obj=>{return TagAlmostMin.safeNewTagFromJsObject(obj)});
           }else{res=fetchingResult;}
           resolve(res/*fetchingResult as TagAlmostMin[]*/);
-          if(!this.synch.isTagLocked() && !useDb){
+          if(!this.synch.isTagLocked() && !useDb && res.length>0){
             this.db.insertTagsMinSmartAndCleanify(fetchingResult/* as TagAlmostMin[]*/, this.auth.userid);
           }else{
             console.log('fetched tags but is locked (or I\'ve used db)');
@@ -102,12 +102,15 @@ export class AtticTags {
         .then(result=>{
           // console.log('the resul from network is: ');
           // console.log(JSON.stringify(result.tag));
-          let tag:TagFull = TagFull.safeNewTagFromJsObject(result.tag);
-          console.log('the tag from net');console.log(JSON.stringify(tag));
-          if(!this.synch.isTagLocked()){
-            this.db.insertOrUpdateTag(tag, this.auth.userid);
-          }else{
-            console.log('fetched tag by title but it is locked')
+          let tag:TagFull = null;
+          if(result.tag!=null){
+            tag=TagFull.safeNewTagFromJsObject(result.tag);
+            console.log('the tag from net');console.log(JSON.stringify(tag));
+            if(!this.synch.isTagLocked()){
+              this.db.insertOrUpdateTag(tag, this.auth.userid);
+            }else{
+              console.log('fetched tag by title but it is locked')
+            }
           }
           resolve(tag);
       })
@@ -165,7 +168,7 @@ export class AtticTags {
         .then(lastAttempt=>{
           // this.atticCache.pushToCachedFullTags(fromNet as TagFull);
           // resolve(fromNet);
-          if(lastAttempt==null){
+          if(lastAttempt==null){ //or is not found in the db.
             reject(AtticError.getNewNetworkError());
           }else{
             resolve(lastAttempt);

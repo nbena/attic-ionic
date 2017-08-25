@@ -135,9 +135,10 @@ export class LoginPage {
       })
       .catch(error=>{
         console.log('auth error');console.log(JSON.stringify(error));
+        this.makeEmptyJustUserid();
         this.graphicProvider.dismissLoading(this.loading)
         .then(()=>{
-          this.graphicProvider.showErrorAlert(error/*'error during the authentication'}*/, 'Please check your userid/password')
+          this.graphicProvider.showErrorAlert(error/*'error during the authentication'}*/, ' please check your userid/password')
         })
       });
     }
@@ -157,6 +158,7 @@ export class LoginPage {
     this.registerAPI();
   }
 
+  //correct error msg if user already exists.
   registerAPI(){
     if(this.loginPageForm.valid){
       this.loading=this.graphicProvider.showLoading('Authenticating'); //maybe I'll remove it.
@@ -176,7 +178,12 @@ export class LoginPage {
         this.navCtrl.setRoot(TabsPage);
       })
       .catch(error=>{
-        console.log('auth error');console.log(JSON.stringify(error.message));
+        console.log('auth error');console.log(JSON.stringify(error.message));console.log(JSON.stringify(error));
+        if(error.message.search('same')>=0){
+          this.makeEmptyAll();
+        }else{
+          this.makeEmptyJustUserid();
+        }
         this.graphicProvider.dismissLoading(this.loading)
         .then(()=>{
           this.graphicProvider.showErrorAlert(/*'error while creating account'*/error)
@@ -185,13 +192,21 @@ export class LoginPage {
     }
   }
 
-  makeEmpty(){
-    let tmp:string = this.loginPageForm.value.email;
+  makeEmptyAll(){
     this.loginPageForm.reset({
-      email: tmp,
+      email: '',
       password: ''
     })
   };
+
+
+  makeEmptyJustUserid(){
+    let temp:string = this.loginPageForm.value.email;
+    this.loginPageForm.reset({
+      email:temp,
+      password:''
+    })
+  }
 
   // getParams(){
   //   return {filterType: Filter.None, filterValue: null};

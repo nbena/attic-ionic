@@ -1,4 +1,7 @@
+import {TagExtraMin} from '../models/tags';
+import {TagType} from './const';
 // import { Table } from './const';
+
 export class Query{
   /*even if ugly use this.*/
   // static readonly CREATE_NOTES_TABLE = 'create table if not exists notes(_id char(12) primary key,text text,title varchar(64) unique,isDone boolean,links text,creationDate char(24),lastModificationDate char(24),mainTags text,otherTags text, mainTagsToAdd text default null, otherTagsToAdd text default null, mainTagsToRemove text default null, otherTagsToRemove text default null, mustBeDeleted boolean default false)';
@@ -393,7 +396,7 @@ export class Query{
   //static readonly NEED_TO_SYNCH = 'select count(*) as c from logs_sequence where userid=?';
 
 
-  static readonly UPDATE_JSON_OBJ_NOTE_IF_NECESSARY = 'update notes set json_object=? where length(json_object) < length(?) and title=? and userid=?';
+  //static readonly UPDATE_JSON_OBJ_NOTE_IF_NECESSARY = 'update notes set json_object=? where length(json_object) < length(?) and title=? and userid=?';
   static readonly INSERT_INTO_NOTES_2 = 'insert into notes(title, json_object, text, lastmodificationdate,userid) values (?,?,?,?,?)';
 
   static readonly EMPTY_RESULT_SET ='with a(b) as (select \'true\') select b from a where b=\'false\'';
@@ -448,5 +451,130 @@ export class Query{
   static readonly UPDATE_NOTE_SET_TEXT_2 = 'update notes set lastmodificationdate=?, text=?, json_object=? where text <> ? and title=? and userid=?';
 
   static readonly SELECT_NOTES_EXTRA_MIN_WITH_DATE_BY_ISDONE = 'select title, lastmodificationdate from notes where json_object like ? and mustbedeleted=\'false\' and userid=? order by lastmodificationdate desc, title asc';
+
+
+
+  public static prepareQueryTagExistAndAreFull(length:number):string{
+    let result:string = Query.TAGS_EXIST_AND_ARE_FULL;
+    for(let i=0;i<length;i++){
+      result+='title=? or ';
+    }
+    result=result.substr(0, result.lastIndexOf('or '));
+    result+=')';
+    if(length==0){
+      result=Query.EMPTY_RESULT_SET;
+    }
+    console.log('result is '+result);
+    return result;
+  }
+
+
+  public static expandArrayTagsMinWithEverything(tags:TagExtraMin[], userid:string):string[]{
+    let array:string[]=[];
+    for(let i=tags.length-1;i>=0;i--){
+      array.push(tags[i].title);
+      array.push(JSON.stringify(tags[i]));
+      array.push(userid);
+    }
+    return array;
+  }
+
+
+  public static prepareQueryInsertIntoHelp(baseQuery: string, length:number, userid:string, questionMark:number):string{
+    for(let i=0;i<length;i++){
+      //baseQuery += '(?,?,?,?),';
+
+      let temp:string='?,'.repeat(questionMark);
+      temp=temp.substr(0, temp.length-1);
+      temp = '('+temp+'),';
+      baseQuery+=temp;
+    }
+    baseQuery = baseQuery.substr(0, baseQuery.length-1);
+    return baseQuery;
+  }
+
+
+
+  public static expandInsertNoteTagsIntoLogs(title:string, userid:string, tags:TagExtraMin[]):string[]{
+    let array:string[]=[];
+    for(let i=0;i<tags.length;i++){
+      array.push(title);
+      array.push(tags[i].title);
+      array.push(userid);
+    }
+    return array;
+  }
+
+  public static expandTagType(tags:TagExtraMin[], type:TagType):TagType[]{
+    return tags.map(obj=>{
+      return type;
+    })
+  }
+
+  public static prepareQueryInsertNotesTagsIntoLogs(tags:TagExtraMin[], roles: TagType[]):string{
+    if(roles.length != tags.length){
+      throw new Error('error length must be the same');
+    }
+    let result:string = Query.INSERT_NOTE_TAG_INTO_LOGS_2;
+    for(let i=0;i<tags.length;i++){
+      if(roles[i]==TagType.MAIN){
+        result+='(?,?,\'mainTags\',\'add-tag\', ?),';
+      }else{
+        result+='(?,?,\'otherTags\',\'add-tag\', ?),';
+      }
+    }
+    result=result.substr(0, result.length-1);
+    return result;
+  }
+
+  public static prepareQueryRemoveTagsFromNotesLogs(length:number):string{
+    let result:string = Query.INSERT_NOTE_TAG_INTO_LOGS_2_NO_ROLE;
+    for(let i=0;i<length;i++){
+      result+='(?,?,\'remove-tag\', ?),';
+    }
+    result=result.substr(0, result.length-1);
+    return result;
+  }
+
+  public static prepareNotesMultiVersion(length:number, query:string, fromLogs:boolean):string{
+    let res:string = query;
+    res+='(';
+    for(let i=0;i<length;i++){
+      if(fromLogs){
+        res+=' notetitle=? or'
+      }else{
+        res+=' title=? or'
+      }
+    }
+    res = res.substr(0, res.lastIndexOf('or'));
+    res+=')';
+    return res;
+  }
+
+
+
+  //tested in console.
+  /**
+  return a query that must be formed in the following mode:
+  '.... from ... where... and ', what is done here is an adding in the followfing form:
+  '(tagtitle=? or tagtitle=?)' if last is set to true, or '(title=? or title=?)'
+  */
+  public static prepareTagsMultiVersion(length:number, queryString: string, fromLogs:boolean):string{
+    //let res: string = Query.DELETE_FROM_LOGS_TAG_CREATED_WHERE_TAG;
+    let res: string = queryString;
+    res+='(';
+    for(let i=0;i<length;i++){
+      if(fromLogs){
+        res+=' tagtitle=? or';
+      }else{
+        res+=' title=? or';
+      }
+    }
+    res = res.substr(0, res.lastIndexOf('or'));
+    res+=')';
+    return res;
+  }
+
+
 
  }

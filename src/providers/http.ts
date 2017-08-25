@@ -107,6 +107,11 @@ export class HttpProvider {
               }
 
               let data = res.json();
+              if(data.ok!=true){
+                reject(data.msg);
+              }else{
+                resolve(data.result);
+              }
               //one we get the token, save it to local storage.
               // this.token = data.result;
               // this.userid = user.userid;
@@ -114,7 +119,7 @@ export class HttpProvider {
               //
               // resolve(data);
               // resolve(res.json());
-              resolve(data.result);
+              // resolve(data.result);
 
             }, (err) => {
               reject(err);
@@ -138,6 +143,11 @@ export class HttpProvider {
                }
 
                let data = res.json();
+               if(data.ok!=true){
+                 reject(data.msg);
+               }else{
+                 resolve(data.result);
+               }
                //one we get the token, save it to local storage.
                // this.token = data.result;
                // this.userid = user.userid;
@@ -145,7 +155,7 @@ export class HttpProvider {
                //
                // resolve(data);
                // resolve(res.json());
-               resolve(data.result);
+              //  resolve(data.result);
 
              }, (err) => {
                reject(err);

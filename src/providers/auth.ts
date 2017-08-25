@@ -86,7 +86,7 @@ export class Auth {
       //   });
       this.http.unauthenticatedPut('/api/users/create',user)
       .then(token=>{
-        if(token as boolean){
+        // if(token as boolean){
           this.token = token;
           this.userid = user.userid;
 
@@ -94,9 +94,9 @@ export class Auth {
 
           this.db.setToken(token, user.userid); //done asynchronously.
           resolve();
-        }else{
-          reject(new Error(AtticError.POSTGRES_DUPLICATE_KEY_USERS));
-        }
+        // }else{
+        //   reject(new Error(AtticError.POSTGRES_DUPLICATE_KEY_USERS));
+        // }
       })
       .catch(error=>{
         console.log('error in auth');

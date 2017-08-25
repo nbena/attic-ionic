@@ -531,19 +531,19 @@ static readonly UPDATE_NOTES_TAGS = 'update notes_tags set notetitle=?, tagtitle
 static readonly INSERT_NOTES_TAGS = 'insert into notes_tags(notetitle,tagtitle, role, userid) values(?,?,?,?)';
 */
 
-private prepareQueryTagExistAndAreFull(length:number):string{
-  let result:string = Query.TAGS_EXIST_AND_ARE_FULL;
-  for(let i=0;i<length;i++){
-    result+='title=? or ';
-  }
-  result=result.substr(0, result.lastIndexOf('or '));
-  result+=')';
-  if(length==0){
-    result=Query.EMPTY_RESULT_SET;
-  }
-  console.log('result is '+result);
-  return result;
-}
+// private prepareQueryTagExistAndAreFull(length:number):string{
+//   let result:string = Query.TAGS_EXIST_AND_ARE_FULL;
+//   for(let i=0;i<length;i++){
+//     result+='title=? or ';
+//   }
+//   result=result.substr(0, result.lastIndexOf('or '));
+//   result+=')';
+//   if(length==0){
+//     result=Query.EMPTY_RESULT_SET;
+//   }
+//   console.log('result is '+result);
+//   return result;
+// }
 
 
 
@@ -904,7 +904,7 @@ private removeTagsFromNoteCore(tx:any, extraMin:NoteExtraMin, userid:string,tags
   // console.log('the basic tags');console.log(JSON.stringify(tags));
 
   if(tmpTag.length>0){//get full_tag from the db.
-    let query:string = this.prepareQueryTagExistAndAreFull(tmpTag.length);
+    let query:string = Query.prepareQueryTagExistAndAreFull(tmpTag.length);
     tx.executeSql(query, [userid].concat(tmpTag.map(obj=>{return obj.title}))
       ,(tx:any, res:any)=>{
         if(usedTag==null){usedTag=[];}
@@ -973,7 +973,7 @@ private addTagsToNoteUpdateOnlyTags(tx:any, extraMin:NoteExtraMin, userid:string
 
 
   if(tmpTag.length>0){//get full_tag from the db.
-    let query:string = this.prepareQueryTagExistAndAreFull(tmpTag.length);
+    let query:string = Query.prepareQueryTagExistAndAreFull(tmpTag.length);
     tx.executeSql(query, [userid].concat(tmpTag.map(obj=>{return obj.title}))
       ,(tx:any, res:any)=>{
         // console.log('the res:');console.log(JSON.stringify(res.rows.length));
@@ -1492,29 +1492,29 @@ private expandArrayNotesMinWithEverything(notes:NoteExtraMinWithDate[], userid:s
 //   return array;
 // }
 
-private expandArrayTagsMinWithEverything(tags:TagExtraMin[], userid:string):string[]{
-  let array:string[]=[];
-  for(let i=tags.length-1;i>=0;i--){
-    array.push(tags[i].title);
-    array.push(JSON.stringify(tags[i]));
-    array.push(userid);
-  }
-  return array;
-}
-
-
-private prepareQueryInsertIntoHelp(baseQuery: string, length:number, userid:string, questionMark:number):string{
-  for(let i=0;i<length;i++){
-    //baseQuery += '(?,?,?,?),';
-
-    let temp:string='?,'.repeat(questionMark);
-    temp=temp.substr(0, temp.length-1);
-    temp = '('+temp+'),';
-    baseQuery+=temp;
-  }
-  baseQuery = baseQuery.substr(0, baseQuery.length-1);
-  return baseQuery;
-}
+// private expandArrayTagsMinWithEverything(tags:TagExtraMin[], userid:string):string[]{
+//   let array:string[]=[];
+//   for(let i=tags.length-1;i>=0;i--){
+//     array.push(tags[i].title);
+//     array.push(JSON.stringify(tags[i]));
+//     array.push(userid);
+//   }
+//   return array;
+// }
+//
+//
+// private prepareQueryInsertIntoHelp(baseQuery: string, length:number, userid:string, questionMark:number):string{
+//   for(let i=0;i<length;i++){
+//     //baseQuery += '(?,?,?,?),';
+//
+//     let temp:string='?,'.repeat(questionMark);
+//     temp=temp.substr(0, temp.length-1);
+//     temp = '('+temp+'),';
+//     baseQuery+=temp;
+//   }
+//   baseQuery = baseQuery.substr(0, baseQuery.length-1);
+//   return baseQuery;
+// }
 
 
 public insertNotesMinSmartAndCleanify(notes: NoteExtraMinWithDate[], userid: string):Promise<void>{
@@ -1522,7 +1522,7 @@ public insertNotesMinSmartAndCleanify(notes: NoteExtraMinWithDate[], userid: str
   return new Promise<void>((resolve, reject)=>{
     this.db.transaction(tx=>{
       /*first insert into notes_help*/
-      let query:string = this.prepareQueryInsertIntoHelp(Query.INSERT_INTO_NOTES_HELP, notes.length, userid, 4);
+      let query:string = Query.prepareQueryInsertIntoHelp(Query.INSERT_INTO_NOTES_HELP, notes.length, userid, 4);
       tx.executeSql(query, this.expandArrayNotesMinWithEverything(notes, userid),
         (tx:any, res:any)=>{console.log('ok insert into notes_help');},
         (tx:any, error:any)=>{
@@ -1628,8 +1628,8 @@ public insertOrUpdateTag(tag:TagFull, userid:string):Promise<void>{
 public insertTagsMinSmartAndCleanify(tags: TagAlmostMin[], userid: string):Promise<void>{
   return new Promise<void>((resolve, reject)=>{
     this.db.transaction(tx=>{
-      let query:string = this.prepareQueryInsertIntoHelp(Query.INSERT_INTO_TAGS_HELP, tags.length, userid, 3);
-      tx.executeSql(query, this.expandArrayTagsMinWithEverything(tags, userid),
+      let query:string = Query.prepareQueryInsertIntoHelp(Query.INSERT_INTO_TAGS_HELP, tags.length, userid, 3);
+      tx.executeSql(query, Query.expandArrayTagsMinWithEverything(tags, userid),
         (tx:any, res:any)=>{console.log('ok insert into tags_help');},
         (tx:any, error:any)=>{
           console.log('error in insert tags_help');
@@ -2489,37 +2489,37 @@ public getNotesByTags(tags: TagAlmostMin[], userid: string, and:boolean):Promise
   //   })
   // }
 
-  private expandInsertNoteTagsIntoLogs(title:string, userid:string, tags:TagExtraMin[]):string[]{
-    let array:string[]=[];
-    for(let i=0;i<tags.length;i++){
-      array.push(title);
-      array.push(tags[i].title);
-      array.push(userid);
-    }
-    return array;
-  }
-
-  private expandTagType(tags:TagExtraMin[], type:TagType):TagType[]{
-    return tags.map(obj=>{
-      return type;
-    })
-  }
-
-  private prepareQueryInsertNotesTagsIntoLogs(tags:TagExtraMin[], roles: TagType[]):string{
-    if(roles.length != tags.length){
-      throw new Error('error length must be the same');
-    }
-    let result:string = Query.INSERT_NOTE_TAG_INTO_LOGS_2;
-    for(let i=0;i<tags.length;i++){
-      if(roles[i]==TagType.MAIN){
-        result+='(?,?,\'mainTags\',\'add-tag\', ?),';
-      }else{
-        result+='(?,?,\'otherTags\',\'add-tag\', ?),';
-      }
-    }
-    result=result.substr(0, result.length-1);
-    return result;
-  }
+  // private expandInsertNoteTagsIntoLogs(title:string, userid:string, tags:TagExtraMin[]):string[]{
+  //   let array:string[]=[];
+  //   for(let i=0;i<tags.length;i++){
+  //     array.push(title);
+  //     array.push(tags[i].title);
+  //     array.push(userid);
+  //   }
+  //   return array;
+  // }
+  //
+  // private expandTagType(tags:TagExtraMin[], type:TagType):TagType[]{
+  //   return tags.map(obj=>{
+  //     return type;
+  //   })
+  // }
+  //
+  // private prepareQueryInsertNotesTagsIntoLogs(tags:TagExtraMin[], roles: TagType[]):string{
+  //   if(roles.length != tags.length){
+  //     throw new Error('error length must be the same');
+  //   }
+  //   let result:string = Query.INSERT_NOTE_TAG_INTO_LOGS_2;
+  //   for(let i=0;i<tags.length;i++){
+  //     if(roles[i]==TagType.MAIN){
+  //       result+='(?,?,\'mainTags\',\'add-tag\', ?),';
+  //     }else{
+  //       result+='(?,?,\'otherTags\',\'add-tag\', ?),';
+  //     }
+  //   }
+  //   result=result.substr(0, result.length-1);
+  //   return result;
+  // }
 
   public addTags(note: NoteFull,  userid: string, mainTags? :  TagExtraMin[], otherTags?: TagExtraMin[]):Promise<any>{
     // console.log('the note I received as input is:');console.log(JSON.stringify(note));
@@ -2532,15 +2532,15 @@ public getNotesByTags(tags: TagAlmostMin[], userid: string, and:boolean):Promise
       if(otherTags==null){otherTags=[];}
       tags = mainTags.concat(otherTags);
 
-      roles = this.expandTagType(mainTags, TagType.MAIN);
-      roles = roles.concat(this.expandTagType(otherTags, TagType.OTHER));
+      roles = Query.expandTagType(mainTags, TagType.MAIN);
+      roles = roles.concat(Query.expandTagType(otherTags, TagType.OTHER));
 
 
 
-      let query:string = this.prepareQueryInsertNotesTagsIntoLogs(tags, roles);
+      let query:string = Query.prepareQueryInsertNotesTagsIntoLogs(tags, roles);
 
       console.log('query is: '+query);
-        tx.executeSql(query, this.expandInsertNoteTagsIntoLogs(note.title, userid, tags),
+        tx.executeSql(query, Query.expandInsertNoteTagsIntoLogs(note.title, userid, tags),
           (tx: any, res: any)=>{/*nothing*/console.log('insert notes-tags into logs ok');},
           (tx: any, error: any)=>{
             console.log('error in inserting notes-tags');
@@ -2752,15 +2752,14 @@ public getNotesByTags(tags: TagAlmostMin[], userid: string, and:boolean):Promise
   //   });
   // }
 
-/*I'm sorry.*/
-private prepareQueryRemoveTagsFromNotesLogs(length:number):string{
-  let result:string = Query.INSERT_NOTE_TAG_INTO_LOGS_2_NO_ROLE;
-  for(let i=0;i<length;i++){
-    result+='(?,?,\'remove-tag\', ?),';
-  }
-  result=result.substr(0, result.length-1);
-  return result;
-}
+// private prepareQueryRemoveTagsFromNotesLogs(length:number):string{
+//   let result:string = Query.INSERT_NOTE_TAG_INTO_LOGS_2_NO_ROLE;
+//   for(let i=0;i<length;i++){
+//     result+='(?,?,\'remove-tag\', ?),';
+//   }
+//   result=result.substr(0, result.length-1);
+//   return result;
+// }
 
 
 //joined = joined.substring(0, joined.lastIndexOf('or'));
@@ -2780,8 +2779,8 @@ private prepareQueryRemoveTagsFromNotesLogs(length:number):string{
 public removeTagsFromNote(note: NoteFull, userid: string, tags: TagExtraMin[]):Promise<any>{
   return new Promise<any>((resolve, reject)=>{
     this.db.transaction(tx=>{
-      let query:string = this.prepareQueryRemoveTagsFromNotesLogs(tags.length); /*this one is ok*/
-      let param:string[]=this.expandInsertNoteTagsIntoLogs(note.title, userid, tags);
+      let query:string = Query.prepareQueryRemoveTagsFromNotesLogs(tags.length); /*this one is ok*/
+      let param:string[]=Query.expandInsertNoteTagsIntoLogs(note.title, userid, tags);
       tx.executeSql(query, param,
       (tx:any, res:any)=>{console.log('ok updating logs delete notes_tags')},
       (tx:any, error:any)=>{
@@ -3432,44 +3431,7 @@ public removeTagsFromNote(note: NoteFull, userid: string, tags: TagExtraMin[]):P
   //   return res;
   // }
 
-  private prepareNotesMultiVersion(length:number, query:string, fromLogs:boolean):string{
-    let res:string = query;
-    res+='(';
-    for(let i=0;i<length;i++){
-      if(fromLogs){
-        res+=' notetitle=? or'
-      }else{
-        res+=' title=? or'
-      }
-    }
-    res = res.substr(0, res.lastIndexOf('or'));
-    res+=')';
-    return res;
-  }
 
-
-
-  //tested in console.
-  /**
-  return a query that must be formed in the following mode:
-  '.... from ... where... and ', what is done here is an adding in the followfing form:
-  '(tagtitle=? or tagtitle=?)' if last is set to true, or '(title=? or title=?)'
-  */
-  private prepareTagsMultiVersion(length:number, queryString: string, fromLogs:boolean):string{
-    //let res: string = Query.DELETE_FROM_LOGS_TAG_CREATED_WHERE_TAG;
-    let res: string = queryString;
-    res+='(';
-    for(let i=0;i<length;i++){
-      if(fromLogs){
-        res+=' tagtitle=? or';
-      }else{
-        res+=' title=? or';
-      }
-    }
-    res = res.substr(0, res.lastIndexOf('or'));
-    res+=')';
-    return res;
-  }
 
 
 
@@ -3491,8 +3453,8 @@ public removeTagsFromNote(note: NoteFull, userid: string, tags: TagExtraMin[]):P
   deleteNotesToDeleteMultiVersion(noteTitles: string[], userid: string):Promise<void>{
     return new Promise<void>((resolve, reject)=>{
       this.db.transaction(tx=>{
-        let query1: string = this.prepareNotesMultiVersion(noteTitles.length, Query.DELETE_FROM_LOGS_NOTES_TO_DELETE_WHERE_NOTE, true);
-        let query2: string = this.prepareNotesMultiVersion(noteTitles.length, Query.DELETE_FROM_NOTES_NOTES_TO_DELETE_WHERE_NOTE, false); //this one is the problem
+        let query1: string = Query.prepareNotesMultiVersion(noteTitles.length, Query.DELETE_FROM_LOGS_NOTES_TO_DELETE_WHERE_NOTE, true);
+        let query2: string = Query.prepareNotesMultiVersion(noteTitles.length, Query.DELETE_FROM_NOTES_NOTES_TO_DELETE_WHERE_NOTE, false); //this one is the problem
         // console.log('query1: '+query1);
         // console.log('query2: '+query2);
         tx.executeSql(query1, [userid].concat(noteTitles),
@@ -3525,24 +3487,20 @@ public removeTagsFromNote(note: NoteFull, userid: string, tags: TagExtraMin[]):P
       this.db.transaction(tx=>{
         console.log('tags');
         console.log(JSON.stringify(tagTitles));
-        let query1: string = this.prepareTagsMultiVersion(tagTitles.length, Query.DELETE_FROM_LOGS_TAGS_TO_DELETE_WHERE_TAG, true);
-        console.log('query 1');
-        console.log(query1);
-        let query2: string = this.prepareTagsMultiVersion(tagTitles.length, Query.DELETE_FROM_TAGS_TAGS_TO_DELETE_WHERE_TAG, false);
-        console.log('query 2');
-        console.log(query2);
+        let query1: string = Query.prepareTagsMultiVersion(tagTitles.length, Query.DELETE_FROM_LOGS_TAGS_TO_DELETE_WHERE_TAG, true);
+        console.log('query 1');console.log(query1);
+        let query2: string = Query.prepareTagsMultiVersion(tagTitles.length, Query.DELETE_FROM_TAGS_TAGS_TO_DELETE_WHERE_TAG, false);
+        console.log('query 2');console.log(query2);
         tx.executeSql(query1, [userid].concat(tagTitles),
           (tx:any, res:any)=>{console.log('delete tags-to-delete-logs ok.')},
           (tx: any, err:any)=>{
-            console.log('error in deleting tags-to-delete-logs.');
-            console.log(JSON.stringify(err));
+            console.log('error in deleting tags-to-delete-logs.');console.log(JSON.stringify(err));
           }
         )
         tx.executeSql(query2, [userid].concat(tagTitles),
           (tx:any, res: any)=>{console.log('delete tags-to-delete-tags ok')},
           (tx:any, err: any)=>{
-            console.log('error in deleting tags-to-delete-tags ok.')
-            console.log(JSON.stringify(err));
+            console.log('error in deleting tags-to-delete-tags ok.');console.log(JSON.stringify(err));
           })
       })
       .then(txResult=>{
@@ -3565,7 +3523,7 @@ public removeTagsFromNote(note: NoteFull, userid: string, tags: TagExtraMin[]):P
   deleteTagsToAddToSpecificNoteFromLogs(noteTitles: string[], userid: string):Promise<any>{
     return new Promise<any>((resolve, reject)=>{
       this.db.transaction(tx=>{
-        let query: string = this.prepareNotesMultiVersion(noteTitles.length, Query.DELETE_FROM_LOGS_TAGS_TO_ADD_TO_NOTE_WHERE_NOTE, true);
+        let query: string = Query.prepareNotesMultiVersion(noteTitles.length, Query.DELETE_FROM_LOGS_TAGS_TO_ADD_TO_NOTE_WHERE_NOTE, true);
         tx.executeSql(query, [userid].concat(noteTitles),
           (tx:any, res:any)=>{console.log('delete tags-to-add from single note ok.')},
           (tx: any, err:any)=>{
@@ -3594,7 +3552,7 @@ public removeTagsFromNote(note: NoteFull, userid: string, tags: TagExtraMin[]):P
   deleteTagsToRemoveFromSpecificNoteFromLogs(noteTitles: string[], userid: string):Promise<any>{
     return new Promise<any>((resolve, reject)=>{
       this.db.transaction(tx=>{
-        let query: string = this.prepareNotesMultiVersion(noteTitles.length, Query.DELETE_FROM_LOGS_TAGS_TO_DELETE_FROM_NOTE_WHERE_NOTE, true);
+        let query: string = Query.prepareNotesMultiVersion(noteTitles.length, Query.DELETE_FROM_LOGS_TAGS_TO_DELETE_FROM_NOTE_WHERE_NOTE, true);
         tx.executeSql(query, [userid].concat(noteTitles),
           (tx:any, res:any)=>{console.log('delete tags-to-remove from single note ok.')},
           (tx: any, err:any)=>{
@@ -3655,7 +3613,7 @@ public removeTagsFromNote(note: NoteFull, userid: string, tags: TagExtraMin[]):P
 
   private deleteTagsFromTagsBasicCore(tx:any, tagTitles:string[], userid:string):Promise<void>{
     return new Promise<void>((resolve, reject)=>{
-      let query = this.prepareTagsMultiVersion(tagTitles.length, Query.FORCE_DELETE_TAG_MULTI, false);
+      let query = Query.prepareTagsMultiVersion(tagTitles.length, Query.FORCE_DELETE_TAG_MULTI, false);
         tx.executeSql(query, [userid].concat(tagTitles),
           (tx:any, res:any)=>{console.log('delete tags from tags ok.');},
           (tx: any, err:any)=>{console.log('error in deleting tags from tags.');console.log(JSON.stringify(err));}
@@ -3665,7 +3623,7 @@ public removeTagsFromNote(note: NoteFull, userid: string, tags: TagExtraMin[]):P
 
   private deleteNotesFromNotesBasciCore(tx:any, noteTitles:string[], userid: string):Promise<void>{
     return new Promise<void>((resolve, reject)=>{
-      let query = this.prepareNotesMultiVersion(noteTitles.length, Query.FORCE_DELETE_NOTE_MULTI, false);
+      let query = Query.prepareNotesMultiVersion(noteTitles.length, Query.FORCE_DELETE_NOTE_MULTI, false);
         tx.executeSql(query, [userid].concat(noteTitles),
           (tx:any, res:any)=>{console.log('delete notes from notes ok.');},
           (tx: any, err:any)=>{console.log('error in deleting notes from notes.');console.log(JSON.stringify(err));}
@@ -3675,7 +3633,7 @@ public removeTagsFromNote(note: NoteFull, userid: string, tags: TagExtraMin[]):P
 
   private deleteNotesToCreateFromLogsMultiVersionCore(tx:any, noteTitles:string[], userid:string):Promise<void>{
     return new Promise<void>((resolve, reject)=>{
-      let query = this.prepareNotesMultiVersion(noteTitles.length, Query.DELETE_FROM_LOGS_NOTE_CREATED_WHERE_NOTE, true);
+      let query = Query.prepareNotesMultiVersion(noteTitles.length, Query.DELETE_FROM_LOGS_NOTE_CREATED_WHERE_NOTE, true);
         tx.executeSql(query, [userid].concat(noteTitles),
           (tx:any, res:any)=>{console.log('delete notes-to-create ok.');},
           (tx: any, err:any)=>{console.log('error in deleting notes-to-create.');console.log(JSON.stringify(err));}
@@ -3687,7 +3645,7 @@ public removeTagsFromNote(note: NoteFull, userid: string, tags: TagExtraMin[]):P
 
   private deleteTagsToCreateFromLogsMultiVersionCore(tx:any, tagTitles:string[], userid:string):Promise<void>{
     return new Promise<void>((resolve, reject)=>{
-      let query = this.prepareTagsMultiVersion(tagTitles.length, Query.DELETE_FROM_LOGS_TAG_CREATED_WHERE_TAG, true);
+      let query = Query.prepareTagsMultiVersion(tagTitles.length, Query.DELETE_FROM_LOGS_TAG_CREATED_WHERE_TAG, true);
         tx.executeSql(query, [userid].concat(tagTitles),
           (tx:any, res:any)=>{console.log('delete tags-to-create ok.');},
           (tx: any, err:any)=>{console.log('error in deleting tags-to-create.');console.log(JSON.stringify(err));}
@@ -4523,33 +4481,31 @@ private rollbackAddTagToNote(note: NoteMin, error:boolean[],userid:string):Promi
 
 
 private deleteChangeTextFromLogsSequenceCore(tx:any, noteTitles:string[], userid:string):void{
-  let query:string = this.prepareNotesMultiVersion(noteTitles.length, Query.DELETE_FROM_LOGS_NOTE_CHANGE_TEXT_WHERE_NOTE, true);
+  let query:string = Query.prepareNotesMultiVersion(noteTitles.length, Query.DELETE_FROM_LOGS_NOTE_CHANGE_TEXT_WHERE_NOTE, true);
   tx.executeSql(query, [userid].concat(noteTitles),
     (tx:any, res:any)=>{
       console.log('delete notes-to-change-text')
     },
     (tx:any, error:any)=>{
-      console.log('error delete notes-to-change-text');
-      console.log(JSON.stringify(error));
+      console.log('error delete notes-to-change-text');console.log(JSON.stringify(error));
     }
   )
 }
 
 private deleteSetDoneFromLogsSequenceCore(tx:any, noteTitles:string[], userid:string):void{
-  let query:string = this.prepareNotesMultiVersion(noteTitles.length, Query.DELETE_FROM_LOGS_NOTE_SET_DONE_WHERE_NOTE, true);
+  let query:string = Query.prepareNotesMultiVersion(noteTitles.length, Query.DELETE_FROM_LOGS_NOTE_SET_DONE_WHERE_NOTE, true);
   tx.executeSql(query, [userid].concat(noteTitles),
     (tx:any, res:any)=>{
       console.log('delete notes-to-set-done')
     },
     (tx:any, error:any)=>{
-      console.log('error delete notes-to-set-done');
-      console.log(JSON.stringify(error));
+      console.log('error delete notes-to-set-done');console.log(JSON.stringify(error));
     }
   )
 }
 
 private deleteSetLinksFromLogsSequenceCore(tx:any, noteTitles:string[], userid:string):void{
-  let query:string = this.prepareNotesMultiVersion(noteTitles.length, Query.DELETE_FROM_LOGS_NOTE_SET_LINK_WHERE_NOTE, true);
+  let query:string = Query.prepareNotesMultiVersion(noteTitles.length, Query.DELETE_FROM_LOGS_NOTE_SET_LINK_WHERE_NOTE, true);
   tx.executeSql(query, [userid].concat(noteTitles),
     (tx:any, res:any)=>{
       console.log('delete notes-to-set-link')
@@ -4565,7 +4521,7 @@ private deleteSetLinksFromLogsSequenceCore(tx:any, noteTitles:string[], userid:s
 //the 'canonical' one is different.
 private removeAddTagToNoteFromLogsCore(noteTitle:string, tags:string[], userid:string, tx?:any):Promise<void>|void{
   console.log('the tags the cause problem');console.log(JSON.stringify(tags));
-  let query:string = this.prepareTagsMultiVersion(tags.length, Query.DELETE_FROM_LOGS_TAGS_TO_ADD_TO_NOTE_WHERE_NOTE_AND_TAG_MULTI, true);
+  let query:string = Query.prepareTagsMultiVersion(tags.length, Query.DELETE_FROM_LOGS_TAGS_TO_ADD_TO_NOTE_WHERE_NOTE_AND_TAG_MULTI, true);
   console.log('the query is: '+query);
   if(tx!=null){
     tx.executeSql(query, [noteTitle, userid].concat(tags),

@@ -115,7 +115,7 @@ export class AtticNotes {
           res = fetchingResult.map(obj=>{return NoteExtraMinWithDate.safeNewNoteFromJsObject(obj)});
         }else{res = fetchingResult/* as NoteExtraMinWithDate[]*/;}
         resolve(res);
-        if(!this.synch.isNoteFullyLocked() && !useDb){ /*can insert only if lock is free*/
+        if(!this.synch.isNoteFullyLocked() && !useDb && res.length>0){ /*can insert only if lock is free*/
           this.db.insertNotesMinSmartAndCleanify(res, this.auth.userid);
           //return new Promise<NoteExtraMin[]>((resolve, reject)=>{resolve(fetchingResult)});
         }else{
@@ -147,15 +147,17 @@ export class AtticNotes {
     return new Promise<NoteFull>((resolve, reject)=>{
       this.http.get('/api/notes/'+title)
       .then(result=>{
-        console.log('the resul from network is: ');console.log(JSON.stringify(result.note));
+        // console.log('the resul from network is: ');console.log(JSON.stringify(result.note));
         /*inserting in the DB.*/
-
-        let note:NoteFull = NoteFull.safeNewNoteFromJsObject(result.note);
-        console.log('the safe result is: ');console.log(JSON.stringify(note));
-        if(!this.synch.isNoteFullyLocked()){
-          this.db.insertOrUpdateNote(note, this.auth.userid); /*promise is resolved before is done.*/
-        }else{
-          console.log('fetched note by title but it is locked');
+        let note:NoteFull = null;
+        if(result.note!=null){
+          note=NoteFull.safeNewNoteFromJsObject(result.note);
+          // console.log('the safe result is: ');console.log(JSON.stringify(note));
+          if(!this.synch.isNoteFullyLocked()){
+            this.db.insertOrUpdateNote(note, this.auth.userid); /*promise is resolved before is done.*/
+          }else{
+            console.log('fetched note by title but it is locked');
+          }
         }
         resolve(note);
     })
@@ -222,7 +224,7 @@ export class AtticNotes {
       .then(lastAttempt=>{
         // console.log('last attempt: '+JSON.stringify(lastAttempt));
         if(lastAttempt==null){
-          reject(AtticError.getNewNetworkError());
+          reject(AtticError.getNewNetworkError()); //or note is not present.
         }else{
           resolve(lastAttempt);
         }
