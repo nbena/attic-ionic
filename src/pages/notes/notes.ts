@@ -126,15 +126,16 @@ export class NotesPage {
 
 
 
-      let eventualNote:NoteExtraMinWithDate=null
-
-      eventualNote = this.navParams.get('note');
-      // console.log('the eventual note from navParams');
-      // console.log(JSON.stringify(eventualNote));
-      this.unshiftIfPossible(eventualNote);
+      // let eventualNote:NoteExtraMinWithDate=null
+      //
+      // eventualNote = this.navParams.get('note');
+      // // console.log('the eventual note from navParams');
+      // // console.log(JSON.stringify(eventualNote));
+      // this.unshiftIfPossible(eventualNote);
 
       this.events.subscribe('change-tab', (tab, note)=>{
-        // this.unshiftIfPossible(note);
+        console.log('change tab the note is');console.log(JSON.stringify(note));
+        this.unshiftIfPossible(note);
       })
 
 
@@ -219,6 +220,7 @@ export class NotesPage {
   unshiftIfPossible(note:NoteExtraMinWithDate){
     if(note!=null){
       this.allNotes.unshift(note);
+      this.shownNotes.unshift(note);
     }
   }
 

@@ -34,12 +34,17 @@ import { Synch } from '../providers/synch';
 import { Auth } from '../providers/auth';
 import { NetManager } from '../providers/net-manager';
 import { AtticUserProvider } from '../providers/attic-user';
-import { Network } from '@ionic-native/network';
+
 import { AtticCache } from '../providers/attic-cache';
 import { HttpProvider } from '../providers/http';
 import { GraphicProvider } from '../providers/graphic';
 
 import { AutosizeDirective } from '../directives/autosize/autosize';
+
+import { Network } from '@ionic-native/network';
+import { StatusBar } from '@ionic-native/status-bar';
+import { SplashScreen } from '@ionic-native/splash-screen';
+import { SQLite } from '@ionic-native/sqlite';
 
 
 
@@ -104,7 +109,10 @@ import { AutosizeDirective } from '../directives/autosize/autosize';
     AtticUserProvider,
     AtticCache,
     HttpProvider,
-    GraphicProvider
+    GraphicProvider,
+    SplashScreen,
+    StatusBar,
+    SQLite
     ]
 })
 export class AppModule {}

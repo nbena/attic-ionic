@@ -199,7 +199,7 @@ export class NoteDetailsPopoverPage {
       //this.navCtrl.getViews().forEach(obj=>{if(obj.)})
       //return this.app.getRootNav().push(NotesPage, {refresh:false, toRemove:this.note as NoteExtraMinWithDate})
       // return this.app.getRootNav().popToRoot();
-      this.events.publish('go-to-notes');
+      this.events.publish('go-to-notes'); //method to change tab.
     })
     // .then(()=>{
     //   return this.viewCtrl.dismiss();

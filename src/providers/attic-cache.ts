@@ -412,27 +412,27 @@ export class AtticCache {
 
 
   public getCachedFullTags():TagFull[]{
-    return this.cachedFullTags;
+    return this.cachedFullTags==null ? [] : this.cachedFullTags;
   }
 
   public getCachedFullNotes():NoteFull[]{
-    return this.cachedFullNotes;
+    return this.cachedFullNotes==null ? [] : this.cachedFullNotes;
   }
 
   public getCachedAlmostMinTags():TagAlmostMin[]{
-    return this.cachedAlmostMinTags;
+    return this.cachedAlmostMinTags==null ? [] : this.cachedAlmostMinTags;
   }
 
   public getCachedExtraMinNote():NoteExtraMin[]{
-    return this.cachedExtraMinNotes;
+    return this.cachedExtraMinNotes==null ? [] : this.cachedExtraMinNotes;
   }
 
   public getDifferentlySortedCachedNotesExtraMin():NoteExtraMinWithDate[]{
-    return this.differentlySortedCachedExtraMinNotes;
+    return this.differentlySortedCachedExtraMinNotes==null ? [] : this.differentlySortedCachedExtraMinNotes;
   }
 
   public getDifferentlySortedCachedTagAlmostMin():TagAlmostMin[]{
-    return this.differentlySortedCachedAlmostMinTags;
+    return this.differentlySortedCachedAlmostMinTags==null ? [] : this.differentlySortedCachedAlmostMinTags;
   }
 
   public areExtraMinNotesEmpty():boolean{

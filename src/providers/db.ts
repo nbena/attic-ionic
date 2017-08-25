@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 // import { Http } from '@angular/http';
-import { SQLite } from 'ionic-native';
+import { SQLite, SQLiteObject } from '@ionic-native/sqlite';
 import { Platform } from 'ionic-angular';
 import { Query } from '../public/query';
 import { Const, DbActionNs,/*SqliteError,*//* IndexTagType, */TagType } from '../public/const';
@@ -51,7 +51,9 @@ export class LogObjSmart{
 export class Db {
 
   open : boolean = false; /*to be sure everything is ok.*/
-  private db : SQLite;
+  //private db : SQLite;
+
+  private db: SQLiteObject;
 
   // private logsCount: number = 0;
   // private notesCount: number = 0;
@@ -60,101 +62,159 @@ export class Db {
   // private userid: string = null;
   // private token: any = null;
 
-  private promise: Promise<SQLite>;
+  private promise: Promise<SQLiteObject>;
 
+  constructor(private platform: Platform, private sqlite:SQLite){
+    console.log('Hello DbProvider');
 
-  constructor(private platform: Platform) {
-    console.log('Hello Db Provider');
-
-    //if(!this.open) {
-    this.promise = new Promise<SQLite>((resolve, reject)=>{
-      this.platform.ready().then(ready=>{
-      //  let tempUserid: string = '';
-        this.db = new SQLite();
-        this.db.openDatabase(
-          {name: "attic.db", location: "default"})
-            .then(db=>{
-              return this.db.transaction(tx=>{
-                tx.executeSql('pragma foreign_keys = ON;',[]);
-                tx.executeSql(Query.CREATE_AUTH_TABLE,[]
-                  // ,(tx:any,res:any)=>{console.log('ok auth');},
-                  // (tx:any, error:any)=>{console.log(JSON.stringify(error))}
-                );
-                tx.executeSql(Query.CREATE_NOTES_TABLE,[]
-                  // ,(tx:any,res:any)=>{console.log('ok notes');},
-                  // (tx:any, error:any)=>{console.log(JSON.stringify(error))}
-                )
-                tx.executeSql(Query.CREATE_TAGS_TABLE,[]
-                //   ,(tx:any,res:any)=>{console.log('ok tags');},
-                //   (tx:any, error:any)=>{console.log(JSON.stringify(error))}
-                );
-                //tx.executeSql(Query.CREATE_NOTES_TAGS_TABLE,[]);
-                tx.executeSql(Query.CREATE_LOGS_TABLE,[]
-                  // ,(tx:any,res:any)=>{console.log('ok logs');},
-                  // (tx:any, error:any)=>{console.log(JSON.stringify(error))}
-                );
-
-                tx.executeSql(Query.CREATE_NOTES_HELP_TABLE,[]
-                  // ,(tx:any,res:any)=>{console.log('ok notes_help');},
-                  // (tx:any, error:any)=>{console.log(JSON.stringify(error))}
-                );
-                tx.executeSql(Query.CREATE_TAGS_HELP_TABLE,[]
-                  // ,(tx:any,res:any)=>{console.log('ok tags_help');},
-                  // (tx:any, error:any)=>{console.log(JSON.stringify(error))}
-                );
-                tx.executeSql(Query.CREATE_VIEW_COUNTS, []
-                  // ,(tx:any,res:any)=>{console.log('ok view');},
-                  // (tx:any, error:any)=>{console.log(JSON.stringify(error))}
-                );
-                tx.executeSql(Query.CREATE_TRIGGER_DELETE_NOTE_COMPRESSION, []
-                  // ,(tx:any,res:any)=>{console.log('ok trigger1');},
-                  // (tx:any, error:any)=>{console.log(JSON.stringify(error))}
-                );
-                tx.executeSql(Query.CREATE_TRIGGER_DELETE_TAG_COMPRESSION, []
-                  // ,(tx:any,res:any)=>{console.log('ok trigger2');},
-                  // (tx:any, error:any)=>{console.log(JSON.stringify(error))}
-                );
-                tx.executeSql(Query.CREATE_INDEX_NOTE_1,[]);
-                tx.executeSql(Query.CREATE_INDEX_NOTE_2,[]);
-                tx.executeSql(Query.CREATE_INDEX_LOGS,[]);
-              });
-            })
-            .then(transactionResult=>{
-              // return this.db.executeSql(Query.GET_TOKEN, []);
-              this.open=true;
-              resolve(this.db);
-              // return this.db.executeSql(Query.EMPTY_RESULT_SET, ['ciao']);
-            })
-
-            // .then(()=>{
-            //   console.log('not an error');
-            //   resolve();
-            // })
-
-            // .then(tokenResult=>{
-            //   this.open = true;
-            //   if(tokenResult.rows.length > 0){
-            //   }else{
-            //     resolve(this.db);
-            //   }
-            // })
-            // .then(count=>{
-            //   resolve(this.db);
-            // })
-            // .then(token=>{
-            //   this.open=true;
-            //   resolve(this.db)
-            // })
-            .catch(error=>{
-              this.open=false;
-              console.log('error in creating tables.');
-              console.log(JSON.stringify(error.message));
-              reject(error);
-            })
-      });
+    this.promise = new Promise<SQLiteObject>((resolve, reject)=>{
+      let db: SQLiteObject;
+      this.platform.ready()
+      .then(()=>{
+        return this.sqlite.create({
+          name:"attic.db",
+          location:"default"
+        })
+      })
+      .then(dbObject=>{
+        db = dbObject;
+        return db.transaction(tx=>{
+                        tx.executeSql('pragma foreign_keys = ON;',[]);
+                        tx.executeSql(Query.CREATE_AUTH_TABLE,[]// ,(tx:any,res:any)=>{console.log('ok auth');}, (tx:any, error:any)=>{console.log(JSON.stringify(error))}
+                        );
+                        tx.executeSql(Query.CREATE_NOTES_TABLE,[]// ,(tx:any,res:any)=>{console.log('ok notes');},(tx:any, error:any)=>{console.log(JSON.stringify(error))}
+                        )
+                        tx.executeSql(Query.CREATE_TAGS_TABLE,[]//   ,(tx:any,res:any)=>{console.log('ok tags');},(tx:any, error:any)=>{console.log(JSON.stringify(error))}
+                        );
+                        tx.executeSql(Query.CREATE_LOGS_TABLE,[]// ,(tx:any,res:any)=>{console.log('ok logs');},(tx:any, error:any)=>{console.log(JSON.stringify(error))}
+                        );
+                        tx.executeSql(Query.CREATE_NOTES_HELP_TABLE,[]// ,(tx:any,res:any)=>{console.log('ok notes_help');},(tx:any, error:any)=>{console.log(JSON.stringify(error))}
+                        );
+                        tx.executeSql(Query.CREATE_TAGS_HELP_TABLE,[]// ,(tx:any,res:any)=>{console.log('ok tags_help');},(tx:any, error:any)=>{console.log(JSON.stringify(error))}
+                        );
+                        tx.executeSql(Query.CREATE_VIEW_COUNTS, []// ,(tx:any,res:any)=>{console.log('ok view');},(tx:any, error:any)=>{console.log(JSON.stringify(error))}
+                        );
+                        tx.executeSql(Query.CREATE_TRIGGER_DELETE_NOTE_COMPRESSION, []// ,(tx:any,res:any)=>{console.log('ok trigger1');},(tx:any, error:any)=>{console.log(JSON.stringify(error))}
+                        );
+                        tx.executeSql(Query.CREATE_TRIGGER_DELETE_TAG_COMPRESSION, []// ,(tx:any,res:any)=>{console.log('ok trigger2');},(tx:any, error:any)=>{console.log(JSON.stringify(error))}
+                        );
+                        tx.executeSql(Query.CREATE_INDEX_NOTE_1,[]);
+                        tx.executeSql(Query.CREATE_INDEX_NOTE_2,[]);
+                        tx.executeSql(Query.CREATE_INDEX_LOGS,[]);
+        })
+      })
+      .then(txResult=>{
+        this.open=true;
+        this.db = db;
+        resolve(this.db);
+      })
+      .catch(error=>{
+        this.open = false;
+        console.log('db error');console.log(JSON.stringify(error));console.log(JSON.stringify(error.message));
+        reject(error);
+      })
     })
-    //});
   }
+
+
+  // constructor(private platform: Platform, private sqlite: SQLite) {
+  //   console.log('Hello Db Provider');
+  //
+  //   //if(!this.open) {
+  //   this.promise = new Promise<SQLiteObject>((resolve, reject)=>{
+  //     this.platform.ready().then(ready=>{
+  //     //  let tempUserid: string = '';
+  //       this.sqlite.create({name: "attic.db", location:"default"})
+  //       .then(db=>{
+  //       //   this.db=db;
+  //       //   return Promise.resolve();
+  //       // })
+  //       // this.db.openDatabase(""
+  //       //   {name: "attic.db", location: "default"})
+  //           //.then(db=>{
+  //           //.then(()=>{
+  //             return /*this.*/db.transaction(tx=>{
+  //               tx.executeSql('pragma foreign_keys = ON;',[]);
+  //               tx.executeSql(Query.CREATE_AUTH_TABLE,[]
+  //                 // ,(tx:any,res:any)=>{console.log('ok auth');},
+  //                 // (tx:any, error:any)=>{console.log(JSON.stringify(error))}
+  //               );
+  //               tx.executeSql(Query.CREATE_NOTES_TABLE,[]
+  //                 // ,(tx:any,res:any)=>{console.log('ok notes');},
+  //                 // (tx:any, error:any)=>{console.log(JSON.stringify(error))}
+  //               )
+  //               tx.executeSql(Query.CREATE_TAGS_TABLE,[]
+  //               //   ,(tx:any,res:any)=>{console.log('ok tags');},
+  //               //   (tx:any, error:any)=>{console.log(JSON.stringify(error))}
+  //               );
+  //               //tx.executeSql(Query.CREATE_NOTES_TAGS_TABLE,[]);
+  //               tx.executeSql(Query.CREATE_LOGS_TABLE,[]
+  //                 // ,(tx:any,res:any)=>{console.log('ok logs');},
+  //                 // (tx:any, error:any)=>{console.log(JSON.stringify(error))}
+  //               );
+  //
+  //               tx.executeSql(Query.CREATE_NOTES_HELP_TABLE,[]
+  //                 // ,(tx:any,res:any)=>{console.log('ok notes_help');},
+  //                 // (tx:any, error:any)=>{console.log(JSON.stringify(error))}
+  //               );
+  //               tx.executeSql(Query.CREATE_TAGS_HELP_TABLE,[]
+  //                 // ,(tx:any,res:any)=>{console.log('ok tags_help');},
+  //                 // (tx:any, error:any)=>{console.log(JSON.stringify(error))}
+  //               );
+  //               tx.executeSql(Query.CREATE_VIEW_COUNTS, []
+  //                 // ,(tx:any,res:any)=>{console.log('ok view');},
+  //                 // (tx:any, error:any)=>{console.log(JSON.stringify(error))}
+  //               );
+  //               tx.executeSql(Query.CREATE_TRIGGER_DELETE_NOTE_COMPRESSION, []
+  //                 // ,(tx:any,res:any)=>{console.log('ok trigger1');},
+  //                 // (tx:any, error:any)=>{console.log(JSON.stringify(error))}
+  //               );
+  //               tx.executeSql(Query.CREATE_TRIGGER_DELETE_TAG_COMPRESSION, []
+  //                 // ,(tx:any,res:any)=>{console.log('ok trigger2');},
+  //                 // (tx:any, error:any)=>{console.log(JSON.stringify(error))}
+  //               );
+  //               tx.executeSql(Query.CREATE_INDEX_NOTE_1,[]);
+  //               tx.executeSql(Query.CREATE_INDEX_NOTE_2,[]);
+  //               tx.executeSql(Query.CREATE_INDEX_LOGS,[]);
+  //             });
+  //           })
+  //           .then(transactionResult=>{
+  //             // return this.db.executeSql(Query.GET_TOKEN, []);
+  //             this.open=true;
+  //             this.db = db;
+  //             resolve(this.db);
+  //             // return this.db.executeSql(Query.EMPTY_RESULT_SET, ['ciao']);
+  //           })
+  //
+  //           // .then(()=>{
+  //           //   console.log('not an error');
+  //           //   resolve();
+  //           // })
+  //
+  //           // .then(tokenResult=>{
+  //           //   this.open = true;
+  //           //   if(tokenResult.rows.length > 0){
+  //           //   }else{
+  //           //     resolve(this.db);
+  //           //   }
+  //           // })
+  //           // .then(count=>{
+  //           //   resolve(this.db);
+  //           // })
+  //           // .then(token=>{
+  //           //   this.open=true;
+  //           //   resolve(this.db)
+  //           // })
+  //           .catch(error=>{
+  //             this.open=false;
+  //             console.log('error in creating tables.');
+  //             console.log(JSON.stringify(error.message));
+  //             reject(error);
+  //           })
+  //     });
+  //   })
+  //   //});
+  // }
 
 // }
 // private getLogsCount(userid: string):Promise<any>{
@@ -437,7 +497,7 @@ public setToken(token: string, userid: string):Promise<void>{
   //   }
   // })
   return new Promise<void>((resolve,reject)=>{
-    let db2: SQLite;
+    let db2: SQLiteObject;
     this.promise.then(db=>{
       db2 = db;
       return db.executeSql(Query.INSERT_TOKEN, [token, userid])

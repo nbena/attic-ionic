@@ -64,8 +64,9 @@ export class CreateNotePage {
         text: ['', Validators.compose([Validators.required, Validators.minLength(2)])],
         mainTags:[[], AtticNotes.areMainTagsArrayValid],
         otherTags:[[],AtticNotes.areOtherTagsArrayValid],
-        isDone:[]
+        isDone:[false]
       })
+
     //}catch(e){console.log(JSON.stringify(e));console.log(JSON.stringify(e.message));console.log(JSON.stringify(e.stack))}
 
 
@@ -192,14 +193,17 @@ export class CreateNotePage {
       this.atticNotes.createNote2(this.newNote/*, this.mainTags.concat(this.otherTags)*/)
         .then(result=>{
           //console.log(result);
+          //console.log('ok note has been created');
           let title:string = this.newNote.title;
 
           this.makeEmpty3();
           this.tryingToSubmit=false;
+          //console.log('ok til here');
 
-          this.events.publish('change-tab',0, title);
+          this.events.publish('change-tab',0, this.newNote.forceCastToNoteExtraMinWithDate());
         })
         .catch(error=>{
+          console.log(JSON.stringify(error));console.log(JSON.stringify(error.message));
           this.graphicProvider.showErrorAlert(error);
         })
       console.log(JSON.stringify(this.createNotePageForm.value));
@@ -238,8 +242,20 @@ export class CreateNotePage {
   //   this.createNotePageForm.value.isDone=false;
   // }
 
+  //it's important to pass a default value to avoid null value.
   makeEmpty3(){
-    this.createNotePageForm.reset();
+    //try{
+      this.createNotePageForm.reset({
+        title:'',
+        text:'',
+        mainTags:[],
+        otherTags:[]
+      });
+    // }catch(e){
+    //   console.log('reset error');
+    //   console.log(JSON.stringify(e));console.log(JSON.stringify(e.message));
+    // }
+
   }
 
   /*

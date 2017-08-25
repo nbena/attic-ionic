@@ -27,7 +27,8 @@ export class TabsPage {
   tab2Root = CreateNotePage;
   tab3Root = TagsPage;
   tab4Root = SummaryPage;
-  // notesParams = {};
+
+  notesParams = {};
 
   constructor(/*public navCtrl: NavController, public navParams: NavParams*/
     /*private navCtrl: NavController,*/
@@ -35,7 +36,7 @@ export class TabsPage {
   ) {
 
     this.events.subscribe('change-tab', (tab, note) => {
-      // this.notesParams = note;
+      this.notesParams = note;
       this.tabs.select(tab);
       });
 

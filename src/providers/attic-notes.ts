@@ -273,6 +273,7 @@ export class AtticNotes {
           // this.atticCache.pushToCachedFullNotes(note);
 
           this.atticCache.pushNoteFullToAll(note);
+          //console.log('pushed to note full');
           resolve();
         })
         .catch(error=>{
