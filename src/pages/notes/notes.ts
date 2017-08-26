@@ -18,7 +18,7 @@ import { FormControl } from '@angular/forms';
 import 'rxjs/add/operator/debounceTime';
 
 
-import { Synch } from '../../providers/synch';
+//import { Synch } from '../../providers/synch';
 
 import { TagAlmostMin } from '../../models/tags';
 
@@ -65,6 +65,10 @@ export class NotesPage {
 
   private isThereSomethingToShow: boolean = false;
 
+  /*post - deleting an angular error appears but I can figure out why, try catch on each method doesn't work.
+  So I remove them.
+  */
+
   //private refresher: any;
   //private hasLoadingNoteCompleted: boolean = false;
   //private hasLoadingTagCompleted: boolean = false;
@@ -77,23 +81,23 @@ export class NotesPage {
     private atticNotes: AtticNotes,
     // private db: Db,
     // private toastCtrl: ToastController,
-    private synch: Synch,
+    //private synch: Synch,
     private graphicProvider:GraphicProvider,
     private viewCtrl: ViewController,
     // private app:App
   ) {
 
-      //try{
+      // try{
       let filterType:any;
       let filterValue:any;
-      try{
+      //try{
         filterType = navParams.get('filterType');
         filterValue = navParams.get('filterValue');
-      }
-      catch(error){
-        filterValue = null;
-        /*the handled ahead...*/
-      }
+      // }
+      // catch(error){
+      //   filterValue = null;
+      //   /*the handled ahead...*/
+      // }
 
         this.searchCtrl = new FormControl();
 
@@ -108,30 +112,7 @@ export class NotesPage {
             // this.loadMin();
             this.loadByFilter(/*true,*/false);
           }
-      // }
-      // catch(e){
-      //   console.log('error');
-      //   console.log(JSON.stringify(e));
-      // }
 
-      /*execute first time (?)*/
-      // if(this.currentFilter==Filter.None){
-      //   // try{
-      //     this.synchingTask();
-      //   // }
-      //   // catch(e){
-      //   //   console.log(e);
-      //   // }
-      // }
-
-
-
-      // let eventualNote:NoteExtraMinWithDate=null
-      //
-      // eventualNote = this.navParams.get('note');
-      // // console.log('the eventual note from navParams');
-      // // console.log(JSON.stringify(eventualNote));
-      // this.unshiftIfPossible(eventualNote);
 
       this.events.subscribe('change-tab', (tab, note)=>{
         console.log('change tab the note is');console.log(JSON.stringify(note));
@@ -139,15 +120,14 @@ export class NotesPage {
       })
 
 
-      this.events.subscribe('go-to-notes', (refresh)=>{
-        this.isRefreshingSet = true;
-        this.refreshIfNecessary(refresh);
+      this.events.subscribe('go-to-notes', (index)=>{
+        console.log('the index');console.log(index);
+        this.removeIfPossible(index);
       })
 
-
-      if(!this.isRefreshingSet){
-        this.refreshIfNecessary(true);
-      }
+    // }catch(e){
+    //    console.log('error is here');console.log(JSON.stringify(e));console.log(JSON.stringify(e.message));
+    // }
 
   }
 
@@ -156,21 +136,6 @@ export class NotesPage {
     console.log('going to set goback: '+goback);
     this.viewCtrl.showBackButton(goback);
     console.log('done');
-  }
-
-  refreshIfNecessary(r:boolean){
-    // let defaultRefresh:boolean = true;
-    // let refresh = this.navParams.get('refresh');
-    // if(refresh!=null){
-    //   if(!refresh){
-    //     r = false;
-    //   }
-    // }
-    // console.log('refresh?: '+r);
-    if(r){
-      this.isRefreshing = true;
-      this.synchingTask();
-    }
   }
 
 
@@ -185,44 +150,43 @@ export class NotesPage {
       popover.present({
         ev: event
       });
-    // }catch(e){
-    //   console.log('error:');console.log(JSON.stringify(e));console.log(JSON.stringify(e.message));
-    // }
   }
 
   //important to call this in that function if we do not want
   //any error to be thrown.
   ionViewWillEnter(){
-    console.log('will enter, the current filter is: '+FilterNs.toString(this.currentFilter));
-    if(/*this.currentFilter==null ||  */this.currentFilter==FilterNs.Filter.None){
-      this.setGoBack(false);
-    }else{
-      this.setGoBack(true); /*when arriving from note details this is doesn't work.*/
-    }
-    // this.viewCtrl.showBackButton(false);
-    // console.log('so I\'m here');
+    try{
+      console.log('will enter, the current filter is: '+FilterNs.toString(this.currentFilter));
+      if(/*this.currentFilter==null ||  */this.currentFilter==FilterNs.Filter.None){
+        this.setGoBack(false);
+      }else{
+        this.setGoBack(true); /*when arriving from note details this is doesn't work.*/
+      }
+    }catch(e){console.log('will enter');console.log(JSON.stringify(e));console.log(JSON.stringify(e.message))}
   }
 
 
-  //calling the new page, passing the _id.
-  displayNoteDetails(title: string){
-    this.navCtrl.push(NoteDetailsPage, {title}).then(()=>{});
+  displayNoteDetails(title: string, index:number){
+    this.navCtrl.push(NoteDetailsPage, {title:title, index:index}).then(()=>{});
   }
 
-  // unshiftIfPossible(note:string){
-  //   if(note!=null){
-  //     let trueNote: NoteExtraMin = new NoteExtraMin();
-  //     trueNote.title=note;
-  //     this.allNotes.unshift(trueNote);
-  //   }
-  // }
 
   unshiftIfPossible(note:NoteExtraMinWithDate){
     if(note!=null){
       this.allNotes.unshift(note);
       this.shownNotes.unshift(note);
+      this.setIsThereSomethingToShow();
     }
-    this.setIsThereSomethingToShow();
+  }
+
+  removeIfPossible(index:number){
+    // try{
+      if(index!=-1 && this.allNotes!=null && this.shownNotes!=null){
+        this.allNotes.splice(index,1);
+        this.shownNotes.splice(index,1);
+        this.setIsThereSomethingToShow();
+      }
+    // }catch(e){console.log('error in remove if possible');console.log(JSON.stringify(e));console.log(JSON.stringify(e.message))}
   }
 
   ionViewDidLoad() {
@@ -246,46 +210,6 @@ export class NotesPage {
 
   }
 
-  private synchingTask(){
-    // let isThereSomething:boolean = false;
-    // this.synch.isThereSomethingToSynch()
-    // .then(isThere=>{
-    //   if(isThere){
-    //     isThereSomething = isThere;
-    //     this.graphicProvider.presentToast('synching...');
-    //     return this.synch.synch();
-    //   }
-    // })
-    // .then(synched=>{
-    //   if(isThereSomething){
-    //     this.graphicProvider.presentToast('synching done');
-    //   }
-    // })
-
-    if(!this.isRefreshing){
-      this.isRefreshing=true;
-      this.graphicProvider.presentToast('synching...');
-      this.synch.synch()
-      .then(()=>{
-        console.log('synching done');
-        this.graphicProvider.presentToast('synching done');
-      })
-      .catch(error=>{
-        // console.log('error in synch or in get things to synch');
-        console.log('error in synch or in get things to synch:  '+JSON.stringify(error));
-        this.graphicProvider.showErrorAlert(error);
-      })
-      this.isRefreshing=false;
-    }
-  }
-
-  // refresh(refresher){
-  //   // this.loadMinAndSynch(true);
-  //   this.loadMin(true)
-  //   setTimeout(()=>{
-  //     refresher.complete();
-  //   },2000);
-  // }
 
   refresh(refresher:any){
     //this.refresher = refresher;
@@ -294,36 +218,12 @@ export class NotesPage {
 
   createNewNote(){
     //this.navCtrl.push(CreateNotePage);
-    try{
+    // try{
       this.events.publish('change-tab', 1);
-    }catch(e){console.log(JSON.stringify(e));console.log(JSON.stringify(e.error))}
+    // }catch(e){console.log(JSON.stringify(e));console.log(JSON.stringify(e.error))}
 
   }
 
-  //deprecated
-  // searchByTitle(event){
-  //   let title = event.target.value;
-  //   if(title.trim() === '' || title.trim().length<3){
-  //     this.shownNotes=this.allNotes; /*cache*/
-  //   }else{
-  //     this.loadByTitle(title);
-  //   }
-  // }
-
-  // loadByFilter(/*firsTime:boolean*/force: boolean){
-  //   switch(this.currentFilter){
-  //     case FilterNs.Filter.Tags:
-  //       this.loadByTags(this.currentFilterValue.tags as TagAlmostMin[], this.currentFilterValue.and/*, firstTime*/, force);break;
-  //     case FilterNs.Filter.IsDone:
-  //       this.loadByIsDone(this.currentFilterValue as boolean, force);break;
-  //     case FilterNs.Filter.Text:
-  //       this.loadByText(this.currentFilterValue as string/*, firstTime*/, force);break;
-  //     case FilterNs.Filter.Title:
-  //       this.loadByTitle(this.currentFilterValue as string);break;
-  //     default:
-  //       this.loadMin(force);break;
-  //   }
-  // }
   loadByFilter(/*firsTime:boolean*/force: boolean, refresher?:any){
     let p:Promise<void>
     switch(this.currentFilter){
@@ -504,7 +404,14 @@ export class NotesPage {
   // }
 
   private setIsThereSomethingToShow(){
-    this.isThereSomethingToShow = (this.shownNotes.length>0) ? true : false;
+    // try{
+      if(this.shownNotes==null || this.shownNotes.length<=0){
+        this.isThereSomethingToShow=false;
+      }else{
+        this.isThereSomethingToShow=true;
+      }
+    // }catch(e){console.log('error in set something');console.log(JSON.stringify(e));console.log(JSON.stringify(e.message))}
+    //this.isThereSomethingToShow = (this.shownNotes.length>0) ? true : false;
   }
 
   /*
@@ -620,8 +527,8 @@ export class NotesPage {
     })
   }
 
-  deleteNote(title: string){
-    console.log('deleting note: '+title);
-  }
+  // deleteNote(title: string){
+  //   console.log('deleting note: '+title);
+  // }
 
 }

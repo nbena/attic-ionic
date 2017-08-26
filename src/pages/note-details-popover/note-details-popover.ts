@@ -24,6 +24,8 @@ export class NoteDetailsPopoverPage {
   note: NoteFull = null;
   title:string;
 
+  index:number=-1;
+
   btnChangeTextEnabled:boolean = false;
   btnChangeTitleEnabled:boolean = false;
 
@@ -43,6 +45,7 @@ export class NoteDetailsPopoverPage {
       // }
       this.title =this.navParams.get('title');
       this.note=this.navParams.get('note');
+      this.index=this.navParams.get('index');
       if(this.note!=null){
         // console.log('this note is not null');
         this.btnChangeTextEnabled = true;
@@ -171,7 +174,7 @@ export class NoteDetailsPopoverPage {
     //     nothing to do.
     //   }*/
     // });
-    this.graphicProvider.askConfirm('Question','Are you sure to delete note \''+this.note.title+'\?',
+    this.graphicProvider.askConfirm('Question','Are you sure to delete note \''+this.note.title+'\'?',
       (res:boolean)=>{if(res){this.deleteNoteAPI();}}
     )
   }
@@ -188,28 +191,29 @@ export class NoteDetailsPopoverPage {
     //   this.app.getRootNav().push(NotesPage);
     // })
 
-
     this.viewCtrl.dismiss()
     .then(()=>{
       return this.atticNotes.deleteNote(this.note.forceCastToNoteExtraMin())
     })
     .then(()=>{
       //need to use change-tab
-      this.viewCtrl.dismiss();
+      //this.viewCtrl.dismiss();
       //this.navCtrl.getViews().forEach(obj=>{if(obj.)})
       //return this.app.getRootNav().push(NotesPage, {refresh:false, toRemove:this.note as NoteExtraMinWithDate})
       // return this.app.getRootNav().popToRoot();
-      this.events.publish('go-to-notes'); //method to change tab.
+      this.events.publish('go-to-notes', this.index); //method to change tab.
+      this.graphicProvider.presentToast('Note deleted');
     })
     // .then(()=>{
     //   return this.viewCtrl.dismiss();
     // })
-    .then(()=>{
-      //return Utils.presentToast(this.toastCtrl, 'Note deleted');
-      return this.graphicProvider.presentToast('Note deleted');
-    })
+    // .then(()=>{
+    //   //return Utils.presentToast(this.toastCtrl, 'Note deleted');
+    //   return this.graphicProvider.presentToast('Note deleted');
+    // })
     .catch(error=>{
-      console.log('delete error: '+JSON.stringify(error.message));
+      console.log('delete error: ');;console.log(JSON.stringify(error));console.log(JSON.stringify(error.message));
+      this.graphicProvider.showErrorAlert(error);
     })
   }
 

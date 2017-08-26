@@ -545,113 +545,188 @@ export class AtticNotes {
 
 
   addTags(note: NoteFull, mainTags: TagExtraMin[], otherTags: TagExtraMin[], oldlastmod: Date){
+    let p:Promise<void>;
     if(!this.synch.isNoteFullyLocked()){
-      return this.db.addTags(note, this.auth.userid, mainTags, otherTags);
-    }else{
-      this.atticCache.updateNote(note, true, true, oldlastmod);
-      return new Promise<void>((resolve, reject)=>{
-        console.log('trying to add tags but it is locked');
-        reject(AtticError.getSynchingError(DbActionNs.DbAction.add_tag));
+      p=new Promise<void>((resolve, reject)=>{
+        this.db.addTags(note, this.auth.userid, mainTags, otherTags)
+        .then(()=>{
+          this.atticCache.updateNote(note, true, true, oldlastmod);
+          resolve();
+        })
+        .catch(error=>{
+            console.log(JSON.stringify(error.message));console.log(JSON.stringify(error));reject(error);
+        })
       })
+    }else{    
+      // return new Promise<void>((resolve, reject)=>{
+        console.log('trying to add tags but it is locked');
+        p=Promise.reject(AtticError.getSynchingError(DbActionNs.DbAction.add_tag));
+      // })
     }
+    return p;
   }
 
 
   addMainTags(note: NoteFull, mainTags: TagExtraMin[], oldlastmod: Date){
+    let p:Promise<void>;
     if(!this.synch.isNoteFullyLocked()){
-      this.atticCache.updateNote(note, true, true, oldlastmod);
-      return this.db.addTags(note, this.auth.userid, mainTags);
-    }else{
-      return new Promise<void>((resolve, reject)=>{
-        console.log('trying to add main tags but it is locked');
-        reject(AtticError.getSynchingError(DbActionNs.DbAction.add_tag));
+      p=new Promise<void>((resolve, reject)=>{
+        this.db.addTags(note, this.auth.userid, mainTags)
+        .then(()=>{
+          this.atticCache.updateNote(note, true, true, oldlastmod);
+          resolve();
+        })
+        .catch(error=>{
+            console.log(JSON.stringify(error.message));console.log(JSON.stringify(error));reject(error);
+        })
       })
+    }else{
+      // return new Promise<void>((resolve, reject)=>{
+        console.log('trying to add main tags but it is locked');
+        p=Promise.reject(AtticError.getSynchingError(DbActionNs.DbAction.add_tag));
+      // })
     }
+    return p;
   }
 
   addOtherTags(note: NoteFull, otherTags: TagExtraMin[], oldlastmod: Date){
+    let p:Promise<void>;
     if(!this.synch.isNoteFullyLocked()){
-      this.atticCache.updateNote(note, true, true, oldlastmod);
-      return this.db.addTags(note, this.auth.userid, null, otherTags);
-    }else{
-      return new Promise<void>((resolve, reject)=>{
-        console.log('trying to add other tags but it is locked');
-        reject(AtticError.getSynchingError(DbActionNs.DbAction.add_tag));
+      p=new Promise<void>((resolve, reject)=>{
+        this.db.addTags(note, this.auth.userid, null, otherTags)
+        .then(()=>{
+          this.atticCache.updateNote(note, true, true, oldlastmod);
+        })
+        .catch(error=>{
+            console.log(JSON.stringify(error.message));console.log(JSON.stringify(error));reject(error);
+        })
       })
+    }else{
+      // return new Promise<void>((resolve, reject)=>{
+        console.log('trying to add other tags but it is locked');
+        p=Promise.reject(AtticError.getSynchingError(DbActionNs.DbAction.add_tag));
+      // })
     }
+    return p;
   }
 
   removeTags(note: NoteFull, tags: TagExtraMin[], oldlastmod: Date){
+    let p:Promise<void>;
     if(!this.synch.isNoteFullyLocked()){
-      this.atticCache.updateNote(note, true, true, oldlastmod);
-      return this.db.removeTagsFromNote(note, this.auth.userid, tags);
-    }else{
-      return new Promise<void>((resolve, reject)=>{
-        console.log('trying to remove tags but it is locked');
-        reject(AtticError.getSynchingError(DbActionNs.DbAction.remove_tag));
+      p=new Promise<void>((resolve, reject)=>{
+        this.db.removeTagsFromNote(note, this.auth.userid, tags)
+        .then(()=>{
+          this.atticCache.updateNote(note, true, true, oldlastmod);
+          resolve();
+        })
+        .catch(error=>{
+            console.log(JSON.stringify(error.message));console.log(JSON.stringify(error));reject(error);
+        })
       })
+    }else{
+      // return new Promise<void>((resolve, reject)=>{
+        console.log('trying to remove tags but it is locked');
+        p=Promise.reject(AtticError.getSynchingError(DbActionNs.DbAction.remove_tag));
+      // })
     }
+    return p;
   }
 
 
   changeLinks(/*noteTitle: string, links:string[]*/note:NoteFull, oldlastmod: Date){
+    let p:Promise<void>;
     if(!this.synch.isNoteFullyLocked()){
-      this.atticCache.updateNote(note, true, true, oldlastmod);
-      return this.db.setLinks(note, this.auth.userid);
-    }else{
-      return new Promise<any>((resolve, reject)=>{
-        console.log('trying to change links but it is locked');
-        reject(AtticError.getSynchingError(DbActionNs.DbAction.set_link));
+      p=new Promise<void>((resolve, reject)=>{
+        this.db.setLinks(note, this.auth.userid)
+        .then(()=>{
+          this.atticCache.updateNote(note, true, true, oldlastmod);
+          resolve();
+        })
+        .catch(error=>{
+            console.log(JSON.stringify(error.message));console.log(JSON.stringify(error));reject(error);
+        })
       })
+    }else{
+      // return new Promise<any>((resolve, reject)=>{
+        console.log('trying to change links but it is locked');
+        p=Promise.reject(AtticError.getSynchingError(DbActionNs.DbAction.set_link));
+      // })
     }
+    return p;
   }
 
   changeText(/*noteTitle: string, text:string*/note:NoteFull, oldlastmod: Date){
+    let p:Promise<void>;
     if(!this.synch.isNoteFullyLocked()){
-      this.atticCache.updateNote(note, true, true, oldlastmod);
-      return this.db.setText(note, this.auth.userid);
-    }else{
-      return new Promise<any>((resolve, reject)=>{
-        console.log('trying to change text but it is locked');
-        reject(AtticError.getSynchingError(DbActionNs.DbAction.change_text));
+      p=new Promise<void>((resolve, reject)=>{
+        this.db.setText(note, this.auth.userid)
+        .then(()=>{
+          this.atticCache.updateNote(note, true, true, oldlastmod);
+          resolve();
+        })
+        .catch(error=>{
+            console.log(JSON.stringify(error.message));console.log(JSON.stringify(error));reject(error);
+        })
       })
+    }else{
+      // return new Promise<any>((resolve, reject)=>{
+        console.log('trying to change text but it is locked');
+        p=Promise.reject(AtticError.getSynchingError(DbActionNs.DbAction.change_text));
+      // })
     }
+    return p;
   }
 
   changeDone(/*noteTitle: string, done: boolean*/note: NoteFull, oldlastmod: Date){
-    this.atticCache.updateNote(note, true, true, oldlastmod);
+    let p:Promise<void>;
+
     if(!this.synch.isNoteFullyLocked()){
-      return this.db.setDone(note, this.auth.userid);
-    }else{
-      return new Promise<any>((resolve, reject)=>{
-        console.log('trying to set done but it is locked');
-        reject(AtticError.getSynchingError(DbActionNs.DbAction.set_done));
+      p=new Promise<void>((resolve, reject)=>{
+        this.db.setDone(note, this.auth.userid)
+        .then(()=>{
+          this.atticCache.updateNote(note, true, true, oldlastmod);
+          resolve();
+        })
+        .catch(error=>{
+          console.log(JSON.stringify(error.message));console.log(JSON.stringify(error));reject(error);
+        })
       })
+      return
+    }else{
+      // return new Promise<any>((resolve, reject)=>{
+        console.log('trying to set done but it is locked');
+        p=Promise.reject(AtticError.getSynchingError(DbActionNs.DbAction.set_done));
+      // })
     }
+    return p;
   }
 
   deleteNote(note: NoteExtraMin):Promise<void>{
     console.log('the note in: '+JSON.stringify(note));
+    let p:Promise<void>;
     if(!this.synch.isNoteFullyLocked()){
-
-      let cachedTags:TagFull[]=this.atticCache.getCachedFullTags();
-      let necessaryTags:TagFull[]=null;
-      try{
-        if(note instanceof NoteFull){
-          necessaryTags=Utils.binaryGetFullObjectTag(cachedTags, note.getTagsAsTagsExtraMinArray().sort(TagExtraMin.ascendingCompare));
-        }
-        this.atticCache.removeNote(note)
-      }catch(e){
-        console.log('fucking error');console.log(JSON.stringify(e));console.log(JSON.stringify(e.message));
-      }
-
-      return this.db.deleteNote(note, this.auth.userid, necessaryTags);
-    }else{
-      return new Promise<void>((resolve, reject)=>{
-        console.log('trying to delete but it is locked');
-        reject(AtticError.getSynchingError(DbActionNs.DbAction.delete));
+      p=new Promise<void>((resolve, reject)=>{
+        let cachedTags:TagFull[]=this.atticCache.getCachedFullTags();
+        let necessaryTags:TagFull[]=null;
+          if(note instanceof NoteFull){
+            necessaryTags=Utils.binaryGetFullObjectTag(cachedTags, note.getTagsAsTagsExtraMinArray().sort(TagExtraMin.ascendingCompare));
+           }
+           this.db.deleteNote(note, this.auth.userid, necessaryTags)
+           .then(()=>{
+             this.atticCache.removeNote(note);
+             resolve();
+           })
+           .catch(error=>{
+             console.log(JSON.stringify(error.message));console.log(JSON.stringify(error));reject(error);
+           })
       })
+    }else{
+      // return new Promise<void>((resolve, reject)=>{
+        console.log('trying to delete but it is locked');
+        p=Promise.reject(AtticError.getSynchingError(DbActionNs.DbAction.delete));
+      // })
     }
+    return p;
   }
 
 

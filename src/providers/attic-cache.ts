@@ -163,18 +163,20 @@ export class AtticCache {
     if(note!=null){
       // try{
         Utils.binaryArrayInsertNoDuplicate(this.differentlySortedCachedExtraMinNotes, note.forceCastToNoteExtraMinWithDate(), NoteExtraMinWithDate.descendingCompare);
-        // console.log('inserted into extra min notes');
+        // console.log('inserted into diff notes');
         // console.log(JSON.stringify(this.differentlySortedCachedExtraMinNotes));
       // }catch(e){
       //   console.log('error in differently');console.log(JSON.stringify(e.message));
       // }
       // try{
         Utils.binaryArrayInsertNoDuplicate(this.cachedExtraMinNotes, note.forceCastToNoteExtraMin(), NoteExtraMin.ascendingCompare);
+      //   console.log('inserted into extra min');
       // }catch(e){
       //   console.log('error in extra min');console.log(JSON.stringify(e));
       // }
       // try{
         Utils.binaryArrayInsertNoDuplicate(this.cachedFullNotes, note, NoteExtraMin.ascendingCompare);
+      //   console.log('inserted in full');
       // }catch(e){
       //   console.log('error in full');console.log(JSON.stringify(e));
       // }
@@ -652,6 +654,18 @@ export class AtticCache {
     if(moveToHead){
       this.moveToHeadDifferentlyCachedTags(tag.forceCastToTagAlmostMin(), true);
     }
+  }
+
+
+
+  public clean():void{
+    this.differentlySortedCachedExtraMinNotes=[];
+    this.cachedExtraMinNotes=[];
+    this.cachedFullNotes=[];
+
+    this.differentlySortedCachedAlmostMinTags=[];
+    this.cachedAlmostMinTags=[];
+    this.cachedFullTags=[];
   }
 
 }

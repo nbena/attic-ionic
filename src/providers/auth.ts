@@ -15,6 +15,7 @@ import { User } from '../models/user';
 import { Db } from './db';
 //import { Platform } from 'ionic-angular';
 import { HttpProvider} from './http';
+import { AtticCache } from './attic-cache';
 
 //import { AtticError } from '../public/errors'
 
@@ -32,7 +33,9 @@ export class Auth {
 
 
   constructor(private http: HttpProvider/*, private platform: Platform,
-    public storage: Storage, */,private db: Db) {
+    public storage: Storage, */,private db: Db,
+    private atticCache: AtticCache
+  ) {
     console.log('Hello Auth Provider');
   }
 
@@ -164,5 +167,21 @@ login(user: User){
 // logout(){
 //   this.storage.set('token', '');
 // }
+
+
+public logout():Promise<void>{
+  return new Promise<void>((resolve, reject)=>{
+    this.db.logout(this.userid)
+    .then(()=>{
+      console.log('ok logout now remove userid');
+      this.atticCache.clean();
+      this.userid=null;
+      resolve();
+    }).catch(error=>{
+      console.log('error in logout');console.log(JSON.stringify(error.message));
+      reject(error);
+    })
+  })
+}
 
 }

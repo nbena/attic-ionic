@@ -7,6 +7,7 @@ import { Const } from '../../public/const';
 import { GraphicProvider} from '../../providers/graphic'
 import { NavController,ViewController, App } from 'ionic-angular';
 import { LoginPage } from '../login/login';
+import { Auth } from '../../providers/auth';
 
 /**
  * Generated class for the SummaryPage page.
@@ -41,7 +42,8 @@ export class SummaryPage {
       private app: App,
      private atticUser: AtticUserProvider,
      private synch: Synch,
-     private graphicProvider:GraphicProvider
+     private graphicProvider:GraphicProvider,
+     private auth: Auth
    ) {
 
       // this.load(false);
@@ -192,7 +194,7 @@ export class SummaryPage {
   }
 
   logoutAPI(){
-    this.atticUser.logout()
+    this.auth.logout()
     // .then(()=>{
     //   // this.navCtrl.popToRoot
     //   // let length:number =this.navCtrl.getViews().length;

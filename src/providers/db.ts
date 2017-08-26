@@ -1032,7 +1032,7 @@ public createNewNote2(note:NoteFull, userid:string, usedTag?:TagFull[]):Promise<
       tags=tags.sort(TagExtraMin.ascendingCompare);
       // let extraMin:NoteExtraMin=note.getNoteExtraMin();
       let extraMin:NoteExtraMin=note.forceCastToNoteExtraMin();
-      if(usedTag!=null){
+      if(usedTag!=null && usedTag.length>0){
         usedTag=usedTag.sort(TagExtraMin.ascendingCompare);
       }
       //skip lastmodificationdate cause it(should be) is done by the db.

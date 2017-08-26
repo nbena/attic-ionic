@@ -196,9 +196,13 @@ export class CreateNotePage {
           //console.log('ok note has been created');
           let title:string = this.newNote.title;
 
+          this.graphicProvider.presentToast('Note created');
+
           this.makeEmpty3();
           this.tryingToSubmit=false;
           //console.log('ok til here');
+
+
 
           this.events.publish('change-tab',0, this.newNote.forceCastToNoteExtraMinWithDate());
         })
@@ -249,7 +253,8 @@ export class CreateNotePage {
         title:'',
         text:'',
         mainTags:[],
-        otherTags:[]
+        otherTags:[],
+        isDone: false
       });
     // }catch(e){
     //   console.log('reset error');

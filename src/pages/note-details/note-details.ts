@@ -97,6 +97,8 @@ export class NoteDetailsPage {
 
   areTagsReallyLoaded: boolean = false;
 
+  index: number=-1;
+
 
 
   constructor(public navCtrl: NavController, public navParams: NavParams,
@@ -106,6 +108,10 @@ export class NoteDetailsPage {
     private iab: InAppBrowser
   ) {
     this.title=navParams.get('title');
+    let ind=navParams.get('index');
+    if(ind!=null){
+      this.index=ind;
+    }
     this.note = new NoteFull();
     this.note.title=this.title;
     //this.init();
@@ -232,6 +238,7 @@ export class NoteDetailsPage {
           //this.note = null;
 
           console.log('load note error');console.log(JSON.stringify(error.messsage));console.log(JSON.stringify(error));
+          console.log(error.toString());
           // this.graphicProvider.showErrorAlert(err);
           //console.log('set note loaded to true');
           this.isNoteLoaded = true;
@@ -328,7 +335,7 @@ export class NoteDetailsPage {
     // console.log('click and');console.log(this.isNoteLoaded);
     // console.log('so this note is');console.log(JSON.stringify(this.note));
     if(this.isNoteLoaded){
-      let popover=this.popoverCtrl.create(NoteDetailsPopoverPage, {title:this.title,note: this.note});
+      let popover=this.popoverCtrl.create(NoteDetailsPopoverPage, {title:this.title,note: this.note, index:this.index});
       popover.present({
         ev: event
       });

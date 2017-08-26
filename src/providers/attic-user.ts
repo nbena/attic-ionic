@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Auth } from './auth';
 import { NetManager } from './net-manager';
 import { UserSummary } from '../models/user_summary';
-// import { AtticCache } from './attic-cache';
+import { AtticCache } from './attic-cache';
 import { Db } from './db';
 import 'rxjs/add/operator/map';
 import {HttpProvider} from './http';
@@ -21,7 +21,7 @@ export class AtticUserProvider {
     private auth: Auth,
     private netManager: NetManager,
     private db: Db,
-    // private atticCache: AtticCache
+    private atticCache: AtticCache
   ) {
     console.log('Hello AtticUserProvider Provider');
   }
@@ -136,21 +136,22 @@ export class AtticUserProvider {
 
 
   public deleteEverything():Promise<void>{
+    this.atticCache.clean();
     return this.db.empty(this.auth.userid);
   }
 
-  public logout():Promise<void>{
-    return new Promise<void>((resolve, reject)=>{
-      this.db.logout(this.auth.userid)
-      .then(()=>{
-        console.log('ok logout now remove userid');
-        this.auth.userid=null;
-        resolve();
-      }).catch(error=>{
-        console.log('error in logout');console.log(JSON.stringify(error.message));
-        reject(error);
-      })
-    })
-  }
+  // public logout():Promise<void>{
+  //   return new Promise<void>((resolve, reject)=>{
+  //     this.db.logout(this.auth.userid)
+  //     .then(()=>{
+  //       console.log('ok logout now remove userid');
+  //       this.auth.userid=null;
+  //       resolve();
+  //     }).catch(error=>{
+  //       console.log('error in logout');console.log(JSON.stringify(error.message));
+  //       reject(error);
+  //     })
+  //   })
+  // }
 
 }

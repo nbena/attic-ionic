@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavController/*, NavParams, AlertController*/ } from 'ionic-angular';
+import { NavController/*, NavParams, AlertController*/,Events } from 'ionic-angular';
 
 
 import { /*TagExtraMi, TagMin, */TagFull, TagAlmostMin } from '../../models/tags';
@@ -34,13 +34,21 @@ export class TagsPage {
   constructor(public navCtrl: NavController,
     // public alertCtrl: AlertController,
     private atticTags: AtticTags,
-    private graphicProvider:GraphicProvider
+    private graphicProvider:GraphicProvider,
+    private events:Events
   ) {
     if(this.allTags==null){
       //this.loadAlmostMin(false);
       this.load(false);
     }
     this.searchCtrl = new FormControl();
+
+    this.events.subscribe('go-to-tags', (index)=>{
+      console.log('the index');console.log(index);
+      this.removeIfPossible(index);
+    })
+
+
   }
 
   ionViewDidLoad() {
@@ -55,6 +63,14 @@ export class TagsPage {
         this.loadByTitle(this.searchTerm);
       }
     });
+  }
+
+  removeIfPossible(index:number){
+    if(index!=-1 && this.allTags!=null && this.shownTags!=null){
+      this.allTags.splice(index,1);
+      this.shownTags.splice(index, 1);
+      this.setIsThereSomethingToShow();
+    }
   }
 
   // loadFull(){
@@ -167,6 +183,10 @@ export class TagsPage {
     this.load(true, null, refresher);
   }
 
+  ionViewWillEnter(){
+    console.log('will enter');
+  }
+
 
   createNewTag(){
     // let prompt = this.alertCtrl.create({
@@ -216,6 +236,9 @@ export class TagsPage {
         // this.allTags.push(<TagFull>tag);
         // this.shownTags.push(<TagFull>tag);
         this.setIsThereSomethingToShow();
+
+        this.graphicProvider.presentToast('Tag created');
+
       })
       .catch(error=>{
         // console.log('create new tag error: ');

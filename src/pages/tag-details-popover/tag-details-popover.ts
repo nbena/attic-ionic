@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, /*ToastController, AlertController,*/ ViewController, App } from 'ionic-angular';
+import { NavController, NavParams, /*ToastController, AlertController,*/ ViewController, App, Events } from 'ionic-angular';
 import { TagFull } from '../../models/tags';
 import { AtticTags } from '../../providers/attic-tags';
 // import { Utils } from '../../public/utils';
@@ -20,17 +20,23 @@ export class TagDetailsPopoverPage {
 
   private tag: TagFull;
   private btnChangeTitleEnabled:boolean = false;
+  private index:number=-1;
 
   constructor(public navCtrl: NavController, public navParams: NavParams,
     // private toastCtrl: ToastController, private alertCtrl: AlertController,
     private app: App,
     private viewCtrl: ViewController,
     private atticTags: AtticTags,
-    private graphicProvider:GraphicProvider
+    private graphicProvider:GraphicProvider,
+    private events:Events
   ) {
       this.tag = navParams.get('tag');
       if(this.tag!=null){
         this.btnChangeTitleEnabled = true;
+      }
+      let ind = navParams.get('index');
+      if(ind!=-1){
+        this.index=ind;
       }
     }
 
@@ -103,20 +109,35 @@ export class TagDetailsPopoverPage {
     )
   }
 
+  // deleteTagAPI(){
+  //   this.viewCtrl.dismiss()
+  //   .then(()=>{
+  //     return this.atticTags.deleteTag(this.tag)
+  //   })
+  //   .then(()=>{
+  //     return this.app.getRootNav().push(TagsPage);
+  //   })
+  //   .then(()=>{
+  //     //return Utils.presentToast(this.toastCtrl, 'Tag deleted');
+  //     return this.graphicProvider.presentToast('Tag deleted');
+  //   })
+  //   .catch(error=>{
+  //     console.log(JSON.stringify('delete tag error: '+error))
+  //     this.graphicProvider.showErrorAlert(error)
+  //   })
+  // }
+
   deleteTagAPI(){
     this.viewCtrl.dismiss()
     .then(()=>{
-      return this.atticTags.deleteTag(this.tag)
+      return this.atticTags.deleteTag(this.tag);
     })
     .then(()=>{
-      return this.app.getRootNav().push(TagsPage);
-    })
-    .then(()=>{
-      //return Utils.presentToast(this.toastCtrl, 'Tag deleted');
-      return this.graphicProvider.presentToast('Tag deleted');
+      this.events.publish('go-to-tags', this.index);
+      this.graphicProvider.presentToast('Tag deleted');
     })
     .catch(error=>{
-      console.log(JSON.stringify('delete tag error: '+error))
+      console.log(JSON.stringify('delete tag error: '));console.log(JSON.stringify(error));console.log(JSON.stringify(error.message));
       this.graphicProvider.showErrorAlert(error)
     })
   }
