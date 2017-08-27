@@ -133,7 +133,7 @@ export class TagDetailsPopoverPage {
       return this.atticTags.deleteTag(this.tag);
     })
     .then(()=>{
-      this.events.publish('go-to-tags', this.index);
+      this.events.publish('go-to-tags-and-remove', this.tag);
       this.graphicProvider.presentToast('Tag deleted');
     })
     .catch(error=>{

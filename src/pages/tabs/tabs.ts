@@ -54,6 +54,10 @@ export class TabsPage {
     this.events.subscribe('go-to-notes-and-replace', (oldnote, newnote)=>{
       // this.notesParams = {newnote, oldnote};
       this.tabs.select(0);
+    });
+
+    this.events.subscribe('go-to-tags-and-remove', (tag)=>{
+      this.tabs.select(2);
     })
 
   }

@@ -193,7 +193,7 @@ export class NotesPage {
 
 
   unshiftIfPossible(note:NoteExtraMinWithDate){
-    if(note!=null){
+    if(note!=null && this.allNotes!=null && this.shownNotes!=null){
       this.allNotes.unshift(note);
       this.shownNotes.unshift(note);
       this.setIsThereSomethingToShow();
@@ -208,26 +208,36 @@ export class NotesPage {
       //   this.setIsThereSomethingToShow();
       // }
     // }catch(e){console.log('error in remove if possible');console.log(JSON.stringify(e));console.log(JSON.stringify(e.message))}
+    let ind1:number =-1;
+    let ind2:number =-1;
+
     if(this.shownNotes!=null && note!=null){
-      let ind1:number = Utils.binarySearch(this.shownNotes, note, NoteExtraMinWithDate.descendingCompare);
-      if(ind1=-1){
-        this.shownNotes.splice(ind1, 1);
-      }
+      ind1 = Utils.binarySearch(this.shownNotes, note, NoteExtraMinWithDate.descendingCompare);
     }
-
     if(this.allNotes!=null && note!=null){
-      let ind1:number = Utils.binarySearch(this.allNotes, note, NoteExtraMinWithDate.descendingCompare);
-      if(ind1=-1){
-        this.allNotes.splice(ind1, 1);
-      }
+      ind2 = Utils.binarySearch(this.allNotes, note, NoteExtraMinWithDate.descendingCompare);
     }
 
+    if(ind1!=-1){
+      this.shownNotes.splice(ind1, 1);
+    }
+    if(ind2!=2){
+      this.allNotes.splice(ind2, 1);
+    }
+    this.setIsThereSomethingToShow();
   }
 
 
   removeAndAddIfPossible(oldNote:NoteExtraMinWithDate, newNote:NoteExtraMinWithDate):void{
-    let ind1: number = Utils.binarySearch(this.shownNotes, oldNote, NoteExtraMinWithDate.descendingCompare);
-    let ind2: number = Utils.binarySearch(this.allNotes, oldNote, NoteExtraMinWithDate.descendingCompare);
+    let ind1:number =-1;
+    let ind2:number =-1;
+
+    if(this.shownNotes!=null && oldNote!=null && newNote!=null){
+      ind1=Utils.binarySearch(this.shownNotes, oldNote, NoteExtraMinWithDate.descendingCompare);
+    }
+    if(this.allNotes!=null && oldNote!=null && newNote!=null){
+      ind2= Utils.binarySearch(this.allNotes, oldNote, NoteExtraMinWithDate.descendingCompare);
+    }
 
     if(ind1!=-1){
       this.shownNotes.splice(ind1, 1);
@@ -237,6 +247,7 @@ export class NotesPage {
       this.allNotes.splice(ind2, 1);
       Utils.binaryArrayInsert(this.allNotes, newNote, NoteExtraMinWithDate.descendingCompare);
     }
+    this.setIsThereSomethingToShow();
   }
 
   ionViewDidLoad() {

@@ -43,9 +43,14 @@ export class TagsPage {
     }
     this.searchCtrl = new FormControl();
 
-    this.events.subscribe('go-to-tags', (index)=>{
-      console.log('the index');console.log(index);
-      this.removeIfPossible(index);
+    // this.events.subscribe('go-to-tags', (index)=>{
+    //   console.log('the index');console.log(index);
+    //   this.removeIfPossible(index);
+    // })
+
+    this.events.subscribe('go-to-tags-and-remove', (tag)=>{
+      let newTag:TagAlmostMin = tag;
+      this.removeIfPossible(newTag);
     })
 
 
@@ -65,12 +70,29 @@ export class TagsPage {
     });
   }
 
-  removeIfPossible(index:number){
-    if(index!=-1 && this.allTags!=null && this.shownTags!=null){
-      this.allTags.splice(index,1);
-      this.shownTags.splice(index, 1);
-      this.setIsThereSomethingToShow();
+  removeIfPossible(newTag:TagAlmostMin){
+    // if(index!=-1 && this.allTags!=null && this.shownTags!=null){
+    //   this.allTags.splice(index,1);
+    //   this.shownTags.splice(index, 1);
+    //   this.setIsThereSomethingToShow();
+    // }
+    let ind1:number =-1;
+    let ind2:number =-1;
+
+    if(this.shownTags!=null && newTag!=null){
+      ind1 = Utils.binarySearch(this.shownTags, newTag, TagAlmostMin.descendingCompare);
     }
+    if(this.allTags!=null && newTag!=null){
+      ind2 = Utils.binarySearch(this.allTags, newTag, TagAlmostMin.descendingCompare);
+    }
+
+    if(ind1!=-1){
+      this.shownTags.splice(ind1, 1);
+    }
+    if(ind2!=2){
+      this.allTags.splice(ind2, 1);
+    }
+    this.setIsThereSomethingToShow();
   }
 
   // loadFull(){
