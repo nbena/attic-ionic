@@ -296,18 +296,18 @@ public static search<T>(array:T[], item:T,  cmp: ((a:T,b:T)=>number)):number{
    }
    return array;
  }
-
- public static getFullObjectTag(arg0:TagFull[], arg1:NoteExtraMin[]):TagFull[]{
-   let array:TagFull[]=[];
-   if(arg0!=null){
-     array=arg1.map(obj=>{
-       let index:number;
-       index=Utils.indexOfCmp(arg0, obj, TagExtraMin.ascendingCompare);
-       return arg0[index];
-     })
-   }
-   return array;
- }
+ //
+ // public static getFullObjectTag(arg0:TagFull[], arg1:NoteExtraMin[]):TagFull[]{
+ //   let array:TagFull[]=[];
+ //   if(arg0!=null){
+ //     array=arg1.map(obj=>{
+ //       let index:number;
+ //       index=Utils.indexOfCmp(arg0, obj, TagExtraMin.ascendingCompare);
+ //       return arg0[index];
+ //     })
+ //   }
+ //   return array;
+ // }
 
 
 

@@ -209,6 +209,7 @@ export class AtticCache {
   // }
 
   private getIndexOfNoteFull(note:NoteExtraMin):number{
+    console.log('the note extra min to search is');console.log(JSON.stringify(note));
     return Utils.binarySearch(this.cachedFullNotes, note, NoteExtraMin.ascendingCompare);
   }
 
@@ -243,6 +244,7 @@ export class AtticCache {
     if(n!=-1){
       res = this.cachedFullNotes[n];
     }
+    console.log('the note found is');console.log(JSON.stringify(res));
     return res;
   }
 
@@ -321,66 +323,88 @@ export class AtticCache {
   // }
 
 
-  public changeNoteTitle(note:NoteExtraMinWithDate, newTitle:string, upsert:boolean):void{
-    let n1:number = /*Utils.binarySearch(this.cachedExtraMinNotes, note, NoteExtraMin.ascendingCompare);*/
-      this.getIndexOfNoteFromExtraMin(note);
-    if(n1!=-1){
-      this.cachedExtraMinNotes[n1].title = newTitle;
-    }
-    let n2:number = /*Utils.binarySearch(this.cachedFullNotes, note, NoteExtraMin.ascendingCompare);*/
-      this.getIndexOfNoteFull(note);
-    if(n2!=-1){
-      this.cachedFullNotes[n2].title=newTitle;
-    }
-    let n3:number = /*Utils.binarySearch(this.differentlySortedCachedExtraMinNotes, note, NoteExtraMinWithDate.descendingCompare);*/
-      this.getIndexOfNoteFromDifferentlyCachedNotes(note)
-    if(n3!=-1){
-      this.differentlySortedCachedExtraMinNotes[n3].title=newTitle;
-    }
-    if(upsert){
+  public changeNoteTitle(note:NoteExtraMinWithDate, newTitle:string/*, upsert:boolean*/,lastmod:Date):void{
+    // let n1:number = /*Utils.binarySearch(this.cachedExtraMinNotes, note, NoteExtraMin.ascendingCompare);*/
+    //   this.getIndexOfNoteFromExtraMin(note);
+    // if(n1!=-1){
+    //   this.cachedExtraMinNotes[n1].title = newTitle;
+    // }
+    // let n2:number = /*Utils.binarySearch(this.cachedFullNotes, note, NoteExtraMin.ascendingCompare);*/
+    //   this.getIndexOfNoteFull(note);
+    // if(n2!=-1){
+    //   this.cachedFullNotes[n2].title=newTitle;
+    // }
+    // let n3:number = /*Utils.binarySearch(this.differentlySortedCachedExtraMinNotes, note, NoteExtraMinWithDate.descendingCompare);*/
+    //   this.getIndexOfNoteFromDifferentlyCachedNotes(note)
+    // if(n3!=-1){
+    //   this.differentlySortedCachedExtraMinNotes[n3].title=newTitle;
+    // }
+    // if(upsert){
+    let oldExtra:NoteExtraMinWithDate = new NoteExtraMinWithDate(note.title);
+    oldExtra.lastmodificationdate=lastmod;
+    // console.log('before changing title');
+    // console.log(JSON.stringify(this.differentlySortedCachedExtraMinNotes));
+    // console.log(JSON.stringify(this.cachedExtraMinNotes));
+    // console.log(JSON.stringify(this.cachedFullNotes));
+    // console.log('the note in is:');console.log(JSON.stringify(note));
+    let n1:boolean = this.removeNoteFromNotesExtraMin(note);
+    let n2:boolean = this.removeNoteFromNotesFull(note);
+    let n3:boolean = this.removeNoteFromDifferentlyCachedNotes(oldExtra);
+    // console.log(JSON.stringify([n1, n2, n3]));
       note.title=newTitle;
-      if(n1==-1){
+      if(n1){
         this.pushToCachedExtraMinNote(note);
       }
-      if(n2==-1 && note instanceof NoteFull){
+      if(n2 && note instanceof NoteFull){
         this.pushToCachedFullNotes(note as NoteFull);
       }
-      if(n3==-1){
+      if(n3){
         this.pushToDifferentlySortedCachedExtraMinNote(note);
       }
-    }
+    // }
+    // console.log('post changing title');
+    // console.log(JSON.stringify(this.differentlySortedCachedExtraMinNotes));
+    // console.log(JSON.stringify(this.cachedExtraMinNotes));
+    // console.log(JSON.stringify(this.cachedFullNotes));
   }
 
 
 
-  public changeTagTitle(tag:TagAlmostMin, newTitle:string, upsert:boolean):void{
-    let n1:number = /*Utils.binarySearch(this.cachedAlmostMinTags, tag, TagAlmostMin.ascendingCompare);*/
-      this.getIndexOfTagFromAlmostMin(tag);
-    if(n1!=-1){
-      this.cachedAlmostMinTags[n1].title = newTitle;
-    }
-    let n2:number = /*Utils.binarySearch(this.cachedFullTags, tag, TagAlmostMin.ascendingCompare);*/
-      this.getIndexOfTagFull(tag);
-    if(n2!=-1){
-      this.cachedFullTags[n2].title=newTitle;
-    }
-    let n3:number = /*Utils.binarySearch(this.differentlySortedCachedAlmostMinTags, tag, TagAlmostMin.descendingCompare);*/
-      this.getIndexOfTagFromDifferentlyCachedTags(tag);
-    if(n3!=-1){
-      this.differentlySortedCachedAlmostMinTags[n3].title=newTitle;
-    }
-    if(upsert){
+  public changeTagTitle(tag:TagAlmostMin, newTitle:string/*, upsert:boolean*/):void{
+    // let n1:number = /*Utils.binarySearch(this.cachedAlmostMinTags, tag, TagAlmostMin.ascendingCompare);*/
+    //   this.getIndexOfTagFromAlmostMin(tag);
+    // if(n1!=-1){
+    //   this.cachedAlmostMinTags[n1].title = newTitle;
+    // }
+    // let n2:number = /*Utils.binarySearch(this.cachedFullTags, tag, TagAlmostMin.ascendingCompare);*/
+    //   this.getIndexOfTagFull(tag);
+    // if(n2!=-1){
+    //   this.cachedFullTags[n2].title=newTitle;
+    // }
+    // let n3:number = /*Utils.binarySearch(this.differentlySortedCachedAlmostMinTags, tag, TagAlmostMin.descendingCompare);*/
+    //   this.getIndexOfTagFromDifferentlyCachedTags(tag);
+    // if(n3!=-1){
+    //   this.differentlySortedCachedAlmostMinTags[n3].title=newTitle;
+    // }
+    // if(upsert){
+    let n1:boolean = this.removeTagFromAlmostMin(tag);
+    let n2:boolean = this.removeTagFromTagFull(tag);
+    let n3:boolean = this.removeTagFromDifferentlyCachedTags(tag);
       tag.title=newTitle;
-      if(n1==-1){
+      if(n1){
         this.pushToCachedAlmostMinTags(tag);
       }
-      if(n2==-1 && tag instanceof TagFull){
+      if(n2 && tag instanceof TagFull){
         this.pushToCachedFullTags(tag as TagFull);
       }
-      if(n3==-1){
+      if(n3){
         this.pushToDifferentlySortedCachedAlmostMinTags(tag);
       }
-    }
+    // }
+    console.log('post changing title');
+    console.log(JSON.stringify(this.differentlySortedCachedAlmostMinTags));
+    console.log(JSON.stringify(this.cachedAlmostMinTags));
+    console.log(JSON.stringify(this.cachedFullTags));
   }
 
 
@@ -467,7 +491,8 @@ export class AtticCache {
   // }
 
 
-  private removeNoteFromDifferentlyCachedNotes(note:NoteExtraMin):void{
+  private removeNoteFromDifferentlyCachedNotes(note:NoteExtraMin):boolean{
+    let ret:boolean=false;
     let n3:number=-1;
     if((note instanceof NoteExtraMinWithDate || note instanceof NoteFull) && note.lastmodificationdate!=null){
       n3 = /*Utils.binarySearch(this.differentlySortedCachedExtraMinNotes, note as NoteExtraMinWithDate, NoteExtraMinWithDate.descendingCompare);*/
@@ -476,26 +501,35 @@ export class AtticCache {
       n3 = Utils.search(this.differentlySortedCachedExtraMinNotes, note, NoteExtraMin.ascendingCompare);
     }
     if(n3!=-1){
+      ret=true;
       this.differentlySortedCachedExtraMinNotes.splice(n3, 1);
     }
+    return ret;
   }
 
-  private removeNoteFromNotesFull(note:NoteExtraMin):void{
+  private removeNoteFromNotesFull(note:NoteExtraMin):boolean{
+    let ret:boolean=false;
     let n1:number = this.getIndexOfNoteFull(note);
     if(n1!=-1){
+      ret=true;
       this.cachedFullNotes.splice(n1, 1);
     }
+    return ret;
   }
 
-  private removeNoteFromNotesExtraMin(note:NoteExtraMin):void{
+  private removeNoteFromNotesExtraMin(note:NoteExtraMin):boolean{
+    let ret:boolean=false;
     let n1:number = this.getIndexOfNoteFromExtraMin(note);
     if(n1!=-1){
+      ret=true;
       this.cachedExtraMinNotes.splice(n1, 1);
     }
+    return ret;
   }
 
 
-  private removeTagFromDifferentlyCachedTags(tag:TagExtraMin):void{
+  private removeTagFromDifferentlyCachedTags(tag:TagExtraMin):boolean{
+    let ret:boolean=false;
     let n3:number;
     if((tag instanceof TagAlmostMin || tag instanceof TagFull) && tag.noteslength!=null){
       n3 = this.getIndexOfTagFromDifferentlyCachedTags(tag as TagAlmostMin);
@@ -503,27 +537,35 @@ export class AtticCache {
       n3 = Utils.search(this.differentlySortedCachedAlmostMinTags, tag, TagExtraMin.ascendingCompare);
     }
     if(n3!=-1){
+      ret=true;
       this.differentlySortedCachedAlmostMinTags.splice(n3, 1);
     }
+    return ret;
   }
 
 
-  private removeTagFromTagFull(tag:TagExtraMin):void{
+  private removeTagFromTagFull(tag:TagExtraMin):boolean{
+    let ret:boolean=false;
     let n1:number = this.getIndexOfTagFull(tag);
     if(n1!=-1){
+      ret=true;
       this.cachedFullTags.splice(n1, 1);
     }
+    return ret;
   }
 
-  private removeTagFromAlmostMin(tag:TagExtraMin):void{
+  private removeTagFromAlmostMin(tag:TagExtraMin):boolean{
+    let ret:boolean=false;
     let n1:number = this.getIndexOfTagFromAlmostMin(tag);
     if(n1!=-1){
+      ret=true;
       this.cachedAlmostMinTags.splice(n1, 1);
     }
+    return ret;
   }
 
 
-  public removeNote(note:NoteExtraMin):void{
+  public removeNote(note:NoteExtraMin){
     // let n3:number;
     // // console.log(typeof  note);
     // // console.log(JSON.stringify(note as NoteExtraMinWithDate));
@@ -557,7 +599,7 @@ export class AtticCache {
   }
 
 
-  public removeTag(tag:TagAlmostMin):void{
+  public removeTag(tag:TagAlmostMin){
     // let n1:number = Utils.binarySearch(this.cachedFullTags, tag, TagExtraMin.ascendingCompare);
     // let n2:number = Utils.binarySearch(this.cachedAlmostMinTags, tag, TagExtraMin.ascendingCompare);
     // let n3:number = Utils.binarySearch(this.differentlySortedCachedAlmostMinTags, tag, TagAlmostMin.descendingCompare);
@@ -582,12 +624,11 @@ export class AtticCache {
     // this.cachedFullNotes.unshift(note);
     // this.cachedExtraMinNotes.
 
-    let oldExtra: NoteExtraMinWithDate = new NoteExtraMinWithDate();
-    oldExtra.title=note.title;
+    let oldExtra: NoteExtraMinWithDate = new NoteExtraMinWithDate(note.title);
     oldExtra.lastmodificationdate=lastmod;
 
     if(NoteExtraMinWithDate.descendingCompare(note, this.differentlySortedCachedExtraMinNotes[0])<=0){
-      // console.log('ok modification allowed');
+      console.log('ok modification allowed');
       //
       // console.log('before remove:');console.log(JSON.stringify(this.differentlySortedCachedExtraMinNotes));
       // try{
@@ -624,7 +665,9 @@ export class AtticCache {
       if(this.cachedFullNotes[n].title!=note.title){
         throw new Error('you cannot change the title');
       }
+      console.log('before insert');console.log(JSON.stringify(this.cachedFullNotes));
       this.cachedFullNotes[n]=note;
+      console.log('post insert');console.log(JSON.stringify(this.cachedFullNotes));
     }else{
       if(throwError){
         throw new Error('note not found');

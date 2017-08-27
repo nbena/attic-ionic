@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { NavController, NavParams, PopoverController,
 /*AlertController, ToastController*/ } from 'ionic-angular';
 
-import { /*NoteExtraMin, */NoteFull/*, NoteMin, NoteSmart*/ } from '../../models/notes';
+import { /*NoteExtraMin, */NoteFull/*, NoteMin, NoteSmart*/, NoteExtraMinWithDate } from '../../models/notes';
 
 import { AtticNotes } from '../../providers/attic-notes';
 import { AtticTags } from '../../providers/attic-tags';
@@ -33,7 +33,7 @@ export class NoteDetailsPage {
   // _mainTags: TagExtraMin[];
   // _otherTags: TagExtraMin[];
   // _links: string[];
-  title: string;
+  // title: string;
   // creationDateString: string;
   // lastModificationDateString: string;
 
@@ -97,7 +97,9 @@ export class NoteDetailsPage {
 
   areTagsReallyLoaded: boolean = false;
 
-  index: number=-1;
+  // index: number=-1;
+
+  basicNote: NoteExtraMinWithDate;
 
 
 
@@ -107,13 +109,27 @@ export class NoteDetailsPage {
     private graphicProvider:GraphicProvider,
     private iab: InAppBrowser
   ) {
-    this.title=navParams.get('title');
-    let ind=navParams.get('index');
-    if(ind!=null && ind!=-1){
-      this.index=ind;
+    // let ind=navParams.get('index');
+    // if(ind!=null && ind!=-1){
+    //   this.index=ind;
+    // }
+
+
+
+    this.basicNote = navParams.get('note');
+    if(this.basicNote!=null){
+      this.note = new NoteFull();
+      this.note.title=this.basicNote.title;
+      this.note.lastmodificationdate=this.basicNote.lastmodificationdate;
     }
-    this.note = new NoteFull();
-    this.note.title=this.title;
+
+    if(this.note==null){
+      let title = this.navParams.get('title');
+      this.note = new NoteFull();
+      this.note.title=title;
+    }
+
+
     //this.init();
     this.load(false);
   }
@@ -207,7 +223,7 @@ export class NoteDetailsPage {
 
   noteByTitle(force: boolean){
     return new Promise<void>((resolve, reject)=>{
-      this.atticNotes.noteByTitle(this.title, force)
+      this.atticNotes.noteByTitle(this.note.title, force)
         .then(result=>{
           this.note=result/* as NoteFull;*/;
 
@@ -229,6 +245,8 @@ export class NoteDetailsPage {
 
           this.isNoteLoaded = true;
           this.isNoteReallyLoaded = true;
+
+          console.log('the note is');console.log(JSON.stringify(this.note));
 
           resolve();
 
@@ -335,7 +353,7 @@ export class NoteDetailsPage {
     // console.log('click and');console.log(this.isNoteLoaded);
     // console.log('so this note is');console.log(JSON.stringify(this.note));
     if(this.isNoteLoaded){
-      let popover=this.popoverCtrl.create(NoteDetailsPopoverPage, {title:this.title,note: this.note, index:this.index});
+      let popover=this.popoverCtrl.create(NoteDetailsPopoverPage, {note: this.note});
       popover.present({
         ev: event
       });
@@ -630,7 +648,7 @@ export class NoteDetailsPage {
       // this.note.forceCastToNoteExtraMin();
     // }catch(e){console.log('the fucking error is here');console.log(JSON.stringify(e.message))}
 
-    if(this.haveToDoSomething()){
+    if(this.haveToDoSomething()){ /*ok so this is important*/
       this.note.lastmodificationdate=new Date();
     }
     //can't be done here, if so, the cache won't be able to find it.

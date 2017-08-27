@@ -24,7 +24,7 @@ import { TagAlmostMin } from '../../models/tags';
 
 import { NotesPopoverPage } from '../notes-popover/notes-popover';
 
-//import { Utils } from '../../public/utils';
+import { Utils } from '../../public/utils';
 import { GraphicProvider} from '../../providers/graphic'
 
 /*
@@ -115,14 +115,35 @@ export class NotesPage {
 
 
       this.events.subscribe('change-tab', (tab, note)=>{
+        //the note to add.
         console.log('change tab the note is');console.log(JSON.stringify(note));
         this.unshiftIfPossible(note);
       })
 
 
-      this.events.subscribe('go-to-notes', (index)=>{
-        console.log('the index');console.log(index);
-        this.removeIfPossible(index);
+      this.events.subscribe('go-to-notes-and-remove', (note)=>{
+        console.log('the note to remove');console.log(note);
+        let noteToRemove:NoteExtraMinWithDate = note;
+        this.removeIfPossible(noteToRemove);
+      });
+
+      this.events.subscribe('go-to-notes-and-replace', (oldnote, newnote)=>{
+        let oldNote:NoteExtraMinWithDate = oldnote;
+        let newNote:NoteExtraMinWithDate = newnote;
+
+        // let ind1: number = Utils.binarySearch(this.shownNotes, oldNote, NoteExtraMinWithDate.descendingCompare);
+        // let ind2: number = Utils.binarySearch(this.allNotes, oldnote, NoteExtraMinWithDate.descendingCompare);
+        //
+        // if(ind1!=-1){
+        //   this.shownNotes.splice(ind1, 1);
+        //   Utils.binaryArrayInsert(this.shownNotes, newNote, NoteExtraMinWithDate.descendingCompare);
+        // }
+        // if(ind2!=-1){
+        //   this.allNotes.splice(ind2, 1);
+        //   Utils.binaryArrayInsert(this.allNotes, newNote, NoteExtraMinWithDate.descendingCompare);
+        // }
+        this.removeAndAddIfPossible(oldNote, newNote);
+
       })
 
     // }catch(e){
@@ -166,8 +187,8 @@ export class NotesPage {
   }
 
 
-  displayNoteDetails(title: string, index:number){
-    this.navCtrl.push(NoteDetailsPage, {title:title, index:index}).then(()=>{});
+  displayNoteDetails(/*title: string, index:number*/note:NoteExtraMinWithDate){
+    this.navCtrl.push(NoteDetailsPage, {note:note}).then(()=>{});
   }
 
 
@@ -179,14 +200,43 @@ export class NotesPage {
     }
   }
 
-  removeIfPossible(index:number){
+  removeIfPossible(note:NoteExtraMinWithDate){
     // try{
-      if(index!=-1 && this.allNotes!=null && this.shownNotes!=null){
-        this.allNotes.splice(index,1);
-        this.shownNotes.splice(index,1);
-        this.setIsThereSomethingToShow();
-      }
+      // if(index!=-1 && this.allNotes!=null && this.shownNotes!=null){
+      //   this.allNotes.splice(index,1);
+      //   this.shownNotes.splice(index,1);
+      //   this.setIsThereSomethingToShow();
+      // }
     // }catch(e){console.log('error in remove if possible');console.log(JSON.stringify(e));console.log(JSON.stringify(e.message))}
+    if(this.shownNotes!=null && note!=null){
+      let ind1:number = Utils.binarySearch(this.shownNotes, note, NoteExtraMinWithDate.descendingCompare);
+      if(ind1=-1){
+        this.shownNotes.splice(ind1, 1);
+      }
+    }
+
+    if(this.allNotes!=null && note!=null){
+      let ind1:number = Utils.binarySearch(this.allNotes, note, NoteExtraMinWithDate.descendingCompare);
+      if(ind1=-1){
+        this.allNotes.splice(ind1, 1);
+      }
+    }
+
+  }
+
+
+  removeAndAddIfPossible(oldNote:NoteExtraMinWithDate, newNote:NoteExtraMinWithDate):void{
+    let ind1: number = Utils.binarySearch(this.shownNotes, oldNote, NoteExtraMinWithDate.descendingCompare);
+    let ind2: number = Utils.binarySearch(this.allNotes, oldNote, NoteExtraMinWithDate.descendingCompare);
+
+    if(ind1!=-1){
+      this.shownNotes.splice(ind1, 1);
+      Utils.binaryArrayInsert(this.shownNotes, newNote, NoteExtraMinWithDate.descendingCompare);
+    }
+    if(ind2!=-1){
+      this.allNotes.splice(ind2, 1);
+      Utils.binaryArrayInsert(this.allNotes, newNote, NoteExtraMinWithDate.descendingCompare);
+    }
   }
 
   ionViewDidLoad() {

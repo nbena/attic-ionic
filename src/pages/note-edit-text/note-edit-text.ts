@@ -61,15 +61,16 @@ export class NoteEditTextPage {
     if(this.editTextPageForm.valid){
       this.note.text = this.editTextPageForm.value.text;
       this.note.lastmodificationdate = new Date();
+      console.log('the note i\'m going to change tetx');console.log(JSON.stringify(this.note));
       this.atticNotes.changeText(this.note, this.lastmod)
         .then(result=>{
-          console.log(result);
+          // console.log(result);
           this.graphicProvider.presentToast('Text updated');
           this.navCtrl.pop();
         })
         .catch(error=>{
           this.note.lastmodificationdate=this.tmpLastmodificationdate;
-          console.log(JSON.stringify('change text error: '+error));
+          console.log('change text error: ');console.log(JSON.stringify(error));console.log(JSON.stringify(error.message));console.log(JSON.stringify(error.toString()));
           this.graphicProvider.showErrorAlert(error);
         })
     }

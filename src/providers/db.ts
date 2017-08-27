@@ -1848,14 +1848,15 @@ private updateNoteChangeTextCore(note:NoteFull, userid:string, tx?:any):Promise<
 
 /*a full object in order to re-calculate the json_object and insert it directly.
 If i use just the title, I'd have to get to json_object, modify and reinsert. */
-public setText(note :NoteFull, userid: string):Promise<any>{
+public setText(note :NoteFull, userid: string):Promise<void>{
   /*UODATE_NOTE_SET_DONE = 'update note set isdone=?, json_object=? where title=?';*/
   /*'select * from logs where notetitle=? and action=\'create\'';*/
   /*first check if the note must be sent to the server, if so,
   I can only update it.
   If the note is already in the server, I need to write modification to the log.
   */
-  return new Promise<any>((resolve, reject)=>{
+  console.log('the note here in the db');console.log(JSON.stringify(note));
+  return new Promise<void>((resolve, reject)=>{
     //let inTheServer: boolean = false;
     this.db.executeSql(Query.IS_NOTE_NOT_IN_THE_SERVER, [note.title, userid])
     .then(result=>{
@@ -1874,11 +1875,10 @@ public setText(note :NoteFull, userid: string):Promise<any>{
     })
     .then(upadteResuullt=>{
       console.log('set text ok'),
-      resolve(true);
+      resolve();
     })
     .catch(error=>{
-      console.log('error in set-text');
-      console.log(JSON.stringify(error));
+      console.log('error in set-text');console.log(JSON.stringify(error));
       reject(error);
     })
   })
@@ -2026,15 +2026,18 @@ public setLinks(note :NoteFull, userid: string):Promise<void>{
 /*just execute the query and nothing more.*/
 public setNoteTitle(note: NoteFull, newTitle: string, userid: string):Promise<any>{
   let oldTitle:string = note.title;
-  note.title = newTitle;
-  return this.db.executeSql(Query.UPDATE_NOTE_SET_TITLE, [note.lastmodificationdate.toISOString(),newTitle, JSON.stringify(note), oldTitle, userid]);
+  let newNote = note.clone();
+  newNote.title=newTitle;
+  return this.db.executeSql(Query.UPDATE_NOTE_SET_TITLE, [note.lastmodificationdate.toISOString(),newTitle, JSON.stringify(newNote), oldTitle, userid]);
 }
 
 /*a changing on tags will make it lose its fullness*/
-public setTagTitle(tag: TagExtraMin, newTitle: string, userid: string):Promise<any>{
+public setTagTitle(tag: TagFull, newTitle: string, userid: string):Promise<any>{
   let oldTitle:string = tag.title;
-  tag.title = newTitle;
-  return this.db.executeSql(Query.UPDATE_TAG_SET_TITLE, [newTitle, JSON.stringify(tag), oldTitle, userid]);
+  let newTag = tag.clone();
+  newTag.title=newTitle;
+  // tag.title = newTitle;
+  return this.db.executeSql(Query.UPDATE_TAG_SET_TITLE, [newTitle, JSON.stringify(newTag), oldTitle, userid]);
 }
 
 // privateQueryNotesByTags(base:string, length:number):string{
@@ -4098,6 +4101,10 @@ private prepareQueryInsertNotesMinQuietly(length:number, userid:string):string{
 
 //TODO use this everytime is necessary.
 
+/**
+update the json obj of the note, if requested, it updates the lastmodificationdate too.
+Please note that the lastmodificationdate must be already present in the note.
+*/
 private updateJsonObjNote(fullNote:NoteFull, userid:string, updateLastModificationDateToo:boolean,tx?:any):void|Promise<void>{
   let json:string = JSON.stringify(fullNote);
   if(tx!=null){

@@ -41,14 +41,19 @@ export class TabsPage {
       this.tabs.select(tab);
       });
 
-    this.events.subscribe('go-to-notes', (index)=>{
-      this.notesParams = index as number;
+    this.events.subscribe('go-to-notes-and-remove', (index)=>{
+      // this.notesParams = index as number;
       this.tabs.select(0);
     });
 
     this.events.subscribe('go-to-tags', (index)=>{
       //this.tagsParams = index as number;
       this.tabs.select(2);
+    });
+
+    this.events.subscribe('go-to-notes-and-replace', (oldnote, newnote)=>{
+      // this.notesParams = {newnote, oldnote};
+      this.tabs.select(0);
     })
 
   }

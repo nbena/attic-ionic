@@ -239,7 +239,7 @@ export class AtticTags {
   }
   //the allow is done in order to avoid situation such as:
     //ok update on the server but not on the local db
-  changeTitle(tag: TagExtraMin, newTitle: string):Promise<void>{
+  changeTitle(tag: TagFull, newTitle: string):Promise<void>{
     let isAllowed: boolean = false;
     if( (!this.synch.isNoteFullyLocked()) && (!this.synch.isTagLocked()) ){
       return new Promise<void>((resolve, reject)=>{
@@ -264,10 +264,10 @@ export class AtticTags {
         }
       })
       .then(changedLocally=>{
-        //if(isAllowed){
-
+        if(isAllowed){
+          this.atticCache.changeTagTitle(tag, newTitle, /*false*/);
           resolve();
-        //}
+        }
       })
       .catch(error=>{
         console.log('error in changing title');

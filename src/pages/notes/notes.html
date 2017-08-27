@@ -60,7 +60,7 @@
 
     <ng-template #show_notes>
       <ion-list>
-        <ion-item *ngFor="let note of shownNotes; let i=index" (click)="displayNoteDetails(note.title,i)">
+        <ion-item *ngFor="let note of shownNotes" (click)="displayNoteDetails(note)">
           <ion-label>{{note.title}}</ion-label>
         </ion-item>
       </ion-list>

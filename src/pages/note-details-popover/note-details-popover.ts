@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { NavController, NavParams, ViewController/*, ToastController, AlertController*/
   //, App
   ,Events } from 'ionic-angular';
-import { NoteFull/*, NoteExtraMinWithDate*/ } from '../../models/notes';
+import { NoteFull, NoteExtraMinWithDate } from '../../models/notes';
 import { NoteEditTextPage } from '../note-edit-text/note-edit-text';
 import { AtticNotes } from '../../providers/attic-notes';
 // import { Utils } from '../../public/utils';
@@ -22,12 +22,14 @@ export class NoteDetailsPopoverPage {
 
   done: string;
   note: NoteFull = null;
-  title:string;
+  // title:string;
 
-  index:number=-1;
+  // index:number=-1;
 
   btnChangeTextEnabled:boolean = false;
   btnChangeTitleEnabled:boolean = false;
+
+  lastmod: Date;
 
   constructor(public navCtrl: NavController, public navParams: NavParams,
     public viewCtrl: ViewController, /*public alertCtrl: AlertController,*/
@@ -43,16 +45,18 @@ export class NoteDetailsPopoverPage {
       //   this.btnChangeTextEnabled = true;
       //   this.btnChangeTitleEnabled = true;
       // }
-      this.title =this.navParams.get('title');
+      // this.title =this.navParams.get('title');
       this.note=this.navParams.get('note');
       let ind=this.navParams.get('index');
-      if(ind!=-1 && ind!=null){
-        this.index=ind;
-      }
+      // if(ind!=-1 && ind!=null){
+      //   this.index=ind;
+      // }
       if(this.note!=null){
         // console.log('this note is not null');
         this.btnChangeTextEnabled = true;
         this.btnChangeTitleEnabled = true;
+
+        this.lastmod = this.note.lastmodificationdate;
         // console.log(this.btnChangeTitleEnabled);
         // console.log(this.btnChangeTextEnabled);
       }
@@ -141,12 +145,20 @@ export class NoteDetailsPopoverPage {
   */
 
   changeTitleAPI(title: string){
+    let oldNote:NoteExtraMinWithDate = new NoteExtraMinWithDate(this.note.title);
+    oldNote.lastmodificationdate = this.lastmod;
+    let newNote:NoteExtraMinWithDate = new NoteExtraMinWithDate(title);
+    newNote.lastmodificationdate = new Date();
+    this.note.lastmodificationdate = newNote.lastmodificationdate;
+
     this.viewCtrl.dismiss()
     .then(()=>{
-      return this.atticNotes.changeTitle(this.note, title)
+      return this.atticNotes.changeTitle(this.note, title, this.lastmod);
     })
     .then(()=>{
       //return Utils.presentToast(this.toastCtrl, 'Title updated');
+
+      this.events.publish('go-to-notes-and-replace', oldNote, newNote);
       return this.graphicProvider.presentToast('Title updated');
     })
     // this.atticNotes.changeTitle(this.note, title)
@@ -159,6 +171,7 @@ export class NoteDetailsPopoverPage {
     //   })
       .catch(error=>{
         //Utils.showErrorAlert(this.alertCtrl, error);
+        this.note.lastmodificationdate=this.lastmod;
         this.graphicProvider.showErrorAlert(error);
         console.log('change title error: '+JSON.stringify(error));
       });
@@ -204,7 +217,7 @@ export class NoteDetailsPopoverPage {
       //this.navCtrl.getViews().forEach(obj=>{if(obj.)})
       //return this.app.getRootNav().push(NotesPage, {refresh:false, toRemove:this.note as NoteExtraMinWithDate})
       // return this.app.getRootNav().popToRoot();
-      this.events.publish('go-to-notes', this.index); //method to change tab.
+      this.events.publish('go-to-notes-and-remove', this.note); //method to change tab.
       this.graphicProvider.presentToast('Note deleted');
     })
     // .then(()=>{

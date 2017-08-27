@@ -91,6 +91,12 @@ export class TagAlmostMin extends TagExtraMin{
     return TagAlmostMin.safeNewTagFromJsObject(JSON.parse(json));
   }
 
+  public clone():TagAlmostMin{
+    let tag:TagAlmostMin = new TagAlmostMin(this.title);
+    tag.noteslength=this.noteslength;
+    return tag;
+  }
+
 }
 
 // export class TagMin extends TagAlmostMin{
@@ -183,6 +189,14 @@ export class TagFull extends TagAlmostMin{
     if(tag.notes==null || jsonTag.notes==null){
       tag.notes=[];
     }
+    return tag;
+  }
+
+
+  public clone():TagFull{
+    let tag:TagFull = new TagFull(this.title);
+    tag.noteslength=this.noteslength;
+    tag.notes=this.notes;
     return tag;
   }
 

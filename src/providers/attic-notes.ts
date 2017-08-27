@@ -498,7 +498,7 @@ export class AtticNotes {
   }
 
 
-  changeTitle(note: NoteFull, newTitle: string):Promise<void>{
+  changeTitle(note: NoteFull, newTitle: string, lastmod:Date):Promise<void>{
     let isAllowed: boolean = false;
     if(!this.synch.isNoteFullyLocked()){
       return new Promise<void>((resolve, reject)=>{
@@ -527,6 +527,7 @@ export class AtticNotes {
       })
       .then(changedLocally=>{
         if(isAllowed){
+          this.atticCache.changeNoteTitle(note, newTitle/*, false*/,lastmod);
           resolve();
         }
       })
@@ -557,7 +558,7 @@ export class AtticNotes {
             console.log(JSON.stringify(error.message));console.log(JSON.stringify(error));reject(error);
         })
       })
-    }else{    
+    }else{
       // return new Promise<void>((resolve, reject)=>{
         console.log('trying to add tags but it is locked');
         p=Promise.reject(AtticError.getSynchingError(DbActionNs.DbAction.add_tag));
