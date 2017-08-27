@@ -109,7 +109,7 @@ export class NoteDetailsPage {
   ) {
     this.title=navParams.get('title');
     let ind=navParams.get('index');
-    if(ind!=null){
+    if(ind!=null && ind!=-1){
       this.index=ind;
     }
     this.note = new NoteFull();

@@ -24,6 +24,7 @@ export class TagDetailsPage {
 
   private isTagLoaded:boolean = false;
   private isComplete:boolean = false;
+  private index:number=-1;
 
   constructor(public navCtrl: NavController, public navParams: NavParams,
     private popoverCtrl: PopoverController,
@@ -32,6 +33,12 @@ export class TagDetailsPage {
   ) {
       this.title=navParams.get('title');
       //this.tagByTitle(this.title, false);
+
+      let ind=navParams.get('index');
+      if(ind!=null && ind!=-1){
+        this.index=ind;
+      }
+
       this.load(this.title, false);
   }
 
@@ -77,7 +84,7 @@ export class TagDetailsPage {
           resolve();
         })
         .catch(error=>{
-          console.log('tag by title error:'+error);
+          console.log('tag by title error:');console.log(JSON.stringify(error));console.log(JSON.stringify(error.message));
           // this.graphicProvider.showErrorAlert(error);
           this.isTagLoaded=true;
           //this.tag = null;
@@ -115,7 +122,7 @@ export class TagDetailsPage {
 
   showPopover(event){
     if(this.isTagLoaded){
-      let popover=this.popoverCtrl.create(TagDetailsPopoverPage, {tag: this.tag});
+      let popover=this.popoverCtrl.create(TagDetailsPopoverPage, {tag: this.tag, index:this.index});
       popover.present({
         ev:event
       });

@@ -45,7 +45,10 @@ export class NoteDetailsPopoverPage {
       // }
       this.title =this.navParams.get('title');
       this.note=this.navParams.get('note');
-      this.index=this.navParams.get('index');
+      let ind=this.navParams.get('index');
+      if(ind!=-1 && ind!=null){
+        this.index=ind;
+      }
       if(this.note!=null){
         // console.log('this note is not null');
         this.btnChangeTextEnabled = true;

@@ -155,14 +155,14 @@ export class NotesPage {
   //important to call this in that function if we do not want
   //any error to be thrown.
   ionViewWillEnter(){
-    try{
+    //try{
       console.log('will enter, the current filter is: '+FilterNs.toString(this.currentFilter));
       if(/*this.currentFilter==null ||  */this.currentFilter==FilterNs.Filter.None){
         this.setGoBack(false);
       }else{
         this.setGoBack(true); /*when arriving from note details this is doesn't work.*/
       }
-    }catch(e){console.log('will enter');console.log(JSON.stringify(e));console.log(JSON.stringify(e.message))}
+    //}catch(e){console.log('will enter');console.log(JSON.stringify(e));console.log(JSON.stringify(e.message))}
   }
 
 

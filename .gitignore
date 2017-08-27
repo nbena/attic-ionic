@@ -43,3 +43,4 @@ dump-local-db
 .icon
 my-release-key.jks
 .keys
+.build

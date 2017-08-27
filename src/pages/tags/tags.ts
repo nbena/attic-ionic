@@ -119,7 +119,12 @@ export class TagsPage {
   }
 
   private setIsThereSomethingToShow(){
-    this.isThereSomethingToShow = (this.shownTags.length>0) ? true : false;
+    //this.isThereSomethingToShow = (this.shownTags.length>0) ? true : false;
+    if(this.shownTags==null || this.shownTags.length<=0){
+      this.isThereSomethingToShow=false;
+    }else{
+      this.isThereSomethingToShow=true;
+    }
   }
 
   // loadAlmostMin(force: boolean){
@@ -170,8 +175,8 @@ export class TagsPage {
   }
 
 
-  displayTagDetails(title: string){
-    this.navCtrl.push(TagDetailsPage, {title});
+  displayTagDetails(title: string, index:number){
+    this.navCtrl.push(TagDetailsPage, {title:title, index:index}).then(()=>{});
   }
 
   refresh(refresher){

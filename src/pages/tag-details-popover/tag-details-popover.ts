@@ -1,9 +1,9 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, /*ToastController, AlertController,*/ ViewController, App, Events } from 'ionic-angular';
+import { NavController, NavParams, /*ToastController, AlertController,*/ ViewController/*, App,*/, Events } from 'ionic-angular';
 import { TagFull } from '../../models/tags';
 import { AtticTags } from '../../providers/attic-tags';
 // import { Utils } from '../../public/utils';
-import { TagsPage } from '../tags/tags';
+// import { TagsPage } from '../tags/tags';
 import { GraphicProvider} from '../../providers/graphic'
 
 /*
@@ -24,7 +24,7 @@ export class TagDetailsPopoverPage {
 
   constructor(public navCtrl: NavController, public navParams: NavParams,
     // private toastCtrl: ToastController, private alertCtrl: AlertController,
-    private app: App,
+    // private app: App,
     private viewCtrl: ViewController,
     private atticTags: AtticTags,
     private graphicProvider:GraphicProvider,
@@ -35,7 +35,7 @@ export class TagDetailsPopoverPage {
         this.btnChangeTitleEnabled = true;
       }
       let ind = navParams.get('index');
-      if(ind!=-1){
+      if(ind!=-1 && ind!=null){
         this.index=ind;
       }
     }
@@ -104,7 +104,7 @@ export class TagDetailsPopoverPage {
     //     nothing to do.
     //   }*/
     // });
-    this.graphicProvider.askConfirm('Question','Are you sure to delete tag \''+this.tag.title+'\?',
+    this.graphicProvider.askConfirm('Question','Are you sure to delete tag \''+this.tag.title+'\'?',
       (res:boolean)=>{if(res){this.deleteTagAPI();}}
     )
   }
