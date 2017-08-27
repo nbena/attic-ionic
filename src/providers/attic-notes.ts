@@ -257,8 +257,19 @@ export class AtticNotes {
   //   return noteRes;
   // }
 
+  // private addTagsToNote(necessaryTags:TagFull[], note:NoteExtraMin):void{
+  //   console.log('the tag');console.log(JSON.stringify(necessaryTags));
+  //   necessaryTags.forEach(obj=>{
+  //     let oldNoteslength:number = obj.noteslength;
+  //     // obj.noteslength++;
+  //     // obj.notes.push(note);
+  //     this.atticCache.updateTag2(obj, null, oldNoteslength);
+  //   })
+  // }
+
 
   createNote2(note: NoteFull/*, tags: TagAlmostMin[]*/):Promise<void>{
+
     // return this.db.createNewNote2(note, tags, this.auth.userid);
     return new Promise<void>((resolve, reject)=>{
       if(!this.synch.isSynching()){
@@ -266,7 +277,7 @@ export class AtticNotes {
         //try to provide to the db more fulltag as possible.
 
         let cachedTags:TagFull[]=this.atticCache.getCachedFullTags();
-        let necessaryTags:TagFull[]=Utils.binaryGetFullObjectTag(cachedTags, note.getTagsAsTagsExtraMinArray().sort(TagExtraMin.ascendingCompare));
+        let necessaryTags:TagFull[]=Utils.binaryGetFullObjectTag(cachedTags, note.getTagsAsTagsExtraMinArray().sort(TagExtraMin.ascendingCompare)).slice();
 
 
         this.db.createNewNote2(note.getMinifiedVersionForCreation(), /*tags, */this.auth.userid, necessaryTags)
@@ -276,6 +287,8 @@ export class AtticNotes {
 
           this.atticCache.pushNoteFullToAll(note);
           //console.log('pushed to note full');
+          // this.addTagsToNote(necessaryTags.slice(), note.forceCastToNoteExtraMin());
+          this.atticCache.invalidateTags();
           resolve();
         })
         .catch(error=>{
@@ -702,7 +715,7 @@ export class AtticNotes {
     return p;
   }
 
-  deleteNote(note: NoteExtraMin):Promise<void>{
+  deleteNote(note: NoteFull):Promise<void>{
     console.log('the note in: '+JSON.stringify(note));
     let p:Promise<void>;
     if(!this.synch.isNoteFullyLocked()){

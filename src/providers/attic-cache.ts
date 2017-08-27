@@ -140,7 +140,7 @@ export class AtticCache {
       //console.log('what I\'m going to push:');console.log(JSON.stringify(notes));
       this.differentlySortedCachedExtraMinNotes = [];
       this.differentlySortedCachedExtraMinNotes = notes;
-      this.pushAllToCachedExtraMinNote(notes, false);
+      this.pushAllToCachedExtraMinNote(notes.slice(), false);
       //console.log('the new NoteExtraMinWithDate:');console.log(JSON.stringify(this.differentlySortedCachedExtraMinNotes));
     }
   }
@@ -150,7 +150,7 @@ export class AtticCache {
       // console.log('what i\'m going to push:\n'+JSON.stringify(tags));
       this.differentlySortedCachedAlmostMinTags = [];
       this.differentlySortedCachedAlmostMinTags = tags;
-      this.pushAllToCachedAlmostMinTags(tags, false);
+      this.pushAllToCachedAlmostMinTags(tags.slice(), false);
       // console.log('the new TagAlmostMin:\n'+JSON.stringify(this.differentlySortedCachedAlmostMinTags));
     }
   }
@@ -369,45 +369,121 @@ export class AtticCache {
   }
 
 
-
-  public changeTagTitle(tag:TagAlmostMin, newTitle:string/*, upsert:boolean*/):void{
-    // let n1:number = /*Utils.binarySearch(this.cachedAlmostMinTags, tag, TagAlmostMin.ascendingCompare);*/
-    //   this.getIndexOfTagFromAlmostMin(tag);
-    // if(n1!=-1){
-    //   this.cachedAlmostMinTags[n1].title = newTitle;
-    // }
-    // let n2:number = /*Utils.binarySearch(this.cachedFullTags, tag, TagAlmostMin.ascendingCompare);*/
-    //   this.getIndexOfTagFull(tag);
-    // if(n2!=-1){
-    //   this.cachedFullTags[n2].title=newTitle;
-    // }
-    // let n3:number = /*Utils.binarySearch(this.differentlySortedCachedAlmostMinTags, tag, TagAlmostMin.descendingCompare);*/
-    //   this.getIndexOfTagFromDifferentlyCachedTags(tag);
-    // if(n3!=-1){
-    //   this.differentlySortedCachedAlmostMinTags[n3].title=newTitle;
-    // }
-    // if(upsert){
-    let n1:boolean = this.removeTagFromAlmostMin(tag);
-    let n2:boolean = this.removeTagFromTagFull(tag);
-    let n3:boolean = this.removeTagFromDifferentlyCachedTags(tag);
-      tag.title=newTitle;
-      if(n1){
-        this.pushToCachedAlmostMinTags(tag);
-      }
-      if(n2 && tag instanceof TagFull){
-        this.pushToCachedFullTags(tag as TagFull);
-      }
-      if(n3){
-        this.pushToDifferentlySortedCachedAlmostMinTags(tag);
-      }
-    // }
-    console.log('post changing title');
-    console.log(JSON.stringify(this.differentlySortedCachedAlmostMinTags));
-    console.log(JSON.stringify(this.cachedAlmostMinTags));
-    console.log(JSON.stringify(this.cachedFullTags));
-  }
+  // public updateTag2(tag:TagFull, newTitle?:string, oldNoteslength?:number):void{
+  //   console.log('tag in is:');console.log(JSON.stringify(tag));
+  //   let oldMin:TagAlmostMin = new TagAlmostMin(tag.title);
+  //   if(oldNoteslength!=null){
+  //     oldMin.noteslength=oldNoteslength;
+  //   }else{
+  //     oldMin.noteslength=tag.noteslength;
+  //   }
+  //   let n1:boolean = this.removeTagFromAlmostMin(tag);
+  //   let n2:boolean = this.removeTagFromTagFull(tag);
+  //   let n3:boolean = this.removeTagFromDifferentlyCachedTags(oldMin);
+  //   console.log(JSON.stringify([n1, n2, n3]));
+  //   console.log('before changing title');
+  //   console.log(JSON.stringify(this.differentlySortedCachedAlmostMinTags));
+  //   console.log(JSON.stringify(this.cachedAlmostMinTags));
+  //   console.log(JSON.stringify(this.cachedFullTags));
+  //   if(newTitle!=null){
+  //     tag.title=newTitle;
+  //   }
+  //   if(n1){
+  //     this.pushToCachedAlmostMinTags(tag.forceCastToTagAlmostMin());
+  //   }
+  //   if(n2){
+  //     this.pushToCachedFullTags(tag);
+  //   }
+  //   if(n3){
+  //     this.pushToDifferentlySortedCachedAlmostMinTags(tag.forceCastToTagAlmostMin());
+  //   }
+  //   console.log('post changing title');
+  //   console.log(JSON.stringify(this.differentlySortedCachedAlmostMinTags));
+  //   console.log(JSON.stringify(this.cachedAlmostMinTags));
+  //   console.log(JSON.stringify(this.cachedFullTags));
+  // }
 
 
+
+  // public changeTagTitle(tag:TagAlmostMin, newTitle:string/*, upsert:boolean*/):void{
+  //   // let n1:number = /*Utils.binarySearch(this.cachedAlmostMinTags, tag, TagAlmostMin.ascendingCompare);*/
+  //   //   this.getIndexOfTagFromAlmostMin(tag);
+  //   // if(n1!=-1){
+  //   //   this.cachedAlmostMinTags[n1].title = newTitle;
+  //   // }
+  //   // let n2:number = /*Utils.binarySearch(this.cachedFullTags, tag, TagAlmostMin.ascendingCompare);*/
+  //   //   this.getIndexOfTagFull(tag);
+  //   // if(n2!=-1){
+  //   //   this.cachedFullTags[n2].title=newTitle;
+  //   // }
+  //   // let n3:number = /*Utils.binarySearch(this.differentlySortedCachedAlmostMinTags, tag, TagAlmostMin.descendingCompare);*/
+  //   //   this.getIndexOfTagFromDifferentlyCachedTags(tag);
+  //   // if(n3!=-1){
+  //   //   this.differentlySortedCachedAlmostMinTags[n3].title=newTitle;
+  //   // }
+  //   // if(upsert){
+  //   let oldMin:TagAlmostMin = new TagAlmostMin(tag.title);
+  //   oldMin.noteslength=tag.noteslength;
+  //   let n1:boolean = this.removeTagFromAlmostMin(tag);
+  //   let n2:boolean = this.removeTagFromTagFull(tag);
+  //   let n3:boolean = this.removeTagFromDifferentlyCachedTags(oldMin);
+  //     tag.title=newTitle;
+  //     if(n1){
+  //       this.pushToCachedAlmostMinTags(tag);
+  //     }
+  //     if(n2 && tag instanceof TagFull){
+  //       this.pushToCachedFullTags(tag as TagFull);
+  //     }
+  //     if(n3){
+  //       this.pushToDifferentlySortedCachedAlmostMinTags(tag);
+  //     }
+  //   // }
+  //   // console.log('post changing title');
+  //   // console.log(JSON.stringify(this.differentlySortedCachedAlmostMinTags));
+  //   // console.log(JSON.stringify(this.cachedAlmostMinTags));
+  //   // console.log(JSON.stringify(this.cachedFullTags));
+  // }
+  //
+  //
+  //
+  // public updateTag(tag:TagFull/*, upsert:boolean*/,oldNoteslength:number):void{
+  //   // let n1:number = /*Utils.binarySearch(this.cachedAlmostMinTags, tag, TagAlmostMin.ascendingCompare);*/
+  //   //   this.getIndexOfTagFromAlmostMin(tag);
+  //   // if(n1!=-1){
+  //   //   this.cachedAlmostMinTags[n1].title = newTitle;
+  //   // }
+  //   // let n2:number = /*Utils.binarySearch(this.cachedFullTags, tag, TagAlmostMin.ascendingCompare);*/
+  //   //   this.getIndexOfTagFull(tag);
+  //   // if(n2!=-1){
+  //   //   this.cachedFullTags[n2].title=newTitle;
+  //   // }
+  //   // let n3:number = /*Utils.binarySearch(this.differentlySortedCachedAlmostMinTags, tag, TagAlmostMin.descendingCompare);*/
+  //   //   this.getIndexOfTagFromDifferentlyCachedTags(tag);
+  //   // if(n3!=-1){
+  //   //   this.differentlySortedCachedAlmostMinTags[n3].title=newTitle;
+  //   // }
+  //   // if(upsert){
+  //   let oldMin:TagAlmostMin = new TagAlmostMin(tag.title);
+  //   oldMin.noteslength=oldNoteslength;
+  //   let n1:boolean = this.removeTagFromAlmostMin(tag);
+  //   let n2:boolean = this.removeTagFromTagFull(tag);
+  //   let n3:boolean = this.removeTagFromDifferentlyCachedTags(oldMin);
+  //
+  //     if(n1){
+  //       this.pushToCachedAlmostMinTags(tag);
+  //     }
+  //     if(n2 && tag instanceof TagFull){
+  //       this.pushToCachedFullTags(tag as TagFull);
+  //     }
+  //     if(n3){
+  //       this.pushToDifferentlySortedCachedAlmostMinTags(tag);
+  //     }
+  //   // }
+  //   // console.log('post changing title');
+  //   // console.log(JSON.stringify(this.differentlySortedCachedAlmostMinTags));
+  //   // console.log(JSON.stringify(this.cachedAlmostMinTags));
+  //   // console.log(JSON.stringify(this.cachedFullTags));
+  // }
 
 
 
@@ -682,22 +758,23 @@ export class AtticCache {
   }
 
 
-  public updateTag(tag:TagFull, moveToHead:boolean, throwError?:boolean){
-    let n:number = this.getIndexOfTagFull(tag);
-    if(n!=-1){
-      if(this.cachedFullTags[n].title!=tag.title){
-        throw new Error('you cannot change the title');
-      }
-      this.cachedFullTags[n]=tag;
-    }else{
-      if(throwError){
-        throw new Error('tag not found');
-      }else{console.log('tag not found');}
-    }
-    if(moveToHead){
-      this.moveToHeadDifferentlyCachedTags(tag.forceCastToTagAlmostMin(), true);
-    }
-  }
+
+  // public updateTag(tag:TagFull,moveToHead:boolean, throwError?:boolean){
+  //   let n:number = this.getIndexOfTagFull(tag);
+  //   if(n!=-1){
+  //     if(this.cachedFullTags[n].title!=tag.title){
+  //       throw new Error('you cannot change the title');
+  //     }
+  //     this.cachedFullTags[n]=tag;
+  //   }else{
+  //     if(throwError){
+  //       throw new Error('tag not found');
+  //     }else{console.log('tag not found');}
+  //   }
+  //   if(moveToHead){
+  //     this.moveToHeadDifferentlyCachedTags(tag.forceCastToTagAlmostMin(), true);
+  //   }
+  // }
 
 
 
@@ -706,9 +783,17 @@ export class AtticCache {
     this.cachedExtraMinNotes=[];
     this.cachedFullNotes=[];
 
+    // this.differentlySortedCachedAlmostMinTags=[];
+    // this.cachedAlmostMinTags=[];
+    // this.cachedFullTags=[];
+    this.invalidateTags();
+  }
+
+
+  public invalidateTags(){
     this.differentlySortedCachedAlmostMinTags=[];
-    this.cachedAlmostMinTags=[];
     this.cachedFullTags=[];
+    this.cachedAlmostMinTags=[];
   }
 
 }

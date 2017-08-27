@@ -37,10 +37,10 @@ export class TagsPage {
     private graphicProvider:GraphicProvider,
     private events:Events
   ) {
-    if(this.allTags==null){
-      //this.loadAlmostMin(false);
-      this.load(false);
-    }
+    // if(this.allTags==null){
+    //   //this.loadAlmostMin(false);
+    //   this.load(false);
+    // }
     this.searchCtrl = new FormControl();
 
     // this.events.subscribe('go-to-tags', (index)=>{
@@ -51,6 +51,11 @@ export class TagsPage {
     this.events.subscribe('go-to-tags-and-remove', (tag)=>{
       let newTag:TagAlmostMin = tag;
       this.removeIfPossible(newTag);
+    });
+
+    this.events.subscribe('invalidate-tags', ()=>{
+      this.allTags=null;
+      this.shownTags=null;
     })
 
 
@@ -69,6 +74,8 @@ export class TagsPage {
       }
     });
   }
+
+
 
   removeIfPossible(newTag:TagAlmostMin){
     // if(index!=-1 && this.allTags!=null && this.shownTags!=null){
@@ -212,6 +219,9 @@ export class TagsPage {
 
   ionViewWillEnter(){
     console.log('will enter');
+    if(this.allTags==null){
+      this.load(false);
+    }
   }
 
 
@@ -250,8 +260,9 @@ export class TagsPage {
   }
 
   createNewTagAPI(title: string){
-    let tag:TagFull = new TagFull();
-    tag.title=title;
+    let tag:TagFull = new TagFull(title);
+    tag.notes=[];
+    tag.noteslength=0;
     // tag.noteslength=0;
     this.atticTags.createTag(tag)
       .then(result=>{

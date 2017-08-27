@@ -209,7 +209,7 @@ export class NoteDetailsPopoverPage {
 
     this.viewCtrl.dismiss()
     .then(()=>{
-      return this.atticNotes.deleteNote(this.note.forceCastToNoteExtraMin())
+      return this.atticNotes.deleteNote(this.note)
     })
     .then(()=>{
       //need to use change-tab

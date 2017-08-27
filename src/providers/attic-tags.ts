@@ -265,7 +265,8 @@ export class AtticTags {
       })
       .then(changedLocally=>{
         if(isAllowed){
-          this.atticCache.changeTagTitle(tag, newTitle, /*false*/);
+          //this.atticCache.changeTagTitle(tag, newTitle, /*false*/);
+          //this.atticCache.updateTag2(tag, newTitle, null);
           resolve();
         }
       })
