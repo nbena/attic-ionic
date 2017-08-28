@@ -47,7 +47,7 @@ export class NoteDetailsPopoverPage {
       // }
       // this.title =this.navParams.get('title');
       this.note=this.navParams.get('note');
-      let ind=this.navParams.get('index');
+      // let ind=this.navParams.get('index');s
       // if(ind!=-1 && ind!=null){
       //   this.index=ind;
       // }

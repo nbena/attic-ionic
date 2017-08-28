@@ -57,6 +57,8 @@ export class TabsPage {
     });
 
     this.events.subscribe('go-to-tags-and-remove', (tag)=>{
+      console.log('I received the noticeeeeee');
+      console.log('ok go to tags and remove');
       this.tabs.select(2);
     })
 

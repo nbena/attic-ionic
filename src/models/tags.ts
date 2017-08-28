@@ -97,6 +97,10 @@ export class TagAlmostMin extends TagExtraMin{
     return tag;
   }
 
+  public forceCastToTagExtraMin():TagExtraMin{
+    return new TagExtraMin(this.title);
+  }
+
 }
 
 // export class TagMin extends TagAlmostMin{

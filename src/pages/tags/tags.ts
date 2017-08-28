@@ -50,6 +50,7 @@ export class TagsPage {
 
     this.events.subscribe('go-to-tags-and-remove', (tag)=>{
       let newTag:TagAlmostMin = tag;
+      console.log('i received too')
       this.removeIfPossible(newTag);
     });
 
@@ -94,6 +95,7 @@ export class TagsPage {
     }
 
     if(ind1!=-1){
+      console.log('ok removed');
       this.shownTags.splice(ind1, 1);
     }
     if(ind2!=2){
@@ -204,8 +206,8 @@ export class TagsPage {
   }
 
 
-  displayTagDetails(title: string, index:number){
-    this.navCtrl.push(TagDetailsPage, {title:title, index:index}).then(()=>{});
+  displayTagDetails(tag:TagAlmostMin/*title: string, index:number*/){
+    this.navCtrl.push(TagDetailsPage, /*{title:title, index:index}*/{tag:tag}).then(()=>{});
   }
 
   refresh(refresher){

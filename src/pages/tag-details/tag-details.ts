@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { NavController, NavParams, PopoverController } from 'ionic-angular';
 
-import { /*TagFull, TagExtraMin, *//*TagMin*/TagFull } from '../../models/tags';
+import { /*TagFull, TagExtraMin, *//*TagMin*/TagFull,TagAlmostMin } from '../../models/tags';
 import { AtticTags } from '../../providers/attic-tags';
 import { NoteDetailsPage } from '../note-details/note-details';
 import { TagDetailsPopoverPage } from '../tag-details-popover/tag-details-popover';
@@ -19,27 +19,45 @@ import {GraphicProvider} from '../../providers/graphic';
 })
 export class TagDetailsPage {
 
-  tag: TagFull;
-  title: string;
+  private tag: TagFull=null;
+  // title: string;
 
   private isTagLoaded:boolean = false;
   private isComplete:boolean = false;
-  private index:number=-1;
+  // private index:number=-1;
+  private basicTag: TagAlmostMin=null;
+
 
   constructor(public navCtrl: NavController, public navParams: NavParams,
     private popoverCtrl: PopoverController,
     private atticTags: AtticTags,
     private graphicProvider:GraphicProvider
   ) {
-      this.title=navParams.get('title');
+
+
+    this.basicTag = navParams.get('tag');
+    // console.log('the basic tag');console.log(JSON.stringify(this.basicTag));
+    if(this.basicTag!=null){
+      this.tag = new TagFull(this.basicTag.title);
+      // console.log('the tag');console.log(JSON.stringify(this.tag));
+      // this.tag.title=this.basicTag.title;
+      this.tag.noteslength=this.basicTag.noteslength;
+    }
+
+    if(this.tag==null){
+      let title=navParams.get('title');
+      this.tag=new TagFull(title);
+    }
+
+      // this.title=navParams.get('title');
       //this.tagByTitle(this.title, false);
 
-      let ind=navParams.get('index');
-      if(ind!=null && ind!=-1){
-        this.index=ind;
-      }
+      // let ind=navParams.get('index');
+      // if(ind!=null && ind!=-1){
+      //   this.index=ind;
+      // }
 
-      this.load(this.title, false);
+      this.load(false);
   }
 
   ionViewDidLoad() {
@@ -71,12 +89,13 @@ export class TagDetailsPage {
   //       this.tag = null;
   //     })
   // }
-  tagByTitle(title: string, force: boolean):Promise<void>{
+  tagByTitle(force: boolean):Promise<void>{
     return new Promise<void>((resolve, reject)=>{
-      this.atticTags.tagByTitle(this.title, force)
+      this.atticTags.tagByTitle(this.tag.title, force)
         .then(result=>{
-
+          // console.log('so the result is');console.log(JSON.stringify(result));
           this.tag=result;
+          // console.log('so the tag is');console.log(JSON.stringify(this.tag));
           if(this.tag.noteslength>0){
             this.isComplete = true;
           }
@@ -102,12 +121,13 @@ export class TagDetailsPage {
     // setTimeout(()=>{
     //   refresher.complete();
     // },2000);
-    this.load(this.title, true, refresher);
+    this.load(true, refresher);
   }
 
-  load(title:string, force:boolean, refresher?:any){
-    this.tagByTitle(title, force)
+  load(force:boolean, refresher?:any){
+    this.tagByTitle(force)
     .then(()=>{
+      console.log('ok tag by title');
       if(refresher!=null){
         refresher.complete();
       }
@@ -122,7 +142,7 @@ export class TagDetailsPage {
 
   showPopover(event){
     if(this.isTagLoaded){
-      let popover=this.popoverCtrl.create(TagDetailsPopoverPage, {tag: this.tag, index:this.index});
+      let popover=this.popoverCtrl.create(TagDetailsPopoverPage, {tag: this.tag});
       popover.present({
         ev:event
       });

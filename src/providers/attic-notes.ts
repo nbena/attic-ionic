@@ -212,7 +212,7 @@ export class AtticNotes {
           resolve(noteFull);
           return Promise.resolve(noteFull);
         }else if(noteFull==null && useDb){
-          // console.log('load from net');
+          console.log('trying to load from network');
           return this.noteByTitle_loadFromNetworkAndInsert(title);
         }
         // else{
@@ -513,8 +513,9 @@ export class AtticNotes {
 
   changeTitle(note: NoteFull, newTitle: string, lastmod:Date):Promise<void>{
     let isAllowed: boolean = false;
+    let p:Promise<void>
     if(!this.synch.isNoteFullyLocked()){
-      return new Promise<void>((resolve, reject)=>{
+      p=new Promise<void>((resolve, reject)=>{
         this.isTitleModificationAllowed(newTitle)
         .then(result=>{
           isAllowed = result;
@@ -541,6 +542,7 @@ export class AtticNotes {
       .then(changedLocally=>{
         if(isAllowed){
           this.atticCache.changeNoteTitle(note, newTitle/*, false*/,lastmod);
+          this.atticCache.invalidateTags();
           resolve();
         }
       })
@@ -550,11 +552,12 @@ export class AtticNotes {
       })
       })
     }else{
-      return new Promise<void>((resolve, reject)=>{
+      p=new Promise<void>((resolve, reject)=>{
         console.log('trying to change title but it is locked');
         reject(AtticError.getSynchingError(DbActionNs.DbAction.change_title));
       });
     }
+    return p;
   }
 
 
@@ -565,6 +568,7 @@ export class AtticNotes {
         this.db.addTags(note, this.auth.userid, mainTags, otherTags)
         .then(()=>{
           this.atticCache.updateNote(note, true, true, oldlastmod);
+          this.atticCache.invalidateTags();
           resolve();
         })
         .catch(error=>{
@@ -588,6 +592,7 @@ export class AtticNotes {
         this.db.addTags(note, this.auth.userid, mainTags)
         .then(()=>{
           this.atticCache.updateNote(note, true, true, oldlastmod);
+          this.atticCache.invalidateTags();
           resolve();
         })
         .catch(error=>{
@@ -610,6 +615,8 @@ export class AtticNotes {
         this.db.addTags(note, this.auth.userid, null, otherTags)
         .then(()=>{
           this.atticCache.updateNote(note, true, true, oldlastmod);
+          this.atticCache.invalidateTags();
+          resolve();
         })
         .catch(error=>{
             console.log(JSON.stringify(error.message));console.log(JSON.stringify(error));reject(error);
@@ -631,6 +638,7 @@ export class AtticNotes {
         this.db.removeTagsFromNote(note, this.auth.userid, tags)
         .then(()=>{
           this.atticCache.updateNote(note, true, true, oldlastmod);
+          this.atticCache.invalidateTags();
           resolve();
         })
         .catch(error=>{
@@ -728,6 +736,9 @@ export class AtticNotes {
            this.db.deleteNote(note, this.auth.userid, necessaryTags)
            .then(()=>{
              this.atticCache.removeNote(note);
+             if(note.maintags.length+note.othertags.length>0){
+               this.atticCache.invalidateTags();
+             }
              resolve();
            })
            .catch(error=>{

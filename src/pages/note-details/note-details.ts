@@ -118,15 +118,15 @@ export class NoteDetailsPage {
 
     this.basicNote = navParams.get('note');
     if(this.basicNote!=null){
-      this.note = new NoteFull();
-      this.note.title=this.basicNote.title;
+      this.note = new NoteFull(this.basicNote.title);
+      // this.note.title=this.basicNote.title;
       this.note.lastmodificationdate=this.basicNote.lastmodificationdate;
     }
 
     if(this.note==null){
       let title = this.navParams.get('title');
-      this.note = new NoteFull();
-      this.note.title=title;
+      this.note = new NoteFull(title);
+      // this.note.title=title;
     }
 
 
@@ -630,7 +630,7 @@ export class NoteDetailsPage {
     // console.log('the tags to remove');console.log(JSON.stringify(this.tagsToRemove));
 
     //this.tagsToRemove.forEach(obj=>{this.note.removeTag(obj)});
-    
+
     // console.log('the new note');console.log(JSON.stringify(this.note));
     // return Promise.resolve();
     return this.atticNotes.removeTags(this.note, this.tagsToRemove, this.lastmod);

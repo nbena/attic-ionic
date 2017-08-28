@@ -186,11 +186,19 @@ export class AtticCache {
 
   public pushTagFullToAll(tag:TagFull):void{
     if(tag!=null){
+      console.log('before insert');
+      console.log(JSON.stringify(this.differentlySortedCachedAlmostMinTags));
+      console.log(JSON.stringify(this.cachedFullTags));
+      console.log(JSON.stringify(this.cachedAlmostMinTags));
       // console.log('before insert in diff:');console.log(JSON.stringify(this.differentlySortedCachedAlmostMinTags));
       Utils.binaryArrayInsertNoDuplicate(this.differentlySortedCachedAlmostMinTags, tag.forceCastToTagAlmostMin(), TagAlmostMin.descendingCompare);
       // console.log('afetr insert in diff:');console.log(JSON.stringify(this.differentlySortedCachedAlmostMinTags));
       Utils.binaryArrayInsertNoDuplicate(this.cachedAlmostMinTags, tag.forceCastToTagAlmostMin(), TagAlmostMin.ascendingCompare);
       Utils.binaryArrayInsertNoDuplicate(this.cachedFullTags, tag, TagAlmostMin.ascendingCompare);
+      console.log('post insert');
+      console.log(JSON.stringify(this.differentlySortedCachedAlmostMinTags));
+      console.log(JSON.stringify(this.cachedFullTags));
+      console.log(JSON.stringify(this.cachedAlmostMinTags));
     }
   }
 
@@ -405,44 +413,44 @@ export class AtticCache {
 
 
 
-  // public changeTagTitle(tag:TagAlmostMin, newTitle:string/*, upsert:boolean*/):void{
-  //   // let n1:number = /*Utils.binarySearch(this.cachedAlmostMinTags, tag, TagAlmostMin.ascendingCompare);*/
-  //   //   this.getIndexOfTagFromAlmostMin(tag);
-  //   // if(n1!=-1){
-  //   //   this.cachedAlmostMinTags[n1].title = newTitle;
-  //   // }
-  //   // let n2:number = /*Utils.binarySearch(this.cachedFullTags, tag, TagAlmostMin.ascendingCompare);*/
-  //   //   this.getIndexOfTagFull(tag);
-  //   // if(n2!=-1){
-  //   //   this.cachedFullTags[n2].title=newTitle;
-  //   // }
-  //   // let n3:number = /*Utils.binarySearch(this.differentlySortedCachedAlmostMinTags, tag, TagAlmostMin.descendingCompare);*/
-  //   //   this.getIndexOfTagFromDifferentlyCachedTags(tag);
-  //   // if(n3!=-1){
-  //   //   this.differentlySortedCachedAlmostMinTags[n3].title=newTitle;
-  //   // }
-  //   // if(upsert){
-  //   let oldMin:TagAlmostMin = new TagAlmostMin(tag.title);
-  //   oldMin.noteslength=tag.noteslength;
-  //   let n1:boolean = this.removeTagFromAlmostMin(tag);
-  //   let n2:boolean = this.removeTagFromTagFull(tag);
-  //   let n3:boolean = this.removeTagFromDifferentlyCachedTags(oldMin);
-  //     tag.title=newTitle;
-  //     if(n1){
-  //       this.pushToCachedAlmostMinTags(tag);
-  //     }
-  //     if(n2 && tag instanceof TagFull){
-  //       this.pushToCachedFullTags(tag as TagFull);
-  //     }
-  //     if(n3){
-  //       this.pushToDifferentlySortedCachedAlmostMinTags(tag);
-  //     }
-  //   // }
-  //   // console.log('post changing title');
-  //   // console.log(JSON.stringify(this.differentlySortedCachedAlmostMinTags));
-  //   // console.log(JSON.stringify(this.cachedAlmostMinTags));
-  //   // console.log(JSON.stringify(this.cachedFullTags));
-  // }
+  public changeTagTitle(tag:TagAlmostMin, newTitle:string/*, upsert:boolean*/):void{
+    // let n1:number = /*Utils.binarySearch(this.cachedAlmostMinTags, tag, TagAlmostMin.ascendingCompare);*/
+    //   this.getIndexOfTagFromAlmostMin(tag);
+    // if(n1!=-1){
+    //   this.cachedAlmostMinTags[n1].title = newTitle;
+    // }
+    // let n2:number = /*Utils.binarySearch(this.cachedFullTags, tag, TagAlmostMin.ascendingCompare);*/
+    //   this.getIndexOfTagFull(tag);
+    // if(n2!=-1){
+    //   this.cachedFullTags[n2].title=newTitle;
+    // }
+    // let n3:number = /*Utils.binarySearch(this.differentlySortedCachedAlmostMinTags, tag, TagAlmostMin.descendingCompare);*/
+    //   this.getIndexOfTagFromDifferentlyCachedTags(tag);
+    // if(n3!=-1){
+    //   this.differentlySortedCachedAlmostMinTags[n3].title=newTitle;
+    // }
+    // if(upsert){
+    let oldMin:TagAlmostMin = new TagAlmostMin(tag.title);
+    oldMin.noteslength=tag.noteslength;
+    let n1:boolean = this.removeTagFromAlmostMin(tag);
+    let n2:boolean = this.removeTagFromTagFull(tag);
+    let n3:boolean = this.removeTagFromDifferentlyCachedTags(oldMin);
+      tag.title=newTitle;
+      if(n1){
+        this.pushToCachedAlmostMinTags(tag);
+      }
+      if(n2 && tag instanceof TagFull){
+        this.pushToCachedFullTags(tag as TagFull);
+      }
+      if(n3){
+        this.pushToDifferentlySortedCachedAlmostMinTags(tag);
+      }
+    // }
+    // console.log('post changing title');
+    // console.log(JSON.stringify(this.differentlySortedCachedAlmostMinTags));
+    // console.log(JSON.stringify(this.cachedAlmostMinTags));
+    // console.log(JSON.stringify(this.cachedFullTags));
+  }
   //
   //
   //
@@ -741,9 +749,9 @@ export class AtticCache {
       if(this.cachedFullNotes[n].title!=note.title){
         throw new Error('you cannot change the title');
       }
-      console.log('before insert');console.log(JSON.stringify(this.cachedFullNotes));
+      //console.log('before insert');console.log(JSON.stringify(this.cachedFullNotes));
       this.cachedFullNotes[n]=note;
-      console.log('post insert');console.log(JSON.stringify(this.cachedFullNotes));
+      //console.log('post insert');console.log(JSON.stringify(this.cachedFullNotes));
     }else{
       if(throwError){
         throw new Error('note not found');
@@ -779,14 +787,21 @@ export class AtticCache {
 
 
   public clean():void{
-    this.differentlySortedCachedExtraMinNotes=[];
-    this.cachedExtraMinNotes=[];
-    this.cachedFullNotes=[];
+    // this.differentlySortedCachedExtraMinNotes=[];
+    // this.cachedExtraMinNotes=[];
+    // this.cachedFullNotes=[];
+    this.invalidateNotes();
 
     // this.differentlySortedCachedAlmostMinTags=[];
     // this.cachedAlmostMinTags=[];
     // this.cachedFullTags=[];
     this.invalidateTags();
+  }
+
+  public invalidateNotes(){
+    this.differentlySortedCachedExtraMinNotes=[];
+    this.cachedExtraMinNotes=[];
+    this.cachedFullNotes=[];
   }
 
 

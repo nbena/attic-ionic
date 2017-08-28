@@ -20,7 +20,7 @@ export class TagDetailsPopoverPage {
 
   private tag: TagFull;
   private btnChangeTitleEnabled:boolean = false;
-  private index:number=-1;
+  // private index:number=-1;
 
   constructor(public navCtrl: NavController, public navParams: NavParams,
     // private toastCtrl: ToastController, private alertCtrl: AlertController,
@@ -34,10 +34,10 @@ export class TagDetailsPopoverPage {
       if(this.tag!=null){
         this.btnChangeTitleEnabled = true;
       }
-      let ind = navParams.get('index');
-      if(ind!=-1 && ind!=null){
-        this.index=ind;
-      }
+      // let ind = navParams.get('index');
+      // if(ind!=-1 && ind!=null){
+      //   this.index=ind;
+      // }
     }
 
   ionViewDidLoad() {
@@ -130,10 +130,11 @@ export class TagDetailsPopoverPage {
   deleteTagAPI(){
     this.viewCtrl.dismiss()
     .then(()=>{
-      return this.atticTags.deleteTag(this.tag);
+      return this.atticTags.deleteTag(this.tag)
     })
     .then(()=>{
       this.events.publish('go-to-tags-and-remove', this.tag);
+      console.log('i published');
       this.graphicProvider.presentToast('Tag deleted');
     })
     .catch(error=>{

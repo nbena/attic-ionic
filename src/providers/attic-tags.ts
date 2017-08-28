@@ -134,7 +134,7 @@ export class AtticTags {
           if(useDb){
             let tag:TagFull=this.atticCache.getTagFullOrNull(new TagExtraMin(title));
             if(tag!=null){
-              console.log('the tag is in the cache');
+              console.log('the tag is in the cache'); useCache=true;
               p=Promise.resolve(tag);
             }else{
               console.log('the tag is not in the cache');
@@ -157,6 +157,7 @@ export class AtticTags {
           //   /*we have the note and it has been inserted into the DB*/
           //   return new Promise<TagFull>((resolve, reject)=>{resolve(tagFull)});
           // }
+          // console.log('the tag full post db');console.log(JSON.stringify(tagFull));
           if(tagFull!=null){
             resolve(tagFull);
             return Promise.resolve(tagFull);
@@ -241,8 +242,9 @@ export class AtticTags {
     //ok update on the server but not on the local db
   changeTitle(tag: TagFull, newTitle: string):Promise<void>{
     let isAllowed: boolean = false;
+    let p:Promise<void>;
     if( (!this.synch.isNoteFullyLocked()) && (!this.synch.isTagLocked()) ){
-      return new Promise<void>((resolve, reject)=>{
+      p= new Promise<void>((resolve, reject)=>{
         this.isTitleModificationAllowed(newTitle)
         .then(result=>{
           isAllowed = result;
@@ -265,8 +267,11 @@ export class AtticTags {
       })
       .then(changedLocally=>{
         if(isAllowed){
-          //this.atticCache.changeTagTitle(tag, newTitle, /*false*/);
+          this.atticCache.changeTagTitle(tag, newTitle, /*false*/);
           //this.atticCache.updateTag2(tag, newTitle, null);
+          if(tag.noteslength>0){
+            this.atticCache.invalidateNotes();
+          }
           resolve();
         }
       })
@@ -276,30 +281,42 @@ export class AtticTags {
       })
       })
     }else{
-      return new Promise<void>((resolve, reject)=>{
+      p=new Promise<void>((resolve, reject)=>{
         console.log('trying to change title but it is locked');
         reject(AtticError.getSynchingError(DbActionNs.DbAction.change_title));
       });
     }
+    return p;
   }
 
 
-  deleteTag(tag: TagAlmostMin):Promise<any>{
+  deleteTag(tag: TagFull):Promise<void>{
+    let p:Promise<void>
     if(!this.synch.isTagLocked()){
-
-      let cachedNotes:NoteFull[]=this.atticCache.getCachedFullNotes();
-      let necessaryNotes:NoteFull[]=null;
-      if(tag instanceof TagFull){
-        necessaryNotes=Utils.getFullObjectNote(cachedNotes, (tag as TagFull).notes);
-      }
-      this.atticCache.removeTag(tag);
-      return this.db.deleteTag(tag, this.auth.userid, necessaryNotes);
+      p=new Promise<void>((resolve, reject)=>{
+        let cachedNotes:NoteFull[]=this.atticCache.getCachedFullNotes();
+        let necessaryNotes:NoteFull[]=null;
+        if(tag instanceof TagFull){
+          necessaryNotes=Utils.getFullObjectNote(cachedNotes, (tag as TagFull).notes);
+        }
+        this.db.deleteTag(tag, this.auth.userid, necessaryNotes)
+        .then(()=>{
+          this.atticCache.removeTag(tag);
+          if(tag.noteslength>0){
+            this.atticCache.invalidateNotes();
+          }
+        })
+        .catch(error=>{
+          console.log(JSON.stringify(error.message));console.log(JSON.stringify(error));reject(error);
+        })
+      })
     }else{
-      return new Promise<any>((resolve, reject)=>{
+        p= new Promise<any>((resolve, reject)=>{
         console.log('trying to delete tag but it is locked');
         reject(AtticError.getSynchingError(DbActionNs.DbAction.delete));
       })
     }
+    return p;
   }
 
   /*the note full object is not kept in the DB as json, is recreated everytime.*/
