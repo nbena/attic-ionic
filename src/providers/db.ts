@@ -886,7 +886,7 @@ public insertOrUpdateNote(note:NoteFull, userid:string):Promise<void>{
 get the tag from the tag, remove note (if full), decrement noteslength, update them.
 IMPORTANT: I assume that tags, if present, ARE ALREADY SORTED.
 */
-private removeNoteFromTagsUpdateOnlyTagsCore(tx:any, extraMin:NoteExtraMin, userid:string,/*tags:TagExtraMin[], */usedTag:TagFull[]){
+private removeNoteFromTagsUpdateOnlyTagsCore(extraMin:NoteExtraMin, userid:string,/*tags:TagExtraMin[], */usedTag:TagFull[], tx?:any){
   //usedTag = Utils.makeArraySafe(usedTag);
   //let tmpTag:TagExtraMin[]=Utils.binaryArrayDiff(tags, usedTag, TagExtraMin.ascendingCompare);
 
@@ -1003,7 +1003,7 @@ private removeNoteFromTagsUpdateOnlyTagsCore(tx:any, extraMin:NoteExtraMin, user
 }
 
 
-private addTagsToNoteUpdateOnlyTagsCore(tx:any, extraMin:NoteExtraMin, userid:string,tags:TagFull[]){
+private addTagsToNoteUpdateOnlyTagsCore(extraMin:NoteExtraMin, userid:string,tags:TagFull[],tx?:any){
   //
   // console.log('the tags to work on: ');console.log(JSON.stringify(tags));
   //
@@ -1188,7 +1188,7 @@ public createNewNote2(note:NoteFull, userid:string, usedTag?:TagFull[]):Promise<
         // let extraMin:NoteExtraMin=note.getNoteExtraMin();
         let extraMin:NoteExtraMin=note.forceCastToNoteExtraMin();
 
-        this.addTagsToNoteUpdateOnlyTagsCore(tx, extraMin, userid, tags);
+        this.addTagsToNoteUpdateOnlyTagsCore(extraMin, userid, tags, tx);
 
         //skip lastmodificationdate cause it(should be) is done by the db.
         tx.executeSql(Query.INSERT_NOTE_2, [note.title, note.text,jsonNote,note.lastmodificationdate.toISOString(), userid],
@@ -2444,7 +2444,7 @@ public getNotesByTags(tags: TagAlmostMin[], userid: string, and:boolean):Promise
       .then(tags=>{
         return this.db.transaction(tx=>{
 
-          this.removeNoteFromTagsUpdateOnlyTagsCore(tx, note.forceCastToNoteExtraMin(), userid, tags);
+          this.removeNoteFromTagsUpdateOnlyTagsCore(note.forceCastToNoteExtraMin(), userid, tags,tx);
 
           console.log('the note in is');console.log(JSON.stringify(note));
           tx.executeSql(Query.INSERT_NOTE_OLDTITLE_INTO_LOGS, [note.title, note.title, 'delete', userid],
@@ -2581,7 +2581,7 @@ public getNotesByTags(tags: TagAlmostMin[], userid: string, and:boolean):Promise
 
 
 
-  private removeTagFromNotesUpdateOnlyNotesCore(tx:any, tag:TagFull,usedNotes:NoteFull[], userid:string){
+  private removeTagFromNotesUpdateOnlyNotesCore(tag:TagFull,usedNotes:NoteFull[], userid:string, tx?:any){
     usedNotes.forEach(note=>{
       note.removeTag(tag.forceCastToTagExtraMin());
       this.updateJsonObjNote(note, userid, false, tx);
@@ -2627,7 +2627,7 @@ public getNotesByTags(tags: TagAlmostMin[], userid: string, and:boolean):Promise
       .then(notes=>{
         return this.db.transaction(tx=>{
 
-          this.removeTagFromNotesUpdateOnlyNotesCore(tx, tag, notes, userid);
+          this.removeTagFromNotesUpdateOnlyNotesCore(tag, notes, userid, tx);
 
           tx.executeSql(Query.INSERT_TAG_OLDTITLE_INTO_LOGS, [tag.title, tag.title, 'delete', userid]);
           /*now update the json_object of eventual full notes.*/
@@ -2761,7 +2761,7 @@ public getNotesByTags(tags: TagAlmostMin[], userid: string, and:boolean):Promise
 
         return this.db.transaction(tx=>{
 
-        this.addTagsToNoteUpdateOnlyTagsCore(tx, note.forceCastToNoteExtraMin(), userid, tags);
+        this.addTagsToNoteUpdateOnlyTagsCore(note.forceCastToNoteExtraMin(), userid, tags,tx);
 
         this.updateJsonObjNote(note, userid, true, tx);
         let roles:TagType[]=[];
@@ -2998,7 +2998,7 @@ public removeTagsFromNote(note: NoteFull, userid: string, tags: TagExtraMin[], u
 
       return this.db.transaction(tx=>{
 
-        this.removeNoteFromTagsUpdateOnlyTagsCore(tx, note.forceCastToNoteExtraMin(), userid, tags);
+        this.removeNoteFromTagsUpdateOnlyTagsCore(note.forceCastToNoteExtraMin(), userid, tags, tx);
 
         let query:string = Query.prepareQueryRemoveTagsFromNotesLogs(tags.length); /*this one is ok*/
         let param:string[]=Query.expandInsertNoteTagsIntoLogs(note.title, userid, tags);
