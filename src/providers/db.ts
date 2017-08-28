@@ -1129,7 +1129,7 @@ a promise that contains the complete list of tag full of the notes.
 */
 private getTagFullToByNote(note:NoteFull, usedTag:TagFull[], userid:string):Promise<TagFull[]>{
   return new Promise<TagFull[]>((resolve, reject)=>{
-    let usedTag:TagFull[]=[];
+    //let usedTag:TagFull[]=[];
     let tags:TagExtraMin[]=note.getTagsAsTagsExtraMinArray().sort(TagExtraMin.ascendingCompare);
     let tmpTag:TagExtraMin[]=Utils.binaryArrayDiff(tags, usedTag,TagExtraMin.ascendingCompare);
     let p:Promise<void>;
@@ -1364,11 +1364,16 @@ private getJsonObjNote(title:string, userid:string):Promise<NoteExtraMinWithDate
 }
 
 
-private static getNoteFullFromRes(res:any):NoteFull{
+private static getNoteFullFromRes(res:any, index?:number):NoteFull{
   /*try the parsing.*/
   let note:NoteFull=null;
   if(res.rows.length>0){
-    let rawResult:any = JSON.parse(res.rows.item(0).json_object);
+    let rawResult:any;
+    if(index!=null){
+      rawResult = JSON.parse(res.rows.item(index).json_object);
+    }else{
+      rawResult = JSON.parse(res.rows.item(0).json_object);
+    }
     if(rawResult.text == null || !rawResult.text || rawResult.text == undefined){
       console.log('throw the error, note is not full!');
     }else{
@@ -2251,15 +2256,42 @@ private static getQueryForRegexTags(and:boolean, full:boolean):string{
   return res;
 }
 
+private static getArrayOfNotesFullFromRes(res:any):NoteFull[]{
+  let array:NoteFull[]=[];
+  for(let i=0;i<res.rows.length;i++){
+    let raw = Db.getNoteFullFromRes(res,i);
+    if(raw!=null){
+      array.push(raw);
+    }
+  }
+  return array;
+}
+
 //her sister with a transaction is not used so I commented it.
-private getNotesByTagsNoRoleCoreNoTx(tags:TagAlmostMin[], userid:string, and:boolean):Promise<NoteExtraMin[]>{
+private getNotesExtraMinWithDateByTagsNoRoleCoreNoTx(tags:TagAlmostMin[], userid:string, and:boolean):Promise<NoteExtraMinWithDate[]>{
   let secondParam:string =Db.getRegexForTags(tags, and);
   let query:string = Db.getQueryForRegexTags(and,false);
-  return new Promise<NoteExtraMin[]>((resolve, reject)=>{
+  return new Promise<NoteExtraMinWithDate[]>((resolve, reject)=>{
     // console.log('2');
     this.db.executeSql(query,[userid, secondParam])
     .then(res=>{
       resolve(this.getArrayOfNotexExtraMinWithDate(res));
+    })
+    .catch(error=>{
+      console.log('error in get notes by tags'); console.log(JSON.stringify(error));
+      reject(error);
+    })
+  });
+}
+
+private getNotesFullByTagsNoRoleCoreNoTx(tags:TagAlmostMin[], userid:string, and:boolean):Promise<NoteFull[]>{
+  let secondParam:string =Db.getRegexForTags(tags, and);
+  let query:string = Db.getQueryForRegexTags(and,true);
+  return new Promise<NoteFull[]>((resolve, reject)=>{
+    // console.log('2');
+    this.db.executeSql(query,[userid, secondParam])
+    .then(res=>{
+      resolve(Db.getArrayOfNotesFullFromRes(res));
     })
     .catch(error=>{
       console.log('error in get notes by tags'); console.log(JSON.stringify(error));
@@ -2308,8 +2340,8 @@ private getNotesByTagsNoRoleCoreNoTx(tags:TagAlmostMin[], userid:string, and:boo
 // }
 
 
-public getNotesByTags(tags: TagAlmostMin[], userid: string, and:boolean):Promise<NoteExtraMin[]>{
-  return this.getNotesByTagsNoRoleCoreNoTx(tags, userid, and);
+public getNotesByTags(tags: TagAlmostMin[], userid: string, and:boolean):Promise<NoteExtraMinWithDate[]>{
+  return this.getNotesExtraMinWithDateByTagsNoRoleCoreNoTx(tags, userid, and);
 }
 
 
@@ -2482,47 +2514,91 @@ public getNotesByTags(tags: TagAlmostMin[], userid: string, and:boolean):Promise
   }
 
 
-  private removeTagFromNotesCore(tx:any, tag:TagAlmostMin, notesToRemove:NoteExtraMin[], usedNote:NoteFull[], userid:string):void{
-    usedNote = Utils.makeArraySafe(usedNote);
-    let tmpNote:NoteExtraMin[]=Utils.binaryArrayDiff(notesToRemove, usedNote,NoteExtraMin.ascendingCompare);
+  // private removeTagFromNotesCore(tx:any, tag:TagAlmostMin, notesToRemove:NoteExtraMin[], usedNote:NoteFull[], userid:string):void{
+  //   usedNote = Utils.makeArraySafe(usedNote);
+  //   let tmpNote:NoteExtraMin[]=Utils.binaryArrayDiff(notesToRemove, usedNote,NoteExtraMin.ascendingCompare);
+  //
+  //   // console.log('the tmpNote');console.log(JSON.stringify(tmpNote));
+  //   //
+  //   // if(tmpNote.length>0){
+  //   //   let queryParam:string = Db.getRegexForTags([tag], false);
+  //   //   let query:string = Db.getQueryForRegexTags(false,true);
+  //   //   tx.executeSql(query, [userid, queryParam],
+  //   //     (tx:any, res:any)=>{
+  //   //       if(usedNote==null){usedNote=[];}
+  //   //       for(let i=0;i<res.rows.length;i++){
+  //   //         let note:NoteFull = NoteFull.safeNewNoteFromJsonString(res.rows.item(i));
+  //   //         usedNote.push(note);
+  //   //       }
+  //   //
+  //   //       if(usedNote!=null && usedNote.length>0){
+  //   //         usedNote.forEach(note=>{
+  //   //           note.removeTag(tag.forceCastToTagExtraMin());
+  //   //           this.updateJsonObjNote(note, userid, tx);
+  //   //         })
+  //   //       }
+  //   //       console.log('ok removed the tag from notes');
+  //   //     },(tx:any, error:any)=>{console.log('error in get tag full to update');console.log(JSON.stringify(error));}
+  //   // );
+  //   // }
+  //   console.log('the note to work');console.log(JSON.stringify(notesToRemove));
+  //   console.log('the tmp');console.log(JSON.stringify(tmpNote));
+  //   let p:Promise<void>;
+  //   if(tmpNote.length>0){
+  //     let query:string = Db.getQueryForRegexTags(false, true);
+  //     let queryParam:string = Db.getRegexForTags([tag], false);
+  //     p=new Promise<void>((resolve, reject)=>{
+  //       this.db.executeSql(query, [userid, queryParam])
+  //       .then(res=>{
+  //         if(usedNote==null){usedNote=[]}
+  //               for(let i=0;i<res.rows.length;i++){
+  //                 let note:NoteFull = NoteFull.safeNewNoteFromJsonString(res.rows.item(i));
+  //                 usedNote.push(note);
+  //               }
+  //       })
+  //       .catch(error=>{
+  //         console.log('error internal');console.log(JSON.stringify(error));console.log(JSON.stringify(error.message));
+  //         reject(error);
+  //       })
+  //     })
+  //   }else{
+  //     p=Promise.resolve();
+  //   }
+  //   p.then(()=>{
+  //           if(usedNote!=null && usedNote.length>0){
+  //             usedNote.forEach(note=>{
+  //               console.log('before ');console.log(JSON.stringify(note));
+  //               note.removeTag(tag.forceCastToTagExtraMin());
+  //               console.log('post');console.log(JSON.stringify(note));
+  //               this.updateJsonObjNote(note, userid, false, tx);
+  //             })
+  //           }
+  //   })
+  //   .catch(error=>{
+  //     console.log('error external');console.log(JSON.stringify(error));console.log(JSON.stringify(error.message));
+  //   })
+  // }
 
-    // console.log('the tmpNote');console.log(JSON.stringify(tmpNote));
-    //
-    // if(tmpNote.length>0){
-    //   let queryParam:string = Db.getRegexForTags([tag], false);
-    //   let query:string = Db.getQueryForRegexTags(false,true);
-    //   tx.executeSql(query, [userid, queryParam],
-    //     (tx:any, res:any)=>{
-    //       if(usedNote==null){usedNote=[];}
-    //       for(let i=0;i<res.rows.length;i++){
-    //         let note:NoteFull = NoteFull.safeNewNoteFromJsonString(res.rows.item(i));
-    //         usedNote.push(note);
-    //       }
-    //
-    //       if(usedNote!=null && usedNote.length>0){
-    //         usedNote.forEach(note=>{
-    //           note.removeTag(tag.forceCastToTagExtraMin());
-    //           this.updateJsonObjNote(note, userid, tx);
-    //         })
-    //       }
-    //       console.log('ok removed the tag from notes');
-    //     },(tx:any, error:any)=>{console.log('error in get tag full to update');console.log(JSON.stringify(error));}
-    // );
-    // }
-    console.log('the note to work');console.log(JSON.stringify(notesToRemove));
-    console.log('the tmp');console.log(JSON.stringify(tmpNote));
+
+
+  private removeTagFromNotesUpdateOnlyNotesCore(tx:any, tag:TagFull,usedNotes:NoteFull[], userid:string){
+    usedNotes.forEach(note=>{
+      note.removeTag(tag.forceCastToTagExtraMin());
+      this.updateJsonObjNote(note, userid, false, tx);
+    })
+  }
+
+  private getNotesFullFromTags(tag:TagFull, usedNote:NoteFull[], userid:string):Promise<NoteFull[]>{
+    return new Promise<NoteFull[]>((resolve, reject)=>{
+    let notes:NoteExtraMin[]=tag.notes;
+    let tmpNotes:NoteExtraMin[]=Utils.binaryArrayDiff(notes, usedNote, NoteExtraMin.ascendingCompare);
     let p:Promise<void>;
-    if(tmpNote.length>0){
-      let query:string = Db.getQueryForRegexTags(false, true);
-      let queryParam:string = Db.getRegexForTags([tag], false);
+    if(tmpNotes.length>0){
       p=new Promise<void>((resolve, reject)=>{
-        this.db.executeSql(query, [userid, queryParam])
-        .then(res=>{
-          if(usedNote==null){usedNote=[]}
-                for(let i=0;i<res.rows.length;i++){
-                  let note:NoteFull = NoteFull.safeNewNoteFromJsonString(res.rows.item(i));
-                  usedNote.push(note);
-                }
+        this.getNotesFullByTagsNoRoleCoreNoTx([tag.forceCastToTagAlmostMin()], userid, false)
+        .then(notes=>{
+          usedNote=usedNote.concat(notes);
+          resolve();
         })
         .catch(error=>{
           console.log('error internal');console.log(JSON.stringify(error));console.log(JSON.stringify(error.message));
@@ -2533,49 +2609,41 @@ public getNotesByTags(tags: TagAlmostMin[], userid: string, and:boolean):Promise
       p=Promise.resolve();
     }
     p.then(()=>{
-            if(usedNote!=null && usedNote.length>0){
-              usedNote.forEach(note=>{
-                console.log('before ');console.log(JSON.stringify(note));
-                note.removeTag(tag.forceCastToTagExtraMin());
-                console.log('post');console.log(JSON.stringify(note));
-                this.updateJsonObjNote(note, userid, false, tx);
-              })
-            }
+      resolve(usedNote)
     })
-    .catch(error=>{
-      console.log('error external');console.log(JSON.stringify(error));console.log(JSON.stringify(error.message));
+    p.catch(error=>{
+      console.log('error in get tag for note');console.log(JSON.stringify(error));console.log(JSON.stringify(error.message));
+      reject(error);
     })
+  })
   }
 
 
-  deleteTag(tag: TagFull, userid: string, usedNote?:NoteFull[]):Promise<any>{
-    usedNote = Utils.makeArraySafe(usedNote);
-    return new Promise<any>((resolve, reject)=>{
-      this.db.transaction(tx=>{
-        tx.executeSql(Query.INSERT_TAG_OLDTITLE_INTO_LOGS, [tag.title, tag.title, 'delete', userid]);
-        /*now update the json_object of eventual full notes.*/
-        tx.executeSql(Query.SET_TAG_DELETED, [tag.title, userid ],
-          (tx:any, res:any)=>{console.log('set tag deleted ok');},
-          (tx:any, error:any)=>{console.log('error in set tag deleted');console.log(JSON.stringify(error));}
-        );
-        // let tagFull:TagFull=null;
-        // let notesMin:NoteExtraMin[]=null;
-        // let notesFull:NoteFull[]=null;
-        //
-        //
-        //
-        // if(notesFull!=null && notesFull.length>0){
-        //   for(let i=0;i<notesFull.length;i++){
-        //     notesFull[i].removeTag(notesFull[i].getTagIndex(tag));
-        //     this.updateJsonObjNote(notesFull[i], userid, false, tx);
-        //   }
-        // }
-        this.removeTagFromNotesCore(tx, tag, tag.notes, usedNote, userid);
+  deleteTag(tag: TagFull, userid: string, usedNote?:NoteFull[]):Promise<void>{
+    return new Promise<void>((resolve, reject)=>{
+      usedNote = Utils.makeArraySafe(usedNote)/*.sort(NoteExtraMin.ascendingCompare);*/
 
+      this.getNotesFullFromTags(tag, usedNote, userid)
+      .then(notes=>{
+        return this.db.transaction(tx=>{
+
+          this.removeTagFromNotesUpdateOnlyNotesCore(tx, tag, notes, userid);
+
+          tx.executeSql(Query.INSERT_TAG_OLDTITLE_INTO_LOGS, [tag.title, tag.title, 'delete', userid]);
+          /*now update the json_object of eventual full notes.*/
+          tx.executeSql(Query.SET_TAG_DELETED, [tag.title, userid ],
+            (tx:any, res:any)=>{console.log('set tag deleted ok');},
+            (tx:any, error:any)=>{console.log('error in set tag deleted');console.log(JSON.stringify(error));}
+          );
+
+          //this.removeTagFromNotesCore(tx, tag, tag.notes, usedNote, userid);
+
+        })
       })
+
       .then(txResult=>{
         console.log('ok tag is deleted');
-        resolve(true);
+        resolve();
       })
       .catch(error=>{
         console.log('error in delete tag');console.log(JSON.stringify(error.message));

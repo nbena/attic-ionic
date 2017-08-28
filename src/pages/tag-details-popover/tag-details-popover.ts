@@ -134,7 +134,7 @@ export class TagDetailsPopoverPage {
     })
     .then(()=>{
       this.events.publish('go-to-tags-and-remove', this.tag);
-      console.log('i published');
+      // console.log('i published');
       this.graphicProvider.presentToast('Tag deleted');
     })
     .catch(error=>{

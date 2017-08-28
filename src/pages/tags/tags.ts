@@ -50,7 +50,7 @@ export class TagsPage {
 
     this.events.subscribe('go-to-tags-and-remove', (tag)=>{
       let newTag:TagAlmostMin = tag;
-      console.log('i received too')
+      // console.log('i received too')
       this.removeIfPossible(newTag);
     });
 

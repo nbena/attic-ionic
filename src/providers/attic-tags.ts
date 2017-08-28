@@ -305,6 +305,7 @@ export class AtticTags {
           if(tag.noteslength>0){
             this.atticCache.invalidateNotes();
           }
+          resolve();
         })
         .catch(error=>{
           console.log(JSON.stringify(error.message));console.log(JSON.stringify(error));reject(error);
