@@ -2520,7 +2520,7 @@ public getNotesByTags(tags: TagAlmostMin[], userid: string, and:boolean):Promise
   deleteNote(note: NoteFull, userid: string, usedTag?:TagFull[]):Promise<any>{
     return new Promise<any>((resolve, reject)=>{
 
-      Utils.makeArraySafe(usedTag);
+      usedTag = Utils.makeArraySafe(usedTag);
       this.getTagsFullByNote(note, usedTag, userid)
       .then(tags=>{
         return this.db.transaction(tx=>{
@@ -2661,8 +2661,12 @@ public getNotesByTags(tags: TagAlmostMin[], userid: string, and:boolean):Promise
   // }
 
 
-
-  private removeTagFromNotesUpdateOnlyNotesCore(tags:TagExtraMin[],usedNotes:NoteFull[], userid:string, tx?:any){
+  /**
+  From the given notesfull, it remove the target tags and then it save the note one by one, Please note
+  that for each note, it tries to remove EACH tag (1st param), then, it saves each note. This can be done
+  because no error are thrown if we try to remove a tag from a note to which it doesn't belong.
+  */
+  private removeTagsFromNotesUpdateOnlyNotesCore(tags:TagExtraMin[],usedNotes:NoteFull[], userid:string, tx?:any){
     usedNotes.forEach(note=>{
       for(let i=0;i<tags.length;i++){
         note.removeTag(tags[i]);
@@ -2710,7 +2714,7 @@ public getNotesByTags(tags: TagAlmostMin[], userid: string, and:boolean):Promise
       .then(notes=>{
         return this.db.transaction(tx=>{
 
-          this.removeTagFromNotesUpdateOnlyNotesCore([tag.forceCastToTagExtraMin()], notes, userid, tx);
+          this.removeTagsFromNotesUpdateOnlyNotesCore([tag.forceCastToTagExtraMin()], notes, userid, tx);
 
           tx.executeSql(Query.INSERT_TAG_OLDTITLE_INTO_LOGS, [tag.title, tag.title, 'delete', userid]);
           /*now update the json_object of eventual full notes.*/
@@ -2837,7 +2841,7 @@ public getNotesByTags(tags: TagAlmostMin[], userid: string, and:boolean):Promise
       if(otherTags==null){otherTags=[];}
       tags = mainTags.concat(otherTags);
 
-      Utils.makeArraySafe(usedTag)
+      usedTag = Utils.makeArraySafe(usedTag)
 
       this.getTagsFullByNote(note, usedTag, userid)
       .then(tags=>{
@@ -3075,21 +3079,21 @@ public getNotesByTags(tags: TagAlmostMin[], userid: string, and:boolean):Promise
 Remove the tags (3rd) from note. UsedTag can be NULL, it should contains the cachced tagfull
 with that note inside.
 */
+
+//private removeTags
+
+
 public removeTagsFromNote(note: NoteFull, userid: string, tags: TagExtraMin[], usedTag?:TagFull[]):Promise<void>{
   return new Promise<void>((resolve, reject)=>{
 
+    usedTag =  Utils.makeArraySafe(usedTag);
 
-
-    Utils.makeArraySafe(usedTag);
-
-    this.getTagsFullByNote(note, usedTag, userid)
-    .then(tags=>{
-
-      console.log('the tags by note');console.log(JSON.stringify(tags));
+    this.getTagsFullByTitle(tags, usedTag, userid, true)
+    .then(tagsToUpdate=>{
 
       return this.db.transaction(tx=>{
 
-        this.removeNoteFromTagsUpdateOnlyTagsCore([note.forceCastToNoteExtraMin()], userid, tags, tx);
+        this.removeNoteFromTagsUpdateOnlyTagsCore([note.forceCastToNoteExtraMin()], userid, tagsToUpdate, tx);
 
         let query:string = Query.prepareQueryRemoveTagsFromNotesLogs(tags.length); /*this one is ok*/
         let param:string[]=Query.expandInsertNoteTagsIntoLogs(note.title, userid, tags);
@@ -3101,15 +3105,13 @@ public removeTagsFromNote(note: NoteFull, userid: string, tags: TagExtraMin[], u
         }
       );
 
-      this.updateJsonObjNote(note, userid, true, tx);
+      //this.updateJsonObjNote(note, userid, true, tx);
+      this.removeTagsFromNotesUpdateOnlyNotesCore(tags, [note], userid, tx);
 
       })
 
 
     })
-
-
-
 
     .then(txResult=>{
       console.log('ok removed tag from notes');
@@ -4410,6 +4412,7 @@ update the json obj of the note, if requested, it updates the lastmodificationda
 Please note that the lastmodificationdate must be already present in the note.
 */
 private updateJsonObjNote(fullNote:NoteFull, userid:string, updateLastModificationDateToo:boolean,tx?:any):void|Promise<void>{
+  //console.log('the note im going to update in updatejsonobjnote is');console.log(JSON.stringify(fullNote));
   let json:string = JSON.stringify(fullNote);
   if(tx!=null){
     if(updateLastModificationDateToo){
