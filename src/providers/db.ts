@@ -2833,9 +2833,40 @@ public getNotesByTags(tags: TagAlmostMin[], userid: string, and:boolean):Promise
   //   return result;
   // }
 
-  public addTags(note: NoteFull,  userid: string, mainTags? :  TagExtraMin[], otherTags?: TagExtraMin[], usedTag?:TagFull[]):Promise<any>{
+  private addTagsToNoteUpdateOnlyNoteCore(note:NoteFull,userid:string, mainTags?:TagExtraMin[], otherTags?:TagExtraMin[], tx?:any):Promise<void>|void{
+    if(mainTags!=null){
+      mainTags.forEach(tag=>{
+        note.maintags.push(tag);
+      })
+    }
+    if(otherTags!=null){
+      otherTags.forEach(tag=>{
+        note.othertags.push(tag)
+      })
+    }
+    this.updateJsonObjNote(note, userid, true, tx);
+  }
+
+  private addTagsToNoteUpdateOnlyLogs(tx:any, title:string,tags:TagExtraMin[], mainTags:TagExtraMin[], otherTags:TagExtraMin[], userid:string):void{
+    let roles:TagType[]=[];
+    roles = Query.expandTagType(mainTags, TagType.MAIN);
+    roles = roles.concat(Query.expandTagType(otherTags, TagType.OTHER));
+
+    let query:string = Query.prepareQueryInsertNotesTagsIntoLogs(tags, roles);
+
+    console.log('query is: '+query);
+      tx.executeSql(query, Query.expandInsertNoteTagsIntoLogs(title, userid, tags),
+        (tx: any, res: any)=>{/*nothing*/console.log('insert notes-tags into logs ok');},
+        (tx: any, error: any)=>{
+          console.log('error in inserting notes-tags');
+          console.log(JSON.stringify(error));
+        }
+      );
+  }
+
+  public addTags(note: NoteFull,  userid: string, mainTags? :  TagExtraMin[], otherTags?: TagExtraMin[], usedTag?:TagFull[]):Promise<void>{
     // console.log('the note I received as input is:');console.log(JSON.stringify(note));
-    return new Promise<any>((resolve, reject)=>{
+    return new Promise<void>((resolve, reject)=>{
       let tags:TagExtraMin[]=[];
       if(mainTags==null){mainTags=[];}
       if(otherTags==null){otherTags=[];}
@@ -2843,50 +2874,36 @@ public getNotesByTags(tags: TagAlmostMin[], userid: string, and:boolean):Promise
 
       usedTag = Utils.makeArraySafe(usedTag)
 
-      this.getTagsFullByNote(note, usedTag, userid)
-      .then(tags=>{
+      this.getTagsFullByTitle(tags, usedTag, userid, true)
+      .then(tagsToUpdate=>{
 
         return this.db.transaction(tx=>{
 
-        this.addTagsToNoteUpdateOnlyTagsCore(note.forceCastToNoteExtraMin(), userid, tags,tx);
+        this.addTagsToNoteUpdateOnlyTagsCore(note.forceCastToNoteExtraMin(), userid, tagsToUpdate,tx);
 
-        this.updateJsonObjNote(note, userid, true, tx);
-        let roles:TagType[]=[];
+        //this.updateJsonObjNote(note, userid, true, tx);
+        this.addTagsToNoteUpdateOnlyNoteCore(note, userid, mainTags, otherTags, tx);
 
-
-        roles = Query.expandTagType(mainTags, TagType.MAIN);
-        roles = roles.concat(Query.expandTagType(otherTags, TagType.OTHER));
-
-        let query:string = Query.prepareQueryInsertNotesTagsIntoLogs(tags, roles);
-
-        console.log('query is: '+query);
-          tx.executeSql(query, Query.expandInsertNoteTagsIntoLogs(note.title, userid, tags),
-            (tx: any, res: any)=>{/*nothing*/console.log('insert notes-tags into logs ok');},
-            (tx: any, error: any)=>{
-              console.log('error in inserting notes-tags');
-              console.log(JSON.stringify(error));
-            }
-          );
-
-          //this.addTagsToNoteUpdateOnlyTags(tx, note.forceCastToNoteExtraMin(), userid, tags);
-          // this.addTagsToNoteUpdateOnlyNote(tx, note, userid, true, mainTags, otherTags);
-          //because tags are added in note-details.
-          //this.updateJsonObjNote(note, userid, false, tx);
-
-
-
-
+        // let roles:TagType[]=[];
+        // roles = Query.expandTagType(mainTags, TagType.MAIN);
+        // roles = roles.concat(Query.expandTagType(otherTags, TagType.OTHER));
+        //
+        // let query:string = Query.prepareQueryInsertNotesTagsIntoLogs(tags, roles);
+        //
+        // console.log('query is: '+query);
+        //   tx.executeSql(query, Query.expandInsertNoteTagsIntoLogs(note.title, userid, tags),
+        //     (tx: any, res: any)=>{/*nothing*/console.log('insert notes-tags into logs ok');},
+        //     (tx: any, error: any)=>{
+        //       console.log('error in inserting notes-tags');
+        //       console.log(JSON.stringify(error));
+        //     }
+        //   );
+        this.addTagsToNoteUpdateOnlyLogs(tx, note.title, tags, mainTags, otherTags, userid);
         })
-
-
       })
-
-
-
       .then(txResult=>{
         console.log('add tags ok');
-        console.log(JSON.stringify(txResult));
-        resolve(true);
+        resolve();
       })
       .catch(error=>{
         console.log('error in adding tags');

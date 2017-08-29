@@ -435,7 +435,7 @@ export class NoteDetailsPage {
     this.mainTagsToAdd=this.mainTagsToAdd.concat(tags);
     this.haveToAddMainTags = true;
     this.submitChangeEnabled = true;
-    this.note.maintags=this.note.maintags.concat(this.mainTagsToAdd);
+    //this.note.maintags=this.note.maintags.concat(this.mainTagsToAdd);
   }
 
   // /*
@@ -495,7 +495,7 @@ export class NoteDetailsPage {
     this.otherTagsToAdd=this.otherTagsToAdd.concat(tags);
     this.haveToAddOtherTags = true;
     this.submitChangeEnabled = true;
-    this.note.othertags=this.note.othertags.concat(this.otherTagsToAdd);
+    //this.note.othertags=this.note.othertags.concat(this.otherTagsToAdd);
   }
 
   // addOtherTagsUI(tags: string[]){
