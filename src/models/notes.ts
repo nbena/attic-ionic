@@ -355,10 +355,23 @@ export class NoteFull extends NoteBarebon{
   }
 
 
-  public hasTags():boolean{
+  public hasSomeTag():boolean{
     let ret:boolean = false;
     if(this.maintags.length>0 && this.othertags.length>0){
       ret=true;
+    }
+    return ret;
+  }
+
+
+  public hasTag(tag:TagExtraMin):boolean{
+    let ret:boolean = false;
+    let tags:TagExtraMin[]=this.getTagsAsTagsExtraMinArray();
+    for(let i=0;i<tags.length;i++){
+      if(tag.title==tags[i].title){
+        ret = true;
+        i = tags.length;
+      }
     }
     return ret;
   }

@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, PopoverController } from 'ionic-angular';
+import { NavController, NavParams, PopoverController,Events } from 'ionic-angular';
 
 import { /*TagFull, TagExtraMin, *//*TagMin*/TagFull,TagAlmostMin } from '../../models/tags';
 import { AtticTags } from '../../providers/attic-tags';
@@ -27,11 +27,16 @@ export class TagDetailsPage {
   // private index:number=-1;
   private basicTag: TagAlmostMin=null;
 
+  // private oldTag:TagFull=null;
+
+  private firstTime: boolean = true;
+
 
   constructor(public navCtrl: NavController, public navParams: NavParams,
     private popoverCtrl: PopoverController,
     private atticTags: AtticTags,
-    private graphicProvider:GraphicProvider
+    private graphicProvider:GraphicProvider,
+    private events:Events
   ) {
 
 
@@ -42,6 +47,7 @@ export class TagDetailsPage {
       // console.log('the tag');console.log(JSON.stringify(this.tag));
       // this.tag.title=this.basicTag.title;
       this.tag.noteslength=this.basicTag.noteslength;
+      // this.oldTag=this.tag.clone();
     }
 
     if(this.tag==null){
@@ -57,11 +63,31 @@ export class TagDetailsPage {
       //   this.index=ind;
       // }
 
+
+      // this.events.subscribe('invalidate-full-tag', (note)=>{
+      //   if(this.oldTag!=null){
+      //     if(this.oldTag.hasNote(note)){
+      //       console.log('need to invalidate this tag');
+      //       this.navCtrl.pop();
+      //     }
+      //   }
+      // });
+
       this.load(false);
   }
 
   ionViewDidLoad() {
     console.log('ionViewDidLoad TagDetailsPage');
+  }
+
+  ionViewWillEnter(){
+    console.log('will enter tag-details');
+    if(this.tag!=null && this.tag.noteslength>0){
+      this.isComplete=true;
+    }else{
+      this.isComplete=false;
+    }
+    this.firstTime=true;
   }
 
   // tagByTitle(title: string, force: boolean){
@@ -121,7 +147,8 @@ export class TagDetailsPage {
     // setTimeout(()=>{
     //   refresher.complete();
     // },2000);
-    this.load(true, refresher);
+    this.load(!this.firstTime, refresher);
+    this.firstTime=false;
   }
 
   load(force:boolean, refresher?:any){

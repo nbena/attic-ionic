@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { NavController, NavParams, /*ToastController, AlertController,*/ ViewController/*, App,*/, Events } from 'ionic-angular';
-import { TagFull } from '../../models/tags';
+import { TagFull, TagExtraMin } from '../../models/tags';
 import { AtticTags } from '../../providers/attic-tags';
 // import { Utils } from '../../public/utils';
 // import { TagsPage } from '../tags/tags';
@@ -22,6 +22,8 @@ export class TagDetailsPopoverPage {
   private btnChangeTitleEnabled:boolean = false;
   // private index:number=-1;
 
+  //private oldTitle:string;
+
   constructor(public navCtrl: NavController, public navParams: NavParams,
     // private toastCtrl: ToastController, private alertCtrl: AlertController,
     // private app: App,
@@ -38,6 +40,7 @@ export class TagDetailsPopoverPage {
       // if(ind!=-1 && ind!=null){
       //   this.index=ind;
       // }
+      //this.oldTitle=this.tag.title;
     }
 
   ionViewDidLoad() {
@@ -83,6 +86,7 @@ export class TagDetailsPopoverPage {
     })
     .then(()=>{
       // return Utils.presentToast(this.toastCtrl, 'Title updated');
+      //this.events.publish('invalidate-full-note', new TagExtraMin(this.oldTitle));
       return this.graphicProvider.presentToast('Title updated');
     })
     .catch(error=>{
@@ -133,6 +137,7 @@ export class TagDetailsPopoverPage {
       return this.atticTags.deleteTag(this.tag)
     })
     .then(()=>{
+      //this.events.publish('invalidate-full-note', this.tag.forceCastToTagExtraMin());
       this.events.publish('go-to-tags-and-remove', this.tag);
       // console.log('i published');
       this.graphicProvider.presentToast('Tag deleted');

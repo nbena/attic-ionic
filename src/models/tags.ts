@@ -204,6 +204,20 @@ export class TagFull extends TagAlmostMin{
     return tag;
   }
 
+
+  public hasNote(note:NoteExtraMin):boolean{
+    let ret: boolean = false;
+    if(this.notes!=null){
+      for(let i=0;i<this.notes.length;i++){
+        if(this.notes[i].title==note.title){
+          ret=true;
+          i = this.notes.length;
+        }
+      }
+    }
+    return ret;
+  }
+
 }
 
 // export class TagSQLite extends TagFull {

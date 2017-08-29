@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { NavController, NavParams, PopoverController,
+  Events
 /*AlertController, ToastController*/ } from 'ionic-angular';
 
 import { /*NoteExtraMin, */NoteFull/*, NoteMin, NoteSmart*/, NoteExtraMinWithDate } from '../../models/notes';
@@ -101,13 +102,18 @@ export class NoteDetailsPage {
 
   basicNote: NoteExtraMinWithDate;
 
+  // private oldNote:NoteFull=null;
+
+  private firstTime:boolean = true;
+
 
 
   constructor(public navCtrl: NavController, public navParams: NavParams,
     public popoverCtrl: PopoverController,
     private atticNotes: AtticNotes, private atticTags: AtticTags,
     private graphicProvider:GraphicProvider,
-    private iab: InAppBrowser
+    private iab: InAppBrowser,
+    private events:Events
   ) {
     // let ind=navParams.get('index');
     // if(ind!=null && ind!=-1){
@@ -121,6 +127,7 @@ export class NoteDetailsPage {
       this.note = new NoteFull(this.basicNote.title);
       // this.note.title=this.basicNote.title;
       this.note.lastmodificationdate=this.basicNote.lastmodificationdate;
+
     }
 
     if(this.note==null){
@@ -128,6 +135,17 @@ export class NoteDetailsPage {
       this.note = new NoteFull(title);
       // this.note.title=title;
     }
+
+
+    // this.events.subscribe('invalidate-full-note', (tag)=>{
+    //   console.log('invalidate-full-note');console.log(JSON.stringify(this.oldNote));console.log(JSON.stringify(tag));
+    //   if(this.oldNote!=null){
+    //     if(this.oldNote.hasTag(tag)){
+    //       console.log('need to invalidate this note');
+    //       this.navCtrl.pop();
+    //     }
+    //   }
+    // })
 
 
     //this.init();
@@ -246,7 +264,11 @@ export class NoteDetailsPage {
           this.isNoteLoaded = true;
           this.isNoteReallyLoaded = true;
 
-          console.log('the note is');console.log(JSON.stringify(this.note));
+          // console.log('the note is');console.log(JSON.stringify(this.note));
+          //
+          // this.oldNote=this.note.clone();
+          // console.log('the note');console.log(JSON.stringify(this.note));
+          // console.log('old note');console.log(JSON.stringify(this.oldNote));
 
           resolve();
 
@@ -333,6 +355,11 @@ export class NoteDetailsPage {
     // this.refresh()
   }
 
+  ionViewWillEnter(){
+    console.log('will enter note-details');
+    this.firstTime=true;
+  }
+
   displayTagDetails(title: string){
     this.navCtrl.push(TagDetailsPage, {title})
   }
@@ -344,7 +371,8 @@ export class NoteDetailsPage {
     // setTimeout(()=>{
     //   refresher.complete();
     // },2000);
-    this.load(true, refresher);
+    this.load(!this.firstTime, refresher);
+    this.firstTime=false;
   }
 
 
@@ -588,7 +616,7 @@ export class NoteDetailsPage {
     }
   }
 
-  addTagsAPI(){
+  addTagsAPI():Promise<void>{
     // this.note.maintags = this.note.maintags.concat(this.mainTagsToAdd);
     // this.note.othertags = this.note.othertags.concat(this.otherTagsToAdd);
     return this.atticNotes.addTags(this.note, this.mainTagsToAdd, this.otherTagsToAdd, this.lastmod);
@@ -597,7 +625,7 @@ export class NoteDetailsPage {
   /*
   defining real APIs
   */
-  addMainTagsAPI(){
+  addMainTagsAPI():Promise<void>{
     //try{
       // this.note.maintags = this.note.maintags.concat(this.mainTagsToAdd);
       // done in the db.
@@ -607,26 +635,26 @@ export class NoteDetailsPage {
     // }
   }
 
-  addOtherTagsAPI(){
+  addOtherTagsAPI():Promise<void>{
     // this.note.othertags = this.note.othertags.concat(this.otherTagsToAdd);
     // done in the db.
     return this.atticNotes.addOtherTags(this.note, this.otherTagsToAdd, this.lastmod);
   }
 
 
-  changeLinksAPI(){
+  changeLinksAPI():Promise<void>{
     // return this.atticNotes.changeLinks(this.note.title, this.shownLinks);
     this.note.links = this.shownLinks;
     return this.atticNotes.changeLinks(this.note, this.lastmod);
   }
 
-  changeDoneAPI(){
+  changeDoneAPI():Promise<void>{
     //  return this.atticNotes.changeDone(this.note.title, this.shownIsDone);
     this.note.isdone = this.shownIsDone;
     return this.atticNotes.changeDone(this.note, this.lastmod);
   }
 
-  removeTagsAPI(){
+  removeTagsAPI():Promise<void>{
     // console.log('the tags to remove');console.log(JSON.stringify(this.tagsToRemove));
 
     //this.tagsToRemove.forEach(obj=>{this.note.removeTag(obj)});
@@ -637,9 +665,13 @@ export class NoteDetailsPage {
   }
 
 
-  haveToDoSomething(){
+  haveToDoSomething():boolean{
     return this.haveToRemoveTags || this.haveToAddMainTags || this.haveToChangeLinks
      || this.haveToAddOtherTags || this.isDoneChanged
+  }
+
+  private haveToTouchTags():boolean{
+    return this.haveToRemoveTags || this.haveToAddMainTags  || this.haveToAddOtherTags;
   }
 
 
@@ -654,6 +686,11 @@ export class NoteDetailsPage {
       this.note.lastmodificationdate=new Date();
     }
     //can't be done here, if so, the cache won't be able to find it.
+
+    if(this.haveToTouchTags()){
+      this.events.publish('invalidate-tags');
+      this.events.publish('invalidate-full-tag', this.note.forceCastToNoteExtraMin());
+    }
 
     if(this.haveToRemoveTags){
       this.removeTagsAPI()

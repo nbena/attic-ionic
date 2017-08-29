@@ -337,6 +337,11 @@ public static search<T>(array:T[], item:T,  cmp: ((a:T,b:T)=>number)):number{
 
 
 
+/**
+if array is null it inits it. If not, it removes
+all the null elements.
+Return the same array with the modification applied.
+*/
  public static makeArraySafe<T>(array:T[]):T[]{
    if(array==null){
      array=[];

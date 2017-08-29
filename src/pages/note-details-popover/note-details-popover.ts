@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { NavController, NavParams, ViewController/*, ToastController, AlertController*/
   //, App
   ,Events } from 'ionic-angular';
-import { NoteFull, NoteExtraMinWithDate } from '../../models/notes';
+import { NoteFull, NoteExtraMinWithDate, NoteExtraMin } from '../../models/notes';
 import { NoteEditTextPage } from '../note-edit-text/note-edit-text';
 import { AtticNotes } from '../../providers/attic-notes';
 // import { Utils } from '../../public/utils';
@@ -30,6 +30,9 @@ export class NoteDetailsPopoverPage {
   btnChangeTitleEnabled:boolean = false;
 
   lastmod: Date;
+
+
+  //private oldTitle:string;
 
   constructor(public navCtrl: NavController, public navParams: NavParams,
     public viewCtrl: ViewController, /*public alertCtrl: AlertController,*/
@@ -59,7 +62,9 @@ export class NoteDetailsPopoverPage {
         this.lastmod = this.note.lastmodificationdate;
         // console.log(this.btnChangeTitleEnabled);
         // console.log(this.btnChangeTextEnabled);
+        //this.oldTitle=this.note.title;
       }
+
     }
 
     ionViewDidLoad() {
@@ -157,7 +162,7 @@ export class NoteDetailsPopoverPage {
     })
     .then(()=>{
       //return Utils.presentToast(this.toastCtrl, 'Title updated');
-
+      //this.events.publish('invalidate-full-tag', new NoteExtraMin(this.oldTitle));
       this.events.publish('go-to-notes-and-replace', oldNote, newNote);
       return this.graphicProvider.presentToast('Title updated');
     })
@@ -217,6 +222,8 @@ export class NoteDetailsPopoverPage {
       //this.navCtrl.getViews().forEach(obj=>{if(obj.)})
       //return this.app.getRootNav().push(NotesPage, {refresh:false, toRemove:this.note as NoteExtraMinWithDate})
       // return this.app.getRootNav().popToRoot();
+      this.events.publish('invalidate-tags');
+      //this.events.publish('invalidate-full-tag', this.note.forceCastToNoteExtraMin());
       this.events.publish('go-to-notes-and-remove', this.note); //method to change tab.
       this.graphicProvider.presentToast('Note deleted');
     })
