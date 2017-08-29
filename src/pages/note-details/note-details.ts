@@ -661,7 +661,9 @@ export class NoteDetailsPage {
 
     // console.log('the new note');console.log(JSON.stringify(this.note));
     // return Promise.resolve();
-    return this.atticNotes.removeTags(this.note, this.tagsToRemove, this.lastmod);
+    //return this.atticNotes.removeTags(this.note, this.tagsToRemove, this.lastmod);
+    console.log('the tags to removed');console.log(JSON.stringify(this.tagsToRemove));
+    return Promise.resolve();
   }
 
 

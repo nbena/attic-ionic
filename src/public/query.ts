@@ -158,6 +158,7 @@ export class Query{
   static readonly NOTE_EXISTS_AND_IS_FULL = 'select text from notes where mustbedeleted=\'false\' and title=? and userid=?';
   static readonly TAG_EXISTS_AND_IS_FULL = 'select json_object from tags where mustbedeleted=\'false\' and title=? and userid=?';
   static readonly TAGS_EXIST_AND_ARE_FULL =  'select json_object from tags where mustbedeleted=\'false\' and userid=? and (';
+  static readonly NOTES_EXIST_AND_ARE_FULL = 'select json_object from notes where mustbedeleted=\'false\' and userid=? and (';
 
 
 
@@ -460,6 +461,21 @@ export class Query{
 
   public static prepareQueryTagExistAndAreFull(length:number):string{
     let result:string = Query.TAGS_EXIST_AND_ARE_FULL;
+    for(let i=0;i<length;i++){
+      result+='title=? or ';
+    }
+    result=result.substr(0, result.lastIndexOf('or '));
+    result+=')';
+    if(length==0){
+      result=Query.EMPTY_RESULT_SET;
+    }
+    console.log('result is '+result);
+    return result;
+  }
+
+
+  public static prepareQueryNoteExistAndAreFull(length:number):string{
+    let result:string = Query.NOTES_EXIST_AND_ARE_FULL;
     for(let i=0;i<length;i++){
       result+='title=? or ';
     }
