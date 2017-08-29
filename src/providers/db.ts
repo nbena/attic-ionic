@@ -1212,10 +1212,17 @@ a list of the tag (that belong to the note) already full. It checks wheter there
 need to get other tags full from the db (eg: the list is not complete) and it returns
 a promise that contains the complete list of tag full of the notes.
 */
-private getTagsFullByNote(note:NoteFull, usedTag:TagFull[], userid:string):Promise<TagFull[]>{
+private getTagsFullByNote(note:NoteFull|NoteMin, usedTag:TagFull[], userid:string):Promise<TagFull[]>{
   return new Promise<TagFull[]>((resolve, reject)=>{
     //let usedTag:TagFull[]=[];
-    let tags:TagExtraMin[]=note.getTagsAsTagsExtraMinArray().sort(TagExtraMin.ascendingCompare);
+    let noteF:NoteFull;
+    if(note instanceof NoteMin){
+      noteF=note.upgrade();
+    }else{
+      noteF=note;
+    }
+
+    let tags:TagExtraMin[]=noteF.getTagsAsTagsExtraMinArray().sort(TagExtraMin.ascendingCompare);
     let tmpTag:TagExtraMin[]=Utils.binaryArrayDiff(tags, usedTag,TagExtraMin.ascendingCompare);
     let p:Promise<void>;
     if(tmpTag.length>0){
@@ -2517,8 +2524,8 @@ public getNotesByTags(tags: TagAlmostMin[], userid: string, and:boolean):Promise
   }
 
 
-  deleteNote(note: NoteFull, userid: string, usedTag?:TagFull[]):Promise<any>{
-    return new Promise<any>((resolve, reject)=>{
+  deleteNote(note: NoteFull, userid: string, usedTag?:TagFull[]):Promise<void>{
+    return new Promise<void>((resolve, reject)=>{
 
       usedTag = Utils.makeArraySafe(usedTag);
       this.getTagsFullByNote(note, usedTag, userid)
@@ -2548,8 +2555,7 @@ public getNotesByTags(tags: TagAlmostMin[], userid: string, and:boolean):Promise
       })
       .then(txResult=>{
         console.log('tx completed, result:');
-        console.log(JSON.stringify(txResult));
-        resolve(true);
+        resolve();
       })
       .catch(error=>{
         console.log('tx error');
@@ -2666,8 +2672,8 @@ public getNotesByTags(tags: TagAlmostMin[], userid: string, and:boolean):Promise
   that for each note, it tries to remove EACH tag (1st param), then, it saves each note. This can be done
   because no error are thrown if we try to remove a tag from a note to which it doesn't belong.
   */
-  private removeTagsFromNotesUpdateOnlyNotesCore(tags:TagExtraMin[],usedNotes:NoteFull[], userid:string, tx?:any){
-    usedNotes.forEach(note=>{
+  private removeTagsFromNotesUpdateOnlyNotesCore(tags:TagExtraMin[],notes:NoteFull[], userid:string, tx?:any){
+    notes.forEach(note=>{
       for(let i=0;i<tags.length;i++){
         note.removeTag(tags[i]);
       }
@@ -4611,45 +4617,45 @@ private addTagsToNoteUpdateBoth(tx:any, note:NoteFull|NoteExtraMin, userid:strin
 */
 
 
-private removeTagFromNotesFullJsonUpdatingCore(tx:any, note:NoteMin,tags: TagExtraMin[], userid:string):void{
-  let fullTags:TagFull[]=[];
-  Promise.all(tags.map(obj=>{return this.getTagFull(obj.title, userid)}))
-  .then(tags=>{
-    if(tags!=null){fullTags=tags;}
-    fullTags.forEach(tag=>{
-      if(tag!=null){
-        tag.removeNote(note);
-        this.updateJsonObjTag(tag, userid, tx);
-      }
-    })
-  })
-  this.removeTagFromNoteJsonUpdatingOnlyNoteCore(tx, note, fullTags, userid);
-
-}
-
-private removeTagFromNoteJsonUpdatingOnlyNoteCore(tx:any, note:NoteMin, tags:TagExtraMin[], userid:string):void{
-
-      for(let i=0;i<tags.length;i++){
-        let jsonTag: string = JSON.stringify(tags[i]);
-        tx.executeSql(Query.REMOVE_TAGS_FROM_NOTES_SMART_REPLACE, [jsonTag, jsonTag, userid],
-          (tx:any, res:any)=>{console.log('remove tags smart replace ok');},
-          (tx:any, error:any)=>{console.log('error in smart replace');console.log(JSON.stringify(error));}
-        );
-      }
-      tx.executeSql(Query.REMOVE_TAGS_FROM_NOTES_CLEANUP_ONE, [userid],
-        (tx:any, res:any)=>{console.log('remove tags tags cleanup one ok');},
-        (tx:any, error:any)=>{console.log('error remove tags tags cleanup one');console.log(JSON.stringify(error));}
-      );
-      tx.executeSql(Query.REMOVE_TAGS_FROM_NOTES_CLEANUP_TWO, [userid],
-        (tx:any, res:any)=>{console.log('remove tags tags cleanup two ok');},
-        (tx:any, error:any)=>{console.log('error remove tags tags cleanup two');console.log(JSON.stringify(error));}
-      );
-      tx.executeSql(Query.REMOVE_TAGS_FROM_NOTES_CLEANUP_THREE, [userid],
-        (tx:any, res:any)=>{console.log('remove tags tags cleanup three ok');},
-        (tx:any, error:any)=>{console.log('error remove tags tags cleanup three');console.log(JSON.stringify(error));}
-      );
-      //this is where it changes.
-}
+// private removeTagFromNotesFullJsonUpdatingCore(tx:any, note:NoteMin,tags: TagExtraMin[], userid:string):void{
+//   let fullTags:TagFull[]=[];
+//   Promise.all(tags.map(obj=>{return this.getTagFull(obj.title, userid)}))
+//   .then(tags=>{
+//     if(tags!=null){fullTags=tags;}
+//     fullTags.forEach(tag=>{
+//       if(tag!=null){
+//         tag.removeNote(note);
+//         this.updateJsonObjTag(tag, userid, tx);
+//       }
+//     })
+//   })
+//   this.removeTagFromNoteJsonUpdatingOnlyNoteCore(tx, note, fullTags, userid);
+//
+// }
+//
+// private removeTagFromNoteJsonUpdatingOnlyNoteCore(tx:any, note:NoteMin, tags:TagExtraMin[], userid:string):void{
+//
+//       for(let i=0;i<tags.length;i++){
+//         let jsonTag: string = JSON.stringify(tags[i]);
+//         tx.executeSql(Query.REMOVE_TAGS_FROM_NOTES_SMART_REPLACE, [jsonTag, jsonTag, userid],
+//           (tx:any, res:any)=>{console.log('remove tags smart replace ok');},
+//           (tx:any, error:any)=>{console.log('error in smart replace');console.log(JSON.stringify(error));}
+//         );
+//       }
+//       tx.executeSql(Query.REMOVE_TAGS_FROM_NOTES_CLEANUP_ONE, [userid],
+//         (tx:any, res:any)=>{console.log('remove tags tags cleanup one ok');},
+//         (tx:any, error:any)=>{console.log('error remove tags tags cleanup one');console.log(JSON.stringify(error));}
+//       );
+//       tx.executeSql(Query.REMOVE_TAGS_FROM_NOTES_CLEANUP_TWO, [userid],
+//         (tx:any, res:any)=>{console.log('remove tags tags cleanup two ok');},
+//         (tx:any, error:any)=>{console.log('error remove tags tags cleanup two');console.log(JSON.stringify(error));}
+//       );
+//       tx.executeSql(Query.REMOVE_TAGS_FROM_NOTES_CLEANUP_THREE, [userid],
+//         (tx:any, res:any)=>{console.log('remove tags tags cleanup three ok');},
+//         (tx:any, error:any)=>{console.log('error remove tags tags cleanup three');console.log(JSON.stringify(error));}
+//       );
+//       //this is where it changes.
+// }
 
 //this one is its substitute.
 
@@ -4894,18 +4900,38 @@ private removeDeleteTagFromNoteFromLogsCore(noteTitle:string, tags:string[], use
 */
 
 
-
+/**
+Considering that the tags to remove are placed into note.maintags (according to gettagstoaddtonotes),
+this method will remove all of those tags from the given note, then it removes the note from those tags.
+Finally, it removes that action from the logs.
+*/
 private rollbackAddTagToNote(note: NoteMin, error:boolean[],userid:string):Promise<void>{
   return new Promise<void>((resolve, reject)=>{
-    this.db.transaction(tx=>{
-      //if(AtticError.isNotFoundErrorFromArray(error)){
-      if(AtticError.isDuplicateErrorFromArray(error))
-        this.removeTagFromNotesFullJsonUpdatingCore(tx, note, note.getTagsAsTagsExtraMinArray(),userid);
-      //}
-      this.removeAddTagToNoteFromLogsCore(note.title, note.maintags, userid, tx);
-    }).then(()=>{console.log('ok rollback add-tags');resolve();})
-    .catch(error=>{console.log('error rollback add-tags');console.log(JSON.stringify(error));reject(error)})
+    //this.db.transaction(tx=>{
+    //   //if(AtticError.isNotFoundErrorFromArray(error)){
+    //   if(AtticError.isDuplicateErrorFromArray(error))
+    //     this.removeTagFromNotesFullJsonUpdatingCore(tx, note, note.getTagsAsTagsExtraMinArray(),userid);
+    //   //}
+    //   this.removeAddTagToNoteFromLogsCore(note.title, note.maintags, userid, tx);
+    // }).then(()=>{console.log('ok rollback add-tags');resolve();})
+    // .catch(error=>{console.log('error rollback add-tags');console.log(JSON.stringify(error));reject(error)})
+    //  })
+    this.getTagsFullByNote(note, [], userid)
+    .then(tags=>{
+
+      return this.db.transaction(tx=>{
+        this.removeNoteFromTagsUpdateOnlyTagsCore([note.forceCastToNoteExtraMin()], userid, tags, tx);
+        this.removeTagsFromNotesUpdateOnlyNotesCore(tags, [note.upgrade()], userid, tx);
+        this.removeAddTagToNoteFromLogsCore(note.title, note.maintags, userid, tx);
+      })
+      .then(()=>{
+        console.log('ok rollback add-tags');resolve();
+      })
+      .catch(error=>{
+        console.log('error rollback add-tags');console.log(JSON.stringify(error));reject(error)
+      })
     })
+  })
 }
 
 // //big problem: how to know where the tag was? just remove.
@@ -4976,28 +5002,85 @@ private rollbackSetLink(note:NoteExtraMin, userid:string):Promise<void>{
 
   //choose what to do...just logs or notes too?
   //by seeing it in action I think it's better the first.
-  private rollbackCreateNote(note:NoteExtraMin, error:boolean[], userid:string):Promise<void>{
+  /**
+  This method delete the given note from notes and from logs too, considering two erros:
+  postgres duplicate error and postgres is user reached max error. If user reached max error,
+  the note is deleted from tags too.
+  */
+  private rollbackCreateNote(note:NoteFull|NoteMin, error:boolean[], userid:string):Promise<void>{
     return new Promise<void>((resolve, reject)=>{
-      this.db.transaction(tx=>{
-        if(AtticError.isDuplicateErrorFromArray(error) || AtticError.isUserReachedMaxErrorFromArray(error))
-        this.deleteNotesFromNotesBasciCore(tx, [note.title], userid);
-        this.deleteNotesToCreateFromLogsMultiVersionCore(tx, [note.title], userid);
+      let p:Promise<any>;
+      let isUserR:boolean = AtticError.isUserReachedMaxErrorFromArray(error);
+      if(isUserR){
+        p=this.getTagsFullByNote(note, [], userid);
+      }else{
+        p=Promise.resolve('nothing');
+      }
+      p.then(tags=>{
+
+        return this.db.transaction(tx=>{
+
+          if(tags!='nothing' && isUserR){
+            this.removeNoteFromTagsUpdateOnlyTagsCore([note.forceCastToNoteExtraMin()], userid, tags, tx);
+          }
+
+          if(isUserR || AtticError.isUserReachedMaxErrorFromArray(error)){
+            this.deleteNotesFromNotesBasciCore(tx, [note.title], userid);
+          }
+          this.deleteNotesToCreateFromLogsMultiVersionCore(tx, [note.title], userid);
+        })
+        .then(()=>{
+          console.log('ok rollback create note');resolve();
+        }).catch(error=>{console.log('error in rollback create note');console.log(JSON.stringify(error.message));reject(error);})
+
+
       })
-      .then(()=>{console.log('ok rollback create note');resolve()})
-      .catch(error=>{console.log('error in rollback create note');console.log(JSON.stringify(error.message));reject(error);})
+      // this.db.transaction(tx=>{
+      //   if(AtticError.isDuplicateErrorFromArray(error) || AtticError.isUserReachedMaxErrorFromArray(error))
+      //     this.deleteNotesFromNotesBasciCore(tx, [note.title], userid);
+      //   this.deleteNotesToCreateFromLogsMultiVersionCore(tx, [note.title], userid);
+      // })
+      // .then(()=>{console.log('ok rollback create note');resolve()})
+      // .catch(error=>{console.log('error in rollback create note');console.log(JSON.stringify(error.message));reject(error);})
     })
   }
 
-
+  /**
+  This method delete the given tag tags and from logs too, considering two erros:
+  postgres duplicate error and postgres is user reached max error.
+  */
   private rollbackCreateTag(tag:TagExtraMin, error:boolean[],userid:string):Promise<void>{
     return new Promise<void>((resolve, reject)=>{
-      this.db.transaction(tx=>{
-        if(AtticError.isDuplicateErrorFromArray(error) || AtticError.isUserReachedMaxErrorFromArray(error))
-        this.deleteTagsFromTagsBasicCore(tx, [tag.title], userid);
-        this.deleteTagsToCreateFromLogsMultiVersionCore(tx, [tag.title], userid);
+      // this.db.transaction(tx=>{
+      //   if(AtticError.isDuplicateErrorFromArray(error) || AtticError.isUserReachedMaxErrorFromArray(error))
+      //     this.deleteTagsFromTagsBasicCore(tx, [tag.title], userid);
+      //   this.deleteTagsToCreateFromLogsMultiVersionCore(tx, [tag.title], userid);
+      // })
+      // .then(()=>{console.log('ok rollback create tag');resolve()})
+      // .catch(error=>{console.log('error in rollback create tag');console.log(JSON.stringify(error.message));reject(error);})
+      let p:Promise<any>;
+      let isUserR:boolean = AtticError.isUserReachedMaxErrorFromArray(error);
+      if(isUserR){
+        p=this.getNotesByTags([new TagAlmostMin(tag.title)], userid, false);
+      }else{
+        p=Promise.resolve('nothing');
+      }
+      p.then(notes=>{
+
+        return this.db.transaction(tx=>{
+          if(notes!='nothing' && isUserR){
+            this.removeTagsFromNotesUpdateOnlyNotesCore([tag], notes,userid, tx);
+          }
+
+          if(AtticError.isDuplicateErrorFromArray(error) || isUserR){
+            this.deleteTagsFromTagsBasicCore(tx, [tag.title], userid);
+          }
+          this.deleteTagsToCreateFromLogsMultiVersionCore(tx, [tag.title], userid);
+
+        })
+        .then(()=>{console.log('ok rollback create tag');resolve()})
+        .catch(error=>{console.log('error in rollback create tag');console.log(JSON.stringify(error.message));reject(error);})
       })
-      .then(()=>{console.log('ok rollback create tag');resolve()})
-      .catch(error=>{console.log('error in rollback create tag');console.log(JSON.stringify(error.message));reject(error);})
     })
   }
 

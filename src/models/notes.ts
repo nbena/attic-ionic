@@ -157,6 +157,32 @@ export class NoteMin extends NoteBarebon{
     return new NoteExtraMin(this.title);
   }
 
+  /**
+  Return a NoteFull which is the clone of this object, but it obviously
+  has maintags and othertags converted as TagExtraMin instead of string.
+  */
+  public upgrade():NoteFull{
+    let note:NoteFull = new NoteFull(this.title);
+    note.text=this.text;
+    note.creationdate=this.creationdate;
+    note.lastmodificationdate=this.lastmodificationdate;
+    note.isdone=this.isdone;
+    note.links=this.links;
+    note.maintags=this.maintags.map(title=>{return new TagExtraMin(title)});
+    note.othertags=this.othertags.map(title=>{return new TagExtraMin(title)});
+    return note;
+  }
+
+  public forceCastToNoteExtraMin():NoteExtraMin{
+    return new NoteExtraMin(this.title);
+  }
+
+  public forceCastToNoteExtraMinWithDate():NoteExtraMinWithDate{
+    let note:NoteExtraMinWithDate=new NoteExtraMinWithDate(this.title);
+    note.lastmodificationdate=this.lastmodificationdate;
+    return note;
+  }
+
 }
 
 // export class NoteFull extends NoteBarebon{
