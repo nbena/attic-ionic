@@ -8,7 +8,7 @@ import { Injectable } from '@angular/core';
 // import { Storage} from 'ionic-angular';
 import 'rxjs/add/operator/map';
 
-// import { tokenNotExpired } from 'angular2-jwt';
+ import { /*tokenNotExpired*/JwtHelper } from 'angular2-jwt';
 
 //import { Const } from '../public/const';
 import { User } from '../models/user';
@@ -46,16 +46,23 @@ export class Auth {
       .then(result=>{
 
         console.log('not-raw result is:');console.log(JSON.stringify(result));
+        let helper:JwtHelper = new JwtHelper();
 
         if(result==null){
           resolve(false);
         }else{
-          this.token = result.token;
-          this.userid = result.userid;
+          console.log('the exp date is');console.log(JSON.stringify(helper.getTokenExpirationDate(result.token)));
+          if(!helper.isTokenExpired(result.token)){
+            this.token = result.token;
+            this.userid = result.userid;
 
-          this.http.setToken(result.token);
+            this.http.setToken(result.token);
 
-          resolve(true);
+            resolve(true);
+          }else{
+            console.log('token is expired');
+            resolve(false);
+          }
         }
       })
       .catch(error=>{
