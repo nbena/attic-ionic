@@ -567,7 +567,8 @@ export class AtticNotes {
       p=new Promise<void>((resolve, reject)=>{
         this.db.addTags(note, this.auth.userid, mainTags, otherTags)
         .then(()=>{
-          this.atticCache.updateNote(note, true, true, oldlastmod);
+          //this.atticCache.updateNote(note, true, true, oldlastmod);
+          //no need to update the cache because the note returned is the same.
           this.atticCache.invalidateTags();
           resolve();
         })
@@ -591,7 +592,7 @@ export class AtticNotes {
       p=new Promise<void>((resolve, reject)=>{
         this.db.addTags(note, this.auth.userid, mainTags)
         .then(()=>{
-          this.atticCache.updateNote(note, true, true, oldlastmod);
+          //this.atticCache.updateNote(note, true, true, oldlastmod);
           this.atticCache.invalidateTags();
           resolve();
         })
@@ -614,7 +615,7 @@ export class AtticNotes {
       p=new Promise<void>((resolve, reject)=>{
         this.db.addTags(note, this.auth.userid, null, otherTags)
         .then(()=>{
-          this.atticCache.updateNote(note, true, true, oldlastmod);
+          //this.atticCache.updateNote(note, true, true, oldlastmod);
           this.atticCache.invalidateTags();
           resolve();
         })
@@ -637,7 +638,7 @@ export class AtticNotes {
       p=new Promise<void>((resolve, reject)=>{
         this.db.removeTagsFromNote(note, this.auth.userid, tags)
         .then(()=>{
-          this.atticCache.updateNote(note, true, true, oldlastmod);
+          //this.atticCache.updateNote(note, true, true, oldlastmod);
           this.atticCache.invalidateTags();
           resolve();
         })
@@ -661,7 +662,7 @@ export class AtticNotes {
       p=new Promise<void>((resolve, reject)=>{
         this.db.setLinks(note, this.auth.userid)
         .then(()=>{
-          this.atticCache.updateNote(note, true, true, oldlastmod);
+          //this.atticCache.updateNote(note, true, true, oldlastmod);
           resolve();
         })
         .catch(error=>{
@@ -683,7 +684,7 @@ export class AtticNotes {
       p=new Promise<void>((resolve, reject)=>{
         this.db.setText(note, this.auth.userid)
         .then(()=>{
-          this.atticCache.updateNote(note, true, true, oldlastmod);
+          //this.atticCache.updateNote(note, true, true, oldlastmod);
           resolve();
         })
         .catch(error=>{
@@ -706,7 +707,7 @@ export class AtticNotes {
       p=new Promise<void>((resolve, reject)=>{
         this.db.setDone(note, this.auth.userid)
         .then(()=>{
-          this.atticCache.updateNote(note, true, true, oldlastmod);
+          //this.atticCache.updateNote(note, true, true, oldlastmod);
           resolve();
         })
         .catch(error=>{

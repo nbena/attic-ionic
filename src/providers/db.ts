@@ -1275,9 +1275,6 @@ public createNewNote2(note:NoteFull, userid:string, usedTag?:TagFull[]):Promise<
       console.log('the tags to update are');console.log(JSON.stringify(tags));
       return this.db.transaction(tx=>{
         let jsonNote:string = JSON.stringify(note);
-        // let tags:TagExtraMin[] = note.getTagsAsTagsExtraMinArray();
-        // tags=tags.sort(TagExtraMin.ascendingCompare);
-        // let extraMin:NoteExtraMin=note.getNoteExtraMin();
         let extraMin:NoteExtraMin=note.forceCastToNoteExtraMin();
 
         this.addTagsToNoteUpdateOnlyTagsCore(extraMin, userid, tags, tx);

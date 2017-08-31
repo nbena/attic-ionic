@@ -164,7 +164,7 @@ export class HttpProvider {
     }
 
 
-  public post(finalUri: string, body: any):Promise<any>{
+  public post(finalUri: string, body?: any):Promise<any>{
     return new Promise((resolve, reject)=>{
 
       // let headers = new Headers();
