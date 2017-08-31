@@ -559,7 +559,7 @@ static readonly INSERT_NOTES_TAGS = 'insert into notes_tags(notetitle,tagtitle, 
 //   return result;
 // }
 
-private static getLogsByNoteFromDbResult(res:any):LogObjSmart[]{
+private static getArrayOfLogsByNoteFromRes(res:any):LogObjSmart[]{
   let logs:LogObjSmart[]=[];
   for(let i=0;i<res.rows.length;i++){
     let note:NoteExtraMinWithDate = NoteExtraMinWithDate.safeNewNoteFromJsonString(res.rows.item(i).json_object);
@@ -583,14 +583,14 @@ private getLogsByNote(title:string, userid:string, tx?:any):Promise<LogObjSmart[
     if(tx!=null){
       tx.executeSql(Query.GET_LOGS_BY_NOTE, [userid, title],
         (tx:any, res:any)=>{
-          logs = Db.getLogsByNoteFromDbResult(res);
+          logs = Db.getArrayOfLogsByNoteFromRes(res);
           resolve(logs);
         },(tx:any, error:any)=>{console.log('error in get logs by notes');console.log(JSON.stringify(error));}
       )
     }else{
       this.db.executeSql(Query.GET_LOGS_BY_NOTE, [userid, title])
       .then(res=>{
-        logs = Db.getLogsByNoteFromDbResult(res);
+        logs = Db.getArrayOfLogsByNoteFromRes(res);
         resolve(logs);
       })
       .catch(error=>{
@@ -1292,7 +1292,6 @@ public createNewNote2(note:NoteFull, userid:string, usedTag?:TagFull[]):Promise<
           (tx:any, res:any)=>{console.log('ok inserted note into logs');},
           (tx:any, error:any)=>{console.log('error insert note into logs');console.log(JSON.stringify(error));}
           )
-          tx.finish();
       })
     })
 
@@ -1907,7 +1906,7 @@ public getNotesMin(userid: string):Promise<NoteExtraMinWithDate[]>{
       //   array.push(note);
       // }
       // console.log('the array is:');console.log(JSON.stringify(array));
-      array = this.getArrayOfNotexExtraMinWithDate(result);
+      array = Db.getArrayOfNotexExtraMinWithDateFromRes(result);
       resolve(array);
     })
     .catch(error=>{
@@ -2303,7 +2302,7 @@ private static expandTagsRegexAnd(tags:TagAlmostMin[]):string{
 //   return array;
 // }
 
-private getArrayOfNotexExtraMinWithDate(res:any):NoteExtraMinWithDate[]{
+private static getArrayOfNotexExtraMinWithDateFromRes(res:any):NoteExtraMinWithDate[]{
   let array:NoteExtraMinWithDate[]=[];
   for(let i=0;i<res.rows.length;i++){
     array.push(NoteExtraMinWithDate.safeNewNoteFromJsObject({
@@ -2363,7 +2362,7 @@ private getNotesExtraMinWithDateByTagsNoRoleCoreNoTx(tags:TagAlmostMin[], userid
     // console.log('2');
     this.db.executeSql(query,[userid, secondParam])
     .then(res=>{
-      resolve(this.getArrayOfNotexExtraMinWithDate(res));
+      resolve(Db.getArrayOfNotexExtraMinWithDateFromRes(res));
     })
     .catch(error=>{
       console.log('error in get notes by tags'); console.log(JSON.stringify(error));
@@ -2484,7 +2483,7 @@ public getNotesByTags(tags: TagAlmostMin[], userid: string, and:boolean):Promise
         //     // note.title=result.rows.item(i).title;
         //     notes.push(NoteExtraMinWithDate.safeNewNoteFromJsObject({title: result.rows.item(i).title, lastmodificationdate: result.rows.item(i).lastmodificationdate}));
         //   }
-          notes = this.getArrayOfNotexExtraMinWithDate(result);
+          notes = Db.getArrayOfNotexExtraMinWithDateFromRes(result);
           resolve(notes);
       })
       .catch(error=>{
@@ -2512,7 +2511,7 @@ public getNotesByTags(tags: TagAlmostMin[], userid: string, and:boolean):Promise
         //     // note.title=result.rows.item(i).title;
         //     notes.push(NoteExtraMinWithDate.safeNewNoteFromJsObject({title: result.rows.item(i).title, lastmodificationdate: result.rows.item(i).lastmodificationdate}));
         //   }
-          notes = this.getArrayOfNotexExtraMinWithDate(result);
+          notes = Db.getArrayOfNotexExtraMinWithDateFromRes(result);
           resolve(notes);
       })
       .catch(error=>{
