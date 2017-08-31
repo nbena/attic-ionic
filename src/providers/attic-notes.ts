@@ -561,7 +561,7 @@ export class AtticNotes {
   }
 
 
-  addTags(note: NoteFull, mainTags: TagExtraMin[], otherTags: TagExtraMin[], oldlastmod: Date){
+  addTags(note: NoteFull, mainTags: TagExtraMin[], otherTags: TagExtraMin[]/*, oldlastmod: Date*/){
     let p:Promise<void>;
     if(!this.synch.isNoteFullyLocked()){
       p=new Promise<void>((resolve, reject)=>{
@@ -586,7 +586,7 @@ export class AtticNotes {
   }
 
 
-  addMainTags(note: NoteFull, mainTags: TagExtraMin[], oldlastmod: Date){
+  addMainTags(note: NoteFull, mainTags: TagExtraMin[]/*, oldlastmod: Date*/){
     let p:Promise<void>;
     if(!this.synch.isNoteFullyLocked()){
       p=new Promise<void>((resolve, reject)=>{
@@ -609,7 +609,7 @@ export class AtticNotes {
     return p;
   }
 
-  addOtherTags(note: NoteFull, otherTags: TagExtraMin[], oldlastmod: Date){
+  addOtherTags(note: NoteFull, otherTags: TagExtraMin[]/*, oldlastmod: Date*/){
     let p:Promise<void>;
     if(!this.synch.isNoteFullyLocked()){
       p=new Promise<void>((resolve, reject)=>{
@@ -632,7 +632,7 @@ export class AtticNotes {
     return p;
   }
 
-  removeTags(note: NoteFull, tags: TagExtraMin[], oldlastmod: Date){
+  removeTags(note: NoteFull, tags: TagExtraMin[]/*, oldlastmod: Date*/){
     let p:Promise<void>;
     if(!this.synch.isNoteFullyLocked()){
       p=new Promise<void>((resolve, reject)=>{
@@ -656,7 +656,7 @@ export class AtticNotes {
   }
 
 
-  changeLinks(/*noteTitle: string, links:string[]*/note:NoteFull, oldlastmod: Date){
+  changeLinks(/*noteTitle: string, links:string[]*/note:NoteFull/*, oldlastmod: Date*/){
     let p:Promise<void>;
     if(!this.synch.isNoteFullyLocked()){
       p=new Promise<void>((resolve, reject)=>{
@@ -678,7 +678,7 @@ export class AtticNotes {
     return p;
   }
 
-  changeText(/*noteTitle: string, text:string*/note:NoteFull, oldlastmod: Date){
+  changeText(/*noteTitle: string, text:string*/note:NoteFull/*, oldlastmod: Date*/){
     let p:Promise<void>;
     if(!this.synch.isNoteFullyLocked()){
       p=new Promise<void>((resolve, reject)=>{
@@ -700,7 +700,7 @@ export class AtticNotes {
     return p;
   }
 
-  changeDone(/*noteTitle: string, done: boolean*/note: NoteFull, oldlastmod: Date){
+  changeDone(/*noteTitle: string, done: boolean*/note: NoteFull/*, oldlastmod: Date*/){
     let p:Promise<void>;
 
     if(!this.synch.isNoteFullyLocked()){

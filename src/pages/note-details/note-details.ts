@@ -619,7 +619,7 @@ export class NoteDetailsPage {
   addTagsAPI():Promise<void>{
     // this.note.maintags = this.note.maintags.concat(this.mainTagsToAdd);
     // this.note.othertags = this.note.othertags.concat(this.otherTagsToAdd);
-    return this.atticNotes.addTags(this.note, this.mainTagsToAdd, this.otherTagsToAdd, this.lastmod);
+    return this.atticNotes.addTags(this.note, this.mainTagsToAdd, this.otherTagsToAdd/*, this.lastmod*/);
   }
 
   /*
@@ -629,7 +629,7 @@ export class NoteDetailsPage {
     //try{
       // this.note.maintags = this.note.maintags.concat(this.mainTagsToAdd);
       // done in the db.
-      return this.atticNotes.addMainTags(this.note, this.mainTagsToAdd, this.lastmod);
+      return this.atticNotes.addMainTags(this.note, this.mainTagsToAdd/*, this.lastmod*/);
     // }catch(e){
     //   console.log('errorss here:');console.log(JSON.stringify(e));console.log(JSON.stringify(e.message));
     // }
@@ -638,20 +638,20 @@ export class NoteDetailsPage {
   addOtherTagsAPI():Promise<void>{
     // this.note.othertags = this.note.othertags.concat(this.otherTagsToAdd);
     // done in the db.
-    return this.atticNotes.addOtherTags(this.note, this.otherTagsToAdd, this.lastmod);
+    return this.atticNotes.addOtherTags(this.note, this.otherTagsToAdd/*, this.lastmod*/);
   }
 
 
   changeLinksAPI():Promise<void>{
     // return this.atticNotes.changeLinks(this.note.title, this.shownLinks);
     this.note.links = this.shownLinks;
-    return this.atticNotes.changeLinks(this.note, this.lastmod);
+    return this.atticNotes.changeLinks(this.note/*, this.lastmod*/);
   }
 
   changeDoneAPI():Promise<void>{
     //  return this.atticNotes.changeDone(this.note.title, this.shownIsDone);
     this.note.isdone = this.shownIsDone;
-    return this.atticNotes.changeDone(this.note, this.lastmod);
+    return this.atticNotes.changeDone(this.note/*, this.lastmod*/);
   }
 
   removeTagsAPI():Promise<void>{
@@ -661,7 +661,7 @@ export class NoteDetailsPage {
 
     // console.log('the new note');console.log(JSON.stringify(this.note));
     // return Promise.resolve();
-    return this.atticNotes.removeTags(this.note, this.tagsToRemove, this.lastmod);
+    return this.atticNotes.removeTags(this.note, this.tagsToRemove/*, this.lastmod*/);
     // console.log('the tags to be removed');console.log(JSON.stringify(this.tagsToRemove));
     // return Promise.resolve();
   }
