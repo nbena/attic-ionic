@@ -5215,7 +5215,7 @@ public rollbackModification(logObj: LogObjSmart,userid:string, errorArray?:boole
 
 /*think about remove notes_tags.*/
 
-private mkAvailable(summary: UserSummary):UserSummary{
+private static mkSummaryAvailable(summary: UserSummary):UserSummary{
   if(summary.data.isfree){
     summary.data.availablenotes = Const.NOTES_LIMIT-summary.data.notescount;
     summary.data.availabletags = Const.TAGS_LIMIT-summary.data.tagscount;
@@ -5226,24 +5226,24 @@ private mkAvailable(summary: UserSummary):UserSummary{
   return summary;
 }
 
-private getCounts(rows:any, summary:UserSummary):UserSummary{
-  for(let i=0;i<rows.length;i++){
-    if(rows.item(i).type=='logs'){
-      summary.data.logscount = rows.item(i).count;
+private static getUserSummaryFromRes(res:any, summary:UserSummary):UserSummary{
+  for(let i=0;i<res.rows.length;i++){
+    if(res.rows.item(i).type=='logs'){
+      summary.data.logscount = res.rows.item(i).count;
     }
-    else if(rows.item(i).type=='notes'){
-      summary.data.notescount = rows.item(i).count;
-    }else if(rows.item(i).type=='tags'){
-      summary.data.tagscount = rows.item(i).count;
+    else if(res.rows.item(i).type=='notes'){
+      summary.data.notescount = res.rows.item(i).count;
+    }else if(res.rows.item(i).type=='tags'){
+      summary.data.tagscount = res.rows.item(i).count;
     }else{
-      summary.data.isfree = rows.item(i).count;
+      summary.data.isfree = res.rows.item(i).free;
     }
   }
   summary.data.notescount = ((summary.data.notescount)==null) ? 0 : summary.data.notescount;
   summary.data.tagscount = ((summary.data.tagscount)==null) ? 0 : summary.data.tagscount;
   summary.data.logscount = ((summary.data.logscount)==null) ? 0 : summary.data.logscount;
 
-  summary = this.mkAvailable(summary);
+  summary = Db.mkSummaryAvailable(summary);
 
   // console.log('the summary here'),
   // console.log(JSON.stringify(summary));
@@ -5261,7 +5261,7 @@ getUserSummary(userid: string):Promise<UserSummary>{
         console.log('error in summary');
         reject(new Error('view is not as long as expected'));
       }else{
-        summary = this.getCounts(result.rows, summary);
+        summary = Db.getUserSummaryFromRes(result, summary);
         resolve(summary);
       }
     })
@@ -5277,6 +5277,7 @@ insertSetFree(free:boolean, userid:string):Promise<void>{
   return new Promise<void>((resolve, reject)=>{
     this.db.executeSql(Query.INSERT_SET_FREE, [free, free, userid])
     .then(result=>{
+      console.log('ok insert set free');
       resolve();
     })
     .catch(error=>{
