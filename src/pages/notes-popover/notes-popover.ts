@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams/*, AlertController*/,ViewController } from 'ionic-angular';
+import { NavController, NavParams/*, AlertController*/,ViewController, Events,App } from 'ionic-angular';
 import { NotesPage } from '../notes/notes';
 import { NotesByTagPage } from '../notes-by-tag/notes-by-tag';
 import { FilterNs} from '../../public/const';
@@ -33,7 +33,9 @@ export class NotesPopoverPage {
 
   constructor(public navCtrl: NavController, private navParams: NavParams,
     /*private alertCtrl: AlertController, */private viewCtrl: ViewController,
-    private graphicProvider:GraphicProvider
+    private graphicProvider:GraphicProvider,
+    private events:Events,
+    private app:App
 
   ) {
     try{
@@ -89,18 +91,24 @@ export class NotesPopoverPage {
 
 
   filterByTextAPI(value: string){
-    this.navCtrl.push(NotesPage, {filterType: FilterNs.Filter.Text, filterValue: value})
-    .then(()=>{
-      this.viewCtrl.dismiss();
+    // this.navCtrl.push(NotesPage, {filterType: FilterNs.Filter.Text, filterValue: value})
+    // .then(()=>{
+    //   this.viewCtrl.dismiss();
+    // })
+    this.viewCtrl.dismiss().then(()=>{
+      this.events.publish('go-to-notes-and-filter',{filterType:FilterNs.Filter.Text,
+        filterValue:value});
     })
   }
 
   filterByTagsNoRole(){
-    //this.close();
-    this.navCtrl.push(NotesByTagPage)
-    .then(()=>{
-      this.viewCtrl.dismiss();
-    })
+    // this.close();
+    // this.navCtrl.push(NotesByTagPage)
+    // .then(()=>{
+    //   this.viewCtrl.dismiss();
+    // })
+    this.app.getActiveNav().push(NotesByTagPage)
+    .then(()=>{this.viewCtrl.dismiss()})
   }
 
   filterByIsDone(){
@@ -112,16 +120,24 @@ export class NotesPopoverPage {
   }
 
   filterByIsDoneAPI(isdone:boolean){
-    this.navCtrl.push(NotesPage, {filterType: FilterNs.Filter.IsDone, filterValue: isdone})
-    .then(()=>{
-      this.viewCtrl.dismiss();
+    // this.navCtrl.push(NotesPage, {filterType: FilterNs.Filter.IsDone, filterValue: isdone})
+    // .then(()=>{
+    //   this.viewCtrl.dismiss();
+    // })
+    this.viewCtrl.dismiss().then(()=>{
+      this.events.publish('go-to-notes-and-filter', {filterType:FilterNs.Filter.IsDone,
+        filterValue: isdone
+        })
     })
   }
 
   unfilter(){
-    this.navCtrl.push(NotesPage, {filterType: FilterNs.Filter.None})
-    .then(()=>{
-      this.viewCtrl.dismiss();
+    // this.navCtrl.push(NotesPage, {filterType: FilterNs.Filter.None})
+    // .then(()=>{
+    //   this.viewCtrl.dismiss();
+    // })
+    this.viewCtrl.dismiss().then(()=>{
+      this.events.publish('go-to-notes-and-filter',{filterType:FilterNs.Filter.None, filterValue:null});
     })
   }
 

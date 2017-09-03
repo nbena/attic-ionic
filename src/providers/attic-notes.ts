@@ -714,7 +714,6 @@ export class AtticNotes {
           console.log(JSON.stringify(error.message));console.log(JSON.stringify(error));reject(error);
         })
       })
-      return
     }else{
       // return new Promise<any>((resolve, reject)=>{
         console.log('trying to set done but it is locked');

@@ -150,6 +150,15 @@ export class NotesPage {
     //    console.log('error is here');console.log(JSON.stringify(e));console.log(JSON.stringify(e.message));
     // }
 
+    this.events.subscribe('go-to-notes-and-filter', (filterObj)=>{
+      //console.log('filters: ');console.log(JSON.stringify(filterType, filterValue));
+      this.currentFilter=filterObj.filterType;
+      this.currentFilterValue=filterObj.filterValue;
+      //console.log('filters post'); console.log(JSON.stringify(this.currentFilter));console.log(JSON.stringify(this.currentFilterValue));
+      this.loadByFilter(false);
+    })
+
+
   }
 
 
@@ -286,6 +295,7 @@ export class NotesPage {
   }
 
   loadByFilter(/*firsTime:boolean*/force: boolean, refresher?:any){
+    console.log('im going to set');
     let p:Promise<void>
     switch(this.currentFilter){
       case FilterNs.Filter.Tags:

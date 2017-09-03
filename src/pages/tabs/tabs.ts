@@ -60,6 +60,11 @@ export class TabsPage {
       // console.log('I received the noticeeeeee');
       // console.log('ok go to tags and remove');
       this.tabs.select(2);
+    });
+
+
+    this.events.subscribe('go-to-notes-and-filter', (filterType, filterValue)=>{
+      this.tabs.select(0);
     })
 
   }

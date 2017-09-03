@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, ViewController } from 'ionic-angular';
+import { NavController, NavParams, ViewController, Events } from 'ionic-angular';
 import { AtticTags } from '../../providers/attic-tags';
 import { TagAlmostMin, TagExtraMin } from '../../models/tags';
 import { NotesPage } from '../notes/notes';
@@ -43,6 +43,7 @@ export class NotesByTagPage {
     private atticTags: AtticTags,
     private viewCtrl: ViewController,
     private graphicProvider:GraphicProvider,
+    private events:Events
     // private formBuilder: FormBuilder
   ) {
     if(this.allTags==null){
@@ -168,9 +169,16 @@ export class NotesByTagPage {
     // console.log(JSON.stringify(passed));
     if(passed.length>0){
       let and:boolean = this.searchOption=='and' ? true : false;
-      this.navCtrl.push(NotesPage, {filterType: FilterNs.Filter.Tags, filterValue: {tags:passed, and:and}})
+      // this.navCtrl.push(NotesPage, {filterType: FilterNs.Filter.Tags, filterValue: {tags:passed, and:and}})
+      // .then(()=>{
+      //   this.viewCtrl.dismiss();
+      // })
+      
+      this.navCtrl.pop()
       .then(()=>{
-        this.viewCtrl.dismiss();
+        this.events.publish('go-to-notes-and-filter', {filterType:FilterNs.Filter.Tags,
+          filterValue:{tags:passed, and:and}
+          })
       })
 
       // console.log(this.searchOption);

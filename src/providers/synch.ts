@@ -975,7 +975,7 @@ export class Synch {
                 //   {title:obj.note.title,
                 //     text:obj.note.text
                 //   }}))
-                this.http.post('/api/notes/mod/change-text/', JSON.stringify({note:
+                this.http.post('/api/notes/mod/change-text', JSON.stringify({note:
                   {title:obj.note.title,
                     text:obj.note.text
                   }}))
@@ -1053,7 +1053,7 @@ export class Synch {
                 //   {title:obj.note.tile,
                 //   links: obj.note.links
                 //   }}), this.http, this.auth.token)
-                this.http.post('/api/mod/change-links/', JSON.stringify({note:
+                this.http.post('/api/mod/change-links', JSON.stringify({note:
                   {title:obj.note.title,
                   links: obj.note.links
                   }}))
@@ -1131,7 +1131,7 @@ export class Synch {
                   //   {title:obj.note.tile,
                   //     isdone: obj.note.isdone
                   //   }}), this.http, this.auth.token)
-                  this.http.post('/api/mod/set-done/', JSON.stringify({note:
+                  this.http.post('/api/mod/change-done', JSON.stringify({note:
                     {title:obj.note.title,
                       isdone: obj.note.isdone
                     }}))
