@@ -15,6 +15,7 @@ import { NoteDetailsPopoverPage } from '../note-details-popover/note-details-pop
 import { Utils } from '../../public/utils';
 import {GraphicProvider} from '../../providers/graphic';
 import { InAppBrowser, InAppBrowserObject } from '@ionic-native/in-app-browser';
+import { isWebUri } from 'valid-url';
 
 /*
   Generated class for the NoteDetails page.
@@ -105,6 +106,8 @@ export class NoteDetailsPage {
   // private oldNote:NoteFull=null;
 
   private firstTime:boolean = true;
+
+  private isLinkValid:boolean = true;
 
 
 
@@ -512,8 +515,8 @@ export class NoteDetailsPage {
   /*
   callback to pass.
   */
-  addLinks(data: any){
-    this.shownLinks.push(data.link);
+  addLinks(link:string){
+    this.shownLinks.push(link);
     this.haveToChangeLinks = true;
     this.submitChangeEnabled = true;
     // this.newLinks.push(data.link);
@@ -531,7 +534,21 @@ export class NoteDetailsPage {
           }
         ],
         'Add',
-        (data)=>{this.addLinks(data)}
+        (data)=>{
+          //console.log(JSON.stringify(data));console.log(JSON.stringify(data.link))
+          if(isWebUri(data.link)){
+            //console.log('valid');
+            //this.links.push(data.link);
+            this.addLinks(data.link)
+            this.isLinkValid=true;
+          }else{
+            //console.log('invalid');
+            this.isLinkValid=false;
+            setTimeout(()=>{
+              this.isLinkValid=true;
+            },3000)
+          }
+        }
       )
     // }
   }

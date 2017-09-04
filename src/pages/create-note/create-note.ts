@@ -12,6 +12,7 @@ import { NoteFull/*, NoteSmart, NoteMin, NoteExtraMin*/ } from '../../models/not
 import { /*TagExtraMin, TagFull,*/ TagAlmostMin } from '../../models/tags';
 // import { Utils } from '../../public/utils'
 import {GraphicProvider} from '../../providers/graphic';
+import { isWebUri } from 'valid-url';
 //import { Utils } from '../../public/utils';
 
 //import {FORM_DIRECTIVES, FormBuilder,  ControlGroup, Validators, AbstractControl} from '@angular/common';
@@ -44,7 +45,7 @@ export class CreateNotePage {
 
   // mainTagsString: string[];
   // otherTagsString: string[];
-
+  isLinkValid: boolean = true;
 
 
   constructor(public navCtrl: NavController, public navParams: NavParams,
@@ -280,8 +281,19 @@ export class CreateNotePage {
         }
       ],
       'Add',
-      (data)=>{this.links.push(data.link)}
+      (data)=>{
+        if(isWebUri(data.link)){
+          this.links.push(data.link);
+          this.isLinkValid=true;
+        }else{
+          this.isLinkValid=false;
+          setTimeout(()=>{
+            this.isLinkValid=true;
+          },3000)
+        }
+      }
     )
+
   }
 
 

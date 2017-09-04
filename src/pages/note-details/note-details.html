@@ -156,6 +156,12 @@
         <!-- </ion-list>
       </ion-item> -->
 
+      <ion-item *ngIf="!isLinkValid">
+        <ion-label class="reduced-font invalid-red">
+          Please insert a valid link.
+        </ion-label>
+      </ion-item>
+
 
 <!--using angular pipes to display dates. -->
       <ion-item>

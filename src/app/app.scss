@@ -34,13 +34,20 @@ fieldset{
   border-bottom-color:transparent
 }
 
-.invalid{
-  border-bottom: thin solid map-get($colors, invalid-red);
-}
 
 .generic-gray{
   color: map-get($colors, generic-gray);
 }
+
+.invalid-red{
+  color: map-get($colors, invalid-red);
+}
+
+.invalid{
+  border-bottom: thin solid map-get($colors, invalid-red);
+}
+
+
 
 .reduced-font{
   font-size: 0.8em;
