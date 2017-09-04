@@ -261,6 +261,7 @@ export class CreateNotePage {
     //   console.log('reset error');
     //   console.log(JSON.stringify(e));console.log(JSON.stringify(e.message));
     // }
+    this.links=[];
 
   }
 

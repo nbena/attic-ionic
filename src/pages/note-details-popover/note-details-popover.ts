@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, ViewController/*, ToastController, AlertController*/
-  //, App
+import { /*NavController, */NavParams, ViewController/*, ToastController, AlertController*/
+  , App
   ,Events } from 'ionic-angular';
 import { NoteFull, NoteExtraMinWithDate, NoteExtraMin } from '../../models/notes';
 import { NoteEditTextPage } from '../note-edit-text/note-edit-text';
@@ -34,12 +34,13 @@ export class NoteDetailsPopoverPage {
 
   //private oldTitle:string;
 
-  constructor(public navCtrl: NavController, public navParams: NavParams,
+  constructor(/*public navCtrl: NavController, */public navParams: NavParams,
     public viewCtrl: ViewController, /*public alertCtrl: AlertController,*/
     // private app: App,
     private events:Events,
     /*public toastCtrl: ToastController*/ private atticNotes: AtticNotes,
-    private graphicProvider: GraphicProvider
+    private graphicProvider: GraphicProvider,
+    private app:App
   ) {
       // this.title =navParams.get('title');
       // this.note=navParams.get('note');
@@ -84,7 +85,8 @@ export class NoteDetailsPopoverPage {
 
   changeText(){
     this.viewCtrl.dismiss();
-    this.navCtrl.push(NoteEditTextPage, {note: this.note})
+    //this.navCtrl.push(NoteEditTextPage, {note: this.note})
+    this.app.getActiveNav().push(NoteEditTextPage, {note:this.note});
     // .then(()=>{
     //   this.viewCtrl.dismiss();
     // })

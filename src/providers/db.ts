@@ -1159,7 +1159,7 @@ returns an array of tagfull with that name (provided by tags). If the tag is not
 the behaviour is decided by the last param: if true a new tag full will be created,
 if false, it won't be added to the final array.
 */
-private getTagsFullByTitle(tags:TagExtraMin[], usedTag:TagFull[], userid:string, addIfNotFull:boolean):Promise<TagFull[]>{
+private getTagsFullByTitle(tags:TagExtraMin[], usedTag:TagFull[], userid:string, addIfNull:boolean):Promise<TagFull[]>{
   return new Promise<TagFull[]>((resolve, reject)=>{
     let tmpTag:TagExtraMin[]=Utils.binaryArrayDiff(tags, usedTag, TagExtraMin.ascendingCompare);
     let p:Promise<void>;
@@ -1174,9 +1174,18 @@ private getTagsFullByTitle(tags:TagExtraMin[], usedTag:TagFull[], userid:string,
             // console.log('the json');console.log(JSON.stringify(res.rows.item(i).json_object));
             let tag:TagFull=null;
                     let rawTag:any = JSON.parse(res.rows.item(i).json_object);
-                    if(addIfNotFull){
-                      if(rawTag.notes == null || rawTag.notes==undefined){rawTag.notes=[];}
-                      if(rawTag.noteslength ==  null || rawTag.noteslength==undefined){rawTag.noteslength=0;}
+                    // if(addIfNull){
+                    //   if(rawTag.notes == null || rawTag.notes==undefined){rawTag.notes=[];}
+                    //   if(rawTag.noteslength ==  null || rawTag.noteslength==undefined){rawTag.noteslength=0;}
+                    //   tag = TagFull.safeNewTagFromJsObject(rawTag);
+                    // }else{
+                    //   if(rawTag.notes!=null){
+                    //     tag = TagFull.safeNewTagFromJsObject(rawTag);
+                    //   }
+                    // }
+                    if(addIfNull){
+                      if(rawTag.notes==null){rawTag.notes=[];}
+                      if(rawTag.noteslength==null){rawTag.noteslength=0;}
                       tag = TagFull.safeNewTagFromJsObject(rawTag);
                     }else{
                       if(rawTag.notes!=null){
@@ -1547,6 +1556,7 @@ public getTagFull(title: string, userid: string):Promise<TagFull>{
     // })
     this.getTagsFullByTitle([new TagExtraMin(title)],[],userid, false)
     .then(tags=>{
+      console.log('length is');console.log(JSON.stringify(tags.length));
       if(tags.length>0){
         resolve(tags[0]);
       }else{
