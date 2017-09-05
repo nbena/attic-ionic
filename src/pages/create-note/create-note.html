@@ -167,7 +167,7 @@
 
 
       <div text-center>
-        <button ion-button full (click)="createNote()">Create</button>
+        <button ion-button full (click)="createNote()" [disabled]="!createNotePageForm.valid">Create</button>
       </div>
 
     </form>

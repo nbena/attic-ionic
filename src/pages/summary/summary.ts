@@ -33,6 +33,8 @@ export class SummaryPage {
 
   synchingEnabled: boolean = false;
 
+  private firstTime: boolean = true;
+
    constructor(
      public navCtrl: NavController,
      private viewCtrl: ViewController,
@@ -56,41 +58,51 @@ export class SummaryPage {
     }
   }
 
-  load(force: boolean){
-    this.atticUser.getUserSummary(force)
-    .then(summary=>{
-      this.summary = summary;
-      // console.log('summary is:');console.log(JSON.stringify(summary));
+  loadData(force: boolean):Promise<void>{
+    return new Promise<void>((resolve, reject)=>{
+      this.atticUser.getUserSummary(force)
+      .then(summary=>{
+        this.summary = summary;
 
-      this.profileType = (this.summary.data.isfree) ? 'Free' : 'Premium';
-      this.availableNotes = (this.summary.data.isfree) ? this.summary.data.availablenotes.toString() : 'Unlimited';
-      this.availableTags = (this.summary.data.isfree) ? this.summary.data.availabletags.toString() : 'Unlimited';
+        this.profileType = (this.summary.data.isfree) ? 'Free' : 'Premium';
+        this.availableNotes = (this.summary.data.isfree) ? this.summary.data.availablenotes.toString() : 'Unlimited';
+        this.availableTags = (this.summary.data.isfree) ? this.summary.data.availabletags.toString() : 'Unlimited';
 
-      // if(this.synch.isSynching()){
-      //   this.synchState = Const.CURRENTLY_SYNCHING;
-      // }else{
-      //   this.synchState = Const.CURRENTLY_NOT_SYNCHING;
-      // }
-      // //
-      // // if(!this.synch.isSynching() && this.summary.data.logscount > 0){
-      // //   this.synchingEnabled = true;
-      // // }
-      // this.canISynch();
-      this.setSynchState();
+        this.setSynchState();
+        resolve();
 
+      })
+      .catch(error=>{
+        // console.log('summary error: ');
+        console.log('summary error: '+JSON.stringify(error));
+        reject(error);
+      })
+    })
+  }
+
+  private load(force:boolean, refresher?:any){
+    this.loadData(force)
+    .then(()=>{
+      if(refresher!=null){
+        refresher.complete();
+      }
     })
     .catch(error=>{
-      // console.log('summary error: ');
-      console.log('summary error: '+JSON.stringify(error));
+      if(refresher!=null){
+        refresher.complete();
+      }
+      this.graphicProvider.showErrorAlert(error);
     })
+  }
+
+  ionViewWillEnter(){
+    this.firstTime=true;
   }
 
 
   refresh(refresher){
-    this.load(true);
-    setTimeout(()=>{
-      refresher.complete();
-    },2000);
+    this.load(!this.firstTime, refresher);
+    this.firstTime=false;
   }
 
   setSynchingEnabled(){

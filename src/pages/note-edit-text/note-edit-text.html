@@ -40,7 +40,8 @@
 
     <!-- <button ion-button name="confirm" type="submit" color="primary">Confirm</button>
     <button ion-button name="cancel" type="button" color="primary" (click)="cancel()">Cancel</button> -->
-    <button ion-button color="primary" (click)="changeText()">Confirm</button>
+    <!-- a button can be linked in a more proper way with the form but I prefer this instead-->
+    <button ion-button color="primary" [disabled]="!editTextPageForm.valid" (click)="changeText()">Confirm</button>
     <button ion-button color="primary" (click)="cancel()">Cancel</button>
   </form>
 

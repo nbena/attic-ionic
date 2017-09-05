@@ -81,7 +81,7 @@ export class TagDetailsPage {
   }
 
   ionViewWillEnter(){
-    console.log('will enter tag-details');
+    // console.log('will enter tag-details');
     if(this.tag!=null && this.tag.noteslength>0){
       this.isComplete=true;
     }else{

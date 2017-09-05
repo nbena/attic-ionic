@@ -220,7 +220,7 @@ export class TagsPage {
   }
 
   ionViewWillEnter(){
-    console.log('will enter');
+    //console.log('will enter');
     if(this.allTags==null){
       this.load(false);
     }
