@@ -1,5 +1,6 @@
 import { /*TagFull, */TagExtraMin } from './tags';
 import { IndexTagType, TagType } from '../public/const';
+import { Utils } from '../public/utils';
 /*
 Defining interface for note API.
 Here's the interface for the note API.
@@ -47,8 +48,22 @@ export class NoteExtraMin{
 
 export class NoteExtraMinWithDate extends NoteExtraMin{
   lastmodificationdate: Date;
-  constructor(title?:string){
-    super(title);
+  // constructor(title?:string){
+  //   super(title);
+  // }
+  constructor(input?:{title?:string, lastmodificationdate?:Date}){
+    if(input!=null){
+      if(input.title!=null){
+        super(input.title);
+      }else{
+        super();
+      }
+      if(input.lastmodificationdate!=null){
+        this.lastmodificationdate=input.lastmodificationdate;
+      }
+    }else{
+      super();
+    }
   }
 
   public static ascendingCompare(a: NoteExtraMinWithDate, b: NoteExtraMinWithDate):number{
@@ -80,7 +95,7 @@ export class NoteExtraMinWithDate extends NoteExtraMin{
   // }
 
   public static safeNewNoteFromJsObject(jsonNote:any):NoteExtraMinWithDate{
-    let note:NoteExtraMinWithDate=new NoteExtraMinWithDate(jsonNote.title);
+    let note:NoteExtraMinWithDate=new NoteExtraMinWithDate({title:jsonNote.title});
     // note.title=jsonNote.title;
     note.lastmodificationdate = new Date(jsonNote.lastmodificationdate);
     return note;
@@ -106,6 +121,37 @@ export class NoteBarebon extends NoteExtraMinWithDate{
   //   this.title=title;
   //   this.text=text;
   // }
+  constructor(input?:{title?:string, text?:string, isdone?:boolean, linsk?:string, creationdate?:Date}){
+    if(input!=null){
+      if(input.title!=null){
+        super({title:input.title});
+      }else{
+        super();
+      }
+      this.init(input);
+    }else{
+      super();
+    }
+  }
+
+  protected init(input:{title?:string, text?:string, isdone?:boolean,
+    links?:string[], lastmodificationdate?:Date, creationdate?:Date}):void{
+      if(input.text!=null){
+        this.text=input.text;
+      }
+      if(input.isdone!=null){
+        this.isdone=input.isdone;
+      }
+      if(input.links!=null){
+        this.links=input.links;
+      }
+      if(input.lastmodificationdate!=null){
+        this.lastmodificationdate=input.lastmodificationdate;
+      }
+      if(input.creationdate!=null){
+        this.creationdate=input.creationdate;
+      }
+  }
 
 }
 
@@ -118,10 +164,49 @@ export class NoteMin extends NoteBarebon{
   maintags: string[];
   othertags: string[];
 
-  constructor(title?:string){
-    super(title);
-    this.maintags = [];
-    this.othertags = [];
+  // constructor(title?:string){
+  //   super(title);
+  //   this.maintags = [];
+  //   this.othertags = [];
+  // }
+  constructor(input?:{title?:string, text?:string, isdone?:boolean,
+    links?:string[], lastmodificationdate?:Date, creationdate?:Date,
+    maintags?:string[], othertags?:string[]}){
+      if(input!=null){
+        if(input.title!=null){
+          super({title:input.title});
+        }
+        this.init(input);
+      }else{
+        super();
+      }
+  }
+
+  protected init(input:{title?:string, text?:string, isdone?:boolean,
+    links?:string[], lastmodificationdate?:Date, creationdate?:Date,
+    maintags?:string[], othertags?:string[]}):void{
+      // if(input.text!=null){
+      //   this.text=input.text;
+      // }
+      // if(input.isdone!=null){
+      //   this.isdone=input.isdone;
+      // }
+      // if(input.links!=null){
+      //   this.links=input.links;
+      // }
+      // if(input.lastmodificationdate!=null){
+      //   this.lastmodificationdate=input.lastmodificationdate;
+      // }
+      // if(input.creationdate!=null){
+      //   this.creationdate=input.creationdate;
+      // }
+      super.init(input);
+      if(input.maintags!=null){
+        this.maintags=input.maintags;
+      }
+      if(input.othertags!=null){
+        this.othertags=input.othertags;
+      }
   }
 
   public getTagsAsStringArray():string[]{
@@ -142,14 +227,22 @@ export class NoteMin extends NoteBarebon{
   }
 
   public static safeNewNoteFromJsObject(obj:any):NoteMin{
-    let note:NoteMin = new NoteMin();
-    note.title=obj.title;
-    note.text=obj.text;
-    note.creationdate=obj.creationdate;
-    note.lastmodificationdate=obj.lastmodificationdate;
-    note.isdone=obj.isdone;
-    note.maintags=obj.maintags;
-    note.othertags=obj.othertags;
+    let note:NoteMin = new NoteMin({
+      title:obj.title,
+      text:obj.text,
+      creationdate: new Date(obj.creationdate),
+      lastmodificationdate: new Date(obj.lastmodificationdate),
+      isdone: obj.isdone,
+      maintags: obj.maintags,
+      othertags: obj.othertags
+    });
+    // note.title=obj.title;
+    // note.text=obj.text;
+    // note.creationdate=obj.creationdate;
+    // note.lastmodificationdate=obj.lastmodificationdate;
+    // note.isdone=obj.isdone;
+    // note.maintags=obj.maintags;
+    // note.othertags=obj.othertags;
     return note;
   }
 
@@ -162,14 +255,24 @@ export class NoteMin extends NoteBarebon{
   has maintags and othertags converted as TagExtraMin instead of string.
   */
   public upgrade():NoteFull{
-    let note:NoteFull = new NoteFull(this.title);
-    note.text=this.text;
-    note.creationdate=this.creationdate;
-    note.lastmodificationdate=this.lastmodificationdate;
-    note.isdone=this.isdone;
-    note.links=this.links;
-    note.maintags=this.maintags.map(title=>{return new TagExtraMin(title)});
-    note.othertags=this.othertags.map(title=>{return new TagExtraMin(title)});
+    // let note:NoteFull = new NoteFull(this.title);
+    // note.text=this.text;
+    // note.creationdate=this.creationdate;
+    // note.lastmodificationdate=this.lastmodificationdate;
+    // note.isdone=this.isdone;
+    // note.links=this.links;
+    // note.maintags=this.maintags.map(title=>{return new TagExtraMin(title)});
+    // note.othertags=this.othertags.map(title=>{return new TagExtraMin(title)});
+    let note:NoteFull = new NoteFull({
+      title:this.title,
+      text: this.text,
+      maintags:this.maintags.map(title=>{return new TagExtraMin(title)}),
+      othertags:this.othertags.map(title=>{return new TagExtraMin(title)}),
+      isdone: this.isdone,
+      links: this.links,
+      creationdate: new Date(this.creationdate),
+      lastmodificationdate: new Date(this.lastmodificationdate)
+    })
     return note;
   }
 
@@ -178,9 +281,10 @@ export class NoteMin extends NoteBarebon{
   }
 
   public forceCastToNoteExtraMinWithDate():NoteExtraMinWithDate{
-    let note:NoteExtraMinWithDate=new NoteExtraMinWithDate(this.title);
-    note.lastmodificationdate=this.lastmodificationdate;
-    return note;
+    // let note:NoteExtraMinWithDate=new NoteExtraMinWithDate(this.title);
+    // note.lastmodificationdate=this.lastmodificationdate;
+    // return note;
+    return new NoteExtraMinWithDate({title:this.title, lastmodificationdate: this.lastmodificationdate});
   }
 
 }
@@ -196,10 +300,49 @@ export class NoteMin extends NoteBarebon{
 export class NoteFull extends NoteBarebon{
   maintags: TagExtraMin[];
   othertags: TagExtraMin[];
-  constructor(title?:string){
-    super(title);
-    this.maintags = [];
-    this.othertags = [];
+  // constructor(title?:string){
+  //   super(title);
+  //   this.maintags = [];
+  //   this.othertags = [];
+  // }
+  constructor(input?:{title?:string, text?:string, isdone?:boolean,
+    links?:string[], lastmodificationdate?:Date, creationdate?:Date,
+    maintags?:TagExtraMin[], othertags?:TagExtraMin[]}){
+      if(input!=null){
+        if(input.title!=null){
+          super({title:input.title});
+        }
+        this.init(input);
+      }else{
+        super();
+      }
+  }
+
+  protected init(input:{title?:string, text?:string, isdone?:boolean,
+    links?:string[], lastmodificationdate?:Date, creationdate?:Date,
+    maintags?:TagExtraMin[], othertags?:TagExtraMin[]}):void{
+      // if(input.text!=null){
+      //   this.text=input.text;
+      // }
+      // if(input.isdone!=null){
+      //   this.isdone=input.isdone;
+      // }
+      // if(input.links!=null){
+      //   this.links=input.links;
+      // }
+      // if(input.lastmodificationdate!=null){
+      //   this.lastmodificationdate=input.lastmodificationdate;
+      // }
+      // if(input.creationdate!=null){
+      //   this.creationdate=input.creationdate;
+      // }
+      super.init(input);
+      if(input.maintags!=null){
+        this.maintags=input.maintags;
+      }
+      if(input.othertags!=null){
+        this.othertags=input.othertags;
+      }
   }
 
 
@@ -216,28 +359,45 @@ export class NoteFull extends NoteBarebon{
     return str;
   }
 
-
-  public removeTag(ind:IndexTagType|TagExtraMin):void{
-    let iTag:IndexTagType = new IndexTagType();
-    if(ind instanceof IndexTagType){
-      if(ind.type==TagType.MAIN){
-        iTag.type = TagType.MAIN;
-      }else{
-        iTag.type==TagType.OTHER;
+  public removeTag2(tag:TagExtraMin):void{
+    let found:boolean = false;
+    for(let i=0;i<this.maintags.length;i++){
+      if(this.maintags[i].title==tag.title){
+        this.maintags.splice(i,1);
+        found = true;
       }
-      iTag.index = ind.index;
-    }else{
-      iTag = this.getTagIndex(ind);
     }
-
-    if(iTag.index>=0){
-      if(iTag.type==TagType.MAIN){
-        this.maintags.splice(iTag.index,1);
-      }else{
-        this.othertags.splice(iTag.index, 1);
+    if(!found){
+      for(let i=0;i<this.othertags.length;i++){
+        if(this.othertags[i].title==tag.title){
+          this.othertags.splice(i,1);
+        }
       }
     }
   }
+
+
+  // public removeTag(ind:IndexTagType|TagExtraMin):void{
+  //   let iTag:IndexTagType = new IndexTagType();
+  //   if(ind instanceof IndexTagType){
+  //     if(ind.type==TagType.MAIN){
+  //       iTag.type = TagType.MAIN;
+  //     }else{
+  //       iTag.type==TagType.OTHER;
+  //     }
+  //     iTag.index = ind.index;
+  //   }else{
+  //     iTag = this.getTagIndex(ind);
+  //   }
+  //
+  //   if(iTag.index>=0){
+  //     if(iTag.type==TagType.MAIN){
+  //       this.maintags.splice(iTag.index,1);
+  //     }else{
+  //       this.othertags.splice(iTag.index, 1);
+  //     }
+  //   }
+  // }
 
 
   // public removeTag(ind:IndexTagType | TagExtraMin):void{
@@ -253,41 +413,41 @@ export class NoteFull extends NoteBarebon{
   //   }
   // }
 
-  private getMainTagsIndex(tag:TagExtraMin):IndexTagType{
-    let result:IndexTagType = new IndexTagType();
-    result.type = TagType.MAIN;
-    for(let i=0;i<this.maintags.length;i++){
-      if(this.maintags[i].title==tag.title){
-        result.index=i;
-        i=this.maintags.length;
-      }
-    }
-    return result;
-  }
-
-  private getOtherTagsIndex(tag:TagExtraMin):IndexTagType{
-    let result:IndexTagType = new IndexTagType();
-    result.type = TagType.OTHER;
-    for(let i=0;i<this.othertags.length;i++){
-      if(this.othertags[i].title==tag.title){
-        result.index=i;
-        i=this.othertags.length;
-      }
-    }
-    return result;
-  }
-
-
-  public getTagIndex(tag:TagExtraMin, type?:TagType):IndexTagType{
-    let result:IndexTagType = new IndexTagType();
-    if(type==null || type==TagType.MAIN){
-      result = this.getMainTagsIndex(tag);
-      if(type==TagType.OTHER || (result.index==-1)){
-        result = this.getOtherTagsIndex(tag);
-      }
-    }
-    return result;
-  }
+  // private getMainTagsIndex(tag:TagExtraMin):IndexTagType{
+  //   let result:IndexTagType = new IndexTagType();
+  //   result.type = TagType.MAIN;
+  //   for(let i=0;i<this.maintags.length;i++){
+  //     if(this.maintags[i].title==tag.title){
+  //       result.index=i;
+  //       i=this.maintags.length;
+  //     }
+  //   }
+  //   return result;
+  // }
+  //
+  // private getOtherTagsIndex(tag:TagExtraMin):IndexTagType{
+  //   let result:IndexTagType = new IndexTagType();
+  //   result.type = TagType.OTHER;
+  //   for(let i=0;i<this.othertags.length;i++){
+  //     if(this.othertags[i].title==tag.title){
+  //       result.index=i;
+  //       i=this.othertags.length;
+  //     }
+  //   }
+  //   return result;
+  // }
+  //
+  //
+  // public getTagIndex(tag:TagExtraMin, type?:TagType):IndexTagType{
+  //   let result:IndexTagType = new IndexTagType();
+  //   if(type==null || type==TagType.MAIN){
+  //     result = this.getMainTagsIndex(tag);
+  //     if(type==TagType.OTHER || (result.index==-1)){
+  //       result = this.getOtherTagsIndex(tag);
+  //     }
+  //   }
+  //   return result;
+  // }
 
 
 
@@ -323,24 +483,35 @@ export class NoteFull extends NoteBarebon{
 
 
   public clone():NoteFull{
-    let tmpNote:NoteFull = new NoteFull(this.title);
-    // tmpNote.title=this.title;
-    tmpNote.text=this.text;
-    tmpNote.maintags = this.maintags;
-    tmpNote.othertags = this.othertags;
-    tmpNote.isdone = this.isdone;
-    tmpNote.creationdate = this.creationdate;
-    tmpNote.lastmodificationdate = this.lastmodificationdate;
-    tmpNote.links = this.links;
+    // let tmpNote:NoteFull = new NoteFull(this.title);
+    // // tmpNote.title=this.title;
+    // tmpNote.text=this.text;
+    // tmpNote.maintags = this.maintags;
+    // tmpNote.othertags = this.othertags;
+    // tmpNote.isdone = this.isdone;
+    // tmpNote.creationdate = this.creationdate;
+    // tmpNote.lastmodificationdate = this.lastmodificationdate;
+    // tmpNote.links = this.links;
+    let tmpNote = new NoteFull({
+        title:this.title,
+        text: this.text,
+        maintags:this.maintags,
+        othertags:this.othertags,
+        isdone: this.isdone,
+        links: this.links,
+        creationdate: new Date(this.creationdate),
+        lastmodificationdate: new Date(this.lastmodificationdate)
+    })
     return tmpNote;
   }
 
 
   public forceCastToNoteExtraMinWithDate():NoteExtraMinWithDate{
-    let note:NoteExtraMinWithDate = new NoteExtraMinWithDate(this.title);
-    // note.title=this.title;
-    note.lastmodificationdate=this.lastmodificationdate;
-    return note;
+    // let note:NoteExtraMinWithDate = new NoteExtraMinWithDate(this.title);
+    // // note.title=this.title;
+    // note.lastmodificationdate=this.lastmodificationdate;
+    // return note;
+    return new NoteExtraMinWithDate({title:this.title, lastmodificationdate:this.lastmodificationdate});
   }
 
   public forceCastToNoteExtraMin():NoteExtraMin{
@@ -367,16 +538,25 @@ export class NoteFull extends NoteBarebon{
 
 
   public static safeNewNoteFromJsObject(jsonNote:any):NoteFull{
-    let tmpNote:NoteFull=new NoteFull(jsonNote.title);
-    // tmpNote.title=jsonNote.title;
-    tmpNote.text=jsonNote.text;
-    tmpNote.maintags = jsonNote.maintags;
-    tmpNote.othertags = jsonNote.othertags;
-    tmpNote.isdone = jsonNote.isdone;
-    tmpNote.creationdate = jsonNote.creationdate;
-    //here is the point.
-    tmpNote.lastmodificationdate = new Date(jsonNote.lastmodificationdate);
-    tmpNote.links = jsonNote.links;
+    let tmpNote:NoteFull=new NoteFull(
+      {
+        title:jsonNote.title,
+        text: jsonNote.text,
+        maintags:jsonNote.maintags,
+        othertags:jsonNote.othertags,
+        isdone: jsonNote.isdone,
+        links: jsonNote.links,
+        creationdate: new Date(jsonNote.creationdate),
+        lastmodificationdate: new Date(jsonNote.lastmodificationdate)
+      }
+    );
+    // tmpNote.text=jsonNote.text;
+    // tmpNote.maintags = jsonNote.maintags;
+    // tmpNote.othertags = jsonNote.othertags;
+    // tmpNote.isdone = jsonNote.isdone;
+    // tmpNote.creationdate = new Date(jsonNote.creationdate);
+    // tmpNote.lastmodificationdate = new Date(jsonNote.lastmodificationdate);
+    // tmpNote.links = jsonNote.links;
     return tmpNote;
   }
 
@@ -400,6 +580,14 @@ export class NoteFull extends NoteBarebon{
       }
     }
     return ret;
+  }
+
+  public addMainTags(tag:TagExtraMin):void{
+    this.maintags=Utils.binaryArrayInsert(this.maintags, tag, TagExtraMin.ascendingCompare);
+  }
+
+  public addOtherTags(tag:TagExtraMin):void{
+    this.othertags=Utils.binaryArrayInsert(this.othertags, tag, TagExtraMin.ascendingCompare);
   }
 
 

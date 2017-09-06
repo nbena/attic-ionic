@@ -9,11 +9,12 @@ import { FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms'
 import { AtticNotes } from '../../providers/attic-notes';
 import { AtticTags } from '../../providers/attic-tags';
 import { NoteFull/*, NoteSmart, NoteMin, NoteExtraMin*/ } from '../../models/notes';
-import { /*TagExtraMin, TagFull,*/ TagAlmostMin } from '../../models/tags';
+import { TagExtraMin,/* TagFull,*/ TagAlmostMin } from '../../models/tags';
 // import { Utils } from '../../public/utils'
 import {GraphicProvider} from '../../providers/graphic';
 import { isWebUri } from 'valid-url';
 //import { Utils } from '../../public/utils';
+import { AtticError } from '../../public/errors'
 
 //import {FORM_DIRECTIVES, FormBuilder,  ControlGroup, Validators, AbstractControl} from '@angular/common';
 
@@ -30,22 +31,22 @@ import { isWebUri } from 'valid-url';
 export class CreateNotePage {
 
 
-  createNotePageForm: FormGroup;
+  private createNotePageForm: FormGroup;
 
 //  oldNote: NoteFull;
-  newNote: NoteFull;
+  private newNote: NoteFull;
 
-  tags: TagAlmostMin[];
-  mainTags: TagAlmostMin[] = [];
-  otherTags: TagAlmostMin[]  = [];
+  private tags: TagAlmostMin[];
+  private mainTags: TagAlmostMin[] = [];
+  private otherTags: TagAlmostMin[]  = [];
   // isDone: boolean;
-  links: string[];
+  private links: string[];
 
-  tryingToSubmit = false;
+  private tryingToSubmit = false;
 
   // mainTagsString: string[];
   // otherTagsString: string[];
-  isLinkValid: boolean = true;
+  private isLinkValid: boolean = true;
 
 
   constructor(public navCtrl: NavController, public navParams: NavParams,
@@ -166,56 +167,78 @@ export class CreateNotePage {
 
 
   getNote2():void{
-    this.newNote = new NoteFull();
-    this.newNote.title=this.createNotePageForm.value.title;
-    this.newNote.text=this.createNotePageForm.value.text;
-    this.newNote.maintags=this.createNotePageForm.value.mainTags;
-    this.newNote.othertags=this.createNotePageForm.value.otherTags;
-    this.newNote.isdone=this.createNotePageForm.value.isDone;
-    this.newNote.creationdate = new Date();
-    this.newNote.lastmodificationdate = this.newNote.creationdate;
-    this.newNote.links = this.links;
+    // this.newNote = new NoteFull(this.createNotePageForm.value.title);
+    // // this.newNote.title=this.createNotePageForm.value.title;
+    // this.newNote.text=this.createNotePageForm.value.text;
+    // this.newNote.maintags=this.createNotePageForm.value.mainTags;
+    // this.newNote.othertags=this.createNotePageForm.value.otherTags;
+    // this.newNote.isdone=this.createNotePageForm.value.isDone;
+    // this.newNote.creationdate = new Date();
+    // this.newNote.lastmodificationdate = this.newNote.creationdate;
+    // this.newNote.links = this.links;
+    let date = new Date();
+    this.newNote = new NoteFull({
+      title:this.createNotePageForm.value.title,
+      text:this.createNotePageForm.value.text,
+      maintags:this.createNotePageForm.value.mainTags,
+      othertags:this.createNotePageForm.value.otherTags,
+      isdone:this.createNotePageForm.value.isDone,
+      creationdate:date,
+      lastmodificationdate: date,
+      links:this.createNotePageForm.value.links
+    })
     console.log('the new note is:');
     console.log(JSON.stringify(this.newNote));
   }
 
+  // private validateTags():boolean{
+  //   let diff1Length:number = Utils.arrayDiff(this.createNotePageForm.value.mainTags,
+  //     this.createNotePageForm.value.otherTags,
+  //     TagExtraMin.ascendingCompare
+  //   ).length;
+  //
+  //   let diff2Length:number = Utils.arrayDiff(this.createNotePageForm.value.otherTags,
+  //     this.createNotePageForm.value.mainTags,
+  //     TagExtraMin.ascendingCompare
+  //   ).length;
+  //
+  //   return diff1Length==0 && diff2Length==0
+  // }
+
 
   createNote(){
     this.tryingToSubmit=true;
-    // console.log('is it valid?');
-    // console.log(JSON.stringify(this.createNotePageForm.valid));
-    if(this.createNotePageForm.valid){
-      this.getNote2();
-      //
-      // //no because it's already done by the db when he update them.
-      // // this.mainTags.forEach((tag)=>{tag.noteslength++});
-      // // this.otherTags.forEach((tag)=>{tag.noteslength++});
-      //
-      this.atticNotes.createNote2(this.newNote/*, this.mainTags.concat(this.otherTags)*/)
-        .then(result=>{
-          //console.log(result);
-          //console.log('ok note has been created');
-          let title:string = this.newNote.title;
-
-          this.graphicProvider.presentToast('Note created');
-
-          this.makeEmpty3();
-          this.tryingToSubmit=false;
-          //console.log('ok til here');
-
-
-
-          this.events.publish('change-tab',0, this.newNote.forceCastToNoteExtraMinWithDate());
-          this.events.publish('invalidate-tags');
-        })
-        .catch(error=>{
-          console.log(JSON.stringify(error));console.log(JSON.stringify(error.message));
-          this.graphicProvider.showErrorAlert(error);
-        })
-      console.log(JSON.stringify(this.createNotePageForm.value));
-    }else{
-      console.log('is not valid');
+    if(AtticNotes.verifyMainTagsOtherTagsValid(this.createNotePageForm.value.mainTags,
+      this.createNotePageForm.value.otherTags)==false){
+        this.graphicProvider.showErrorAlert(AtticError.getDuplicateTagsError());
+        //console.log('not valid');
+        this.makeTagsEmpty();
     }
+    else{
+      //console.log('valid')
+      if(this.createNotePageForm.valid){
+        this.getNote2();
+        this.atticNotes.createNote2(this.newNote/*, this.mainTags.concat(this.otherTags)*/)
+          .then(result=>{
+            let title:string = this.newNote.title;
+
+            this.graphicProvider.presentToast('Note created');
+
+            this.makeCompletelyEmpty();
+            this.tryingToSubmit=false;
+
+            this.events.publish('change-tab',0, this.newNote.forceCastToNoteExtraMinWithDate());
+            this.events.publish('invalidate-tags');
+          })
+          .catch(error=>{
+            console.log(JSON.stringify(error));console.log(JSON.stringify(error.message));
+            this.graphicProvider.showErrorAlert(error);
+          })
+        }
+      }
+    //else{
+    //   console.log('is not valid');
+    // }
   }
 
   deleteLinks(event, i:number){
@@ -223,47 +246,27 @@ export class CreateNotePage {
     this.links.splice(i,1);
   }
 
-  // makeAllNull(){
-  //   this.newNote.title="";
-  //   this.newNote = null;
-  //   //just this, keep tags loaded.
-  // }
-
-  // makeEmpty(){
-  //   this.newNote.text='';
-  //   this.newNote.title='';
-  //   this.links=[];
-  //   this.mainTags=[];
-  //   this.otherTags=[];
-  //   this.newNote.isdone=false;
-  // }
-  //
-  //
-  // makeEmpty2(){
-  //   this.createNotePageForm.value.title='';
-  //   this.createNotePageForm.value.text='';
-  //   this.links=[]
-  //   this.createNotePageForm.value.mainTags=[];
-  //   this.createNotePageForm.value.otherTags=[];
-  //   this.createNotePageForm.value.isDone=false;
-  // }
 
   //it's important to pass a default value to avoid null value.
-  makeEmpty3(){
-    //try{
-      this.createNotePageForm.reset({
-        title:'',
-        text:'',
-        mainTags:[],
-        otherTags:[],
-        isDone: false
-      });
-    // }catch(e){
-    //   console.log('reset error');
-    //   console.log(JSON.stringify(e));console.log(JSON.stringify(e.message));
-    // }
+  makeCompletelyEmpty(){
+    this.createNotePageForm.reset({
+      title:'',
+      text:'',
+      mainTags:[],
+      otherTags:[],
+      isDone: false
+    });
     this.links=[];
+  }
 
+  makeTagsEmpty(){
+    this.createNotePageForm.reset({
+      title: this.createNotePageForm.value.title,
+      text: this.createNotePageForm.value.text,
+      mainTags:[],
+      otherTags:[],
+      isDone: this.createNotePageForm.value.isDone
+    })
   }
 
   /*

@@ -348,8 +348,8 @@ export class AtticCache {
     //   this.differentlySortedCachedExtraMinNotes[n3].title=newTitle;
     // }
     // if(upsert){
-    let oldExtra:NoteExtraMinWithDate = new NoteExtraMinWithDate(note.title);
-    oldExtra.lastmodificationdate=lastmod;
+    let oldExtra:NoteExtraMinWithDate = new NoteExtraMinWithDate({title:note.title, lastmodificationdate: lastmod});
+    //oldExtra.lastmodificationdate=lastmod;
     // console.log('before changing title');
     // console.log(JSON.stringify(this.differentlySortedCachedExtraMinNotes));
     // console.log(JSON.stringify(this.cachedExtraMinNotes));
@@ -430,8 +430,8 @@ export class AtticCache {
     //   this.differentlySortedCachedAlmostMinTags[n3].title=newTitle;
     // }
     // if(upsert){
-    let oldMin:TagAlmostMin = new TagAlmostMin(tag.title);
-    oldMin.noteslength=tag.noteslength;
+    let oldMin:TagAlmostMin = new TagAlmostMin({title:tag.title, noteslength:tag.noteslength});
+    //oldMin.noteslength=tag.noteslength;
     let n1:boolean = this.removeTagFromAlmostMin(tag);
     let n2:boolean = this.removeTagFromTagFull(tag);
     let n3:boolean = this.removeTagFromDifferentlyCachedTags(oldMin);
@@ -708,8 +708,7 @@ export class AtticCache {
     // this.cachedFullNotes.unshift(note);
     // this.cachedExtraMinNotes.
 
-    let oldExtra: NoteExtraMinWithDate = new NoteExtraMinWithDate(note.title);
-    oldExtra.lastmodificationdate=lastmod;
+    let oldExtra: NoteExtraMinWithDate = new NoteExtraMinWithDate({title:note.title, lastmodificationdate:lastmod});
 
     if(NoteExtraMinWithDate.descendingCompare(note, this.differentlySortedCachedExtraMinNotes[0])<=0){
       console.log('ok modification allowed');

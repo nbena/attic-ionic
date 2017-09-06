@@ -41,29 +41,29 @@ export class TabsPage {
       this.tabs.select(tab);
       });
 
-    this.events.subscribe('go-to-notes-and-remove', (index)=>{
+    this.events.subscribe('go-to-notes-and-remove', ()=>{
       // this.notesParams = index as number;
       this.tabs.select(0);
     });
 
-    this.events.subscribe('go-to-tags', (index)=>{
+    this.events.subscribe('go-to-tags', ()=>{
       //this.tagsParams = index as number;
       this.tabs.select(2);
     });
 
-    this.events.subscribe('go-to-notes-and-replace', (oldnote, newnote)=>{
+    this.events.subscribe('go-to-notes-and-replace', ()=>{
       // this.notesParams = {newnote, oldnote};
       this.tabs.select(0);
     });
 
-    this.events.subscribe('go-to-tags-and-remove', (tag)=>{
+    this.events.subscribe('go-to-tags-and-remove', ()=>{
       // console.log('I received the noticeeeeee');
       // console.log('ok go to tags and remove');
       this.tabs.select(2);
     });
 
 
-    this.events.subscribe('go-to-notes-and-filter', (filterType, filterValue)=>{
+    this.events.subscribe('go-to-notes-and-filter', ()=>{
       this.tabs.select(0);
     })
 

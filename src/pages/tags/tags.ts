@@ -262,9 +262,8 @@ export class TagsPage {
   }
 
   createNewTagAPI(title: string){
-    let tag:TagFull = new TagFull(title);
-    tag.notes=[];
-    tag.noteslength=0;
+    let tag:TagFull = new TagFull({title:title});
+    // tag.notes=[];
     // tag.noteslength=0;
     this.atticTags.createTag(tag)
       .then(result=>{

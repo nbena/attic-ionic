@@ -1,7 +1,7 @@
 import { Component/*, Directive */} from '@angular/core';
-import { NavController, NavParams/*, ToastController*/ } from 'ionic-angular';
+import { NavController, NavParams/*, ToastController*/, Events } from 'ionic-angular';
 
-import { NoteFull } from '../../models/notes';
+import { NoteFull,NoteExtraMinWithDate } from '../../models/notes';
 import { AtticNotes } from '../../providers/attic-notes';
 // import { Utils } from '../../public/utils';
 import { GraphicProvider} from '../../providers/graphic'
@@ -33,8 +33,9 @@ export class NoteEditTextPage {
   constructor(public navCtrl: NavController, public navParams: NavParams,
     private atticNotes: AtticNotes,
     private graphicProvider:GraphicProvider,
-    private formBuilder: FormBuilder
-  ) {
+    private formBuilder: FormBuilder,
+    private events:Events
+    ) {
       this.note=navParams.get('note');
       // this.text=this.note.text;
       this.tmpLastmodificationdate=this.note.lastmodificationdate;
@@ -61,10 +62,14 @@ export class NoteEditTextPage {
     if(this.editTextPageForm.valid){
       this.note.text = this.editTextPageForm.value.text;
       this.note.lastmodificationdate = new Date();
-      console.log('the note i\'m going to change tetx');console.log(JSON.stringify(this.note));
+      //console.log('the note i\'m going to change tetx');console.log(JSON.stringify(this.note));
       this.atticNotes.changeText(this.note/*, this.lastmod*/)
         .then(result=>{
           // console.log(result);
+          this.events.publish('notes-replace',
+            new NoteExtraMinWithDate({title: this.note.title, lastmodificationdate:this.tmpLastmodificationdate}),
+            this.note.forceCastToNoteExtraMinWithDate()
+          );
           this.graphicProvider.presentToast('Text updated');
           this.navCtrl.pop();
         })

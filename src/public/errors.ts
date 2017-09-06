@@ -238,6 +238,15 @@ public static isNotFoundErrorFromArray(array:boolean[]):boolean{
 //   }
 //   return ret;
 //   }
+private static DUPLICATE_TAGS_ERROR='Please check that the maintags and othertags have different values';
+
+public static getDuplicateTagsError():Error{
+  return new Error(AtticError.DUPLICATE_TAGS_ERROR);
+}
+
+private static isDuplicateTagsError(msg:string):boolean{
+  return msg==AtticError.DUPLICATE_TAGS_ERROR;
+}
 
 
   public static getNewError(error:any):ErrData{
@@ -254,7 +263,10 @@ public static isNotFoundErrorFromArray(array:boolean[]):boolean{
       }else if(AtticError.isPostgresError(error.message)){
         errData = AtticError.getBetterPostgresError(error);
         isSpecific = true;
-        console.log('is postgres');
+        //console.log('is postgres');
+      }else if(AtticError.isDuplicateTagsError(error.message)){
+        errData = error;
+        isSpecific=true;
       }
     }
     if(!isSpecific){
@@ -271,7 +283,7 @@ public static isNotFoundErrorFromArray(array:boolean[]):boolean{
     //     console.log('is postgres');
     //   }
     //}
-    errorOut = ErrData.NewErrData(errData, isSpecific);
+    errorOut = new ErrData({errorIn:errData, isSpecific:isSpecific});
     // console.log('the error out is:');console.log(JSON.stringify(errorOut));
     return errorOut;
   }
@@ -284,12 +296,17 @@ export class ErrData{
   isSpecific: boolean = false;
   error: any;
 
-
-  public static NewErrData(errorIn:any, isSpecific:boolean):ErrData{
-    let err:ErrData = new ErrData();
-    err.error=errorIn;
-    err.isSpecific = isSpecific;
-    return err;
+  constructor(param:{errorIn:any, isSpecific:boolean}){
+    this.error=param.errorIn;
+    this.isSpecific=param.isSpecific;
   }
+
+
+  // public static NewErrData(errorIn:any, isSpecific:boolean):ErrData{
+  //   let err:ErrData = new ErrData();
+  //   err.error=errorIn;
+  //   err.isSpecific = isSpecific;
+  //   return err;
+  // }
 
 }

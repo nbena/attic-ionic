@@ -49,18 +49,51 @@ export class AtticNotes {
   */
 
   public static areMainTagsArrayValid(control: /*FormControl*/AbstractControl):any{
-    // try{
-    //   console.log('value');console.log(JSON.stringify(control.value.length));
-    //   return control.value.length <= 3 ? null : {error:true};
-    // }catch(e){console.log('h');console.log(JSON.stringify(e));console.log(JSON.stringify(e.messagee));console.log(JSON.stringify(e.stack));}
-    //return null;
     return ((control.value.length <= 3) ? null : {error: true});
   }
 
   public static areOtherTagsArrayValid(control:/*FormControl*/AbstractControl):any{
-    //try{
       return ((control.value.length) <= 10 ? null : {error:true});
-    //}catch(e){console.log('h');console.log(JSON.stringify(e));console.log(JSON.stringify(e.messagee));console.log(JSON.stringify(e.stack));}
+  }
+
+  public static verifyMainTagsOtherTagsValid(mainTags:TagExtraMin[], otherTags:TagExtraMin[]):boolean{
+    // console.log('1');console.log(JSON.stringify(mainTags));console.log('2');console.log(JSON.stringify(otherTags));
+    // let diff1Length:number = Utils.arrayDiff(mainTags,
+    //   otherTags,
+    //   (arg0:TagExtraMin, arg1:TagExtraMin):number=>{return arg0.title.localeCompare(arg1.title)}
+    //   //TagExtraMin.ascendingCompare
+    // ).length;
+    //
+    // let diff2Length:number = Utils.arrayDiff(otherTags,
+    //   mainTags,
+    //   //TagExtraMin.ascendingCompare
+    //   (arg0:TagExtraMin, arg1:TagExtraMin):number=>{return arg0.title.localeCompare(arg1.title)}
+    // ).length;
+    //
+    // return diff1Length!=0 && diff2Length!=0
+    let valid:boolean =  true;
+    // let sortedMaintags = mainTags.sort((arg0:TagExtraMin, arg1:TagExtraMin):number=>{return arg0.title.localeCompare(arg1.title)});
+    // let sortedOthertags = otherTags.sort((arg0:TagExtraMin, arg1:TagExtraMin):number=>{return arg0.title.localeCompare(arg1.title)});
+    // for(let i=0;i<sortedOthertags.length;i++){
+    //   let index = Utils.binarySearch(sortedMaintags, sortedOthertags[i],(arg0:TagExtraMin, arg1:TagExtraMin):number=>{return arg0.title.localeCompare(arg1.title)});
+    //   if(index!=-1){
+    //     valid = false;
+    //     i=sortedOthertags.length;
+    //   }
+    //
+    // }
+    //using a normal scan because I assume that probably we'll stop before the end,
+    //and, there's no real difference between 2(13log13)+log13 and 10*3 (in fact, the first is more expensive... (30.something))
+    for(let i=0;i<otherTags.length;i++){
+      for(let j=0;j<mainTags.length;j++){
+        if(otherTags[i].title==mainTags[j].title){
+          valid = false;
+          j=3; /*the limit to main tags and othertags*/
+          i=10;
+        }
+      }
+    }
+    return valid;
   }
   /**
   *loading all the notes.
@@ -639,6 +672,7 @@ export class AtticNotes {
         this.db.removeTagsFromNote(note, this.auth.userid, tags)
         .then(()=>{
           //this.atticCache.updateNote(note, true, true, oldlastmod);
+          this.atticCache.invalidateNotes();
           this.atticCache.invalidateTags();
           resolve();
         })

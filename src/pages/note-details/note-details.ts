@@ -127,7 +127,7 @@ export class NoteDetailsPage {
 
     this.basicNote = navParams.get('note');
     if(this.basicNote!=null){
-      this.note = new NoteFull(this.basicNote.title);
+      this.note = new NoteFull({title:this.basicNote.title});
       // this.note.title=this.basicNote.title;
       this.note.lastmodificationdate=this.basicNote.lastmodificationdate;
 
@@ -135,7 +135,7 @@ export class NoteDetailsPage {
 
     if(this.note==null){
       let title = this.navParams.get('title');
-      this.note = new NoteFull(title);
+      this.note = new NoteFull({title:title});
       // this.note.title=title;
     }
 
@@ -149,6 +149,8 @@ export class NoteDetailsPage {
     //     }
     //   }
     // })
+    // console.log('received ');console.log(JSON.stringify(this.basicNote));
+    // console.log('this.note');console.log(JSON.stringify(this.note));
 
 
     //this.init();
@@ -589,9 +591,12 @@ export class NoteDetailsPage {
     //   this.haveToRemoveTags = true;
     //   this.submitChangeEnabled = true;
     // }
+    // console.log('tag:');console.log(tag);
     let index = Utils.myIndexOf(this.otherTags, tag);
     if(index!=-1){
+      // console.log('index is not -1');
       this.tagsToRemove.push(this.otherTags[index]);
+      // console.log('tgatoremove');console.log(JSON.stringify(this.tagsToRemove));
       this.haveToRemoveTags = true;
       this.submitChangeEnabled = true;
     }
@@ -703,6 +708,9 @@ export class NoteDetailsPage {
 
     if(this.haveToDoSomething()){ /*ok so this is important*/
       this.note.lastmodificationdate=new Date();
+      this.events.publish('notes-replace',
+        new NoteExtraMinWithDate({title:this.note.title, lastmodificationdate: this.lastmod}),
+        this.note.forceCastToNoteExtraMinWithDate())
     }
     //can't be done here, if so, the cache won't be able to find it.
 
@@ -710,6 +718,8 @@ export class NoteDetailsPage {
       this.events.publish('invalidate-tags');
       this.events.publish('invalidate-full-tag', this.note.forceCastToNoteExtraMin());
     }
+
+
 
     if(this.haveToRemoveTags){
       this.removeTagsAPI()

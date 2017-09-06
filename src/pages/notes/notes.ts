@@ -116,14 +116,14 @@ export class NotesPage {
 
       this.events.subscribe('change-tab', (tab, note)=>{
         //the note to add.
-        console.log('change tab the note is');console.log(JSON.stringify(note));
+        console.log('change tab the note to add is');console.log(JSON.stringify(note));
         this.unshiftIfPossible(note);
       })
 
 
       this.events.subscribe('go-to-notes-and-remove', (note)=>{
-        console.log('the note to remove');console.log(note);
         let noteToRemove:NoteExtraMinWithDate = note;
+        // console.log('the note to remove');console.log(JSON.stringify(noteToRemove));
         this.removeIfPossible(noteToRemove);
       });
 
@@ -144,6 +144,18 @@ export class NotesPage {
         // }
         this.removeAndAddIfPossible(oldNote, newNote);
 
+      })
+
+      /*
+      When receive this message try to replace.
+      This is used when note-details apply modification to a note,
+      and we don't go back.
+      */
+      this.events.subscribe('notes-replace', (oldnote,newnote)=>{
+        console.log('received here is');console.log(JSON.stringify({old:oldnote, new:newnote}));
+        let oldNote:NoteExtraMinWithDate = oldnote;
+        let newNote:NoteExtraMinWithDate = newnote;
+        this.removeAndAddIfPossible(oldNote, newNote);
       })
 
     // }catch(e){
@@ -210,6 +222,8 @@ export class NotesPage {
     }
   }
 
+
+//test this.
   removeIfPossible(note:NoteExtraMinWithDate){
     // try{
       // if(index!=-1 && this.allNotes!=null && this.shownNotes!=null){
@@ -220,6 +234,9 @@ export class NotesPage {
     // }catch(e){console.log('error in remove if possible');console.log(JSON.stringify(e));console.log(JSON.stringify(e.message))}
     let ind1:number =-1;
     let ind2:number =-1;
+
+    // console.log('shown notes');console.log(JSON.stringify(this.shownNotes));
+    // console.log('all notes');console.log(JSON.stringify(this.allNotes));
 
     if(this.shownNotes!=null && note!=null){
       ind1 = Utils.binarySearch(this.shownNotes, note, NoteExtraMinWithDate.descendingCompare);
@@ -242,6 +259,10 @@ export class NotesPage {
     let ind1:number =-1;
     let ind2:number =-1;
 
+    console.log('here we have');console.log(JSON.stringify({old:oldNote, new:newNote}));
+    console.log('shown notes');console.log(JSON.stringify(this.shownNotes));
+    console.log('all notes');console.log(JSON.stringify(this.allNotes));
+
     if(this.shownNotes!=null && oldNote!=null && newNote!=null){
       ind1=Utils.binarySearch(this.shownNotes, oldNote, NoteExtraMinWithDate.descendingCompare);
     }
@@ -250,14 +271,18 @@ export class NotesPage {
     }
 
     if(ind1!=-1){
+      console.log('remove and add 1');
       this.shownNotes.splice(ind1, 1);
       Utils.binaryArrayInsert(this.shownNotes, newNote, NoteExtraMinWithDate.descendingCompare);
     }
     if(ind2!=-1){
+      console.log('remove and add 2');
       this.allNotes.splice(ind2, 1);
       Utils.binaryArrayInsert(this.allNotes, newNote, NoteExtraMinWithDate.descendingCompare);
     }
     this.setIsThereSomethingToShow();
+    console.log('shown notes');console.log(JSON.stringify(this.shownNotes));
+    console.log('all notes');console.log(JSON.stringify(this.allNotes));
   }
 
   ionViewDidLoad() {

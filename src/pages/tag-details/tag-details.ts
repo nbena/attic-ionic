@@ -43,16 +43,16 @@ export class TagDetailsPage {
     this.basicTag = navParams.get('tag');
     // console.log('the basic tag');console.log(JSON.stringify(this.basicTag));
     if(this.basicTag!=null){
-      this.tag = new TagFull(this.basicTag.title);
+      this.tag = new TagFull({title:this.basicTag.title, noteslength:this.basicTag.noteslength});
       // console.log('the tag');console.log(JSON.stringify(this.tag));
       // this.tag.title=this.basicTag.title;
-      this.tag.noteslength=this.basicTag.noteslength;
+      // this.tag.noteslength=this.basicTag.noteslength;
       // this.oldTag=this.tag.clone();
     }
 
     if(this.tag==null){
       let title=navParams.get('title');
-      this.tag=new TagFull(title);
+      this.tag=new TagFull({title:title});
     }
 
       // this.title=navParams.get('title');

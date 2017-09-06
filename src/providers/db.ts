@@ -1272,9 +1272,11 @@ private getTagsFullByNote(note:NoteFull|NoteMin, usedTag:TagFull[], userid:strin
 
 //usedTag contains the tagfull found in the cache, so I just have to update them and not get from the db.
 public createNewNote2(note:NoteFull, userid:string, usedTag?:TagFull[]):Promise<void>{
-  console.log('received as help');
-  console.log(JSON.stringify(usedTag));
+  // console.log('received as help');
+  // console.log(JSON.stringify(usedTag));
   usedTag = Utils.makeArraySafe(usedTag);
+  // console.log('usedTag post');console.log(JSON.stringify(usedTag));
+  // console.log(JSON.stringify(note));
 
   return new Promise<void>((resolve, reject)=>{
 
@@ -2679,9 +2681,12 @@ public getNotesByTags(tags: TagAlmostMin[], userid: string, and:boolean):Promise
   because no error are thrown if we try to remove a tag from a note to which it doesn't belong.
   */
   private removeTagsFromNotesUpdateOnlyNotesCore(tags:TagExtraMin[],notes:NoteFull[], userid:string, tx?:any){
+    // console.log('tags are:');console.log(JSON.stringify(tags));
     notes.forEach(note=>{
+      // console.log('note is');console.log(JSON.stringify(note));
       for(let i=0;i<tags.length;i++){
-        note.removeTag(tags[i]);
+        note.removeTag2(tags[i]);
+        // console.log('after removing:');console.log(JSON.stringify(note));
       }
       this.updateJsonObjNote(note, userid, false, tx);
     })
@@ -2848,12 +2853,14 @@ public getNotesByTags(tags: TagAlmostMin[], userid: string, and:boolean):Promise
   private addTagsToNoteUpdateOnlyNoteCore(note:NoteFull,userid:string, mainTags?:TagExtraMin[], otherTags?:TagExtraMin[], tx?:any):Promise<void>|void{
     if(mainTags!=null){
       mainTags.forEach(tag=>{
-        note.maintags.push(tag);
+        //note.maintags.push(tag);
+        note.addMainTags(tag);
       })
     }
     if(otherTags!=null){
       otherTags.forEach(tag=>{
-        note.othertags.push(tag)
+        //note.othertags.push(tag)
+        note.addOtherTags(tag);
       })
     }
     this.updateJsonObjNote(note, userid, true, tx);
@@ -5067,7 +5074,7 @@ private rollbackSetLink(note:NoteExtraMin, userid:string):Promise<void>{
       let p:Promise<any>;
       let isUserR:boolean = AtticError.isUserReachedMaxErrorFromArray(error);
       if(isUserR){
-        p=this.getNotesByTags([new TagAlmostMin(tag.title)], userid, false);
+        p=this.getNotesByTags([new TagAlmostMin({title:tag.title})], userid, false);
       }else{
         p=Promise.resolve('nothing');
       }

@@ -71,16 +71,31 @@ export class TagAlmostMin extends TagExtraMin{
     return r;
   }
 
-  constructor(title?:string){
-    super(title);
-    this.noteslength=0;
+  // constructor(title?:string){
+  //   super(title);
+  //   this.noteslength=0;
+  // }
+
+  constructor(input?:{title?:string, noteslength?:number}){
+    if(input!=null){
+      if(input.title!=null){
+        super(input.title);
+      }else{
+        super();
+      }
+    }else{
+      super();
+    }
+    if(input.noteslength!=null){
+      this.noteslength=input.noteslength;
+    }else{
+      this.noteslength=0;
+    }
   }
 
 
   public static safeNewTagFromJsObject(jsonTag:any):TagAlmostMin{
-    let tag:TagAlmostMin= new TagAlmostMin();
-    tag.title=jsonTag.title;
-    tag.noteslength=jsonTag.noteslength;
+    let tag:TagAlmostMin= new TagAlmostMin({title:jsonTag.title, noteslength:jsonTag.noteslength});
     if(jsonTag.noteslength==null || tag.noteslength==null){
       tag.noteslength=0;
     }
@@ -92,9 +107,9 @@ export class TagAlmostMin extends TagExtraMin{
   }
 
   public clone():TagAlmostMin{
-    let tag:TagAlmostMin = new TagAlmostMin(this.title);
-    tag.noteslength=this.noteslength;
-    return tag;
+    /*let tag:TagAlmostMin =*/return new TagAlmostMin({title:this.title, noteslength:this.noteslength});
+    // tag.noteslength=this.noteslength;
+    // return tag;
   }
 
   public forceCastToTagExtraMin():TagExtraMin{
@@ -140,9 +155,17 @@ export class TagFull extends TagAlmostMin{
   //   super();
   //   this.title=title;
   // }
-  constructor(title?:string){
-    super(title);
-    this.notes =[];
+  // constructor(title?:string){
+  //   super(title);
+  //   this.notes =[];
+  // }
+  constructor(input?:{title?:string, noteslength?:number, notes?:NoteExtraMin[]}){
+    super(input);
+    if(input!=null && input.notes!=null){
+      this.notes=input.notes;
+    }else{
+      this.notes=[];
+    }
   }
   userid: string;
 
@@ -172,10 +195,11 @@ export class TagFull extends TagAlmostMin{
 
 
   public forceCastToTagAlmostMin():TagAlmostMin{
-    let tag:TagAlmostMin = new TagAlmostMin(this.title);
-    // tag.title=this.title;
-    tag.noteslength=this.noteslength;
-    return tag;
+    // let tag:TagAlmostMin = new TagAlmostMin(this.title);
+    // // tag.title=this.title;
+    // tag.noteslength=this.noteslength;
+    // return tag;
+    return new TagAlmostMin({title:this.title, noteslength:this.noteslength});
   }
 
   public static safeNewTagFromJsonString(json:string):TagFull{
@@ -183,9 +207,8 @@ export class TagFull extends TagAlmostMin{
   }
 
   public static safeNewTagFromJsObject(jsonTag:any):TagFull{
-    let tag:TagFull = new TagFull(jsonTag.title);
+    let tag:TagFull = new TagFull({title:jsonTag.title});
     // tag.title = jsonTag.title;
-    tag.noteslength = jsonTag.noteslength;
     tag.notes =jsonTag.notes;
     if(jsonTag.noteslength==null || tag.noteslength==null){
       tag.noteslength=0;
@@ -193,15 +216,13 @@ export class TagFull extends TagAlmostMin{
     if(tag.notes==null || jsonTag.notes==null){
       tag.notes=[];
     }
+    console.log('returning post is');console.log(JSON.stringify(tag));
     return tag;
   }
 
 
   public clone():TagFull{
-    let tag:TagFull = new TagFull(this.title);
-    tag.noteslength=this.noteslength;
-    tag.notes=this.notes;
-    return tag;
+    return new TagFull({title:this.title, noteslength:this.noteslength, notes:this.notes});
   }
 
 

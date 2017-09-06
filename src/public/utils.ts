@@ -343,16 +343,19 @@ all the null elements.
 Return the same array with the modification applied.
 */
  public static makeArraySafe<T>(array:T[]):T[]{
+   let result:T[]=[];
    if(array==null){
      array=[];
    }else{
      for(let i=0;i<array.length;i++){
-       if(array[i]==null){
-         array.splice(i,1);
+       if(array[i]!=null){
+         //array.splice(i,1);
+         result.push(array[i]);
        }
      }
    }
-   return array;
+   //return array;
+   return result;
  }
 
 

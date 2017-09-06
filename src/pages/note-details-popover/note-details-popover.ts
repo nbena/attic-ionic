@@ -152,21 +152,29 @@ export class NoteDetailsPopoverPage {
   */
 
   changeTitleAPI(title: string){
-    let oldNote:NoteExtraMinWithDate = new NoteExtraMinWithDate(this.note.title);
-    oldNote.lastmodificationdate = this.lastmod;
-    let newNote:NoteExtraMinWithDate = new NoteExtraMinWithDate(title);
-    newNote.lastmodificationdate = new Date();
-    this.note.lastmodificationdate = newNote.lastmodificationdate;
+    let oldNote:NoteExtraMinWithDate = new NoteExtraMinWithDate({title:this.note.title, lastmodificationdate:this.lastmod});
+    //oldNote.lastmodificationdate = this.lastmod;
+    let date = new Date();
+    let newNote:NoteExtraMinWithDate = new NoteExtraMinWithDate({title:title, lastmodificationdate:date});
+    this.note.lastmodificationdate=newNote.lastmodificationdate;
+    //newNote.lastmodificationdate = new Date();
+    //this.note.lastmodificationdate = newNote.lastmodificationdate;
 
     this.viewCtrl.dismiss()
     .then(()=>{
+      this.graphicProvider.presentToast('Changing title...');
       return this.atticNotes.changeTitle(this.note, title, this.lastmod);
     })
     .then(()=>{
       //return Utils.presentToast(this.toastCtrl, 'Title updated');
       //this.events.publish('invalidate-full-tag', new NoteExtraMin(this.oldTitle));
-      this.events.publish('go-to-notes-and-replace', oldNote, newNote);
-      return this.graphicProvider.presentToast('Title updated');
+
+      //this.events.publish('go-to-notes-and-replace', oldNote, newNote);
+      //we try to do the best as possible to make user not refresh
+
+      this.events.publish('notes-replace', oldNote, newNote);
+
+      /*return */this.graphicProvider.presentToast('Title updated');
     })
     // this.atticNotes.changeTitle(this.note, title)
     //   .then(result=>{
@@ -180,7 +188,7 @@ export class NoteDetailsPopoverPage {
         //Utils.showErrorAlert(this.alertCtrl, error);
         this.note.lastmodificationdate=this.lastmod;
         this.graphicProvider.showErrorAlert(error);
-        console.log('change title error: '+JSON.stringify(error));
+        console.log('change title error: '+JSON.stringify(error));console.log(JSON.stringify(error.message))
       });
   }
 
