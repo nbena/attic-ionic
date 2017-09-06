@@ -1244,8 +1244,10 @@ private getTagsFullByNote(note:NoteFull|NoteMin, usedTag:TagFull[], userid:strin
             for(let i=0;i<res.rows.length;i++){
               // console.log('the json');console.log(JSON.stringify(res.rows.item(i).json_object));
                       let rawTag:any = JSON.parse(res.rows.item(i).json_object);
-                      if(rawTag.notes == null || rawTag.notes==undefined){rawTag.notes=[];}
-                      if(rawTag.noteslength ==  null || rawTag.noteslength==undefined){rawTag.noteslength=0;}
+
+                      // if(rawTag.notes == null/* || rawTag.notes==undefined*/){rawTag.notes=[];}
+                      // if(rawTag.noteslength ==  null/* || rawTag.noteslength==undefined*/){rawTag.noteslength=0;}
+
                       let tag:TagFull = TagFull.safeNewTagFromJsObject(rawTag);
                       // console.log('tag is');console.log(JSON.stringify(tag));
                       usedTag.push(tag);
@@ -2242,23 +2244,106 @@ public setLinks(note :NoteFull, userid: string):Promise<void>{
 //     })
 //   })
 // }
+private changeNoteTitleUpdateOnlyTagsCore(tx:any, oldNote:NoteExtraMin, newNote:NoteExtraMin, tags:TagFull[], userid):void{
+  // console.log('tags to change');console.log(JSON.stringify(tags));
+  // console.log('oldNote');console.log(JSON.stringify(oldNote));
+  // console.log('newNote');console.log(JSON.stringify(newNote));
+  tags.forEach(tag=>{
+    for(let i=0;i<tag.notes.length;i++){
+      // console.log('tag before');console.log(JSON.stringify(tag));
+      if(tag.notes[i].title==oldNote.title){
+        tag.notes[i]=newNote;
+        i=tag.notes.length;
+      }
+    }
+    // console.log('tag after');console.log(JSON.stringify(tag));
+    this.updateJsonObjTag(tag, userid, tx);
+  })
+}
+
+private changeTagTitleUpdateOnlyNotesCore(tx:any, oldTag:TagExtraMin, newTag:TagExtraMin, notes:NoteFull[], userid:string):void{
+  notes.forEach(note=>{
+    // note.removeTag2(oldTag);
+    // let type=note.getTagTypeAndRemove(oldTag);
+    // if(type==null){
+    //   console.log('error');
+    // }else{
+    //   if(type==TagType.MAIN){
+    //     note.addMainTags(newTag);
+    //   }else{
+    //     note.addOtherTags(newTag);
+    //   }
+    // }
+    note.replaceTag(oldTag, newTag);
+    this.updateJsonObjNote(note, userid, tx);
+  })
+}
 
 
 /*just execute the query and nothing more.*/
-public setNoteTitle(note: NoteFull, newTitle: string, userid: string):Promise<any>{
+public setNoteTitle(note: NoteFull, newTitle: string, userid: string, usedTag?:TagFull[]):Promise<void>{
   let oldTitle:string = note.title;
   let newNote = note.clone();
   newNote.title=newTitle;
-  return this.db.executeSql(Query.UPDATE_NOTE_SET_TITLE, [note.lastmodificationdate.toISOString(),newTitle, JSON.stringify(newNote), oldTitle, userid]);
+
+  usedTag=Utils.makeArraySafe(usedTag);
+
+  return new Promise<void>((resolve, reject)=>{
+    this.getTagsFullByNote(note, usedTag, userid)
+    .then(tags=>{
+
+      this.db.transaction(tx=>{
+        this.changeNoteTitleUpdateOnlyTagsCore(tx, note.forceCastToNoteExtraMin(), newNote.forceCastToNoteExtraMin(), tags, userid);
+        tx.executeSql(Query.UPDATE_NOTE_SET_TITLE, [note.lastmodificationdate.toISOString(),newTitle, JSON.stringify(newNote), oldTitle, userid],
+          (tx:any, res:any)=>{console.log('ok change title')},
+          (tx:any, error:any)=>{console.log('error change title');console.log(JSON.stringify(error))}
+        )
+      })
+      .then(()=>{
+        console.log('ok changed title');resolve();
+      })
+      .catch(error=>{
+        console.log('change title error');console.log(JSON.stringify(error.message));reject(error);
+      })
+
+    })
+  })
+
+  //return this.db.executeSql(Query.UPDATE_NOTE_SET_TITLE, [note.lastmodificationdate.toISOString(),newTitle, JSON.stringify(newNote), oldTitle, userid]);
 }
 
 /*a changing on tags will make it lose its fullness*/
-public setTagTitle(tag: TagFull, newTitle: string, userid: string):Promise<any>{
+public setTagTitle(tag: TagFull, newTitle: string, userid: string, usedNote?:NoteFull[]):Promise<void>{
   let oldTitle:string = tag.title;
   let newTag = tag.clone();
   newTag.title=newTitle;
+
+  usedNote=Utils.makeArraySafe(usedNote);
+
   // tag.title = newTitle;
-  return this.db.executeSql(Query.UPDATE_TAG_SET_TITLE, [newTitle, JSON.stringify(newTag), oldTitle, userid]);
+  //return this.db.executeSql(Query.UPDATE_TAG_SET_TITLE, [newTitle, JSON.stringify(newTag), oldTitle, userid]);
+  return new Promise<void>((resolve, reject)=>{
+
+    this.getNotesFullFromTags(tag, usedNote,userid)
+    .then(notes=>{
+
+      //console.log('the note to update');console.log(JSON.stringify(notes));
+      this.db.transaction(tx=>{
+        this.changeTagTitleUpdateOnlyNotesCore(tx, new TagExtraMin(oldTitle), newTag.forceCastToTagExtraMin(), notes, userid);
+        tx.executeSql(Query.UPDATE_TAG_SET_TITLE, [newTitle, JSON.stringify(newTag), oldTitle, userid],
+          (tx:any, res:any)=>{console.log('ok change title')},
+          (tx:any, error:any)=>{console.log('error change title');console.log(JSON.stringify(error))}
+        )
+      })
+      .then(()=>{
+        console.log('ok changed title');resolve();
+      })
+      .catch(error=>{
+        console.log('change title error');console.log(JSON.stringify(error.message));reject(error);
+      })
+    })
+
+  })
 }
 
 // privateQueryNotesByTags(base:string, length:number):string{

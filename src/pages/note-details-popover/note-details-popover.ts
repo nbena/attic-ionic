@@ -162,7 +162,7 @@ export class NoteDetailsPopoverPage {
 
     this.viewCtrl.dismiss()
     .then(()=>{
-      this.graphicProvider.presentToast('Changing title...');
+      this.graphicProvider.presentToast('Changing title...',1200);
       return this.atticNotes.changeTitle(this.note, title, this.lastmod);
     })
     .then(()=>{

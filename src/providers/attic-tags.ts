@@ -270,7 +270,7 @@ export class AtticTags {
           this.atticCache.changeTagTitle(tag, newTitle, /*false*/);
           //this.atticCache.updateTag2(tag, newTitle, null);
           if(tag.noteslength>0){
-            this.atticCache.invalidateNotes();
+            this.atticCache.invalidateFullNotes();
           }
           resolve();
         }
@@ -303,7 +303,7 @@ export class AtticTags {
         .then(()=>{
           this.atticCache.removeTag(tag);
           if(tag.noteslength>0){
-            this.atticCache.invalidateNotes();
+            this.atticCache.invalidateFullNotes();
           }
           resolve();
         })

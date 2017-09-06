@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { NavController, NavParams, /*ToastController, AlertController,*/ ViewController/*, App,*/, Events } from 'ionic-angular';
-import { TagFull, TagExtraMin } from '../../models/tags';
+import { TagFull, TagExtraMin, TagAlmostMin } from '../../models/tags';
 import { AtticTags } from '../../providers/attic-tags';
 // import { Utils } from '../../public/utils';
 // import { TagsPage } from '../tags/tags';
@@ -80,14 +80,19 @@ export class TagDetailsPopoverPage {
   }
 
   changeTitleAPI(newTitle:string){
+    let oldTag = new TagAlmostMin({title:this.tag.title, noteslength:this.tag.noteslength});
+    let newTag = new TagAlmostMin({title:newTitle, noteslength:this.tag.noteslength});
     this.viewCtrl.dismiss()
     .then(()=>{
+      this.graphicProvider.presentToast('Chanching title...', 1200);
       return this.atticTags.changeTitle(this.tag, newTitle)
     })
     .then(()=>{
       // return Utils.presentToast(this.toastCtrl, 'Title updated');
       //this.events.publish('invalidate-full-note', new TagExtraMin(this.oldTitle));
-      return this.graphicProvider.presentToast('Title updated');
+      /*return */
+      this.events.publish('tags-replace', oldTag, newTag);
+      this.graphicProvider.presentToast('Title updated');
     })
     .catch(error=>{
       // console.log('some errors happen');

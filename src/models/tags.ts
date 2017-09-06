@@ -208,13 +208,19 @@ export class TagFull extends TagAlmostMin{
 
   public static safeNewTagFromJsObject(jsonTag:any):TagFull{
     let tag:TagFull = new TagFull({title:jsonTag.title});
-    // tag.title = jsonTag.title;
-    tag.notes =jsonTag.notes;
-    if(jsonTag.noteslength==null || tag.noteslength==null){
-      tag.noteslength=0;
+    // // tag.title = jsonTag.title;
+    // tag.notes =jsonTag.notes;
+    // if(jsonTag.noteslength==null/* || tag.noteslength==null*/){
+    //   tag.noteslength=0;
+    // }
+    // if(/*tag.notes==null ||*/ jsonTag.notes==null){
+    //   tag.notes=[];
+    // }
+    if(jsonTag.noteslength!=null && jsonTag.noteslength!=0){
+      tag.noteslength=jsonTag.noteslength;
     }
-    if(tag.notes==null || jsonTag.notes==null){
-      tag.notes=[];
+    if(jsonTag.notes!=null && jsonTag.notes.length>0){
+      tag.notes=jsonTag.notes;
     }
     console.log('returning post is');console.log(JSON.stringify(tag));
     return tag;

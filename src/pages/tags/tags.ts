@@ -59,6 +59,12 @@ export class TagsPage {
       this.shownTags=null;
     })
 
+    this.events.subscribe('tags-replace', (oldtag, newtag)=>{
+      let oldTag:TagAlmostMin=oldtag;
+      let newTag:TagAlmostMin=newtag;
+      this.removeAndAddIfPossible(oldTag, newTag);
+    })
+
 
   }
 
@@ -76,7 +82,27 @@ export class TagsPage {
     });
   }
 
+  private removeAndAddIfPossible(oldTag:TagAlmostMin, newTag:TagAlmostMin):void{
+    let ind1:number =-1;
+    let ind2:number =-1;
 
+    if(this.shownTags!=null && newTag!=null){
+      ind1 = Utils.binarySearch(this.shownTags, oldTag, TagAlmostMin.descendingCompare);
+    }
+    if(this.allTags!=null && newTag!=null){
+      ind2 = Utils.binarySearch(this.allTags, oldTag, TagAlmostMin.descendingCompare);
+    }
+
+    if(ind1!=-1){
+      this.shownTags.splice(ind1, 1);
+      this.shownTags=Utils.binaryArrayInsert(this.shownTags, newTag, TagAlmostMin.descendingCompare);
+    }
+
+    if(ind2!=-2){
+      this.allTags.splice(ind2, 1);
+      this.allTags=Utils.binaryArrayInsert(this.allTags, newTag, TagAlmostMin.descendingCompare);
+    }
+  }
 
   removeIfPossible(newTag:TagAlmostMin){
     // if(index!=-1 && this.allTags!=null && this.shownTags!=null){

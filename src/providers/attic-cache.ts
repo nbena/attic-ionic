@@ -810,4 +810,9 @@ export class AtticCache {
     this.cachedAlmostMinTags=[];
   }
 
+  public invalidateFullNotes(){
+    this.cachedFullNotes=[];
+  }
+
+
 }

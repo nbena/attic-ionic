@@ -456,6 +456,71 @@ export class NoteFull extends NoteBarebon{
   //   return NoteExtraMin.NewNoteExtraMin(this.title);
   // }
 
+  // public getTagTypeAndRemove(tag:TagExtraMin):TagType{
+  //   let tagType:TagType=null;
+  //   let found:boolean = false;
+  //   let ind=Utils.binarySearch(this.maintags, tag, TagExtraMin.ascendingCompare);
+  //   if(ind!=-1){
+  //     console.log('found in main');
+  //     this.maintags.splice(ind,1);
+  //     found=true;
+  //     tagType=TagType.MAIN;
+  //     console.log(tagType);
+  //   }
+  //   if(!found){
+  //     ind=Utils.binarySearch(this.othertags, tag, TagExtraMin.ascendingCompare);
+  //     if(ind!=-1){
+  //       console.log('found in other');
+  //       this.othertags.splice(ind,1);
+  //       found=true;
+  //       tagType=TagType.OTHER;
+  //       console.log(tagType);
+  //     }
+  //   }
+  //   return tagType;
+  // }
+
+  private getTagIndexType(tag:TagExtraMin):IndexTagType{
+    let id:IndexTagType = null;
+    for(let i=0;i<this.maintags.length;i++){
+      if(this.maintags[i].title==tag.title){
+        id=new IndexTagType();
+        id.index=i;
+        id.type=TagType.MAIN;
+        i=3;
+      }
+    }
+    if(id==null){
+      for(let i=0;i<this.othertags.length;i++){
+        if(this.othertags[i].title==tag.title){
+          id=new IndexTagType();
+          id.index=i;
+          id.type=TagType.OTHER;
+          i=10;
+        }
+      }
+    }
+    return id;
+  }
+
+  public replaceTag(oldTag:TagExtraMin, newTag:TagExtraMin):void{
+    console.log('before');console.log(JSON.stringify(this));
+    console.log('tags:');console.log(JSON.stringify({old:oldTag, new:newTag}));
+    let index:IndexTagType = this.getTagIndexType(oldTag);
+    if(index!=null){
+      if(index.type==TagType.MAIN){
+        this.maintags.splice(index.index, 1);
+        this.maintags=Utils.binaryArrayInsert(this.maintags, newTag, TagExtraMin.ascendingCompare);
+      }else{
+        this.othertags.splice(index.index, 1);
+        this.othertags=Utils.binaryArrayInsert(this.othertags, newTag, TagExtraMin.ascendingCompare);
+      }
+    }else{
+      console.log('index is null');
+    }
+    console.log('after');console.log(JSON.stringify(this));
+  }
+
   public getTagTypeAsArray(type:TagType):TagType[]{
     let array:TagType[]=[];
     if(type==TagType.MAIN){
