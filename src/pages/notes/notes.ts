@@ -49,21 +49,23 @@ import { GraphicProvider} from '../../providers/graphic'
 export class NotesPage {
 
   /*defining the result from the API.*/
-  shownNotes: NoteExtraMinWithDate[] = null;
-  allNotes : NoteExtraMinWithDate[] = null;
-  currentFilter : FilterNs.Filter = FilterNs.Filter.None;
-  currentFilterValue: any = null;
+  private shownNotes: NoteExtraMinWithDate[] = null;
+  private allNotes : NoteExtraMinWithDate[] = null;
+  private currentFilter : FilterNs.Filter = FilterNs.Filter.None;
+  private currentFilterValue: any = null;
 
-  searchCtrl: FormControl;
-  searchTerm: string ='';
+  private searchCtrl: FormControl;
+  private searchTerm: string ='';
 
-  isFull: boolean;
+  private isFull: boolean;
 
-  isRefreshing:boolean = false;
+  private isRefreshing:boolean = false;
 
-  isRefreshingSet: boolean = false;
+  private isRefreshingSet: boolean = false;
 
   private isThereSomethingToShow: boolean = false;
+
+  private firstTime: boolean = true;
 
   /*post - deleting an angular error appears but I can figure out why, try catch on each method doesn't work.
   So I remove them.
@@ -174,14 +176,15 @@ export class NotesPage {
   }
 
 
-  setGoBack(goback:boolean){
-    console.log('going to set goback: '+goback);
-    this.viewCtrl.showBackButton(goback);
-    console.log('done');
-  }
+  // setGoBack(goback:boolean){
+  //   console.log('going to set goback: '+goback);
+  //   this.viewCtrl.showBackButton(goback);
+  //   console.log('done');
+  // }
 
 
-  showPopover(event){
+
+  private showPopover(event){
     // try{
       let popover:Popover;
       if(this.currentFilter==FilterNs.Filter.None/*|| this.currentFilter==null*/){
@@ -203,18 +206,19 @@ export class NotesPage {
       // }else{
       //   this.setGoBack(true); /*when arriving from note details this is doesn't work.*/
       // }
-      if(this.allNotes==null){
-        this.loadByFilter(false);
-      }
+      // if(this.allNotes==null){
+      //   this.loadByFilter(false);
+      // }
+      this.firstTime=true;
   }
 
 
-  displayNoteDetails(/*title: string, index:number*/note:NoteExtraMinWithDate){
+  private displayNoteDetails(/*title: string, index:number*/note:NoteExtraMinWithDate){
     this.navCtrl.push(NoteDetailsPage, {note:note}).then(()=>{});
   }
 
 
-  unshiftIfPossible(note:NoteExtraMinWithDate){
+  private unshiftIfPossible(note:NoteExtraMinWithDate){
     if(note!=null && this.allNotes!=null && this.shownNotes!=null){
       this.allNotes.unshift(note);
       this.shownNotes.unshift(note);
@@ -224,7 +228,7 @@ export class NotesPage {
 
 
 //test this.
-  removeIfPossible(note:NoteExtraMinWithDate){
+  private removeIfPossible(note:NoteExtraMinWithDate){
     // try{
       // if(index!=-1 && this.allNotes!=null && this.shownNotes!=null){
       //   this.allNotes.splice(index,1);
@@ -255,7 +259,7 @@ export class NotesPage {
   }
 
 
-  removeAndAddIfPossible(oldNote:NoteExtraMinWithDate, newNote:NoteExtraMinWithDate):void{
+  private removeAndAddIfPossible(oldNote:NoteExtraMinWithDate, newNote:NoteExtraMinWithDate):void{
     let ind1:number =-1;
     let ind2:number =-1;
 
@@ -307,12 +311,13 @@ export class NotesPage {
   }
 
 
-  refresh(refresher:any){
+  private refresh(refresher:any){
     //this.refresher = refresher;
-    this.loadByFilter(true, refresher);
+    this.loadByFilter(!this.firstTime, refresher);
+    this.firstTime=false;
   }
 
-  createNewNote(){
+  private createNewNote(){
     //this.navCtrl.push(CreateNotePage);
     // try{
       this.events.publish('change-tab', 1);
@@ -320,7 +325,7 @@ export class NotesPage {
 
   }
 
-  loadByFilter(/*firsTime:boolean*/force: boolean, refresher?:any){
+  private loadByFilter(/*firsTime:boolean*/force: boolean, refresher?:any){
     console.log('im going to set');
     let p:Promise<void>
     switch(this.currentFilter){
@@ -381,7 +386,7 @@ export class NotesPage {
   //       this.setIsThereSomethingToShow();
   //     })
   // }
-  loadMin(force: boolean):Promise<void>{
+  private loadMin(force: boolean):Promise<void>{
      return new Promise<void>((resolve, reject)=>{
       this.atticNotes.loadNotesMin(force)
         .then(result=>{
@@ -454,7 +459,7 @@ export class NotesPage {
   //   })
   // }
 
-  loadByTags(tags: TagAlmostMin[], and:boolean, force: boolean):Promise<void>{
+  private loadByTags(tags: TagAlmostMin[], and:boolean, force: boolean):Promise<void>{
   //  if(this.allNotes!=null
       /*doing the filter on the note that I have.*/
   //  }
@@ -526,7 +531,7 @@ export class NotesPage {
   //   this.setIsThereSomethingToShow();
   // }
 
-  loadByTitle(title: string):Promise<void>{
+  private loadByTitle(title: string):Promise<void>{
     // this.atticNotes.notesByTitle(title)
     //   .then(result=>{
     //     this.notes=<NoteMin[]>result;
@@ -559,7 +564,7 @@ export class NotesPage {
   //
   //     })
   // }
-  loadByText(text: string/*, firstTime: boolean*/, force: boolean):Promise<void>{
+  private loadByText(text: string/*, firstTime: boolean*/, force: boolean):Promise<void>{
     return new Promise<void>((resolve, reject)=>{
       this.atticNotes.notesByText(text, force)
         .then(result=>{

@@ -2770,7 +2770,7 @@ public getNotesByTags(tags: TagAlmostMin[], userid: string, and:boolean):Promise
     notes.forEach(note=>{
       // console.log('note is');console.log(JSON.stringify(note));
       for(let i=0;i<tags.length;i++){
-        note.removeTag2(tags[i]);
+        note.removeTag(tags[i]);
         // console.log('after removing:');console.log(JSON.stringify(note));
       }
       this.updateJsonObjNote(note, userid, false, tx);

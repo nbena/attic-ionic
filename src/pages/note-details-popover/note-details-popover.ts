@@ -20,16 +20,16 @@ import { GraphicProvider} from '../../providers/graphic'
 })
 export class NoteDetailsPopoverPage {
 
-  done: string;
-  note: NoteFull = null;
+  private done: string;
+  private note: NoteFull = null;
   // title:string;
 
   // index:number=-1;
 
-  btnChangeTextEnabled:boolean = false;
-  btnChangeTitleEnabled:boolean = false;
+  private btnChangeTextEnabled:boolean = false;
+  private btnChangeTitleEnabled:boolean = false;
 
-  lastmod: Date;
+  private lastmod: Date;
 
 
   //private oldTitle:string;
@@ -83,7 +83,7 @@ export class NoteDetailsPopoverPage {
 
 
 
-  changeText(){
+  private changeText(){
     this.viewCtrl.dismiss();
     //this.navCtrl.push(NoteEditTextPage, {note: this.note})
     this.app.getActiveNav().push(NoteEditTextPage, {note:this.note});
@@ -115,7 +115,7 @@ export class NoteDetailsPopoverPage {
   //   }
   // }
 
-  changeTitle(){
+  private changeTitle(){
       // let prompt = this.alertCtrl.create({
       //   title: 'New title',
       //   message: 'Enter a new title',
@@ -151,7 +151,7 @@ export class NoteDetailsPopoverPage {
   Title and text are changed immediately.
   */
 
-  changeTitleAPI(title: string){
+  private changeTitleAPI(title: string){
     let oldNote:NoteExtraMinWithDate = new NoteExtraMinWithDate({title:this.note.title, lastmodificationdate:this.lastmod});
     //oldNote.lastmodificationdate = this.lastmod;
     let date = new Date();
@@ -197,7 +197,7 @@ export class NoteDetailsPopoverPage {
   // }
 
 
-  deleteNote(){
+  private deleteNote(){
     // Utils.askConfirm(this.alertCtrl, 'Are you sure to delete note \''+this.note.title+'\'?',(_ : boolean)=>{
     //   if(_){
     //     this.deleteNoteAPI();
@@ -210,7 +210,7 @@ export class NoteDetailsPopoverPage {
     )
   }
 
-  deleteNoteAPI(){
+  private deleteNoteAPI(){
     // this.atticNotes.deleteNote(this.note)
     // .then(result=>{
     //   return Utils.presentToast(this.toastCtrl, 'Note deleted');

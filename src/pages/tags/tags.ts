@@ -26,10 +26,12 @@ export class TagsPage {
   private allTags: TagAlmostMin[] = null;
 
 
-  searchCtrl: FormControl;
-  searchTerm: string ='';
+  private searchCtrl: FormControl;
+  private searchTerm: string ='';
 
   private isThereSomethingToShow: boolean = false;
+
+  private firstTime: boolean = true;
 
   constructor(public navCtrl: NavController,
     // public alertCtrl: AlertController,
@@ -242,12 +244,16 @@ export class TagsPage {
     // setTimeout(()=>{
     //   refresher.complete();
     // },2000);
-    this.load(true, null, refresher);
+    this.load(!this.firstTime, null, refresher);
+    this.firstTime=false;
   }
 
   ionViewWillEnter(){
     //console.log('will enter');
-    if(this.allTags==null){
+
+    this.firstTime=true;
+
+    if(this.allTags==null){ //ok, because it exists the 'invalidate-tags' msg
       this.load(false);
     }
   }

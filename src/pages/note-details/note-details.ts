@@ -31,7 +31,7 @@ import { isWebUri } from 'valid-url';
 
 export class NoteDetailsPage {
 
-  note: NoteFull = null;
+  private note: NoteFull = null;
   // _mainTags: TagExtraMin[];
   // _otherTags: TagExtraMin[];
   // _links: string[];
@@ -41,18 +41,18 @@ export class NoteDetailsPage {
 
   /*note's data.*/
 
-  mainTags: TagExtraMin[] = [];
-  otherTags: TagExtraMin[] = [];
-  links: string[] = [];
-  isDone: boolean= false;
+  private mainTags: TagExtraMin[] = [];
+  private otherTags: TagExtraMin[] = [];
+  private links: string[] = [];
+  private isDone: boolean= false;
 
-  shownMainTags: TagExtraMin[]; /*what is really shown depends on what user chooses to do.*/
-  shownOtherTags: TagExtraMin[];
-  shownLinks: string[] = []; /*this is also used to track the links that will be (eventually) sent to the server */
-  shownIsDone: boolean = false;
+  private shownMainTags: TagExtraMin[]; /*what is really shown depends on what user chooses to do.*/
+  private shownOtherTags:TagExtraMin[];
+  private shownLinks: string[] = []; /*this is also used to track the links that will be (eventually) sent to the server */
+  private shownIsDone: boolean = false;
 
-  mainTagsToAdd: TagExtraMin[] = [];
-  otherTagsToAdd: TagExtraMin[] = [];
+  private mainTagsToAdd: TagExtraMin[] = [];
+  private otherTagsToAdd: TagExtraMin[] = [];
 
 
 
@@ -64,44 +64,44 @@ export class NoteDetailsPage {
   initially is blank, everytime a user delete a tag, if the tag is a part of the
   note, that tag is pushed here.
   */
-  tagsToRemove: TagExtraMin[]=[];
+  private tagsToRemove: TagExtraMin[]=[];
 
 
-  submitChangeEnabled: boolean = false;
+  private submitChangeEnabled: boolean = false;
 
 
-  haveToAddMainTags: boolean = false;
-  haveToAddOtherTags: boolean = false;
+  private haveToAddMainTags: boolean = false;
+  private haveToAddOtherTags: boolean = false;
   // haveToRemoveMainTags: boolean = false;
   // haveToRemoveOtherTags: boolean = false;
-  haveToRemoveTags: boolean = false;
-  isDoneChanged: boolean = false; /*don't really need this.*/
-  haveToChangeLinks: boolean = false;
+  private haveToRemoveTags: boolean = false;
+  private isDoneChanged: boolean = false; /*don't really need this.*/
+  private haveToChangeLinks: boolean = false;
 
-  availableOtherTags: TagExtraMin[] =[];
-  availableMainTags: TagExtraMin[] = [];
+  private availableOtherTags: TagExtraMin[] =[];
+  private availableMainTags: TagExtraMin[] = [];
 
-  availableTags: TagExtraMin[] = null; //before they were initialized.
+  private availableTags: TagExtraMin[] = null; //before they were initialized.
   //areTagsAvailable: boolean = false;
 
-  reallyAvailableTags: TagExtraMin[] = null;
+  private reallyAvailableTags: TagExtraMin[] = null;
 
   // tmpLastmodificationdate: Date;
 
 
-  lastmod: Date;
+  private lastmod: Date;
 
-  addMainTagsEnabled: boolean = true;
-  addOtherTagsEnabled: boolean = true;
+  private addMainTagsEnabled: boolean = true;
+  private addOtherTagsEnabled: boolean = true;
 
-  isNoteLoaded: boolean = false;
-  isNoteReallyLoaded: boolean = false;
+  private isNoteLoaded: boolean = false;
+  private isNoteReallyLoaded: boolean = false;
 
-  areTagsReallyLoaded: boolean = false;
+  private areTagsReallyLoaded: boolean = false;
 
   // index: number=-1;
 
-  basicNote: NoteExtraMinWithDate;
+  private basicNote: NoteExtraMinWithDate;
 
   // private oldNote:NoteFull=null;
 
@@ -162,7 +162,7 @@ export class NoteDetailsPage {
   //   this.loadTags(false);
   // }
 
-  makeAllFalse(){
+  private makeAllFalse(){
     this.haveToAddMainTags = false;
     this.haveToAddOtherTags = false;
     this.haveToChangeLinks = false;
@@ -229,7 +229,7 @@ export class NoteDetailsPage {
   //     })
   // }
 
-  load(force:boolean, refresher?:any):void{
+  private load(force:boolean, refresher?:any):void{
     Promise.all([this.noteByTitle(force), this.loadTags(force)])
     .then(()=>{
       if(refresher!=null){
@@ -244,7 +244,7 @@ export class NoteDetailsPage {
     })
   }
 
-  noteByTitle(force: boolean){
+  private noteByTitle(force: boolean){
     return new Promise<void>((resolve, reject)=>{
       this.atticNotes.noteByTitle(this.note.title, force)
         .then(result=>{
@@ -299,7 +299,7 @@ export class NoteDetailsPage {
 
 
 
-  loadTags(force: boolean){
+  private loadTags(force: boolean){
     return new Promise<void>((resolve, reject)=>{
       this.atticTags.loadTagsMin(force)
         .then(result=>{
@@ -324,11 +324,11 @@ export class NoteDetailsPage {
   //   // this.reallyAvailableTags=Utils.arrayDiff3(this.reallyAvailableTags, filter);
   // }
 
-  makeReallyAvailable(){
+  private makeReallyAvailable(){
     this.reallyAvailableTags = this.availableTags;
   }
 
-  //makeReallyAvailable(){
+  //makeReallyAvailable(){private
     //this.reallyAvailableTags=this.availableTags; --> the only one used.
     // console.log("the really available tags: \n");
     // console.log(JSON.stringify(this.reallyAvailableTags));
@@ -365,11 +365,11 @@ export class NoteDetailsPage {
     this.firstTime=true;
   }
 
-  displayTagDetails(title: string){
+  private displayTagDetails(title: string){
     this.navCtrl.push(TagDetailsPage, {title})
   }
 
-  refresh(refresher){
+  private refresh(refresher){
     // this.noteByTitle(true);
     // this.loadTags(true);
     // Promise.all([this.noteByTitle(true), this.loadTags(true)])
@@ -382,7 +382,7 @@ export class NoteDetailsPage {
 
 
 
-  showPopover(event){
+  private showPopover(event){
     // console.log('click and');console.log(this.isNoteLoaded);
     // console.log('so this note is');console.log(JSON.stringify(this.note));
     if(this.isNoteLoaded){
@@ -397,7 +397,7 @@ export class NoteDetailsPage {
   Use an alert instead of a select because I can have more control on
   what it is selected (and removed, with ion-chip).
   */
-  addMainTags(){
+  private addMainTags(){
     // let alert = this.alertCtrl.create();
     // alert.setTitle("Add main tags");
     //
@@ -435,7 +435,7 @@ export class NoteDetailsPage {
     //}
   }
 
-  effectivelyAddMainTags(tags:TagExtraMin[]){
+  private effectivelyAddMainTags(tags:TagExtraMin[]){
     this.shownMainTags=this.shownMainTags.concat(tags);
     this.mainTagsToAdd=this.mainTagsToAdd.concat(tags);
     this.haveToAddMainTags = true;
@@ -456,7 +456,7 @@ export class NoteDetailsPage {
   //   this.note.maintags=this.note.maintags.concat(this.mainTagsToAdd);
   // }
 
-  addOtherTags(){
+  private addOtherTags(){
     // let alert = this.alertCtrl.create();
     // alert.setTitle("Add other tags");
     //
@@ -495,7 +495,7 @@ export class NoteDetailsPage {
   }
 
 
-  effectivelyAddOtherTags(tags:TagExtraMin[]){
+  private effectivelyAddOtherTags(tags:TagExtraMin[]){
     this.shownOtherTags=this.shownOtherTags.concat(tags);
     this.otherTagsToAdd=this.otherTagsToAdd.concat(tags);
     this.haveToAddOtherTags = true;
@@ -517,14 +517,14 @@ export class NoteDetailsPage {
   /*
   callback to pass.
   */
-  addLinks(link:string){
+  private addLinks(link:string){
     this.shownLinks.push(link);
     this.haveToChangeLinks = true;
     this.submitChangeEnabled = true;
     // this.newLinks.push(data.link);
   }
 
-  pushLinks(){
+  private pushLinks(){
 
     //Utils.pushLink(this.alertCtrl, (data)=>{this.addLinks(data)});
     // if(this.isNoteReallyLoaded){
@@ -555,7 +555,7 @@ export class NoteDetailsPage {
     // }
   }
 
-  deleteMainTags(event, i: number, tag:TagExtraMin){
+  private deleteMainTags(event, i: number, tag:TagExtraMin){
      event.stopPropagation();
      /*remove from the shown.*/
      this.shownMainTags.splice(i, 1);
@@ -579,7 +579,7 @@ export class NoteDetailsPage {
      }
   }
 
-  deleteOtherTags(event, i: number,tag:TagExtraMin){
+  private deleteOtherTags(event, i: number,tag:TagExtraMin){
     event.stopPropagation();
     /*remove from the shown.*/
     this.shownOtherTags.splice(i, 1);
@@ -602,7 +602,7 @@ export class NoteDetailsPage {
     }
   }
 
-  deleteLinks(event, i: number, link: string){
+  private deleteLinks(event, i: number, link: string){
     event.stopPropagation();
     /*remove from the shown.*/
     this.shownLinks.splice(i, 1);
@@ -625,7 +625,7 @@ export class NoteDetailsPage {
     // this.haveToRemoveLinks = true;
   }
 
-  isDoneChanges(){
+  private isDoneChanges(){
     /*
     keep this enabled even if there aren't chages on isDone,
     because there can be other changes in other fields.
@@ -638,7 +638,7 @@ export class NoteDetailsPage {
     }
   }
 
-  addTagsAPI():Promise<void>{
+  private addTagsAPI():Promise<void>{
     // this.note.maintags = this.note.maintags.concat(this.mainTagsToAdd);
     // this.note.othertags = this.note.othertags.concat(this.otherTagsToAdd);
     return this.atticNotes.addTags(this.note, this.mainTagsToAdd, this.otherTagsToAdd/*, this.lastmod*/);
@@ -647,7 +647,7 @@ export class NoteDetailsPage {
   /*
   defining real APIs
   */
-  addMainTagsAPI():Promise<void>{
+  private addMainTagsAPI():Promise<void>{
     //try{
       // this.note.maintags = this.note.maintags.concat(this.mainTagsToAdd);
       // done in the db.
@@ -657,26 +657,26 @@ export class NoteDetailsPage {
     // }
   }
 
-  addOtherTagsAPI():Promise<void>{
+  private addOtherTagsAPI():Promise<void>{
     // this.note.othertags = this.note.othertags.concat(this.otherTagsToAdd);
     // done in the db.
     return this.atticNotes.addOtherTags(this.note, this.otherTagsToAdd/*, this.lastmod*/);
   }
 
 
-  changeLinksAPI():Promise<void>{
+  private changeLinksAPI():Promise<void>{
     // return this.atticNotes.changeLinks(this.note.title, this.shownLinks);
     this.note.links = this.shownLinks;
     return this.atticNotes.changeLinks(this.note/*, this.lastmod*/);
   }
 
-  changeDoneAPI():Promise<void>{
+  private changeDoneAPI():Promise<void>{
     //  return this.atticNotes.changeDone(this.note.title, this.shownIsDone);
     this.note.isdone = this.shownIsDone;
     return this.atticNotes.changeDone(this.note/*, this.lastmod*/);
   }
 
-  removeTagsAPI():Promise<void>{
+  private removeTagsAPI():Promise<void>{
     // console.log('the tags to remove');console.log(JSON.stringify(this.tagsToRemove));
 
     //this.tagsToRemove.forEach(obj=>{this.note.removeTag(obj)});
@@ -689,7 +689,7 @@ export class NoteDetailsPage {
   }
 
 
-  haveToDoSomething():boolean{
+  private haveToDoSomething():boolean{
     return this.haveToRemoveTags || this.haveToAddMainTags || this.haveToChangeLinks
      || this.haveToAddOtherTags || this.isDoneChanged
   }
@@ -699,7 +699,7 @@ export class NoteDetailsPage {
   }
 
 
-  submit(){
+  private submit(){
     /*decide which actions must be taken.*/
     // console.log('now I try');
     // try{
@@ -820,18 +820,18 @@ export class NoteDetailsPage {
 
   }
 
-  allFalse():boolean{
+  private allFalse():boolean{
     return this.haveToChangeLinks == false && this.haveToAddMainTags == false
       && this.haveToAddOtherTags == false && this.haveToRemoveTags &&
       this.isDoneChanged == false;
   }
 
-  revertToOldDate(){
+  private revertToOldDate(){
     this.note.lastmodificationdate=this.lastmod
   }
 
 
-  browse(link:string){
+  private browse(link:string){
     const browser:InAppBrowserObject = this.iab.create(link, '_system');
     //browser.show();
   }

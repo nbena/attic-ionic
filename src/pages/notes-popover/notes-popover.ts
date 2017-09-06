@@ -55,7 +55,7 @@ export class NotesPopoverPage {
     console.log('ionViewDidLoad NotesPopoverPage');
   }
 
-  filterByText(){
+  private filterByText(){
       // let prompt = this.alertCtrl.create({
       //   title: 'Search by text',
       //   message: 'Enter the text you want to search',
@@ -90,7 +90,7 @@ export class NotesPopoverPage {
   // }
 
 
-  filterByTextAPI(value: string){
+  private filterByTextAPI(value: string){
     // this.navCtrl.push(NotesPage, {filterType: FilterNs.Filter.Text, filterValue: value})
     // .then(()=>{
     //   this.viewCtrl.dismiss();
@@ -101,7 +101,7 @@ export class NotesPopoverPage {
     })
   }
 
-  filterByTagsNoRole(){
+  private filterByTagsNoRole(){
     // this.close();
     // this.navCtrl.push(NotesByTagPage)
     // .then(()=>{
@@ -111,7 +111,7 @@ export class NotesPopoverPage {
     .then(()=>{this.viewCtrl.dismiss()})
   }
 
-  filterByIsDone(){
+  private filterByIsDone(){
     this.graphicProvider.genericAlertInput('Search by \'is done\'',
     [{type:'radio', label:'True', value:'true'},{type:'radio', label:'False', value:'false'}],
     (data:any)=>{
@@ -119,7 +119,7 @@ export class NotesPopoverPage {
   );
   }
 
-  filterByIsDoneAPI(isdone:boolean){
+  private filterByIsDoneAPI(isdone:boolean){
     // this.navCtrl.push(NotesPage, {filterType: FilterNs.Filter.IsDone, filterValue: isdone})
     // .then(()=>{
     //   this.viewCtrl.dismiss();
@@ -131,7 +131,7 @@ export class NotesPopoverPage {
     })
   }
 
-  unfilter(){
+  private unfilter(){
     // this.navCtrl.push(NotesPage, {filterType: FilterNs.Filter.None})
     // .then(()=>{
     //   this.viewCtrl.dismiss();

@@ -115,7 +115,7 @@ export class TagDetailsPage {
   //       this.tag = null;
   //     })
   // }
-  tagByTitle(force: boolean):Promise<void>{
+  private tagByTitle(force: boolean):Promise<void>{
     return new Promise<void>((resolve, reject)=>{
       this.atticTags.tagByTitle(this.tag.title, force)
         .then(result=>{
@@ -138,11 +138,11 @@ export class TagDetailsPage {
     })
   }
 
-  displayNoteDetails(title: string){
+  private displayNoteDetails(title: string){
     this.navCtrl.push(NoteDetailsPage, {title});
   }
 
-  refresh(refresher){
+  private refresh(refresher){
     // this.tagByTitle(this.title, true);
     // setTimeout(()=>{
     //   refresher.complete();
@@ -151,7 +151,7 @@ export class TagDetailsPage {
     this.firstTime=false;
   }
 
-  load(force:boolean, refresher?:any){
+  private load(force:boolean, refresher?:any){
     this.tagByTitle(force)
     .then(()=>{
       console.log('ok tag by title');
@@ -167,7 +167,7 @@ export class TagDetailsPage {
     })
   }
 
-  showPopover(event){
+  private showPopover(event){
     if(this.isTagLoaded){
       let popover=this.popoverCtrl.create(TagDetailsPopoverPage, {tag: this.tag});
       popover.present({

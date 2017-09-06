@@ -34,9 +34,9 @@ export class LoginPage {
   // userId: string = 'omni@pollo.com'; /*test user*/
   // password: string;
   // loading: any;
-  tryingToSubmit = false;
+  private tryingToSubmit = false;
 
-  loginPageForm: FormGroup;
+  private loginPageForm: FormGroup;
 
   private loading: Loading;
 
@@ -114,7 +114,7 @@ export class LoginPage {
   // }
 
 //called from the page
-  login(){
+  private login(){
     if(this.loginPageForm.valid){
       this.loading=this.graphicProvider.showLoading('Authenticating'); //maybe I'll remove it.
 
@@ -146,7 +146,7 @@ export class LoginPage {
 
 
   //called from the page
-  registerUser(){
+  private registerUser(){
     // try{
     //   //this.navCtrl.push(RegisterPage);
     //   console.log('click');
@@ -159,7 +159,7 @@ export class LoginPage {
   }
 
   //correct error msg if user already exists.
-  registerAPI(){
+  private registerAPI(){
     if(this.loginPageForm.valid){
       this.loading=this.graphicProvider.showLoading('Authenticating'); //maybe I'll remove it.
 
@@ -192,7 +192,7 @@ export class LoginPage {
     }
   }
 
-  makeEmptyAll(){
+  private makeEmptyAll(){
     this.loginPageForm.reset({
       email: '',
       password: ''
@@ -200,7 +200,7 @@ export class LoginPage {
   };
 
 
-  makeEmptyJustUserid(){
+  private makeEmptyJustUserid(){
     let temp:string = this.loginPageForm.value.email;
     this.loginPageForm.reset({
       email:temp,

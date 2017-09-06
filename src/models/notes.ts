@@ -121,13 +121,16 @@ export class NoteBarebon extends NoteExtraMinWithDate{
   //   this.title=title;
   //   this.text=text;
   // }
-  constructor(input?:{title?:string, text?:string, isdone?:boolean, linsk?:string, creationdate?:Date}){
+  constructor(input?:{title?:string, text?:string, isdone?:boolean, linsk?:string[], creationdate?:Date, lastmodificationdate?:Date}){
     if(input!=null){
-      if(input.title!=null){
-        super({title:input.title});
-      }else{
-        super();
-      }
+      // if(input.title!=null && input.lastmodificationdate!=null){
+      //   super({title:input.title, lastmodificationdate:input.lastmodificationdate});
+      // }else if(input.title!=null){
+      //   super({title:input.title});
+      // }else if(input.lastmodificationdate!=null){
+      //   super({lastmodificationdate:input.lastmodificationdate});
+      // }
+      super(input);
       this.init(input);
     }else{
       super();
@@ -135,19 +138,22 @@ export class NoteBarebon extends NoteExtraMinWithDate{
   }
 
   protected init(input:{title?:string, text?:string, isdone?:boolean,
-    links?:string[], lastmodificationdate?:Date, creationdate?:Date}):void{
+    links?:string[], creationdate?:Date/*,lastmodificationdate?:Date*/}):void{
+
+      this.links=[];
+
       if(input.text!=null){
         this.text=input.text;
       }
       if(input.isdone!=null){
         this.isdone=input.isdone;
       }
-      if(input.links!=null){
+      if(input.links!=null && input.links.length>0){
         this.links=input.links;
       }
-      if(input.lastmodificationdate!=null){
-        this.lastmodificationdate=input.lastmodificationdate;
-      }
+      // if(input.lastmodificationdate!=null){
+      //   this.lastmodificationdate=input.lastmodificationdate;
+      // }
       if(input.creationdate!=null){
         this.creationdate=input.creationdate;
       }
@@ -200,11 +206,15 @@ export class NoteMin extends NoteBarebon{
       // if(input.creationdate!=null){
       //   this.creationdate=input.creationdate;
       // }
+
+      this.maintags=[];
+      this.othertags=[];
+
       super.init(input);
-      if(input.maintags!=null){
+      if(input.maintags!=null && input.maintags.length>0){
         this.maintags=input.maintags;
       }
-      if(input.othertags!=null){
+      if(input.othertags!=null && input.othertags.length>0){
         this.othertags=input.othertags;
       }
   }
@@ -336,11 +346,16 @@ export class NoteFull extends NoteBarebon{
       // if(input.creationdate!=null){
       //   this.creationdate=input.creationdate;
       // }
+
       super.init(input);
-      if(input.maintags!=null){
+
+      this.maintags=[];
+      this.othertags=[];
+
+      if(input.maintags!=null && input.maintags.length>0){
         this.maintags=input.maintags;
       }
-      if(input.othertags!=null){
+      if(input.othertags!=null && input.othertags.length>0){
         this.othertags=input.othertags;
       }
   }
@@ -359,7 +374,7 @@ export class NoteFull extends NoteBarebon{
     return str;
   }
 
-  public removeTag2(tag:TagExtraMin):void{
+  public removeTag(tag:TagExtraMin):void{
     let found:boolean = false;
     for(let i=0;i<this.maintags.length;i++){
       if(this.maintags[i].title==tag.title){

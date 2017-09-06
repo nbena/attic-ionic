@@ -20,12 +20,12 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms'
 })
 export class NoteEditTextPage {
 
-  note: NoteFull;
+  private note: NoteFull;
   // text: string;
 
-  editTextPageForm: FormGroup;
+  private editTextPageForm: FormGroup;
 
-  tmpLastmodificationdate: Date;
+  private tmpLastmodificationdate: Date;
 
   //lastmod: Date;
 
@@ -52,12 +52,12 @@ export class NoteEditTextPage {
     console.log('ionViewDidLoad NoteEditTextPage');
   }
 
-  cancel(){
+  private cancel(){
     this.navCtrl.pop();
   }
 
 
-  changeText(){
+  private changeText(){
     // this.note.text = this.text;
     if(this.editTextPageForm.valid){
       this.note.text = this.editTextPageForm.value.text;

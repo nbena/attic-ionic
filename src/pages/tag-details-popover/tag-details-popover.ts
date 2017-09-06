@@ -47,7 +47,7 @@ export class TagDetailsPopoverPage {
     console.log('ionViewDidLoad TagsPopoverPage');
   }
 
-  changeTitle(){
+  private changeTitle(){
     // let prompt = this.alertCtrl.create({
     //   title: 'New title',
     //   message: 'Enter a new title',
@@ -79,7 +79,7 @@ export class TagDetailsPopoverPage {
       )
   }
 
-  changeTitleAPI(newTitle:string){
+  private changeTitleAPI(newTitle:string){
     let oldTag = new TagAlmostMin({title:this.tag.title, noteslength:this.tag.noteslength});
     let newTag = new TagAlmostMin({title:newTitle, noteslength:this.tag.noteslength});
     this.viewCtrl.dismiss()
@@ -105,7 +105,7 @@ export class TagDetailsPopoverPage {
   //   this.viewCtrl.dismiss();
   // }
 
-  deleteTag(){
+  private deleteTag(){
     // Utils.askConfirm(this.alertCtrl, 'Are you sure to delete tag \''+this.tag.title+'\'',(_ : boolean)=>{
     //   if(_){
     //     this.deleteTagAPI();
@@ -136,7 +136,7 @@ export class TagDetailsPopoverPage {
   //   })
   // }
 
-  deleteTagAPI(){
+  private deleteTagAPI(){
     this.viewCtrl.dismiss()
     .then(()=>{
       return this.atticTags.deleteTag(this.tag)

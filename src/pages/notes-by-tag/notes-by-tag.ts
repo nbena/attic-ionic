@@ -25,19 +25,21 @@ export class NotesByTagPage {
 
   private isChecked: boolean[] = [];
 
-  searchCtrl: FormControl;
-  searchTerm: string ='';
+  private searchCtrl: FormControl;
+  private searchTerm: string ='';
 
-  btnEnabled: boolean = false;
-  checkedCount: number = 0;
+  private btnEnabled: boolean = false;
+  private checkedCount: number = 0;
 
-  isThereSomethingToShow: boolean = false;
+  private isThereSomethingToShow: boolean = false;
 
   // searchPageForm: FormGroup;
 
   // array:any[];
 
-  searchOption:string='and';
+  private searchOption:string='and';
+
+  private firstTime:boolean = true;
 
   constructor(public navCtrl: NavController, public navParams: NavParams,
     private atticTags: AtticTags,
@@ -47,7 +49,8 @@ export class NotesByTagPage {
     // private formBuilder: FormBuilder
   ) {
     if(this.allTags==null){
-      this.loadAlmostMin(false);
+      //this.loadAlmostMin(false);
+      this.load(false);
     }
     this.searchCtrl = new FormControl();
 
@@ -59,7 +62,7 @@ export class NotesByTagPage {
 
   }
 
-  private setIsThereSomethingToShow(){
+  private setIsThereSomethingToShow():void{
     this.isThereSomethingToShow = (this.shownTags.length>0) ? true : false;
   }
 
@@ -77,40 +80,66 @@ export class NotesByTagPage {
     });
   }
 
-  loadByTitle(title: string){
+  private loadByTitle(title: string):void{
     this.shownTags = this.atticTags.filterTagByTitle(this.shownTags, title);
     this.mkIsChecked();
     this.setIsThereSomethingToShow();
   }
 
-  mkIsChecked(){
+  private mkIsChecked():void{
     for(let i=0;i<this.shownTags.length;i++){
       this.isChecked[i]=false;
     }
   }
 
-
-  loadAlmostMin(force: boolean){
-    this.atticTags.loadTagsMin(force)
-      .then(result=>{
-        this.allTags=result as TagAlmostMin[];
-        this.shownTags = this.allTags.slice();
-        this.setIsThereSomethingToShow();
-        this.mkIsChecked();
-      })
-      .catch(error=>{
-        console.log('load tags error: '+JSON.stringify(error));
-        this.graphicProvider.showErrorAlert(error);
-      })
+  private load(force:boolean, refresher?:any):void{
+    this.loadAlmostMin(force)
+    .then(()=>{
+      if(refresher!=null){
+        refresher.complete();
+      }
+      this.setIsThereSomethingToShow();
+    }).catch(error=>{
+      if(refresher!=null){
+        refresher.complete();
+      }
+      console.log('load tags error: '+JSON.stringify(error.message));
+      this.graphicProvider.showErrorAlert(error);
+    })
   }
 
 
-  refresh(refresher){
-    this.loadAlmostMin(true);
-    //before it was this.loadFull();
-    setTimeout(()=>{
-      refresher.complete();
-    },2000);
+  private loadAlmostMin(force: boolean):Promise<void>{
+    return new Promise<void>((resolve, reject)=>{
+      this.atticTags.loadTagsMin(force)
+        .then(result=>{
+          this.allTags=result as TagAlmostMin[];
+          this.shownTags = this.allTags.slice();
+          //this.setIsThereSomethingToShow();
+          this.mkIsChecked();
+          resolve();
+        })
+        .catch(error=>{
+          // console.log('load tags error: '+JSON.stringify(error.message));
+          // this.graphicProvider.showErrorAlert(error);
+          reject(error);
+        })
+    })
+  }
+
+
+  private refresh(refresher){
+    // this.loadAlmostMin(true);
+    // //before it was this.loadFull();
+    // setTimeout(()=>{
+    //   refresher.complete();
+    // },2000);
+    this.load(!this.firstTime, refresher);
+    this.firstTime=false;
+  }
+
+  ionViewWillEnter(){
+    this.firstTime=true;
   }
 
   // clickItem(e:any, itemIndex:number){
@@ -123,7 +152,7 @@ export class NotesByTagPage {
   //   }
   // }
 
-  dataChanged2(e:any, itemIndex:number){
+  private dataChanged2(e:any, itemIndex:number):void{
     console.log('changed');
     if(e.checked){
       this.isChecked[itemIndex]=true;
@@ -157,7 +186,7 @@ export class NotesByTagPage {
   // }
 
 
-  searchNotesByTags(){
+  private searchNotesByTags():void{
     // console.log('clicked');
     let passed:TagExtraMin[]=[];
     for(let i=0;i<this.shownTags.length;i++){
@@ -173,7 +202,7 @@ export class NotesByTagPage {
       // .then(()=>{
       //   this.viewCtrl.dismiss();
       // })
-      
+
       this.navCtrl.pop()
       .then(()=>{
         this.events.publish('go-to-notes-and-filter', {filterType:FilterNs.Filter.Tags,

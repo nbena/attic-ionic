@@ -90,7 +90,7 @@ export class CreateNotePage {
   }
 
 
-  load(force:boolean, refresher?:any):void{
+  private load(force:boolean, refresher?:any):void{
     this.loadMinTags(force)
     .then(()=>{
       if(refresher!=null){
@@ -123,7 +123,7 @@ export class CreateNotePage {
   //   }
   // }
 
-  loadMinTags(force:boolean){
+  private loadMinTags(force:boolean){
       // if(this.tags==null){
       return new Promise<void>((resolve, reject)=>{
         this.atticTags.loadTagsMin(force)
@@ -143,7 +143,7 @@ export class CreateNotePage {
   }
 
 
-  refresh(refresher){
+  private refresh(refresher){
     this.load(true, refresher);
   }
 
@@ -166,7 +166,7 @@ export class CreateNotePage {
   // }
 
 
-  getNote2():void{
+  private getNote2():void{
     // this.newNote = new NoteFull(this.createNotePageForm.value.title);
     // // this.newNote.title=this.createNotePageForm.value.title;
     // this.newNote.text=this.createNotePageForm.value.text;
@@ -185,7 +185,7 @@ export class CreateNotePage {
       isdone:this.createNotePageForm.value.isDone,
       creationdate:date,
       lastmodificationdate: date,
-      links:this.createNotePageForm.value.links
+      links:this.links
     })
     console.log('the new note is:');
     console.log(JSON.stringify(this.newNote));
@@ -206,7 +206,7 @@ export class CreateNotePage {
   // }
 
 
-  createNote(){
+  private createNote(){
     this.tryingToSubmit=true;
     if(AtticNotes.verifyMainTagsOtherTagsValid(this.createNotePageForm.value.mainTags,
       this.createNotePageForm.value.otherTags)==false){
@@ -241,14 +241,14 @@ export class CreateNotePage {
     // }
   }
 
-  deleteLinks(event, i:number){
+  private deleteLinks(event, i:number){
     event.stopPropagation();
     this.links.splice(i,1);
   }
 
 
   //it's important to pass a default value to avoid null value.
-  makeCompletelyEmpty(){
+  private makeCompletelyEmpty(){
     this.createNotePageForm.reset({
       title:'',
       text:'',
@@ -259,7 +259,7 @@ export class CreateNotePage {
     this.links=[];
   }
 
-  makeTagsEmpty(){
+  private makeTagsEmpty(){
     this.createNotePageForm.reset({
       title: this.createNotePageForm.value.title,
       text: this.createNotePageForm.value.text,
@@ -273,7 +273,7 @@ export class CreateNotePage {
   No need to check duplicates on links because it is already done by the server.
   */
 
-  pushLink(){
+  private pushLink(){
 
     //Utils.pushLink(this.alertCtrl, (data)=>{this.links.push(data.link)}/*function(data: string){this.links.push(data.link)}*/);
     this.graphicProvider.genericAlert('New link', 'Insert the new link',

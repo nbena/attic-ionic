@@ -22,16 +22,16 @@ import { Auth } from '../../providers/auth';
 })
 export class SummaryPage {
 
-  summary: UserSummary=null;
+  private summary: UserSummary=null;
 
-  synchState: string;
+  private synchState: string;
 
-  profileType: string;
+  private profileType: string;
 
-  availableNotes: string;
-  availableTags: string;
+  private availableNotes: string;
+  private availableTags: string;
 
-  synchingEnabled: boolean = false;
+  private synchingEnabled: boolean = false;
 
   private firstTime: boolean = true;
 
@@ -58,7 +58,7 @@ export class SummaryPage {
     }
   }
 
-  loadData(force: boolean):Promise<void>{
+  private loadData(force: boolean):Promise<void>{
     return new Promise<void>((resolve, reject)=>{
       this.atticUser.getUserSummary(force)
       .then(summary=>{
@@ -100,31 +100,31 @@ export class SummaryPage {
   }
 
 
-  refresh(refresher){
+  private refresh(refresher){
     this.load(!this.firstTime, refresher);
     this.firstTime=false;
   }
 
-  setSynchingEnabled(){
+  private setSynchingEnabled(){
     if(!this.synch.isSynching() && this.summary.data.logscount > 0){
       this.synchingEnabled = true;
     }
   }
 
-  setSynchState(){
+  private setSynchState(){
     this.setSynchingEnabled();
     if(this.synch.isSynching()){
-      console.log('is synching');
+      // console.log('is synching');
       this.synchState = Const.CURRENTLY_SYNCHING;
     }else{
-      console.log('is not synching');
+      // console.log('is not synching');
       this.synchState = Const.CURRENTLY_NOT_SYNCHING;
       console.log(this.synchState); //not refreshed...
     }
-    console.log('is enabled?');console.log(this.synchingEnabled);
+    // console.log('is enabled?');console.log(this.synchingEnabled);
   }
 
-  startSynching(){
+  private startSynching(){
 
     // try{
       if(this.synchingEnabled){ //even if it's
@@ -167,7 +167,7 @@ export class SummaryPage {
     // }
   }
 
-  empty(){
+  private empty(){
     this.graphicProvider.askConfirm( 'Question','Be sure to have everything synched before, '+
     'if not you\'ll loose changes; consider that cache can speed up app\'s performance. '+
     'Are you sure?',(confirmed : boolean)=>{
@@ -179,10 +179,10 @@ export class SummaryPage {
     });
   }
 
-  emptyAPI(){
+private emptyAPI(){
     this.atticUser.deleteEverything()
     .then(()=>{
-      console.log('ok everything deleted');
+      // console.log('ok everything deleted');
       //Utils.presentToast(this.toastCtrl, 'everything deleted');
       this.graphicProvider.presentToast('everything deleted');
     })
@@ -195,7 +195,7 @@ export class SummaryPage {
   }
 
 
-  logout(){
+  private logout(){
     this.graphicProvider.askConfirm('Question', 'Do you really want to logout?',
       (confirmed:boolean)=>{
         if(confirmed){
@@ -205,7 +205,7 @@ export class SummaryPage {
     )
   }
 
-  logoutAPI(){
+  private logoutAPI(){
     this.auth.logout()
     // .then(()=>{
     //   // this.navCtrl.popToRoot
