@@ -269,7 +269,7 @@ export class NoteDetailsPage {
           this.isNoteLoaded = true;
           this.isNoteReallyLoaded = true;
 
-          // console.log('the note is');console.log(JSON.stringify(this.note));
+          console.log('the note is');console.log(JSON.stringify(this.note));
           //
           // this.oldNote=this.note.clone();
           // console.log('the note');console.log(JSON.stringify(this.note));

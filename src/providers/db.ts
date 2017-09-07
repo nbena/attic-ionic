@@ -1479,6 +1479,7 @@ private static getNoteFullFromRes(res:any, index?:number):NoteFull{
       console.log('throw the error, note is not full!');
     }else{
       /*if here the note is ok.*/
+      console.log('the raw object is');console.log(JSON.stringify(rawResult));
       note = NoteFull.safeNewNoteFromJsObject(rawResult);
     }
   }
@@ -3291,24 +3292,25 @@ public removeTagsFromNote(note: NoteFull, userid: string, tags: TagExtraMin[], u
               let results:LogObjSmart[]=[];
               for(let i=0;i<res.rows.length;i++){
                 let obj: LogObjSmart = new LogObjSmart();
-                let tmpNote: any;
-                //obj.note = JSON.parse(res.rows.item(i).json_object);
-                tmpNote = JSON.parse(res.rows.item(i).json_object);
-                // console.log('obj is:');
-                // console.log(JSON.stringify(obj.note));
-                //modify note.
-                let mainTags:string[]=[];
-                let otherTags:string[]=[];
-                for(let i=0;i<tmpNote.maintags;i++){
-                  mainTags.push(tmpNote.maintags[i].title);
-                }
-                for(let i=0;i<tmpNote.othertags;i++){
-                  otherTags.push(tmpNote.othertags[i].title);
-                }
-                let note:NoteMin = new NoteMin();
-                note = tmpNote as NoteMin;
-                note.maintags=mainTags;
-                note.othertags =otherTags;
+                // let tmpNote: any;
+                // //obj.note = JSON.parse(res.rows.item(i).json_object);
+                // tmpNote = JSON.parse(res.rows.item(i).json_object);
+                // // console.log('obj is:');
+                // // console.log(JSON.stringify(obj.note));
+                // //modify note.
+                // let mainTags:string[]=[];
+                // let otherTags:string[]=[];
+                // for(let i=0;i<tmpNote.maintags;i++){
+                //   mainTags.push(tmpNote.maintags[i].title);
+                // }
+                // for(let i=0;i<tmpNote.othertags;i++){
+                //   otherTags.push(tmpNote.othertags[i].title);
+                // }
+                // let note:NoteMin = new NoteMin();
+                // note = tmpNote as NoteMin;
+                // note.maintags=mainTags;
+                // note.othertags =otherTags;
+                let note:NoteMin = NoteFull.safeNewNoteFromJsonString(res.rows.item(i).json_object).downgrade();
                 obj.note = note;
                 obj.action = DbActionNs.DbAction.create;
                 obj.userid = userid;
@@ -3665,8 +3667,8 @@ public removeTagsFromNote(note: NoteFull, userid: string, tags: TagExtraMin[], u
                 note.title = res.rows.item(i).notetitle;
                 // note.links = JSON.parse(res.rows.item(i).links);
 
-                let raw:NoteFull = JSON.parse(res.rows.item(i).json_object);
-                note.links = raw.links;
+                //let raw:NoteFull = JSON.parse(res.rows.item(i).json_object);
+                note.links = JSON.parse(res.rows.item(i).json_object).links;
 
                 obj.note = note;
                 obj.action = DbActionNs.DbAction.set_link;
@@ -3713,8 +3715,9 @@ public removeTagsFromNote(note: NoteFull, userid: string, tags: TagExtraMin[], u
                 note.title = res.rows.item(i).notetitle;
                 // note.isdone = res.rows.item(i).isdone;
 
-                let raw:NoteFull = JSON.parse(res.rows.item(i).json_object);
-                note.isdone = raw.isdone;
+                //let raw:NoteFull = JSON.parse(res.rows.item(i).json_object);
+                //note.isdone = raw.isdone;
+                note.isdone=JSON.parse(res.rows.item(i).json_object).isdone;
 
                 obj.note = note;
                 obj.action = DbActionNs.DbAction.set_done;

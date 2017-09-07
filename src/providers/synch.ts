@@ -374,6 +374,7 @@ export class Synch {
     .catch(error=>{
       console.log('error in removing bad things');
       console.log(JSON.stringify(error));
+      this.isStarted=false;
       reject(error);
     })
     })

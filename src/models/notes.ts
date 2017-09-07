@@ -52,13 +52,16 @@ export class NoteExtraMinWithDate extends NoteExtraMin{
   //   super(title);
   // }
   constructor(input?:{title?:string, lastmodificationdate?:Date}){
+    // console.log('received input');console.log(JSON.stringify(input));
     if(input!=null){
-      if(input.title!=null){
-        super(input.title);
-      }else{
-        super();
-      }
+      // if(input.title!=null){
+      //   super(input.title);
+      // }else{
+      //   super();
+      // }
+      super(input.title);
       if(input.lastmodificationdate!=null){
+        /*console.log('lastmod set');*/
         this.lastmodificationdate=input.lastmodificationdate;
       }
     }else{
@@ -186,6 +189,8 @@ export class NoteMin extends NoteBarebon{
       }else{
         super();
       }
+      this.maintags=[];
+      this.othertags=[];
   }
 
   protected init(input:{title?:string, text?:string, isdone?:boolean,
@@ -207,8 +212,6 @@ export class NoteMin extends NoteBarebon{
       //   this.creationdate=input.creationdate;
       // }
 
-      this.maintags=[];
-      this.othertags=[];
 
       super.init(input);
       if(input.maintags!=null && input.maintags.length>0){
@@ -280,8 +283,8 @@ export class NoteMin extends NoteBarebon{
       othertags:this.othertags.map(title=>{return new TagExtraMin(title)}),
       isdone: this.isdone,
       links: this.links,
-      creationdate: new Date(this.creationdate),
-      lastmodificationdate: new Date(this.lastmodificationdate)
+      creationdate: /*new Date(*/this.creationdate/*)*/,
+      lastmodificationdate: /*new Date(*/this.lastmodificationdate/*)*/
     })
     return note;
   }
@@ -319,13 +322,17 @@ export class NoteFull extends NoteBarebon{
     links?:string[], lastmodificationdate?:Date, creationdate?:Date,
     maintags?:TagExtraMin[], othertags?:TagExtraMin[]}){
       if(input!=null){
-        if(input.title!=null){
-          super({title:input.title});
-        }
+        // if(input.title!=null){
+        //   super({title:input.title});
+        // }
+        super(input);
         this.init(input);
       }else{
         super();
       }
+
+      this.maintags=[];
+      this.othertags=[];
   }
 
   protected init(input:{title?:string, text?:string, isdone?:boolean,
@@ -348,9 +355,6 @@ export class NoteFull extends NoteBarebon{
       // }
 
       super.init(input);
-
-      this.maintags=[];
-      this.othertags=[];
 
       if(input.maintags!=null && input.maintags.length>0){
         this.maintags=input.maintags;
@@ -519,8 +523,8 @@ export class NoteFull extends NoteBarebon{
   }
 
   public replaceTag(oldTag:TagExtraMin, newTag:TagExtraMin):void{
-    console.log('before');console.log(JSON.stringify(this));
-    console.log('tags:');console.log(JSON.stringify({old:oldTag, new:newTag}));
+    // console.log('before');console.log(JSON.stringify(this));
+    // console.log('tags:');console.log(JSON.stringify({old:oldTag, new:newTag}));
     let index:IndexTagType = this.getTagIndexType(oldTag);
     if(index!=null){
       if(index.type==TagType.MAIN){
@@ -630,6 +634,8 @@ export class NoteFull extends NoteBarebon{
         lastmodificationdate: new Date(jsonNote.lastmodificationdate)
       }
     );
+    // console.log('the tmp note');console.log(JSON.stringify(tmpNote));
+    // console.log('the date:');console.log(JSON.stringify({c:jsonNote.creationdate, l:jsonNote.lastmodificationdate}));
     // tmpNote.text=jsonNote.text;
     // tmpNote.maintags = jsonNote.maintags;
     // tmpNote.othertags = jsonNote.othertags;
@@ -668,6 +674,18 @@ export class NoteFull extends NoteBarebon{
 
   public addOtherTags(tag:TagExtraMin):void{
     this.othertags=Utils.binaryArrayInsert(this.othertags, tag, TagExtraMin.ascendingCompare);
+  }
+
+  public downgrade():NoteMin{
+    return new NoteMin({
+      title:this.title,
+      text:this.text,
+      isdone:this.isdone,
+      lastmodificationdate:this.lastmodificationdate,
+      creationdate:this.creationdate,
+      maintags:this.maintags.map(tag=>{return tag.title}),
+      othertags:this.othertags.map(tag=>{return tag.title})
+    });
   }
 
 
