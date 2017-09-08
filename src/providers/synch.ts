@@ -491,8 +491,7 @@ export class Synch {
         }
       })
       .catch(error=>{
-        console.log('error in processing notes-to-save');
-        console.log(JSON.stringify(error));
+        console.log('error in processing notes-to-save');console.log(JSON.stringify(error));
         if(AtticError.isPostgresError(error) || AtticError.isPostgresError(error.message)){
           console.log('postgres error!');
           //this.noteToDeleteBecauseOfAnError = current;
@@ -500,8 +499,7 @@ export class Synch {
           this.errorArrayCreateNote=AtticError.getPostgresErrorArray((error.message!=null)?error.message:error);
           this.someSynchError = true;
         }
-        console.log('the current error object is: ');
-        console.log(JSON.stringify(currentLog));
+        console.log('the current error object is: ');console.log(JSON.stringify(currentLog));
         reject(/*AtticError.getError(error)*/error); /*error is correctly rejected.*/
       })
     })
@@ -512,16 +510,17 @@ export class Synch {
     return new Promise<void>((resolve, reject)=>{
       // this.makeAllNoteTrue();
       // console.log('sending tags to save');
+      let somethingToLogs:boolean = false;
       let correctResult:string[]=[];
       // let current:string;
       let currentLog:LogObjSmart;
       this.db.getObjectTagsToSave(this.auth.userid)
       .then(objs=>{
-        console.log('the tags to save:');
-        console.log(JSON.stringify(objs));
+        console.log('the tags to save:');console.log(JSON.stringify(objs));
         if(objs == null){
           resolve();
         }else{
+          somethingToLogs=true;
           let promises:Promise<any>[] = [];
           objs.forEach(obj=>{
             currentLog = obj;
@@ -543,23 +542,24 @@ export class Synch {
       })
       .then(results=>{
         /*according to MDN, it returns the values of each promise.*/
-        console.log('results:');
-        console.log(JSON.stringify(results));
+        console.log('results:');console.log(JSON.stringify(results));
       /*  only if the result is correct*/
       if(correctResult.length>0){
         return this.db.deleteTagToCreateFromLogsMultiVersion(correctResult, this.auth.userid);
-      }else{
-        resolve();
       }
+      // else{
+      //   resolve();
+      // }
       })
       .then(dbResult=>{
         // console.log('tags-to-create deleted from logs');
         // console.log('ok tags-to-create');
-        resolve();
+        if(somethingToLogs){
+          resolve();
+        }
     })
       .catch(error=>{
-        console.log('error in processing tags-to-save');
-        console.log(JSON.stringify(error));
+        console.log('error in processing tags-to-save');console.log(JSON.stringify(error));
         if(AtticError.isPostgresError(error) || AtticError.isPostgresError(error.message)){
           console.log('postgres error!');
           //this.tagToDeleteBecauseOfAnError = current;
@@ -567,8 +567,7 @@ export class Synch {
           this.errorArrayCreateTag=AtticError.getPostgresErrorArray((error.message!=null)?error.message:error);
           this.someSynchError = true;
         }
-        console.log('the current error object is: ');
-        console.log(JSON.stringify(currentLog));
+        console.log('the current error object is: ');console.log(JSON.stringify(currentLog));
         reject(/*AtticError.getError(error)*/error);
       })
     })
@@ -582,36 +581,16 @@ export class Synch {
   obj.note.othertags AS STRING[]
   */
   public sendTagsToAddToNotes():Promise<void>{
+    let somethingToLogs:boolean = false;
     let correctResult:string[]=[];
     let currentLog:LogObjSmart;
-    // this.lockNoteDone = false;
-    // this.lockNoteText = false;
-    // this.lockNoteLinks = false;
-    // this.lockTagCreate = true;
-    // this.lockTagDelete = true;
-    // console.log('sending tags-to-add-to');
     return new Promise<void>((resolve, reject)=>{
       this.db.getObjectTagsToAddToNotes(this.auth.userid)
       .then(objs=>{
         if(objs == null){
           resolve();
         }else{
-          // return Promise.all(objs.map((obj)=>{
-          //   let reqBody: any ;
-          //   reqBody = {
-          //     title: obj.note.title
-          //   }
-          //   if(obj.note.maintags.length>0){
-          //     reqBody.maintags = obj.note.maintags;
-          //   }
-          //   if(obj.note.othertags.length>0){
-          //     reqBody.othertags = obj.note.othertags;
-          //   }
-          //   return Utils.postBasic('/api/notes/mod/add-tags', JSON.stringify({note: reqBody}), this.http, this.auth.token)
-          //   .then(res=>{
-          //     correctResult.push(obj.note.title);
-          //   })
-          // }))
+          somethingToLogs=true;
           let promises:Promise<any>[]=[];
           objs.forEach(obj=>{
             currentLog = obj;
@@ -647,23 +626,24 @@ export class Synch {
       })
       .then(results=>{
         /*according to MDN, it returns the values of each promise.*/
-        console.log('results:');
-        console.log(JSON.stringify(results));
+        console.log('results:');console.log(JSON.stringify(results));
       /*  only if the result is correct*/
       if(results!=null){
         return this.db.deleteTagsToAddToSpecificNoteFromLogs(correctResult, this.auth.userid);
-      }else{
-        // console.log('ok tags-to-add-to');
-        resolve();
       }
+      // else{
+      //   // console.log('ok tags-to-add-to');
+      //   resolve();
+      // }
       })
       .then(dbResult=>{
         // console.log('ok tags-to-add-to');
-        resolve();
+        if(somethingToLogs){
+          resolve();
+        }
     })
       .catch(error=>{
-        console.log('error in processing notes (tags-to-add-to)');
-        console.log(JSON.stringify(error));
+        console.log('error in processing notes (tags-to-add-to)');console.log(JSON.stringify(error));
         if(AtticError.isPostgresError(error) || AtticError.isPostgresError(error.message)){
           console.log('postgres error!');
           //this.noteToDeleteBecauseOfAnError = current;
@@ -671,8 +651,7 @@ export class Synch {
           this.errorArrayTagToAddToNote=AtticError.getPostgresErrorArray((error.message!=null)?error.message:error);
           this.someSynchError = true;
         }
-        console.log('the current error object is: ');
-        console.log(JSON.stringify(currentLog));
+        console.log('the current error object is: ');console.log(JSON.stringify(currentLog));
         reject(/*AtticError.getError(error)*/error);
       })
     })
@@ -680,6 +659,7 @@ export class Synch {
 
 
   public sendTagsToRemoveFromNotes():Promise<void>{
+    let somethingToLogs:boolean = false;
     let correctResult:string[]=[];
     let currentLog:LogObjSmart;
     return new Promise<void>((resolve, reject)=>{
@@ -688,15 +668,7 @@ export class Synch {
         if(objs == null){
           resolve();
         }else{
-          // return Promise.all(objs.map((obj)=>{
-          //   let reqBody: any ;
-          //   reqBody.note.title=obj.note.title;
-          //   reqBody.note.tags = obj.note.maintags;
-          //   return Utils.postBasic('/api/notes/mod/remove-tags', JSON.stringify({note: reqBody.note}), this.http, this.auth.token)
-          //   .then(res=>{
-          //     correctResult.push(obj.note.title);
-          //   })
-          // }))
+          somethingToLogs=true;
           let promises:Promise<any>[]=[];
           objs.forEach(obj=>{
             currentLog = obj;
@@ -706,7 +678,6 @@ export class Synch {
                   title:obj.note.title,
                   tags:obj.note.maintags
                 }
-                //Utils.postBasic('/api/notes/mod/remove-tags', JSON.stringify({note:note}), this.http, this.auth.userid)
                 this.http.post('/api/notes/mod/remove-tags', JSON.stringify({note:note}))
                 .then(result=>{
                   correctResult.push(obj.note.title);
@@ -726,21 +697,22 @@ export class Synch {
       })
       .then(results=>{
         /*according to MDN, it returns the values of each promise.*/
-        console.log('results:');
-        console.log(JSON.stringify(results));
+        console.log('results:');console.log(JSON.stringify(results));
       /*  only if the result is correct*/
       if(results!=null){
         return this.db.deleteTagsToRemoveFromSpecificNoteFromLogs(correctResult, this.auth.userid);
-      }else{
-        resolve();
       }
+      // else{
+      //   resolve();
+      // }
       })
       .then(dbResult=>{
-        resolve();
+        if(somethingToLogs){
+          resolve();
+        }
     })
       .catch(error=>{
-        console.log('error in processing notes (tags-to-remove-from)');
-        console.log(JSON.stringify(error));
+        console.log('error in processing notes (tags-to-remove-from)');console.log(JSON.stringify(error));
         if(AtticError.isPostgresError(error) || AtticError.isPostgresError(error.message)){
           console.log('postgres error!');
           //this.noteToDeleteBecauseOfAnError = current;
@@ -748,8 +720,7 @@ export class Synch {
           this.errorArrayRemoveTagFromNote=AtticError.getPostgresErrorArray((error.message!=null)?error.message:error);
           this.someSynchError = true;
         }
-        console.log('the current error object is: ');
-        console.log(JSON.stringify(currentLog));
+        console.log('the current error object is: ');console.log(JSON.stringify(currentLog));
         reject(/*AtticError.getError(error)*/error);
       })
     })
@@ -758,6 +729,7 @@ export class Synch {
 
 
   public sendNotesToDelete():Promise<void>{
+    let somethingToLogs:boolean = false;
     let correctResult:string[]=[];
     let currentLog:LogObjSmart;
     return new Promise<void>((resolve, reject)=>{
@@ -766,12 +738,7 @@ export class Synch {
         if(objs == null){
           resolve();
         }else{
-          // return Promise.all(objs.map((obj)=>{
-          //   return Utils.deleteBasic('/api/notes/'+obj.note.title, this.http, this.auth.token)
-          //   .then(res=>{
-          //     correctResult.push(obj.note.title);
-          //   })
-          // }))
+          somethingToLogs=true;
           let promises:Promise<any>[]=[];
           objs.forEach(obj=>{
             currentLog = obj;
@@ -797,21 +764,23 @@ export class Synch {
       })
       .then(results=>{
         /*according to MDN, it returns the values of each promise.*/
-        console.log('results:');
-        console.log(JSON.stringify(results));
+        console.log('results:');console.log(JSON.stringify(results));
       /*  only if the result is correct*/
       if(results!=null){
         return this.db.deleteNotesToDeleteMultiVersion(correctResult, this.auth.userid);
-      }else{
-        resolve();
       }
+      // else{
+      //   resolve();
+      // }
       })
       .then(dbResult=>{
-        resolve();
+        //resolve();
+        if(somethingToLogs){
+          resolve();
+        }
     })
       .catch(error=>{
-        console.log('error in processing notes-to-delete');
-        console.log(JSON.stringify(error));
+        console.log('error in processing notes-to-delete');console.log(JSON.stringify(error));
         if(AtticError.isPostgresError(error) || AtticError.isPostgresError(error.message)){
           console.log('postgres error!');
           //this.noteToDeleteBecauseOfAnError = current;
@@ -820,8 +789,7 @@ export class Synch {
           //unnecessary, delete is always ok unless there is
           //a big server error.
         }
-        console.log('the current error object is: ');
-        console.log(JSON.stringify(currentLog));
+        console.log('the current error object is: ');console.log(JSON.stringify(currentLog));
         reject(/*AtticError.getError(error)*/error);
       })
     })
@@ -830,38 +798,18 @@ export class Synch {
 
 
   public sendTagsToDelete():Promise<void>{
+    let somethingToLogs:boolean = false;
     let correctResult:string[]=[];
     let currentLog:LogObjSmart;
     return new Promise<void>((resolve, reject)=>{
       this.db.getObjectTagsToDelete(this.auth.userid)
       .then(objs=>{
-        console.log('objs:');
-        console.log(JSON.stringify(objs));
+        // console.log('objs:');
+        // console.log(JSON.stringify(objs));
         if(objs == null){
           resolve();
         }else{
-          // return Promise.all(objs.map((obj)=>{
-          //   return Utils.deleteBasic('/api/tags/'+obj.tag.title, this.http, this.auth.token)
-          //   .then(res=>{
-          //     correctResult.push(obj.tag.title);
-          //   })
-          // }))
-          //THIS IS POSSIBLE AND IT'S GOOD BECAUSE THERE'S NO NEED FOR THE IF BUT
-          //I DO NOT WANT TO NEST PROMISE!
-          // .then(results=>{
-          //   /*according to MDN, it returns the values of each promise.*/
-          //   console.log('results:');
-          //   console.log(JSON.stringify(results));
-          // if(results != null){
-          //   /*must go here because promise is not correctly resolved.*/
-          //   return this.db.deleteTagsToDeleteMultiVersion(correctResult, this.auth.userid);
-          // }else{
-          //   resolve();
-          // }
-          // })
-          // .then(dbResult=>{
-          //   resolve();
-          // })
+          somethingToLogs=true;
           let promises:Promise<any>[]=[];
           objs.forEach(obj=>{
             currentLog = obj;
@@ -887,21 +835,23 @@ export class Synch {
       })
       .then(results=>{
         /*according to MDN, it returns the values of each promise.*/
-        console.log('results:');
-        console.log(JSON.stringify(results));
+        console.log('results:');console.log(JSON.stringify(results));
       if(results != null){
         /*must go here because promise is not correctly resolved.*/
         return this.db.deleteTagsToDeleteMultiVersion(correctResult, this.auth.userid);
-      }else{
-        resolve();
       }
+      // else{
+      //   resolve();
+      // }
       })
       .then(dbResult=>{
-        resolve();
+        //resolve();
+        if(somethingToLogs){
+          resolve();
+        }
     })
       .catch(error=>{
-        console.log('error in processing tags-to-delete');
-        console.log(JSON.stringify(error));
+        console.log('error in processing tags-to-delete');console.log(JSON.stringify(error));
         if(AtticError.isPostgresError(error) || AtticError.isPostgresError(error.message)){
           console.log('postgres error!');
           //this.noteToDeleteBecauseOfAnError = current;
@@ -910,8 +860,7 @@ export class Synch {
           //unnecessary: delete is always ok unless there is a
           //server error.
         }
-        console.log('the current error object is: ');
-        console.log(JSON.stringify(currentLog));
+        console.log('the current error object is: ');console.log(JSON.stringify(currentLog));
         reject(/*AtticError.getError(error)*/error);
       })
     })
@@ -920,6 +869,7 @@ export class Synch {
 
 
   public sendNotesToChangeText():Promise<void>{
+    let somethingToLogs:boolean = false;
     let correctResult:string[]=[];
     let currentLog:LogObjSmart;
     return new Promise<void>((resolve, reject)=>{
@@ -928,29 +878,12 @@ export class Synch {
         if(objs == null){
           resolve();
         }else{
-          // return Promise.all(objs.map((obj)=>{
-          //   return Utils.postBasic('/api/mod/change-text/', JSON.stringify({note:
-          //     {title:obj.note.tile,
-          //       text:obj.note.text
-          //     }}), this.http, this.auth.token)
-          //   .then(res=>{
-          //     correctResult.push(obj.note.title);
-          //   })
-          // }))
-          // console.log('here in synch we have');console.log(JSON.stringify(objs));
+          somethingToLogs=true;
           let promises:Promise<any>[]=[];
           objs.forEach(obj=>{
             currentLog = obj;
             promises.push(
               new Promise<any>((resolve, reject)=>{
-                // Utils.postBasic('/api/mod/change-text/', JSON.stringify({note:
-                //   {title:obj.note.tile,
-                //     text:obj.note.text
-                //   }}), this.http, this.auth.token)
-                // console.log('going to send');console.log(JSON.stringify({note:
-                //   {title:obj.note.title,
-                //     text:obj.note.text
-                //   }}))
                 this.http.post('/api/notes/mod/change-text', JSON.stringify({note:
                   {title:obj.note.title,
                     text:obj.note.text
@@ -978,24 +911,26 @@ export class Synch {
       /*  only if the result is correct*/
       if(results!=null){
         return this.db.deleteNoteFromLogsChangeTextMultiVersion(correctResult, this.auth.userid);
-      }else{
-        resolve();
       }
+      // else{
+      //   resolve();
+      // }
       })
       .then(dbResult=>{
-        resolve();
+        //resolve();
+        if(somethingToLogs){
+          resolve();
+        }
     })
       .catch(error=>{
-        console.log('error in processing notes-to-change-text.');
-        console.log(JSON.stringify(error));
+        console.log('error in processing notes-to-change-text.');console.log(JSON.stringify(error));
         if(AtticError.isPostgresError(error) || AtticError.isPostgresError(error.message)){
           console.log('postgres error!');
           //this.noteToDeleteBecauseOfAnError = current;
           this.objChangeTextToDeleteBecaseOfAnError = currentLog;
           this.someSynchError = true;
         }
-        console.log('the current error object is: ');
-        console.log(JSON.stringify(currentLog));
+        console.log('the current error object is: ');console.log(JSON.stringify(currentLog));
         reject(/*AtticError.getError(error)*/error);
       })
     })
@@ -1003,6 +938,7 @@ export class Synch {
 
 
   public sendNotesToChangeLinks():Promise<void>{
+    let somethingToLogs:boolean = false;
     let correctResult:string[]=[];
     let currentLog:LogObjSmart;
     return new Promise<void>((resolve, reject)=>{
@@ -1011,25 +947,14 @@ export class Synch {
         if(objs == null){
           resolve();
         }else{
-          // return Promise.all(objs.map((obj)=>{
-            // return Utils.postBasic('/api/mod/change-links/', JSON.stringify({note:
-            //   {title:obj.note.tile,
-            //   links: obj.note.links
-            //   }}), this.http, this.auth.token)
-          //   .then(res=>{
-          //     correctResult.push(obj.note.title);
-          //   })
-          // }))
+          console.log('the objs here are:');console.log(JSON.stringify(objs));
+          somethingToLogs=true;
           let promises:Promise<any>[]=[];
           objs.forEach(obj=>{
             currentLog = obj;
             promises.push(
               new Promise<any>((resolve, reject)=>{
-                // Utils.postBasic('/api/mod/change-links/', JSON.stringify({note:
-                //   {title:obj.note.tile,
-                //   links: obj.note.links
-                //   }}), this.http, this.auth.token)
-                this.http.post('/api/mod/change-links', JSON.stringify({note:
+                this.http.post('/api/notes/mod/change-links', JSON.stringify({note:
                   {title:obj.note.title,
                   links: obj.note.links
                   }}))
@@ -1051,29 +976,30 @@ export class Synch {
       })
       .then(results=>{
         /*according to MDN, it returns the values of each promise.*/
-        console.log('results:');
-        console.log(JSON.stringify(results));
+        console.log('results:');console.log(JSON.stringify(results));
       /*  only if the result is correct*/
       if(results!=null){
         return this.db.deleteNoteFromLogsSetLinkMultiVersion(correctResult, this.auth.userid);
-      }else{
-        resolve();
       }
+      // else{
+      //   resolve();
+      // }
       })
       .then(dbResult=>{
-        resolve();
+        //resolve();
+        if(somethingToLogs){
+          resolve();
+        }
     })
       .catch(error=>{
-        console.log('error in processing notes-to-change-links.');
-        console.log(JSON.stringify(error));
+        console.log('error in processing notes-to-change-links.');console.log(JSON.stringify(error));
         if(AtticError.isPostgresError(error) || AtticError.isPostgresError(error.message)){
           console.log('postgres error!');
           //this.noteToDeleteBecauseOfAnError = current;
           this.objSetLinkToDeleteBecaseOfAnError = currentLog;
           this.someSynchError = true;
         }
-        console.log('the current error object is: ');
-        console.log(JSON.stringify(currentLog));
+        console.log('the current error object is: ');console.log(JSON.stringify(currentLog));
         reject(/*AtticError.getError(error)*/error);
       })
     })
@@ -1081,6 +1007,7 @@ export class Synch {
 
 
   public sendNotesToChangeDone():Promise<void>{
+    let somethingToLogs:boolean = false;
     let correctResult:string[]=[];
     let currentLog:LogObjSmart;
     return new Promise<void>((resolve, reject)=>{
@@ -1089,25 +1016,13 @@ export class Synch {
         if(objs == null){
           resolve();
         }else{
-          // return Promise.all(objs.map((obj)=>{
-          //   return Utils.postBasic('/api/mod/set-done/', JSON.stringify({note:
-          //     {title:obj.note.tile,
-          //       isdone: obj.note.isdone
-          //     }}), this.http, this.auth.token)
-          //   .then(res=>{
-          //     correctResult.push(obj.note.title);
-          //   })
-          // }))
+          somethingToLogs=true;
           let promises:Promise<any>[]=[];
           objs.forEach(obj=>{
             currentLog = obj;
             promises.push(
               new Promise<any>((resolve, reject)=>{
-                  // Utils.postBasic('/api/mod/set-done/', JSON.stringify({note:
-                  //   {title:obj.note.tile,
-                  //     isdone: obj.note.isdone
-                  //   }}), this.http, this.auth.token)
-                  this.http.post('/api/mod/change-done', JSON.stringify({note:
+                  this.http.post('/api/notes/mod/change-done', JSON.stringify({note:
                     {title:obj.note.title,
                       isdone: obj.note.isdone
                     }}))
@@ -1129,29 +1044,30 @@ export class Synch {
       })
       .then(results=>{
         /*according to MDN, it returns the values of each promise.*/
-        console.log('results:');
-        console.log(JSON.stringify(results));
+        console.log('results:');console.log(JSON.stringify(results));
       /*  only if the result is correct*/
       if(results!=null){
         return this.db.deleteNoteFromLogsSetDoneMultiVersion(correctResult, this.auth.userid);
-      }else{
-        resolve();
       }
+      // else{
+      //   resolve();
+      // }
       })
       .then(dbResult=>{
-        resolve();
+        //resolve();
+        if(somethingToLogs){
+          resolve();
+        }
     })
       .catch(error=>{
-        console.log('error in processing notes-to-set-done.');
-        console.log(JSON.stringify(error));
+        console.log('error in processing notes-to-set-done.');console.log(JSON.stringify(error));
         if(AtticError.isPostgresError(error) || AtticError.isPostgresError(error.message)){
           console.log('postgres error!');
           //this.noteToDeleteBecauseOfAnError = current;
           this.objSetDoneToDeleteBecaseOfAnError = currentLog;
           this.someSynchError = true;
         }
-        console.log('the current error object is: ');
-        console.log(JSON.stringify(currentLog));
+        console.log('the current error object is: ');console.log(JSON.stringify(currentLog));
         reject(/*AtticError.getError(error)*/error);
       })
     })

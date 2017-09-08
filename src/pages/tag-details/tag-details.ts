@@ -154,7 +154,7 @@ export class TagDetailsPage {
   private load(force:boolean, refresher?:any){
     this.tagByTitle(force)
     .then(()=>{
-      console.log('ok tag by title');
+      //console.log('ok tag by title');
       if(refresher!=null){
         refresher.complete();
       }

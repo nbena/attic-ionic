@@ -197,7 +197,6 @@ export class AtticNotes {
     .catch(error=>{
       reject(error);
     })
-
   })
 }
 

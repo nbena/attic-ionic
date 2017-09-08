@@ -78,9 +78,9 @@ export class Db {
       })
       .then(dbObject=>{
         db = dbObject;
-        //return db.executeSql('pragma foreign_keys=ON;',[]);
-      //})
-      //.then(pragma=>{
+         return db.executeSql('pragma foreign_keys=ON;',[]);
+       })
+       .then(pragma=>{
         //console.log('the pragma res');console.log(JSON.stringify(pragma));
         return db.transaction(tx=>{
                         //tx.executeSql('pragma foreign_keys = ON;',[]);
@@ -2664,7 +2664,7 @@ public getNotesByTags(tags: TagAlmostMin[], userid: string, and:boolean):Promise
 
       })
       .then(txResult=>{
-        console.log('tx completed, result:');
+        console.log('tx completed');
         resolve();
       })
       .catch(error=>{
@@ -3516,13 +3516,13 @@ public removeTagsFromNote(note: NoteFull, userid: string, tags: TagExtraMin[], u
   */
   public getObjectTagsToAddToNotes(userid: string):Promise<LogObjSmart[]>{
     return new Promise<LogObjSmart[]>((resolve, reject)=>{
+      let result:LogObjSmart[]=[];
       this.db.transaction(tx=>{
         tx.executeSql(Query.SELECT_TAGS_TO_ADD_TO_NOTES_2, [userid],
           (tx: any, res: any)=>{
             if(res.rows.length<=0){
               resolve(null);
             }else{
-              let result:LogObjSmart[]=[];
               for(let i=0;i<res.rows.length;i++){
 
                 if(result.length > 0 && (result[result.length-1].note.title == res.rows.item(i).notetitle)){
@@ -3546,7 +3546,7 @@ public removeTagsFromNote(note: NoteFull, userid: string, tags: TagExtraMin[], u
                   obj.userid=userid;
                   obj.action = DbActionNs.DbAction.add_tag;
                   obj.note = note;
-                  result.push(obj)
+                  result.push(obj);
                 }
               }
               console.log('the full result is:');
@@ -3565,8 +3565,9 @@ public removeTagsFromNote(note: NoteFull, userid: string, tags: TagExtraMin[], u
       })
       .then(txResult=>{
         console.log('tx completed');
-        console.log(JSON.stringify(txResult));
-        resolve(txResult);
+        //console.log(JSON.stringify(txResult));
+        //resolve(txResult);
+        resolve(result);
       })
       .catch(error=>{
         console.log('tx error'),
@@ -3585,13 +3586,14 @@ public removeTagsFromNote(note: NoteFull, userid: string, tags: TagExtraMin[], u
   */
   public getObjectTagsToRemoveFromNotes(userid: string):Promise<LogObjSmart[]>{
     return new Promise<LogObjSmart[]>((resolve, reject)=>{
+      let result:LogObjSmart[]=[];
       this.db.transaction(tx=>{
         tx.executeSql(Query.SELECT_TAGS_TO_REMOVE_FROM_NOTES_2, [userid],
           (tx: any, res: any)=>{
             if(res.rows.length<=0){
               resolve(null);
             }else{
-              let result:LogObjSmart[]=[];
+
               for(let i=0;i<res.rows.length;i++){
 
                 if(result.length > 0 && (result[result.length-1].note.title == res.rows.item(i).notetitle)){
@@ -3607,10 +3609,10 @@ public removeTagsFromNote(note: NoteFull, userid: string, tags: TagExtraMin[], u
                   obj.userid=userid;
                   obj.action = DbActionNs.DbAction.remove_tag;
                   obj.note = note;
-                  result.push(obj)
+                  result.push(obj);
                 }
               }
-              resolve(result);
+              //resolve(result);
             }
           },
           (tx: any, error: any)=>{
@@ -3622,8 +3624,9 @@ public removeTagsFromNote(note: NoteFull, userid: string, tags: TagExtraMin[], u
       })
       .then(txResult=>{
         console.log('tx completed');
-        console.log(JSON.stringify(txResult));
-        resolve(txResult);
+        // console.log(JSON.stringify(txResult));
+        //resolve(txResult);
+        resolve(result);
       })
       .catch(error=>{
         console.log('tx error'),
@@ -3700,6 +3703,7 @@ public removeTagsFromNote(note: NoteFull, userid: string, tags: TagExtraMin[], u
                 note.links = JSON.parse(res.rows.item(i).json_object).links;
 
                 obj.note = note;
+                console.log('the note');console.log(JSON.stringify(obj.note));
                 obj.action = DbActionNs.DbAction.set_link;
                 obj.userid = userid;
                 results.push(obj);
@@ -3944,7 +3948,7 @@ public removeTagsFromNote(note: NoteFull, userid: string, tags: TagExtraMin[], u
   /*
   delete the tags from logs where the action is 'delete' and the tagtitle is one of the provided ones.
   */
-  deleteTagsToDeleteMultiVersion(tagTitles: string[], userid: string):Promise<any>{
+  deleteTagsToDeleteMultiVersion(tagTitles: string[], userid: string):Promise<void>{
     return new Promise<any>((resolve, reject)=>{
       this.db.transaction(tx=>{
         console.log('tags');
@@ -3967,7 +3971,7 @@ public removeTagsFromNote(note: NoteFull, userid: string, tags: TagExtraMin[], u
       })
       .then(txResult=>{
         console.log('tx completed');
-        resolve(true);
+        resolve();
       })
       .catch(txError=>{
         console.log('txError');
@@ -3982,7 +3986,7 @@ public removeTagsFromNote(note: NoteFull, userid: string, tags: TagExtraMin[], u
   Delete from logs_sequence all of the entries like:
   notetitle-by-param; tag; add-tag; mainTags | otherTags
   */
-  deleteTagsToAddToSpecificNoteFromLogs(noteTitles: string[], userid: string):Promise<any>{
+  deleteTagsToAddToSpecificNoteFromLogs(noteTitles: string[], userid: string):Promise<void>{
     return new Promise<any>((resolve, reject)=>{
       this.db.transaction(tx=>{
         let query: string = Query.prepareNotesMultiVersion(noteTitles.length, Query.DELETE_FROM_LOGS_TAGS_TO_ADD_TO_NOTE_WHERE_NOTE, true);
@@ -3996,7 +4000,7 @@ public removeTagsFromNote(note: NoteFull, userid: string, tags: TagExtraMin[], u
       })
       .then(txResult=>{
         console.log('tx completed');
-        resolve(true);
+        resolve();
       })
       .catch(txError=>{
         console.log('txError');
@@ -4011,7 +4015,7 @@ public removeTagsFromNote(note: NoteFull, userid: string, tags: TagExtraMin[], u
   Delete from logs_sequence all of the entries like:
   notetitle-by-param; tag; remove-tag; mainTags | otherTags
   */
-  deleteTagsToRemoveFromSpecificNoteFromLogs(noteTitles: string[], userid: string):Promise<any>{
+  deleteTagsToRemoveFromSpecificNoteFromLogs(noteTitles: string[], userid: string):Promise<void>{
     return new Promise<any>((resolve, reject)=>{
       this.db.transaction(tx=>{
         let query: string = Query.prepareNotesMultiVersion(noteTitles.length, Query.DELETE_FROM_LOGS_TAGS_TO_DELETE_FROM_NOTE_WHERE_NOTE, true);
@@ -4025,7 +4029,7 @@ public removeTagsFromNote(note: NoteFull, userid: string, tags: TagExtraMin[], u
       })
       .then(txResult=>{
         console.log('tx completed');
-        resolve(true);
+        resolve();
       })
       .catch(txError=>{
         console.log('txError');

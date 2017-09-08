@@ -47,13 +47,11 @@ export class AtticTags {
         let isNteworkAvailable: boolean = this.netManager.isConnected;
         let areThereTagsInTheDb: boolean;
         let useCache: boolean = false;
-        // let tags:TagAlmostMin[]=[];
         let useDb: boolean;
         this.db.getTagsCount(this.auth.userid)
         .then(number=>{
           areThereTagsInTheDb = (number > 0) ? true : false;
           // console.log('the number of tags is');console.log(number);
-          // let useDb = !isNteworkAvailable || areThereNotesInTheDb || !force;
           useDb = Utils.shouldUseDb(isNteworkAvailable, areThereTagsInTheDb, force/*, this.synch.isSynching()*/);
           console.log('use db tag: ');console.log(JSON.stringify(useDb));
           let p:Promise<TagAlmostMin[]>;
@@ -105,7 +103,7 @@ export class AtticTags {
           let tag:TagFull = null;
           if(result.tag!=null){
             tag=TagFull.safeNewTagFromJsObject(result.tag);
-            console.log('the tag from net');console.log(JSON.stringify(tag));
+            //console.log('the tag from net');console.log(JSON.stringify(tag));
             if(!this.synch.isTagLocked()){
               this.db.insertOrUpdateTag(tag, this.auth.userid);
             }else{

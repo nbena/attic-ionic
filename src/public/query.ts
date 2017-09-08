@@ -81,8 +81,8 @@ export class Query {
   static readonly CREATE_LOGS_TABLE = 'create table if not exists logs_sequence(id integer primary key autoincrement,notetitle varchar(64)' +
   ' default null,oldtitle varchar(64),tagtitle varchar(64) default null,role varchar(9) default null,action varchar(64) not null, ' +
   'creationdate date default(strftime(\'%Y-%m-%d %H:%M:%f\', \'now\')), userid varchar(64), ' +
-  'foreign key(notetitle) references notes(title) on update cascade on delete cascade,' +
-  'foreign key(tagtitle) references tags(title) on update cascade on delete cascade, ' +
+  //'foreign key(notetitle) references notes(title) on update cascade on delete cascade,' +
+  //'foreign key(tagtitle) references tags(title) on update cascade on delete cascade, ' +
   'foreign key(userid) references auth(userid) on update cascade on delete cascade, ' +
   'constraint action_check check(action=\'create\' or action=\'delete\' or action=\'change-title\' or action=\'change-text\' ' +
   'or action=\'add-tag\' or action=\'remove-tag\' or action =\'set-done\' or action=\'set-link\'),constraint role_check check ' +
@@ -293,8 +293,8 @@ export class Query {
   static readonly SELECT_NOTES_TO_CHANGE_TEXT = 'select notetitle, text from logs_sequence join notes on notetitle=title and logs_sequence.userid=notes.userid where logs_sequence.userid=? and tagtitle is null and notetitle is not null and action=\'change-text\';'
   static readonly DELETE_NOTES_TO_CHANGE_TEXT = 'delete from logs_sequence where id in (select id from logs_sequence where action=\'change-text\' and userid=? and tagtitle is null and notetitle is not null);';
 
-  static readonly SELECT_NOTES_TO_CHANGE_LINKS = 'select notetitle, json_object from logs_sequence join notes on notetitle=title and logs_sequence.userid=notes.userid where logs_sequence.userid=? and tagtitle is null and notetitle is not null and action=\'change-links\';'
-  static readonly DELETE_NOTES_TO_CHANGE_LINKS = 'delete from logs_sequence where id in (select id from logs_sequence where action=\'change-links\' and userid=? and tagtitle is null and notetitle is not null);';
+  static readonly SELECT_NOTES_TO_CHANGE_LINKS = 'select notetitle, json_object from logs_sequence join notes on notetitle=title and logs_sequence.userid=notes.userid where logs_sequence.userid=? and tagtitle is null and notetitle is not null and action=\'set-link\';'
+  static readonly DELETE_NOTES_TO_CHANGE_LINKS = 'delete from logs_sequence where id in (select id from logs_sequence where action=\'set-link\' and userid=? and tagtitle is null and notetitle is not null);';
 
   static readonly SELECT_NOTES_TO_SET_DONE = 'select notetitle, json_object from logs_sequence join notes on notetitle=title and logs_sequence.userid=notes.userid where logs_sequence.userid=? and tagtitle is null and notetitle is not null and action=\'set-done\';'
   static readonly DELETE_NOTES_TO_SET_DONE = 'delete from logs_sequence where id in (select id from logs_sequence where action=\'set-done\' and userid=? and tagtitle is null and notetitle is not null);';
@@ -447,10 +447,32 @@ export class Query {
 
 
   static readonly SMART_NOTES_MIN_INSERT = ' insert into notes(title, json_object, lastmodificationdate, userid) select title,json_object, lastmodificationdate, userid from notes_help as nh1 where title not in (select title from notes where nh1.userid=userid) and nh1.userid=? order by lastmodificationdate desc, title asc;';
-  static readonly SMART_NOTES_REMOVE_DIRTY = 'delete from notes where title  not in (select title from notes_help as nh1 where notes.userid=nh1.userid) and title not in (select notetitle from logs_sequence as l1 where l1.userid=notes.userid) and userid=?;'
+  static readonly SMART_NOTES_REMOVE_DIRTY =
+  'delete from notes '+
+  'where title not in '+
+    '(select title '+
+    'from notes_help as nh1 '+
+    'where notes.userid=nh1.userid) '+
+  'and title not in '+
+  '(select notetitle '+
+  'from logs_sequence as l1 '+
+  'where l1.userid=notes.userid '+
+  'and action=\'create\') '+
+  'and userid=?;'
 
   static readonly SMART_TAGS_MIN_INSERT = ' insert into tags(title, json_object, userid) select title,json_object, userid from tags_help as th1 where title not in (select title from tags where th1.userid=userid) and th1.userid=?;';
-  static readonly SMART_TAGS_REMOVE_DIRTY = 'delete from tags where title  not in (select title from tags_help as th1 where tags.userid=th1.userid) and title not in (select tagtitle from logs_sequence as l1 where l1.userid=tags.userid) and userid=?;'
+  static readonly SMART_TAGS_REMOVE_DIRTY =
+  'delete from tags '+
+  'where title not in '+
+  '(select title '+
+    'from tags_help as th1 '+
+    'where tags.userid=th1.userid) '+
+  'and title not in '+
+  '(select tagtitle '+
+  'from logs_sequence as l1 '+
+  'where l1.userid=tags.userid '+
+  'and action=\'create\') '+
+  'and userid=?;'
 
 
   static readonly INSERT_SET_FREE = 'update auth set free=? where free <> ? and userid=?';

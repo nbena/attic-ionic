@@ -283,7 +283,7 @@ export class NoteDetailsPage {
           //this.note = null;
 
           console.log('load note error');console.log(JSON.stringify(error.messsage));console.log(JSON.stringify(error));
-          console.log(error.toString());
+          //console.log(error.toString());
           // this.graphicProvider.showErrorAlert(err);
           //console.log('set note loaded to true');
           this.isNoteLoaded = true;
@@ -297,7 +297,7 @@ export class NoteDetailsPage {
     })
   }
 
-
+/*please notice that error.toString() modify the error itself.*/
 
   private loadTags(force: boolean){
     return new Promise<void>((resolve, reject)=>{
