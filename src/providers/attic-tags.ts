@@ -223,7 +223,7 @@ export class AtticTags {
 
   isTitleModificationAllowed(title:string):Promise<boolean>{
     return new Promise<boolean>((resolve, reject)=>{
-      this.db.selectTitleFromTags(title, this.auth.userid)
+      this.db.selectTitleFromTags(title, true, this.auth.userid)
       .then(result=>{
         if(result==null){
           resolve(true);

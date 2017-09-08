@@ -78,8 +78,12 @@ export class Db {
       })
       .then(dbObject=>{
         db = dbObject;
+        //return db.executeSql('pragma foreign_keys=ON;',[]);
+      //})
+      //.then(pragma=>{
+        //console.log('the pragma res');console.log(JSON.stringify(pragma));
         return db.transaction(tx=>{
-                        tx.executeSql('pragma foreign_keys = ON;',[]);
+                        //tx.executeSql('pragma foreign_keys = ON;',[]);
                         tx.executeSql(Query.CREATE_AUTH_TABLE,[]// ,(tx:any,res:any)=>{console.log('ok auth');}, (tx:any, error:any)=>{console.log(JSON.stringify(error))}
                         );
                         tx.executeSql(Query.CREATE_NOTES_TABLE,[]// ,(tx:any,res:any)=>{console.log('ok notes');},(tx:any, error:any)=>{console.log(JSON.stringify(error))}
@@ -98,6 +102,8 @@ export class Db {
                         );
                         tx.executeSql(Query.CREATE_TRIGGER_DELETE_TAG_COMPRESSION, []// ,(tx:any,res:any)=>{console.log('ok trigger2');},(tx:any, error:any)=>{console.log(JSON.stringify(error))}
                         );
+                        tx.executeSql(Query.CREATE_TRIGGER_CHANGE_NOTE_TITLE_LOGS,[]);
+                        tx.executeSql(Query.CREATE_TRIGGER_CHANGE_TAG_TITLE_LOGS,[]);
                         tx.executeSql(Query.CREATE_INDEX_NOTE_1,[]);
                         tx.executeSql(Query.CREATE_INDEX_NOTE_2,[]);
                         tx.executeSql(Query.CREATE_INDEX_LOGS,[]);
@@ -5276,9 +5282,11 @@ public rollbackModification(logObj: LogObjSmart,userid:string, errorArray?:boole
   select title from notes where the title matches
   exactly with one title in the db. If none, null is returned.
   */
-  selectTitleFromNotes(title:string, userid:string):Promise<string>{
+  selectTitleFromNotes(title:string, checkMustBedeleted:boolean,userid:string):Promise<string>{
     return new Promise<string>((resolve, reject)=>{
-      this.db.executeSql(Query.SELECT_TITLE_FROM_NOTES, [title, userid])
+      let query:string = (checkMustBedeleted) ? Query.SELECT_TITLE_FROM_NOTES_WITH_MUSTBE : Query.SELECT_TITLE_FROM_NOTES_NO_MUSTBE;
+      let params:any[] = (checkMustBedeleted) ? [title, userid, false] : [title, userid];
+      this.db.executeSql(query, params/*Query.SELECT_TITLE_FROM_NOTES, [title, userid]*/)
       .then(result=>{
         if(result.rows.length <= 0){
           resolve(null);
@@ -5298,9 +5306,11 @@ public rollbackModification(logObj: LogObjSmart,userid:string, errorArray?:boole
   select title from tags where the title matches
   exactly with one title in the db. If none, null is returned.
   */
-  selectTitleFromTags(title:string, userid:string):Promise<string>{
+  selectTitleFromTags(title:string, checkMustBedeleted:boolean, userid:string):Promise<string>{
     return new Promise<string>((resolve, reject)=>{
-      this.db.executeSql(Query.SELECT_TITLE_FROM_TAGS, [title, userid])
+      let query:string = (checkMustBedeleted) ? Query.SELECT_TITLE_FROM_TAGS_WITH_MUSTBE : Query.SELECT_TITLE_FROM_TAGS_NO_MUSTBE;
+      let params:any[] = (checkMustBedeleted) ? [title, userid, false] : [title, userid];
+      this.db.executeSql(query,params/*Query.SELECT_TITLE_FROM_TAGS, [title, userid]*/)
       .then(result=>{
         if(result.rows.length <= 0){
           resolve(null);

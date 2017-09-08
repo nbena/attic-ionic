@@ -78,7 +78,16 @@ export class Query{
     'primary key(title, userid, mustbedeleted), foreign key(userid) references auth(userid) on update cascade on delete cascade)';
   static readonly CREATE_TAGS_TABLE = 'create table if not exists tags(title varchar(64),userid varchar(64) default null, mustbedeleted boolean default false, json_object text default null,primary key(title, userid, mustbedeleted), foreign key(userid) references auth(userid) on update cascade on delete cascade);';
   // static readonly CREATE_NOTES_TAGS_TABLE ='create table if not exists notes_tags(notetitle varchar(64), userid varchar(64), tagtitle varchar(64),role varchar(9),mustbedeleted boolean default false,primary key(notetitle, tagtitle, userid, mustbedeleted),foreign key(notetitle) references notes(title) on update cascade on delete cascade,foreign key(tagtitle) references tags(title) on update cascade on delete cascade, foreign key(userid) references auth(userid) on update cascade on delete cascade,constraint role_check check (role = \'mainTags\' or role = \'otherTags\'));';
-  static readonly CREATE_LOGS_TABLE = 'create table if not exists logs_sequence(id integer primary key autoincrement,notetitle varchar(64) default null,oldtitle varchar(64),tagtitle varchar(64) default null,role varchar(9) default null,action varchar(64) not null, creationdate date default(strftime(\'%Y-%m-%d %H:%M:%f\', \'now\')), userid varchar(64), foreign key(notetitle) references notes(title) on update cascade on delete cascade,foreign key(tagtitle) references tags(title) on update cascade on delete cascade, foreign key(userid) references auth(userid) on update cascade on delete cascade, constraint action_check check(action=\'create\' or action=\'delete\' or action=\'change-title\' or action=\'change-text\' or action=\'add-tag\' or action=\'remove-tag\' or action =\'set-done\' or action=\'set-link\'),constraint role_check check (role =\'mainTags\' or role = \'otherTags\' or role is null),constraint if_all check ((role is not null and noteTitle is not null and tagTitle is not null or (noteTitle is not null) or (tagTitle is not null))));'
+  static readonly CREATE_LOGS_TABLE = 'create table if not exists logs_sequence(id integer primary key autoincrement,notetitle varchar(64)'+
+  ' default null,oldtitle varchar(64),tagtitle varchar(64) default null,role varchar(9) default null,action varchar(64) not null, '+
+  'creationdate date default(strftime(\'%Y-%m-%d %H:%M:%f\', \'now\')), userid varchar(64), '+
+  'foreign key(notetitle) references notes(title) on update cascade on delete cascade,'+
+  'foreign key(tagtitle) references tags(title) on update cascade on delete cascade, '+
+  'foreign key(userid) references auth(userid) on update cascade on delete cascade, '+
+  'constraint action_check check(action=\'create\' or action=\'delete\' or action=\'change-title\' or action=\'change-text\' '+
+  'or action=\'add-tag\' or action=\'remove-tag\' or action =\'set-done\' or action=\'set-link\'),constraint role_check check '+
+  '(role =\'mainTags\' or role = \'otherTags\' or role is null),constraint if_all check ((role is not null and noteTitle is not null '+
+  'and tagTitle is not null or (noteTitle is not null) or (tagTitle is not null))));'
 
   static readonly CREATE_TAGS_HELP_TABLE = 'create table if not exists tags_help(title varchar(64), userid varchar(64), json_object text default null, primary key(title, userid));';
   //static readonly CREATE_NOTES_HELP_TABLE = 'create table if not exists notes_help(title varchar(64), userid varchar(64), json_object text default null, primary key(title, userid));';
@@ -88,6 +97,30 @@ export class Query{
 
   static readonly CREATE_TRIGGER_DELETE_NOTE_COMPRESSION = 'create trigger if not exists deleteNoteCompression after update of mustbedeleted on notes for each row when exists ( select * from logs_sequence where action=\'create\' and notetitle = old.title and userid=old.userid) begin delete from logs_sequence where notetitle = old.title and userid=old.userid; delete from notes where title = old.title and userid=old.userid; end;';
   static readonly CREATE_TRIGGER_DELETE_TAG_COMPRESSION = 'create trigger if not exists deleteTagCompression after update of mustbedeleted on tags for each row when exists ( select * from logs_sequence where action=\'create\' and tagtitle = old.title and userid=old.userid) and not exists (select * from logs_sequence where action=\'add-tag\' and tagtitle=old.title and userid=old.userid)begin delete from logs_sequence where tagtitle = old.title and userid=old.userid; delete from tags where title=old.title and userid=old.userid; end;'
+
+  static readonly CREATE_TRIGGER_CHANGE_NOTE_TITLE_LOGS =
+  'create trigger if not exists '+
+  'updateNotesLogsSequence '+
+    'after update of title on notes '+
+    'for each row '+
+    'begin '+
+      'update logs_sequence '+
+      'set notetitle=new.title '+
+      'where notetitle=old.title '+
+      'and new.userid=userid; '+
+    'end;'
+
+    static readonly CREATE_TRIGGER_CHANGE_TAG_TITLE_LOGS =
+    'create trigger if not exists '+
+    'updateTagsLogsSequence '+
+      'after update of title on tags '+
+      'for each row '+
+      'begin '+
+        'update logs_sequence '+
+        'set tagtitle=new.title '+
+        'where tagtitle=old.title '+
+        'and new.userid=userid; '+
+      'end;'
 
   static readonly CREATE_VIEW_COUNTS =' create view if not exists counts(count, type, userid) as select count(*), \'notes\', userid from notes where mustbedeleted=\'false\' union select count(*), \'tags\', userid from tags where mustbedeleted=\'false\' union select count(*), \'logs\', userid from logs_sequence;';
   // static readonly GET_LOGS_COUNT = 'select count(*) as count from logs_sequence where userid=?';
@@ -391,8 +424,11 @@ export class Query{
   static readonly DELETE_EVERYTHING_FROM_LOGS  = 'delete from logs_sequence where userid=?';
 
 
-  static readonly SELECT_TITLE_FROM_NOTES = 'select title from notes where title=? and userid=?';
-  static readonly SELECT_TITLE_FROM_TAGS = 'select title from tags where title=? and userid=?';
+  static readonly SELECT_TITLE_FROM_NOTES_NO_MUSTBE = 'select title from notes where title=? and userid=?';
+  static readonly SELECT_TITLE_FROM_TAGS_NO_MUSTBE = 'select title from tags where title=? and userid=?';
+
+  static readonly SELECT_TITLE_FROM_NOTES_WITH_MUSTBE = 'select title from notes where title=? and userid=? and mustbedeleted=?';
+  static readonly SELECT_TITLE_FROM_TAGS_WITH_MUSTBE = 'select title from tags where title=? and userid=? and mustbedeleted=?';
 
   //static readonly NEED_TO_SYNCH = 'select count(*) as c from logs_sequence where userid=?';
 

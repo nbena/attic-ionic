@@ -527,9 +527,13 @@ export class AtticNotes {
     })
   }
 
+  /**
+  This only checks if exists another note with the same title.
+  If exists, it returns a promise=false, if not, promise=true.
+  */
   isTitleModificationAllowed(title:string):Promise<boolean>{
     return new Promise<boolean>((resolve, reject)=>{
-      this.db.selectTitleFromNotes(title, this.auth.userid)
+      this.db.selectTitleFromNotes(title, true, this.auth.userid)
       .then(result=>{
         if(result==null){
           resolve(true);

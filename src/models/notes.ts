@@ -182,15 +182,18 @@ export class NoteMin extends NoteBarebon{
     links?:string[], lastmodificationdate?:Date, creationdate?:Date,
     maintags?:string[], othertags?:string[]}){
       if(input!=null){
-        if(input.title!=null){
+        /*if(input.title!=null){
           super({title:input.title});
-        }
+        }*/
+        super(input);
+        this.maintags=[];
+        this.othertags=[];
         this.init(input);
       }else{
         super();
+        this.maintags=[];
+        this.othertags=[];
       }
-      this.maintags=[];
-      this.othertags=[];
   }
 
   protected init(input:{title?:string, text?:string, isdone?:boolean,
@@ -326,13 +329,20 @@ export class NoteFull extends NoteBarebon{
         //   super({title:input.title});
         // }
         super(input);
+
+        this.maintags=[];
+        this.othertags=[];
+
         this.init(input);
       }else{
         super();
+
+        this.maintags=[];
+        this.othertags=[];
+
       }
 
-      this.maintags=[];
-      this.othertags=[];
+
   }
 
   protected init(input:{title?:string, text?:string, isdone?:boolean,
