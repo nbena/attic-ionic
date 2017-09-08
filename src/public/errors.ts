@@ -123,6 +123,8 @@ public static readonly POSTGRES_USER_REACHED_MAX_TAGS:string = 'DbError a free u
 public static readonly POSTGRES_MAINTAGS_LIMIT:string = 'DbError maintags cannot be more than 3';
 public static readonly POSTGRES_OTHERTAGS_LIMIT:string = 'DbError othetags cannot be more than 15';
 public static readonly POSTGRES_FINAL_TAGS_FKEY:string = 'DbError tags not found'; /*whe trying to add a not-found tags*/
+public static readonly POSTGRES_FINAL_NOTES_FKEY:string = 'DbError note not found';
+/*public static readonly POSTGRES_FINAL*/
 /*
 private  static getBetterSqliteError(error:any):any{
   let ret:any = error;
@@ -151,7 +153,7 @@ public static isPostgresError(error:string):boolean{
     || error==AtticError.POSTGRES_DUPLICATE_KEY_TAGS || error==AtticError.POSTGRES_FINAL_TAGS_FKEY
     || error==AtticError.POSTGRES_MAINTAGS_LIMIT || error==AtticError.POSTGRES_OTHERTAGS_LIMIT
     || error==AtticError.POSTGRES_USER_REACHED_MAX_NOTES || error==AtticError.POSTGRES_USER_REACHED_MAX_TAGS
-    || error==AtticError.POSTGRES_DUPLICATE_KEY_USERS
+    || error==AtticError.POSTGRES_DUPLICATE_KEY_USERS || error==AtticError.POSTGRES_FINAL_NOTES_FKEY
     //|| error.startsWith('JsonError') no thins because is a paramter that should NEVER happen.
   ){
     ret=true;
@@ -190,7 +192,7 @@ public static isUserReachedMaxError(error:string):boolean{
 }
 
 
-public static isNotFoundError(error:string):boolean{
+public static isTagNotFoundError(error:string):boolean{
   let ret:boolean = false;
   if(error==AtticError.POSTGRES_FINAL_TAGS_FKEY){
     ret = true;
@@ -198,13 +200,23 @@ public static isNotFoundError(error:string):boolean{
   return ret;
 }
 
+public static isNoteNotFoundError(error:string):boolean{
+  let ret:boolean = false;
+  if(error==AtticError.POSTGRES_FINAL_NOTES_FKEY){
+    ret = true;
+  }
+  return ret;
+}
+
+
 
 public static getPostgresErrorArray(error:string):boolean[]{
   let ret:boolean[]=[];
   ret.push(AtticError.isDuplicateError(error));
   ret.push(AtticError.isNotesTagsLimitError(error));
   ret.push(AtticError.isUserReachedMaxError(error));
-  ret.push(AtticError.isNotFoundError(error));
+  ret.push(AtticError.isTagNotFoundError(error));
+  ret.push(AtticError.isNoteNotFoundError(error));
   return ret;
 }
 
@@ -221,8 +233,12 @@ public static isUserReachedMaxErrorFromArray(array:boolean[]):boolean{
   return array[2];
 }
 
-public static isNotFoundErrorFromArray(array:boolean[]):boolean{
+public static isTagNotFoundErrorFromArray(array:boolean[]):boolean{
   return array[3];
+}
+
+public static isNoteNotFoundErrorFromArray(array:boolean[]):boolean{
+  return array[4];
 }
 
 

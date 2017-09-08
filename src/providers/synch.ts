@@ -374,7 +374,7 @@ export class Synch {
     .catch(error=>{
       console.log('error in removing bad things');
       console.log(JSON.stringify(error));
-      this.isStarted=false;
+      this.isStarted = false;
       reject(error);
     })
     })
@@ -433,8 +433,9 @@ export class Synch {
 
   /*TODO: write a method that absorbs the modification also to the title, to put to 'clean up series'.*/
 
-  //note is NOTEEXTRAMIN!
+
   public sendNotesToSave():Promise<void>{
+    let somethingToLogs:boolean = false;
     let correctResult:string[] = [];
     // let current:NoteFull = null;
     let currentLog:LogObjSmart;
@@ -443,11 +444,11 @@ export class Synch {
     return new Promise<void>((resolve, reject)=>{
       this.db.getObjectNotesToSave(this.auth.userid)
       .then(objs=>{
-        console.log('the objs notes:');
-        console.log(JSON.stringify(objs));
+        console.log('the objs notes:');console.log(JSON.stringify(objs));
         if(objs == null){
           resolve();
         }else{
+          somethingToLogs=true;
           let promises:Promise<any>[] = [];
           objs.forEach(obj=>{
             currentLog = obj;
@@ -456,8 +457,7 @@ export class Synch {
                 //Utils.putBasic('/api/notes/create', JSON.stringify({note: obj.note}),this.http, this.auth.token)
                 this.http.put('/api/notes/create', JSON.stringify({note: obj.note}))
                 .then(result=>{
-                  console.log('done with');
-                  console.log(JSON.stringify(obj.note));
+                  console.log('done with');console.log(JSON.stringify(obj.note));
                   correctResult.push(obj.note.title);
                   resolve(result);
                 })
@@ -467,53 +467,28 @@ export class Synch {
               })
             );
           });
-          // return Promise.all(objs.map((obj, index)=>{
-          //   console.log('the current obj');
-          //   console.log(JSON.stringify(obj.note));
-          //   current = obj.note;
-          //   return Utils.putBasic('/api/notes/create', JSON.stringify({note: obj.note}),this.http, this.auth.token)
           return Promise.all(promises);
-            /*
-              .catch(err=>{
-                err.index = index;
-                throw err;
-              })
-              */
-              //have to see if it works.
-              // .then(res=>{
-              //   correctResult.push(obj.note.title);
-              // })
         }
       })
       .then(results=>{
-        /*according to MDN, it returns the values of each promise.*/
-        console.log('results:');
-        console.log(JSON.stringify(results));
-
-        console.log('the correctResult');
-        console.log(JSON.stringify(correctResult));
+        // console.log('results:');
+        // console.log(JSON.stringify(results));
+        //
+        // console.log('the correctResult');
+        // console.log(JSON.stringify(correctResult));
         /*it's an array of the created notes.*/
       /*  only if the result is correct*/
       if(correctResult.length>0){
         return this.db.deleteNoteToCreateFromLogsMultiVersion(correctResult, this.auth.userid);
-      }else{
-        resolve();
       }
-    //   if(results!=null){
-    //     //return this.db.deleteNoteToCreateFromLogsMultiVersion(correctResult, this.auth.userid);
-    //   }else{
-    //     resolve();
-    //   }
-    //   })
-    //   .then(dbResult=>{
-    //     resolve();
-    // })
-    /*resolve();*/
+      // else{
+      //   resolve();
+      // }
       })
       .then(dbResult=>{
-        // console.log('ok notes-to-create deleted from logs');
-        // console.log('ok notes-to-create');
-        resolve();
+        if(somethingToLogs){ /*avoid multiple calls.*/
+          resolve();
+        }
       })
       .catch(error=>{
         console.log('error in processing notes-to-save');

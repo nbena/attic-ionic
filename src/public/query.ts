@@ -1,8 +1,8 @@
-import {TagExtraMin} from '../models/tags';
-import {TagType} from './const';
+import { TagExtraMin } from '../models/tags';
+import { TagType } from './const';
 // import { Table } from './const';
 
-export class Query{
+export class Query {
   /*even if ugly use this.*/
   // static readonly CREATE_NOTES_TABLE = 'create table if not exists notes(_id char(12) primary key,text text,title varchar(64) unique,isDone boolean,links text,creationDate char(24),lastModificationDate char(24),mainTags text,otherTags text, mainTagsToAdd text default null, otherTagsToAdd text default null, mainTagsToRemove text default null, otherTagsToRemove text default null, mustBeDeleted boolean default false)';
   //   static readonly CREATE_TAGS_TABLE = 'create table if not exists tags(_id char(12) primary key,title varchar(64) unique,notes text, notes_length integer, mustBeDeleted boolean default false)';
@@ -72,26 +72,26 @@ export class Query{
 
   static readonly CREATE_AUTH_TABLE = 'create table if not exists auth(token text default null, userid varchar(64), free boolean default true, primary key(userid));';
   // static readonly CREATE_NOTES_TABLE ='create table if not exists notes(title varchar(64),userid varchar(64) default null,text text default null, links text default null, isdone boolean default false,creationdate date default (strftime(\'%Y-%m-%d %H:%M:%f\', \'now\')), lastmodificationdate date default (strftime(\'%Y-%m-%d %H:%M:%f\', \'now\')),mustbedeleted boolean default false, json_object text default null,primary key(title, userid, mustbedeleted), foreign key(userid) references auth(userid) on update cascade on delete cascade);';
-  static readonly CREATE_NOTES_TABLE = 'create table if not exists notes(title varchar(64), userid varchar(64) default null, text text default null,'+
-    //'json_object text default null, lastmodificationdate date default (strftime(\'%Y-%m-%d %H:%M:%f\', \'now\')), mustbedeleted boolean default false, '+
-    'json_object text default null, lastmodificationdate text default null, mustbedeleted boolean default false, '+
-    'primary key(title, userid, mustbedeleted), foreign key(userid) references auth(userid) on update cascade on delete cascade)';
+  static readonly CREATE_NOTES_TABLE = 'create table if not exists notes(title varchar(64), userid varchar(64) default null, text text default null,' +
+  //'json_object text default null, lastmodificationdate date default (strftime(\'%Y-%m-%d %H:%M:%f\', \'now\')), mustbedeleted boolean default false, '+
+  'json_object text default null, lastmodificationdate text default null, mustbedeleted boolean default false, ' +
+  'primary key(title, userid, mustbedeleted), foreign key(userid) references auth(userid) on update cascade on delete cascade)';
   static readonly CREATE_TAGS_TABLE = 'create table if not exists tags(title varchar(64),userid varchar(64) default null, mustbedeleted boolean default false, json_object text default null,primary key(title, userid, mustbedeleted), foreign key(userid) references auth(userid) on update cascade on delete cascade);';
   // static readonly CREATE_NOTES_TAGS_TABLE ='create table if not exists notes_tags(notetitle varchar(64), userid varchar(64), tagtitle varchar(64),role varchar(9),mustbedeleted boolean default false,primary key(notetitle, tagtitle, userid, mustbedeleted),foreign key(notetitle) references notes(title) on update cascade on delete cascade,foreign key(tagtitle) references tags(title) on update cascade on delete cascade, foreign key(userid) references auth(userid) on update cascade on delete cascade,constraint role_check check (role = \'mainTags\' or role = \'otherTags\'));';
-  static readonly CREATE_LOGS_TABLE = 'create table if not exists logs_sequence(id integer primary key autoincrement,notetitle varchar(64)'+
-  ' default null,oldtitle varchar(64),tagtitle varchar(64) default null,role varchar(9) default null,action varchar(64) not null, '+
-  'creationdate date default(strftime(\'%Y-%m-%d %H:%M:%f\', \'now\')), userid varchar(64), '+
-  'foreign key(notetitle) references notes(title) on update cascade on delete cascade,'+
-  'foreign key(tagtitle) references tags(title) on update cascade on delete cascade, '+
-  'foreign key(userid) references auth(userid) on update cascade on delete cascade, '+
-  'constraint action_check check(action=\'create\' or action=\'delete\' or action=\'change-title\' or action=\'change-text\' '+
-  'or action=\'add-tag\' or action=\'remove-tag\' or action =\'set-done\' or action=\'set-link\'),constraint role_check check '+
-  '(role =\'mainTags\' or role = \'otherTags\' or role is null),constraint if_all check ((role is not null and noteTitle is not null '+
+  static readonly CREATE_LOGS_TABLE = 'create table if not exists logs_sequence(id integer primary key autoincrement,notetitle varchar(64)' +
+  ' default null,oldtitle varchar(64),tagtitle varchar(64) default null,role varchar(9) default null,action varchar(64) not null, ' +
+  'creationdate date default(strftime(\'%Y-%m-%d %H:%M:%f\', \'now\')), userid varchar(64), ' +
+  'foreign key(notetitle) references notes(title) on update cascade on delete cascade,' +
+  'foreign key(tagtitle) references tags(title) on update cascade on delete cascade, ' +
+  'foreign key(userid) references auth(userid) on update cascade on delete cascade, ' +
+  'constraint action_check check(action=\'create\' or action=\'delete\' or action=\'change-title\' or action=\'change-text\' ' +
+  'or action=\'add-tag\' or action=\'remove-tag\' or action =\'set-done\' or action=\'set-link\'),constraint role_check check ' +
+  '(role =\'mainTags\' or role = \'otherTags\' or role is null),constraint if_all check ((role is not null and noteTitle is not null ' +
   'and tagTitle is not null or (noteTitle is not null) or (tagTitle is not null))));'
 
   static readonly CREATE_TAGS_HELP_TABLE = 'create table if not exists tags_help(title varchar(64), userid varchar(64), json_object text default null, primary key(title, userid));';
   //static readonly CREATE_NOTES_HELP_TABLE = 'create table if not exists notes_help(title varchar(64), userid varchar(64), json_object text default null, primary key(title, userid));';
-    static readonly CREATE_NOTES_HELP_TABLE = 'create table if not exists notes_help(title varchar(64), userid varchar(64), json_object text default null,lastmodificationdate text default null, primary key(title, userid));';
+  static readonly CREATE_NOTES_HELP_TABLE = 'create table if not exists notes_help(title varchar(64), userid varchar(64), json_object text default null,lastmodificationdate text default null, primary key(title, userid));';
 
 
 
@@ -99,30 +99,30 @@ export class Query{
   static readonly CREATE_TRIGGER_DELETE_TAG_COMPRESSION = 'create trigger if not exists deleteTagCompression after update of mustbedeleted on tags for each row when exists ( select * from logs_sequence where action=\'create\' and tagtitle = old.title and userid=old.userid) and not exists (select * from logs_sequence where action=\'add-tag\' and tagtitle=old.title and userid=old.userid)begin delete from logs_sequence where tagtitle = old.title and userid=old.userid; delete from tags where title=old.title and userid=old.userid; end;'
 
   static readonly CREATE_TRIGGER_CHANGE_NOTE_TITLE_LOGS =
-  'create trigger if not exists '+
-  'updateNotesLogsSequence '+
-    'after update of title on notes '+
-    'for each row '+
-    'begin '+
-      'update logs_sequence '+
-      'set notetitle=new.title '+
-      'where notetitle=old.title '+
-      'and new.userid=userid; '+
-    'end;'
+  'create trigger if not exists ' +
+  'updateNotesLogsSequence ' +
+  'after update of title on notes ' +
+  'for each row ' +
+  'begin ' +
+  'update logs_sequence ' +
+  'set notetitle=new.title ' +
+  'where notetitle=old.title ' +
+  'and new.userid=userid; ' +
+  'end;'
 
-    static readonly CREATE_TRIGGER_CHANGE_TAG_TITLE_LOGS =
-    'create trigger if not exists '+
-    'updateTagsLogsSequence '+
-      'after update of title on tags '+
-      'for each row '+
-      'begin '+
-        'update logs_sequence '+
-        'set tagtitle=new.title '+
-        'where tagtitle=old.title '+
-        'and new.userid=userid; '+
-      'end;'
+  static readonly CREATE_TRIGGER_CHANGE_TAG_TITLE_LOGS =
+  'create trigger if not exists ' +
+  'updateTagsLogsSequence ' +
+  'after update of title on tags ' +
+  'for each row ' +
+  'begin ' +
+  'update logs_sequence ' +
+  'set tagtitle=new.title ' +
+  'where tagtitle=old.title ' +
+  'and new.userid=userid; ' +
+  'end;'
 
-  static readonly CREATE_VIEW_COUNTS =' create view if not exists counts(count, type, userid) as select count(*), \'notes\', userid from notes where mustbedeleted=\'false\' union select count(*), \'tags\', userid from tags where mustbedeleted=\'false\' union select count(*), \'logs\', userid from logs_sequence;';
+  static readonly CREATE_VIEW_COUNTS = ' create view if not exists counts(count, type, userid) as select count(*), \'notes\', userid from notes where mustbedeleted=\'false\' union select count(*), \'tags\', userid from tags where mustbedeleted=\'false\' union select count(*), \'logs\', userid from logs_sequence;';
   // static readonly GET_LOGS_COUNT = 'select count(*) as count from logs_sequence where userid=?';
   // static readonly GET_NOTES_COUNT = 'select count(*) as count from notes where mustbedeleted=\'false\' and userid=?';
   // static readonly GET_NOTES_COUNT_TOTAL = 'select count(*) as count from notes where userid=?';
@@ -159,7 +159,7 @@ export class Query{
   /*this query has been tested and it works.*/
   // static readonly GET_TAGS_MIN = 'select title, count(tagtitle) as noteslength from tags left join notes_tags on title=tagtitle where mustbedeleted=\'false\' and userid=? group by title order by noteslength desc, title asc;'
   /*here we use the json_obj.*/
-  static readonly GET_NOTE_FULL_JSON ='select json_object from notes where title=? and mustbedeleted=\'false\' and userid=?';
+  static readonly GET_NOTE_FULL_JSON = 'select json_object from notes where title=? and mustbedeleted=\'false\' and userid=?';
   /*here we use the json_obj.*/
   static readonly GET_TAG_FULL_JSON = 'select json_object from tags where mustbedeleted=\'false\' and title=? and userid=?';
 
@@ -190,7 +190,7 @@ export class Query{
 
   static readonly NOTE_EXISTS_AND_IS_FULL = 'select text from notes where mustbedeleted=\'false\' and title=? and userid=?';
   static readonly TAG_EXISTS_AND_IS_FULL = 'select json_object from tags where mustbedeleted=\'false\' and title=? and userid=?';
-  static readonly TAGS_EXIST_AND_ARE_FULL =  'select json_object from tags where mustbedeleted=\'false\' and userid=? and (';
+  static readonly TAGS_EXIST_AND_ARE_FULL = 'select json_object from tags where mustbedeleted=\'false\' and userid=? and (';
   static readonly NOTES_EXIST_AND_ARE_FULL = 'select json_object from notes where mustbedeleted=\'false\' and userid=? and (';
 
 
@@ -214,12 +214,12 @@ export class Query{
   // static readonly UPDATE_JSON_OBJ_TAG ='update tags set json_object=? where title=? and userid=?';
   // static readonly UPDATE_JSON_OBJ_NOTE ='update notes set json_object=? where title=? and userid=?';
 
-  static readonly UPDATE_JSON_OBJ_TAG_IF_NEEDED ='update tags set json_object=? where title=? and json_object <> ? and userid=?';
+  static readonly UPDATE_JSON_OBJ_TAG_IF_NEEDED = 'update tags set json_object=? where title=? and json_object <> ? and userid=?';
   // static readonly UPDATE_JSON_OBJ_NOTE_IF_NEEDED ='update notes set json_object=? where title=? and json_object <> ? and userid=?';
   // static readonly UPDATE_JSON_OBJ_NOTE_IF_NEEDED_LAST_MOD ='update notes set json_object=?, lastmodificationdate=? where title=? and json_object <> ? and userid=?';
 
-  static readonly UPDATE_JSON_OBJ_NOTE_IF_NEEDED_2 ='update notes set json_object=?, text=? where title=? and json_object <> ? and userid=?';
-  static readonly UPDATE_JSON_OBJ_NOTE_IF_NEEDED_LAST_MOD_2 ='update notes set json_object=?, text=?, lastmodificationdate=? where title=? and json_object <> ? and userid=?';
+  static readonly UPDATE_JSON_OBJ_NOTE_IF_NEEDED_2 = 'update notes set json_object=?, text=? where title=? and json_object <> ? and userid=?';
+  static readonly UPDATE_JSON_OBJ_NOTE_IF_NEEDED_LAST_MOD_2 = 'update notes set json_object=?, text=?, lastmodificationdate=? where title=? and json_object <> ? and userid=?';
 
   static readonly GET_TITLE_AND_JSON_OF_NOTES_TO_UPDATE = 'select title, role, json_object from notes join notes_tags on title=notetitle where notes.mustbedeleted=\'false\' and notes_tags.mustbedeleted=\'false\' and tagtitle=? and notes.userid=? and notes_tags.userid=notes.userid';
   // static readonly EMPLTY_NOTES = 'delete from notes';
@@ -277,7 +277,7 @@ export class Query{
   static readonly CLEAN_UP_NOTES_SET_LINK = 'select id from logs_sequence as l where action=\'set-link\' and userid=? and id < (select max(id) from logs_sequence as l1 where action=\'set-link\' and l.notetitle = l1.notetitle and userid=?);';
   static readonly NOTES_TO_CLEAN_UP_SET_LINK = 'delete from logs_sequence where id in (select id from logs_sequence as l where action=\'set-link\' and userid=? and id < (select max(id) from logs_sequence as l1 where action=\'set-link\' and l.notetitle = l1.notetitle and userid=?));';
 
-//===========================================
+  //===========================================
   static readonly SELECT_NOTES_TO_SAVE = 'select * from notes join logs_sequence on title=notetitle and notes.userid=logs_sequence.userid where notes.userid=? and action=\'create\'';
   static readonly SELECT_TAGS_TO_SAVE = 'select * from logs_sequence where logs_sequence.userid=? and tagtitle is not null and notetitle is null and action=\'create\'';
 
@@ -305,6 +305,91 @@ export class Query{
 
   static readonly ADD_TAGS_TO_NOTE = 'insert into notes_tags(notetitle, tagtitle, role, userid) values (?,?,?,?)';
 
+  static readonly CLEANUP_NOTES_ADD_TAGS_IF_TO_BE_CREATED =
+  'delete ' +
+  'from logs_sequence ' +
+  'where id in ' +
+  '(select id ' +
+  'from logs_sequence as l1 ' +
+  'where action=\'add-tag\' ' +
+  'and userid=? ' +
+  'and exists (select * ' +
+  'from logs_sequence as l2 ' +
+  'where l1.notetitle=l2.notetitle ' +
+  'and action=\'create\' ' +
+  'and l1.id > l2.id ' +
+  'and l1.userid=l2.userid ' +
+  'and l2.userid=? ' +
+  '));'
+
+  static readonly CLEANUP_NOTES_REMOVE_TAGS_IF_TO_BE_CREATED =
+  'delete ' +
+  'from logs_sequence ' +
+  'where id in ' +
+  '(select id ' +
+  'from logs_sequence as l1 ' +
+  'where action=\'remove-tag\' ' +
+  'and userid=? ' +
+  'and exists (select * ' +
+  'from logs_sequence as l2 ' +
+  'where l1.notetitle=l2.notetitle ' +
+  'and action=\'create\' ' +
+  'and l1.id > l2.id ' +
+  'and l1.userid=l2.userid ' +
+  'and l2.userid=? ' +
+  '));'
+
+  static readonly CLEANUP_NOTES_CHANGE_TEXT_IF_TO_BE_CREATED =
+  'delete ' +
+  'from logs_sequence ' +
+  'where id in ' +
+  '(select id ' +
+  'from logs_sequence as l1 ' +
+  'where action=\'change-text\' ' +
+  'and userid=? ' +
+  'and exists (select * ' +
+  'from logs_sequence as l2 ' +
+  'where l1.notetitle=l2.notetitle ' +
+  'and action=\'create\' ' +
+  'and l1.id > l2.id ' +
+  'and l1.userid=l2.userid ' +
+  'and l2.userid=? ' +
+  '));';
+
+
+  static readonly CLEANUP_NOTES_SET_DONE_IF_TO_BE_CREATED =
+  'delete ' +
+  'from logs_sequence ' +
+  'where id in ' +
+  '(select id ' +
+  'from logs_sequence as l1 ' +
+  'where action=\'set-done\' ' +
+  'and userid=? ' +
+  'and exists (select * ' +
+  'from logs_sequence as l2 ' +
+  'where l1.notetitle=l2.notetitle ' +
+  'and action=\'create\' ' +
+  'and l1.id > l2.id ' +
+  'and l1.userid=l2.userid ' +
+  'and l2.userid=? ' +
+  '));'
+
+  static readonly CLEANUP_NOTES_SET_LINK_IF_TO_BE_CREATED =
+  'delete ' +
+  'from logs_sequence ' +
+  'where id in ' +
+  '(select id ' +
+  'from logs_sequence as l1 ' +
+  'where action=\'set-link\' ' +
+  'and userid=? ' +
+  'and exists (select * ' +
+  'from logs_sequence as l2 ' +
+  'where l1.notetitle=l2.notetitle ' +
+  'and action=\'create\' ' +
+  'and l1.id > l2.id ' +
+  'and l1.userid=l2.userid ' +
+  'and l2.userid=? ' +
+  '));'
 
   //===============================SINGLE DELETE FROM LOGS_SEQUENCE========================0
 
@@ -377,40 +462,40 @@ export class Query{
   static readonly REMOVE_NOTES_FROM_TAGS_CLEANUP_ONE = 'update tags set json_object = replace(json_object, \'[,\', \'[\') where instr(json_object, \'[,\') <> 0 and userid=?';
   static readonly REMOVE_NOTES_FROM_TAGS_CLEANUP_TWO = 'update tags set json_object = replace(json_object, \'},,{\', \'},{\') where instr(json_object, \'},,{\') <> 0 and userid=?';
   static readonly REMOVE_NOTES_FROM_TAGS_CLEANUP_THREE = 'update tags set json_object = replace(json_object, \',]\', \']\') where instr(json_object, \'],\') <> 0 and userid=?';
-  static readonly REDUCE_NOTES_LENGTH = 'with involved_tag(title, json_object) as'+
-'	(select title, json_object from tags where title=? and userid=?)'+
-'update tags set json_object=('+
-'with noteslength_temp as ('+
-'	select substr((select json_object from involved_tag),'+
-'	instr('+
-'				(select json_object from involved_tag), '+
-'			\'"noteslength":\''+
-'	)'+
-'	)),'+
-'	old_noteslength_str as ('+
-'	select replace((select * from noteslength_temp),'+
-'								\'}\','+
-'								\'\')'+
-'	),'+
-'	old_noteslength_value as ('+
-'	select substr((select * from noteslength_temp), '+
-'							instr((select * from noteslength_temp), \':\' )+1'+
-'							)'+
-'),'+
-'	new_noteslength_str as ('+
-'		select printf(\'%s:%d\', \'"noteslength"\', ((select * from old_noteslength_value)-1))'+
-'	),'+
-'final_result(replacement) as ('+
-'	select replace((select json_object from involved_tag'+
-'								where instr(json_object, title) <> 0'+
-'								),'+
-'								(select * from old_noteslength_str),'+
-'								(select * from new_noteslength_str))'+
-') '+
-'select * from final_result'+
-'where instr(replacement, title) <> 0'+
-')'+
-'where title = (select title from involved_tag);'
+  static readonly REDUCE_NOTES_LENGTH = 'with involved_tag(title, json_object) as' +
+  '	(select title, json_object from tags where title=? and userid=?)' +
+  'update tags set json_object=(' +
+  'with noteslength_temp as (' +
+  '	select substr((select json_object from involved_tag),' +
+  '	instr(' +
+  '				(select json_object from involved_tag), ' +
+  '			\'"noteslength":\'' +
+  '	)' +
+  '	)),' +
+  '	old_noteslength_str as (' +
+  '	select replace((select * from noteslength_temp),' +
+  '								\'}\',' +
+  '								\'\')' +
+  '	),' +
+  '	old_noteslength_value as (' +
+  '	select substr((select * from noteslength_temp), ' +
+  '							instr((select * from noteslength_temp), \':\' )+1' +
+  '							)' +
+  '),' +
+  '	new_noteslength_str as (' +
+  '		select printf(\'%s:%d\', \'"noteslength"\', ((select * from old_noteslength_value)-1))' +
+  '	),' +
+  'final_result(replacement) as (' +
+  '	select replace((select json_object from involved_tag' +
+  '								where instr(json_object, title) <> 0' +
+  '								),' +
+  '								(select * from old_noteslength_str),' +
+  '								(select * from new_noteslength_str))' +
+  ') ' +
+  'select * from final_result' +
+  'where instr(replacement, title) <> 0' +
+  ')' +
+  'where title = (select title from involved_tag);'
 
 
   static readonly REMOVE_TAGS_FROM_NOTES_SMART_REPLACE = 'update notes set json_object = replace(json_object, ?, \'\') where instr(json_object, ?) <> 0 and userid=?';
@@ -421,7 +506,7 @@ export class Query{
 
   static readonly DELETE_EVERYTHING_FROM_NOTES = 'delete from notes where userid=?';
   static readonly DELETE_EVERYTHING_FROM_TAGS = 'delete from tags where userid=?';
-  static readonly DELETE_EVERYTHING_FROM_LOGS  = 'delete from logs_sequence where userid=?';
+  static readonly DELETE_EVERYTHING_FROM_LOGS = 'delete from logs_sequence where userid=?';
 
 
   static readonly SELECT_TITLE_FROM_NOTES_NO_MUSTBE = 'select title from notes where title=? and userid=?';
@@ -436,8 +521,8 @@ export class Query{
   //static readonly UPDATE_JSON_OBJ_NOTE_IF_NECESSARY = 'update notes set json_object=? where length(json_object) < length(?) and title=? and userid=?';
   static readonly INSERT_INTO_NOTES_2 = 'insert into notes(title, json_object, text, lastmodificationdate,userid) values (?,?,?,?,?)';
 
-  static readonly EMPTY_RESULT_SET ='with a(b) as (select \'true\') select b from a where b=\'false\'';
-  static readonly INSERT_MULTI_TAGS ='insert into tags(title, json_object, userid) values ';
+  static readonly EMPTY_RESULT_SET = 'with a(b) as (select \'true\') select b from a where b=\'false\'';
+  static readonly INSERT_MULTI_TAGS = 'insert into tags(title, json_object, userid) values ';
 
   //static readonly INSERT_NOTE_2 = 'insert into notes(title, text, lastmodificationdate, json_object, userid) values (?,?,?,?,?)';
 
@@ -459,7 +544,7 @@ export class Query{
   static readonly SELECT_NOTES_FULL_MIN_WITH_DATE_BY_TAGS_NO_ROLE_AND = 'select json_object from notes where userid=? and mustbedeleted=\'false\' and json_object like ? order by lastmodificationdate desc, title asc';
   static readonly SELECT_NOTES_FULL_MIN_WITH_DATE_BY_TAGS_NO_ROLE_OR = 'select json_object from notes where userid=? and mustbedeleted=\'false\' and json_object regexp ? order by lastmodificationdate desc, title asc';
 
-  static readonly SELECT_NOTES_FULL_BASE ='select json_object from notes where userid=? '
+  static readonly SELECT_NOTES_FULL_BASE = 'select json_object from notes where userid=? '
   /*
   tag and notes in the db just memorize an array of ids.
   */
@@ -479,9 +564,9 @@ export class Query{
   //   }
   //   return result;
   // }
-  static readonly GET_LOGS_BY_NOTE = "select json_object, action from notes join logs_sequence "+
-  "on title=notetitle and notes.userid=logs_sequence.userid where notes.userid=? and action="+
-  "'set-done' or action='change-text' or action='set-link' or action='add-tag' or "+
+  static readonly GET_LOGS_BY_NOTE = "select json_object, action from notes join logs_sequence " +
+  "on title=notetitle and notes.userid=logs_sequence.userid where notes.userid=? and action=" +
+  "'set-done' or action='change-text' or action='set-link' or action='add-tag' or " +
   "action='remove-tag' and title=?";
 
   static readonly FORCE_DELETE_NOTE_MULTI = 'delete from notes where userid=? and ';
@@ -495,39 +580,39 @@ export class Query{
 
 
 
-  public static prepareQueryTagExistAndAreFull(length:number):string{
-    let result:string = Query.TAGS_EXIST_AND_ARE_FULL;
-    for(let i=0;i<length;i++){
-      result+='title=? or ';
+  public static prepareQueryTagExistAndAreFull(length: number): string {
+    let result: string = Query.TAGS_EXIST_AND_ARE_FULL;
+    for (let i = 0; i < length; i++) {
+      result += 'title=? or ';
     }
-    result=result.substr(0, result.lastIndexOf('or '));
-    result+=')';
-    if(length==0){
-      result=Query.EMPTY_RESULT_SET;
+    result = result.substr(0, result.lastIndexOf('or '));
+    result += ')';
+    if (length == 0) {
+      result = Query.EMPTY_RESULT_SET;
     }
-    console.log('result is '+result);
+    console.log('result is ' + result);
     return result;
   }
 
 
-  public static prepareQueryNoteExistAndAreFull(length:number):string{
-    let result:string = Query.NOTES_EXIST_AND_ARE_FULL;
-    for(let i=0;i<length;i++){
-      result+='title=? or ';
+  public static prepareQueryNoteExistAndAreFull(length: number): string {
+    let result: string = Query.NOTES_EXIST_AND_ARE_FULL;
+    for (let i = 0; i < length; i++) {
+      result += 'title=? or ';
     }
-    result=result.substr(0, result.lastIndexOf('or '));
-    result+=')';
-    if(length==0){
-      result=Query.EMPTY_RESULT_SET;
+    result = result.substr(0, result.lastIndexOf('or '));
+    result += ')';
+    if (length == 0) {
+      result = Query.EMPTY_RESULT_SET;
     }
-    console.log('result is '+result);
+    console.log('result is ' + result);
     return result;
   }
 
 
-  public static expandArrayTagsMinWithEverything(tags:TagExtraMin[], userid:string):string[]{
-    let array:string[]=[];
-    for(let i=tags.length-1;i>=0;i--){
+  public static expandArrayTagsMinWithEverything(tags: TagExtraMin[], userid: string): string[] {
+    let array: string[] = [];
+    for (let i = tags.length - 1; i >= 0; i--) {
       array.push(tags[i].title);
       array.push(JSON.stringify(tags[i]));
       array.push(userid);
@@ -536,24 +621,24 @@ export class Query{
   }
 
 
-  public static prepareQueryInsertIntoHelp(baseQuery: string, length:number, userid:string, questionMark:number):string{
-    for(let i=0;i<length;i++){
+  public static prepareQueryInsertIntoHelp(baseQuery: string, length: number, userid: string, questionMark: number): string {
+    for (let i = 0; i < length; i++) {
       //baseQuery += '(?,?,?,?),';
 
-      let temp:string='?,'.repeat(questionMark);
-      temp=temp.substr(0, temp.length-1);
-      temp = '('+temp+'),';
-      baseQuery+=temp;
+      let temp: string = '?,'.repeat(questionMark);
+      temp = temp.substr(0, temp.length - 1);
+      temp = '(' + temp + '),';
+      baseQuery += temp;
     }
-    baseQuery = baseQuery.substr(0, baseQuery.length-1);
+    baseQuery = baseQuery.substr(0, baseQuery.length - 1);
     return baseQuery;
   }
 
 
 
-  public static expandInsertNoteTagsIntoLogs(title:string, userid:string, tags:TagExtraMin[]):string[]{
-    let array:string[]=[];
-    for(let i=0;i<tags.length;i++){
+  public static expandInsertNoteTagsIntoLogs(title: string, userid: string, tags: TagExtraMin[]): string[] {
+    let array: string[] = [];
+    for (let i = 0; i < tags.length; i++) {
       array.push(title);
       array.push(tags[i].title);
       array.push(userid);
@@ -561,49 +646,49 @@ export class Query{
     return array;
   }
 
-  public static expandTagType(tags:TagExtraMin[], type:TagType):TagType[]{
-    return tags.map(obj=>{
+  public static expandTagType(tags: TagExtraMin[], type: TagType): TagType[] {
+    return tags.map(obj => {
       return type;
     })
   }
 
-  public static prepareQueryInsertNotesTagsIntoLogs(tags:TagExtraMin[], roles: TagType[]):string{
-    if(roles.length != tags.length){
+  public static prepareQueryInsertNotesTagsIntoLogs(tags: TagExtraMin[], roles: TagType[]): string {
+    if (roles.length != tags.length) {
       throw new Error('error length must be the same');
     }
-    let result:string = Query.INSERT_NOTE_TAG_INTO_LOGS_2;
-    for(let i=0;i<tags.length;i++){
-      if(roles[i]==TagType.MAIN){
-        result+='(?,?,\'mainTags\',\'add-tag\', ?),';
-      }else{
-        result+='(?,?,\'otherTags\',\'add-tag\', ?),';
+    let result: string = Query.INSERT_NOTE_TAG_INTO_LOGS_2;
+    for (let i = 0; i < tags.length; i++) {
+      if (roles[i] == TagType.MAIN) {
+        result += '(?,?,\'mainTags\',\'add-tag\', ?),';
+      } else {
+        result += '(?,?,\'otherTags\',\'add-tag\', ?),';
       }
     }
-    result=result.substr(0, result.length-1);
+    result = result.substr(0, result.length - 1);
     return result;
   }
 
-  public static prepareQueryRemoveTagsFromNotesLogs(length:number):string{
-    let result:string = Query.INSERT_NOTE_TAG_INTO_LOGS_2_NO_ROLE;
-    for(let i=0;i<length;i++){
-      result+='(?,?,\'remove-tag\', ?),';
+  public static prepareQueryRemoveTagsFromNotesLogs(length: number): string {
+    let result: string = Query.INSERT_NOTE_TAG_INTO_LOGS_2_NO_ROLE;
+    for (let i = 0; i < length; i++) {
+      result += '(?,?,\'remove-tag\', ?),';
     }
-    result=result.substr(0, result.length-1);
+    result = result.substr(0, result.length - 1);
     return result;
   }
 
-  public static prepareNotesMultiVersion(length:number, query:string, fromLogs:boolean):string{
-    let res:string = query;
-    res+='(';
-    for(let i=0;i<length;i++){
-      if(fromLogs){
-        res+=' notetitle=? or'
-      }else{
-        res+=' title=? or'
+  public static prepareNotesMultiVersion(length: number, query: string, fromLogs: boolean): string {
+    let res: string = query;
+    res += '(';
+    for (let i = 0; i < length; i++) {
+      if (fromLogs) {
+        res += ' notetitle=? or'
+      } else {
+        res += ' title=? or'
       }
     }
     res = res.substr(0, res.lastIndexOf('or'));
-    res+=')';
+    res += ')';
     return res;
   }
 
@@ -615,22 +700,22 @@ export class Query{
   '.... from ... where... and ', what is done here is an adding in the followfing form:
   '(tagtitle=? or tagtitle=?)' if last is set to true, or '(title=? or title=?)'
   */
-  public static prepareTagsMultiVersion(length:number, queryString: string, fromLogs:boolean):string{
+  public static prepareTagsMultiVersion(length: number, queryString: string, fromLogs: boolean): string {
     //let res: string = Query.DELETE_FROM_LOGS_TAG_CREATED_WHERE_TAG;
     let res: string = queryString;
-    res+='(';
-    for(let i=0;i<length;i++){
-      if(fromLogs){
-        res+=' tagtitle=? or';
-      }else{
-        res+=' title=? or';
+    res += '(';
+    for (let i = 0; i < length; i++) {
+      if (fromLogs) {
+        res += ' tagtitle=? or';
+      } else {
+        res += ' title=? or';
       }
     }
     res = res.substr(0, res.lastIndexOf('or'));
-    res+=')';
+    res += ')';
     return res;
   }
 
 
 
- }
+}
