@@ -20,6 +20,8 @@ import { HttpProvider } from './http';
 
 import { AtticError } from '../public/errors';
 
+import { Events } from 'ionic-angular';
+
 /*
   Generated class for the AtticTags provider.
 
@@ -36,7 +38,8 @@ export class AtticTags {
     private db: Db,
     private netManager: NetManager,
     private synch: Synch,
-    private atticCache: AtticCache
+    private atticCache: AtticCache,
+    private events:Events
   ) {
     console.log('Hello AtticTags Provider');
   }
@@ -268,7 +271,8 @@ export class AtticTags {
           this.atticCache.changeTagTitle(tag, newTitle, /*false*/);
           //this.atticCache.updateTag2(tag, newTitle, null);
           if(tag.noteslength>0){
-            this.atticCache.invalidateFullNotes();
+            //this.atticCache.invalidateFullNotes();
+            this.events.publish('invalidate-full-cached-notes');
           }
           resolve();
         }
@@ -301,7 +305,8 @@ export class AtticTags {
         .then(()=>{
           this.atticCache.removeTag(tag);
           if(tag.noteslength>0){
-            this.atticCache.invalidateFullNotes();
+            //this.atticCache.invalidateFullNotes();
+            this.events.publish('invalidate-full-cached-notes');
           }
           resolve();
         })

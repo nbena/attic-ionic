@@ -42,6 +42,35 @@ export class AtticCache {
     this.differentlySortedCachedAlmostMinTags = [];
     //this.summary = new UserSummary(); must be kept to null
     console.log('Hello AtticCacheProvider Provider');
+
+
+    this.events.subscribe('invalidate-cached-notes', ()=>{
+      console.log('invalidate-notes');
+      this.invalidateNotes();
+    });
+
+
+    this.events.subscribe('invalidate-cached-tags', ()=>{
+      console.log('invalidate-tags');
+      this.invalidateTags();
+    });
+
+    this.events.subscribe('invalidate-full-cached-notes',()=>{
+      console.log('invalidate-full-notes');
+      this.invalidateFullNotes();
+    });
+
+    this.events.subscribe('invalidate-full-cached-tags',()=>{
+      console.log('invalidate-full-tags');
+      this.invalidateFullTags();
+    });
+
+    this.events.subscribe('clean-cache',()=>{
+      console.log('clean');
+      this.clean();
+    })
+
+
   }
 
 
@@ -786,7 +815,7 @@ export class AtticCache {
 
 
 
-  public clean():void{
+  private clean():void{
     // this.differentlySortedCachedExtraMinNotes=[];
     // this.cachedExtraMinNotes=[];
     // this.cachedFullNotes=[];
@@ -798,21 +827,25 @@ export class AtticCache {
     this.invalidateTags();
   }
 
-  public invalidateNotes(){
+  private invalidateNotes():void{
     this.differentlySortedCachedExtraMinNotes=[];
     this.cachedExtraMinNotes=[];
     this.cachedFullNotes=[];
   }
 
 
-  public invalidateTags(){
+  private invalidateTags():void{
     this.differentlySortedCachedAlmostMinTags=[];
     this.cachedFullTags=[];
     this.cachedAlmostMinTags=[];
   }
 
-  public invalidateFullNotes(){
+  private invalidateFullNotes():void{
     this.cachedFullNotes=[];
+  }
+
+  private invalidateFullTags():void{
+    this.cachedFullTags=[];
   }
 
 

@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { NavController, NavParams/*, AlertController*/,ViewController, Events,App } from 'ionic-angular';
-import { NotesPage } from '../notes/notes';
+// import { NotesPage } from '../notes/notes';
 import { NotesByTagPage } from '../notes-by-tag/notes-by-tag';
 import { FilterNs} from '../../public/const';
 import {GraphicProvider} from '../../providers/graphic';

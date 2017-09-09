@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { NavController, NavParams, /*ToastController, AlertController,*/ ViewController/*, App,*/, Events } from 'ionic-angular';
-import { TagFull, TagExtraMin, TagAlmostMin } from '../../models/tags';
+import { TagFull,/*, TagExtraMin, */TagAlmostMin } from '../../models/tags';
 import { AtticTags } from '../../providers/attic-tags';
 // import { Utils } from '../../public/utils';
 // import { TagsPage } from '../tags/tags';

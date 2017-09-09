@@ -57,11 +57,11 @@ export class NotesPage {
   private searchCtrl: FormControl;
   private searchTerm: string ='';
 
-  private isFull: boolean;
+  // private isFull: boolean;
 
-  private isRefreshing:boolean = false;
-
-  private isRefreshingSet: boolean = false;
+  // private isRefreshing:boolean = false;
+  //
+  // private isRefreshingSet: boolean = false;
 
   private isThereSomethingToShow: boolean = false;
 

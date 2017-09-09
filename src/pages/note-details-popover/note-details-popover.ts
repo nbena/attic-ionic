@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { /*NavController, */NavParams, ViewController/*, ToastController, AlertController*/
   , App
   ,Events } from 'ionic-angular';
-import { NoteFull, NoteExtraMinWithDate, NoteExtraMin } from '../../models/notes';
+import { NoteFull, NoteExtraMinWithDate/*, NoteExtraMin*/ } from '../../models/notes';
 import { NoteEditTextPage } from '../note-edit-text/note-edit-text';
 import { AtticNotes } from '../../providers/attic-notes';
 // import { Utils } from '../../public/utils';
@@ -20,7 +20,7 @@ import { GraphicProvider} from '../../providers/graphic'
 })
 export class NoteDetailsPopoverPage {
 
-  private done: string;
+  //private done: string;
   private note: NoteFull = null;
   // title:string;
 
@@ -246,7 +246,7 @@ export class NoteDetailsPopoverPage {
     //   return this.graphicProvider.presentToast('Note deleted');
     // })
     .catch(error=>{
-      console.log('delete error: ');;console.log(JSON.stringify(error));console.log(JSON.stringify(error.message));
+      console.log('delete error: ');console.log(JSON.stringify(error));console.log(JSON.stringify(error.message));
       this.graphicProvider.showErrorAlert(error);
     })
   }

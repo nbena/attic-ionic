@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, ViewController, Events } from 'ionic-angular';
+import { NavController, NavParams,/*ViewController, */Events } from 'ionic-angular';
 import { AtticTags } from '../../providers/attic-tags';
 import { TagAlmostMin, TagExtraMin } from '../../models/tags';
-import { NotesPage } from '../notes/notes';
+// import { NotesPage } from '../notes/notes';
 import { FilterNs } from '../../public/const';
 import {GraphicProvider} from '../../providers/graphic';
 import { /*FormBuilder, FormGroup, Validators,*/ FormControl/*, FormArray*/ } from '@angular/forms'
@@ -43,7 +43,7 @@ export class NotesByTagPage {
 
   constructor(public navCtrl: NavController, public navParams: NavParams,
     private atticTags: AtticTags,
-    private viewCtrl: ViewController,
+    //private viewCtrl: ViewController,
     private graphicProvider:GraphicProvider,
     private events:Events
     // private formBuilder: FormBuilder

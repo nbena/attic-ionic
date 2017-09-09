@@ -21,6 +21,8 @@ import { /*FormControl*/AbstractControl } from '@angular/forms'
 
 import 'rxjs/add/operator/map';
 
+import { Events } from 'ionic-angular';
+
 /*
   Generated class for the AtticNotes provider.
 
@@ -38,7 +40,8 @@ export class AtticNotes {
     private atticCache: AtticCache,
     private db: Db, private netManager: NetManager,
     private synch: Synch,
-    private http:HttpProvider
+    private http:HttpProvider,
+    private events:Events
   ) {
     console.log('Hello AtticNotes Provider');
   }
@@ -322,7 +325,8 @@ export class AtticNotes {
           //console.log('pushed to note full');
           // this.addTagsToNote(necessaryTags.slice(), note.forceCastToNoteExtraMin());
           if(note.maintags.length+note.othertags.length>0){
-            this.atticCache.invalidateTags();
+            //this.atticCache.invalidateTags();
+            this.events.publish('invalidate-full-cached-tags');
           }
           resolve();
         })
@@ -581,7 +585,8 @@ export class AtticNotes {
       .then(changedLocally=>{
         if(isAllowed){
           this.atticCache.changeNoteTitle(note, newTitle/*, false*/,lastmod);
-          this.atticCache.invalidateTags();
+          //this.atticCache.invalidateTags();
+          this.events.publish('invalidate-full-cached-tags');
           resolve();
         }
       })
@@ -608,7 +613,8 @@ export class AtticNotes {
         .then(()=>{
           //this.atticCache.updateNote(note, true, true, oldlastmod);
           //no need to update the cache because the note returned is the same.
-          this.atticCache.invalidateTags();
+          //this.atticCache.invalidateTags();
+          this.events.publish('invalidate-cached-tags');
           resolve();
         })
         .catch(error=>{
@@ -632,7 +638,8 @@ export class AtticNotes {
         this.db.addTags(note, this.auth.userid, mainTags)
         .then(()=>{
           //this.atticCache.updateNote(note, true, true, oldlastmod);
-          this.atticCache.invalidateTags();
+          //this.atticCache.invalidateTags();
+          this.events.publish('invalidate-cached-tags');
           resolve();
         })
         .catch(error=>{
@@ -655,7 +662,8 @@ export class AtticNotes {
         this.db.addTags(note, this.auth.userid, null, otherTags)
         .then(()=>{
           //this.atticCache.updateNote(note, true, true, oldlastmod);
-          this.atticCache.invalidateTags();
+          //this.atticCache.invalidateTags();
+          this.events.publish('invalidate-cached-tags');
           resolve();
         })
         .catch(error=>{
@@ -678,8 +686,9 @@ export class AtticNotes {
         this.db.removeTagsFromNote(note, this.auth.userid, tags)
         .then(()=>{
           //this.atticCache.updateNote(note, true, true, oldlastmod);
-          this.atticCache.invalidateNotes();
-          this.atticCache.invalidateTags();
+          //this.atticCache.invalidateNotes();
+          //this.atticCache.invalidateTags();
+          this.events.publish('clean-cache');
           resolve();
         })
         .catch(error=>{
@@ -777,7 +786,8 @@ export class AtticNotes {
            .then(()=>{
              this.atticCache.removeNote(note);
              if(note.maintags.length+note.othertags.length>0){
-               this.atticCache.invalidateTags();
+               //this.atticCache.invalidateTags();
+               this.events.publish('invalidate-cached-tags');
              }
              resolve();
            })

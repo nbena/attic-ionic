@@ -9,6 +9,7 @@ import { NoteExtraMin, NoteFull, /*NoteSQLite,*/NoteMin, NoteExtraMinWithDate } 
 import { TagExtraMin, TagFull, /*TagMin,*/ TagAlmostMin/*, TagSQLite */} from '../models/tags';
 import { UserSummary } from '../models/user_summary';
 import { AtticError } from '../public/errors';
+import { Events } from 'ionic-angular';
 
 
 export class LogObjMin{
@@ -64,7 +65,9 @@ export class Db {
 
   private promise: Promise<SQLiteObject>;
 
-  constructor(private platform: Platform, private sqlite:SQLite){
+  constructor(private platform: Platform,
+    private sqlite:SQLite,
+    private events:Events){
     console.log('Hello DbProvider');
 
     this.promise = new Promise<SQLiteObject>((resolve, reject)=>{
@@ -72,8 +75,8 @@ export class Db {
       this.platform.ready()
       .then(()=>{
         return this.sqlite.create({
-          name:"attic.db",
-          location:"default"
+          name:'attic.db',
+          location:'default'
         })
       })
       .then(dbObject=>{
@@ -5104,6 +5107,7 @@ private rollbackAddTagToNote(note: NoteMin, error:boolean[],userid:string):Promi
           //console.log('is tag not found');
           this.removeNoteFromTagsUpdateOnlyTagsCore([note.forceCastToNoteExtraMin()], userid, tags, tx);
           this.removeTagsFromNotesUpdateOnlyNotesCore(tags, [note.upgrade()], userid, tx);
+          this.events.publish('clean-cache');
         }
         if(isNoteNotFound){
           this.deleteNotesFromNotesBasciCore(tx, [note.title], userid);
@@ -5200,7 +5204,7 @@ private rollbackSetLink(note:NoteExtraMin, userid:string):Promise<void>{
   */
   private rollbackCreateNote(note:NoteFull|NoteMin, error:boolean[], userid:string):Promise<void>{
     return new Promise<void>((resolve, reject)=>{
-      let noteF:NoteFull = (note instanceof NoteMin) ? note.upgrade() : note;
+      //let noteF:NoteFull = (note instanceof NoteMin) ? note.upgrade() : note;
       let p:Promise<any>;
       let isUserR:boolean = AtticError.isUserReachedMaxErrorFromArray(error);
       let isTagNotFound:boolean = AtticError.isTagNotFoundErrorFromArray(error);
@@ -5228,6 +5232,15 @@ private rollbackSetLink(note:NoteExtraMin, userid:string):Promise<void>{
             this.removeNoteFromTagsUpdateOnlyTagsCore([note.forceCastToNoteExtraMin()], userid, tags, tx);
             this.deleteNotesFromNotesBasciCore(tx, [note.title], userid);
             //this.removeTagsFromNotesUpdateOnlyNotesCore(noteF.getTagsAsTagsExtraMinArray(), [noteF], userid, tx);
+            if(note.getTagsAsStringArray().length>0){
+              // console.log('going to publish clean-cache');
+              this.events.publish('clean-cache');
+              // console.log('done');
+            }else{
+              // console.log('going to publish invalidate-cached-notes');
+              this.events.publish('invalidate-cached-notes');
+              // console.log('done');
+            }
           }
           this.deleteNotesToCreateFromLogsMultiVersionCore(tx, [note.title], userid);
         })
@@ -5296,7 +5309,11 @@ private rollbackSetLink(note:NoteExtraMin, userid:string):Promise<void>{
           if(isUserR){
             this.removeTagsFromNotesUpdateOnlyNotesCore([tag], notes,userid, tx);
             this.deleteTagsFromTagsBasicCore(tx, [tag.title], userid);
+            if(notes.length>0){
+              this.events.publish('invalidate-full-cached-notes');
+            }
           }
+          this.events.publish('invalidate-cached-tags');
           /*if other error just delete*/
           this.deleteTagsToCreateFromLogsMultiVersionCore(tx, [tag.title], userid);
 

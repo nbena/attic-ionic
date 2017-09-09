@@ -9,7 +9,7 @@ import { FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms'
 import { AtticNotes } from '../../providers/attic-notes';
 import { AtticTags } from '../../providers/attic-tags';
 import { NoteFull/*, NoteSmart, NoteMin, NoteExtraMin*/ } from '../../models/notes';
-import { TagExtraMin,/* TagFull,*/ TagAlmostMin } from '../../models/tags';
+import { /*TagExtraMin, TagFull,*/ TagAlmostMin } from '../../models/tags';
 // import { Utils } from '../../public/utils'
 import {GraphicProvider} from '../../providers/graphic';
 import { isWebUri } from 'valid-url';
