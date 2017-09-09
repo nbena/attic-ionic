@@ -351,7 +351,7 @@ export class NotesPage {
         refresher.complete();
       }
       this.setIsThereSomethingToShow();
-      console.log('load error');console.log(JSON.stringify(error.message));
+      console.log('load error');console.log(JSON.stringify(error.message));console.log(JSON.stringify(error));
       this.graphicProvider.showErrorAlert(error);
     })
   }

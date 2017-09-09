@@ -152,6 +152,7 @@ export class NoteDetailsPopoverPage {
   */
 
   private changeTitleAPI(title: string){
+    title = title.trim();
     let oldNote:NoteExtraMinWithDate = new NoteExtraMinWithDate({title:this.note.title, lastmodificationdate:this.lastmod});
     //oldNote.lastmodificationdate = this.lastmod;
     let date = new Date();

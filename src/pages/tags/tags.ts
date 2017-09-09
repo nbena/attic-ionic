@@ -39,7 +39,7 @@ export class TagsPage {
     private graphicProvider:GraphicProvider,
     private events:Events
   ) {
-    // if(this.allTags==null){
+    // if(this.allTags==null){ --> because it's done in viewwillenter
     //   //this.loadAlmostMin(false);
     //   this.load(false);
     // }
@@ -294,6 +294,7 @@ export class TagsPage {
   }
 
   createNewTagAPI(title: string){
+    title = title.trim();
     let tag:TagFull = new TagFull({title:title});
     // tag.notes=[];
     // tag.noteslength=0;

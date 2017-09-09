@@ -80,6 +80,7 @@ export class TagDetailsPopoverPage {
   }
 
   private changeTitleAPI(newTitle:string){
+    newTitle = newTitle.trim();
     let oldTag = new TagAlmostMin({title:this.tag.title, noteslength:this.tag.noteslength});
     let newTag = new TagAlmostMin({title:newTitle, noteslength:this.tag.noteslength});
     this.viewCtrl.dismiss()

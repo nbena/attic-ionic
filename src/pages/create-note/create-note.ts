@@ -178,7 +178,7 @@ export class CreateNotePage {
     // this.newNote.links = this.links;
     let date = new Date();
     this.newNote = new NoteFull({
-      title:this.createNotePageForm.value.title,
+      title:this.createNotePageForm.value.title.trim(),
       text:this.createNotePageForm.value.text,
       maintags:this.createNotePageForm.value.mainTags,
       othertags:this.createNotePageForm.value.otherTags,
