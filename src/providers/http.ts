@@ -99,7 +99,7 @@ export class HttpProvider {
 
           var uri = Const.API_URI+finalUri;
 
-          this.http.post(uri, JSON.stringify(body), {headers: headers})
+          this.http.post(uri, body/*JSON.stringify(body)*/, {headers: headers})
             .subscribe(res => {
 
               if(res.status!=200){
@@ -135,7 +135,7 @@ export class HttpProvider {
 
            var uri = Const.API_URI+finalUri;
 
-           this.http.put(uri, JSON.stringify(body), {headers: headers})
+           this.http.put(uri, body/*JSON.stringify(body)*/, {headers: headers})
              .subscribe(res => {
 
                if(res.status!=200){

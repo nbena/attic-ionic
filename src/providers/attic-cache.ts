@@ -5,6 +5,7 @@ import {NoteFull, NoteExtraMin, NoteExtraMinWithDate} from '../models/notes';
 import {TagFull, TagExtraMin, TagAlmostMin} from '../models/tags';
 import {Utils} from '../public/utils';
 //import { UserSummary } from '../models/user_summary';
+import { Events } from 'ionic-angular';
 
 
 /*
@@ -32,7 +33,7 @@ export class AtticCache {
 //TODO when insert single item before check that it's not present.
 //TODO add an option to not sort, but I don't think it's valid.
 
-  constructor(/*public http: Http*/) {
+  constructor(/*public http: Http*/private events:Events) {
     this.cachedFullTags = [];
     this.cachedFullNotes = [];
     this.cachedAlmostMinTags = [];

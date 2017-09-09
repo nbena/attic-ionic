@@ -435,7 +435,7 @@ export class Synch {
 
 
   public sendNotesToSave():Promise<void>{
-    let somethingToLogs:boolean = false;
+    let somethingToLog:boolean = false;
     let correctResult:string[] = [];
     // let current:NoteFull = null;
     let currentLog:LogObjSmart;
@@ -448,7 +448,7 @@ export class Synch {
         if(objs == null){
           resolve();
         }else{
-          somethingToLogs=true;
+          somethingToLog=true;
           let promises:Promise<any>[] = [];
           objs.forEach(obj=>{
             currentLog = obj;
@@ -486,7 +486,7 @@ export class Synch {
       // }
       })
       .then(dbResult=>{
-        if(somethingToLogs){ /*avoid multiple calls.*/
+        if(somethingToLog){ /*avoid multiple calls.*/
           resolve();
         }
       })
@@ -510,7 +510,7 @@ export class Synch {
     return new Promise<void>((resolve, reject)=>{
       // this.makeAllNoteTrue();
       // console.log('sending tags to save');
-      let somethingToLogs:boolean = false;
+      let somethingToLog:boolean = false;
       let correctResult:string[]=[];
       // let current:string;
       let currentLog:LogObjSmart;
@@ -520,7 +520,7 @@ export class Synch {
         if(objs == null){
           resolve();
         }else{
-          somethingToLogs=true;
+          somethingToLog=true;
           let promises:Promise<any>[] = [];
           objs.forEach(obj=>{
             currentLog = obj;
@@ -554,7 +554,7 @@ export class Synch {
       .then(dbResult=>{
         // console.log('tags-to-create deleted from logs');
         // console.log('ok tags-to-create');
-        if(somethingToLogs){
+        if(somethingToLog){
           resolve();
         }
     })
@@ -581,7 +581,7 @@ export class Synch {
   obj.note.othertags AS STRING[]
   */
   public sendTagsToAddToNotes():Promise<void>{
-    let somethingToLogs:boolean = false;
+    let somethingToLog:boolean = false;
     let correctResult:string[]=[];
     let currentLog:LogObjSmart;
     return new Promise<void>((resolve, reject)=>{
@@ -590,7 +590,7 @@ export class Synch {
         if(objs == null){
           resolve();
         }else{
-          somethingToLogs=true;
+          somethingToLog=true;
           let promises:Promise<any>[]=[];
           objs.forEach(obj=>{
             currentLog = obj;
@@ -638,7 +638,7 @@ export class Synch {
       })
       .then(dbResult=>{
         // console.log('ok tags-to-add-to');
-        if(somethingToLogs){
+        if(somethingToLog){
           resolve();
         }
     })
@@ -659,7 +659,7 @@ export class Synch {
 
 
   public sendTagsToRemoveFromNotes():Promise<void>{
-    let somethingToLogs:boolean = false;
+    let somethingToLog:boolean = false;
     let correctResult:string[]=[];
     let currentLog:LogObjSmart;
     return new Promise<void>((resolve, reject)=>{
@@ -668,7 +668,7 @@ export class Synch {
         if(objs == null){
           resolve();
         }else{
-          somethingToLogs=true;
+          somethingToLog=true;
           let promises:Promise<any>[]=[];
           objs.forEach(obj=>{
             currentLog = obj;
@@ -707,7 +707,7 @@ export class Synch {
       // }
       })
       .then(dbResult=>{
-        if(somethingToLogs){
+        if(somethingToLog){
           resolve();
         }
     })
@@ -729,7 +729,7 @@ export class Synch {
 
 
   public sendNotesToDelete():Promise<void>{
-    let somethingToLogs:boolean = false;
+    let somethingToLog:boolean = false;
     let correctResult:string[]=[];
     let currentLog:LogObjSmart;
     return new Promise<void>((resolve, reject)=>{
@@ -738,7 +738,7 @@ export class Synch {
         if(objs == null){
           resolve();
         }else{
-          somethingToLogs=true;
+          somethingToLog=true;
           let promises:Promise<any>[]=[];
           objs.forEach(obj=>{
             currentLog = obj;
@@ -775,7 +775,7 @@ export class Synch {
       })
       .then(dbResult=>{
         //resolve();
-        if(somethingToLogs){
+        if(somethingToLog){
           resolve();
         }
     })
@@ -798,7 +798,7 @@ export class Synch {
 
 
   public sendTagsToDelete():Promise<void>{
-    let somethingToLogs:boolean = false;
+    let somethingToLog:boolean = false;
     let correctResult:string[]=[];
     let currentLog:LogObjSmart;
     return new Promise<void>((resolve, reject)=>{
@@ -809,7 +809,7 @@ export class Synch {
         if(objs == null){
           resolve();
         }else{
-          somethingToLogs=true;
+          somethingToLog=true;
           let promises:Promise<any>[]=[];
           objs.forEach(obj=>{
             currentLog = obj;
@@ -846,7 +846,7 @@ export class Synch {
       })
       .then(dbResult=>{
         //resolve();
-        if(somethingToLogs){
+        if(somethingToLog){
           resolve();
         }
     })
@@ -869,7 +869,7 @@ export class Synch {
 
 
   public sendNotesToChangeText():Promise<void>{
-    let somethingToLogs:boolean = false;
+    let somethingToLog:boolean = false;
     let correctResult:string[]=[];
     let currentLog:LogObjSmart;
     return new Promise<void>((resolve, reject)=>{
@@ -878,7 +878,7 @@ export class Synch {
         if(objs == null){
           resolve();
         }else{
-          somethingToLogs=true;
+          somethingToLog=true;
           let promises:Promise<any>[]=[];
           objs.forEach(obj=>{
             currentLog = obj;
@@ -918,7 +918,7 @@ export class Synch {
       })
       .then(dbResult=>{
         //resolve();
-        if(somethingToLogs){
+        if(somethingToLog){
           resolve();
         }
     })
@@ -938,7 +938,7 @@ export class Synch {
 
 
   public sendNotesToChangeLinks():Promise<void>{
-    let somethingToLogs:boolean = false;
+    let somethingToLog:boolean = false;
     let correctResult:string[]=[];
     let currentLog:LogObjSmart;
     return new Promise<void>((resolve, reject)=>{
@@ -948,7 +948,7 @@ export class Synch {
           resolve();
         }else{
           console.log('the objs here are:');console.log(JSON.stringify(objs));
-          somethingToLogs=true;
+          somethingToLog=true;
           let promises:Promise<any>[]=[];
           objs.forEach(obj=>{
             currentLog = obj;
@@ -987,7 +987,7 @@ export class Synch {
       })
       .then(dbResult=>{
         //resolve();
-        if(somethingToLogs){
+        if(somethingToLog){
           resolve();
         }
     })
@@ -1007,7 +1007,7 @@ export class Synch {
 
 
   public sendNotesToChangeDone():Promise<void>{
-    let somethingToLogs:boolean = false;
+    let somethingToLog:boolean = false;
     let correctResult:string[]=[];
     let currentLog:LogObjSmart;
     return new Promise<void>((resolve, reject)=>{
@@ -1016,7 +1016,7 @@ export class Synch {
         if(objs == null){
           resolve();
         }else{
-          somethingToLogs=true;
+          somethingToLog=true;
           let promises:Promise<any>[]=[];
           objs.forEach(obj=>{
             currentLog = obj;
@@ -1055,7 +1055,7 @@ export class Synch {
       })
       .then(dbResult=>{
         //resolve();
-        if(somethingToLogs){
+        if(somethingToLog){
           resolve();
         }
     })

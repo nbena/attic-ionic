@@ -261,6 +261,7 @@ export class AtticNotes {
           resolve(lastAttempt);
         }
         if(!useCache){
+          /*the control if note is null is done in the cache*/
           this.atticCache.pushToCachedFullNotes(lastAttempt);
           //this.atticCache.pushNoteFullToAll(lastAttempt);
         }

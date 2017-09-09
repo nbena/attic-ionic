@@ -94,7 +94,7 @@ export class Auth {
       //   }, (err) => {
       //     reject(err);
       //   });
-      this.http.unauthenticatedPut('/api/users/create',user)
+      this.http.unauthenticatedPut('/api/users/create',JSON.stringify(user))
       .then(token=>{
         // if(token as boolean){
           this.token = token;
@@ -149,7 +149,7 @@ login(user: User){
   //
   // });
   return new Promise<void>((resolve, reject)=>{
-    this.http.unauthenticatedPost('/api/auth/login', user)
+    this.http.unauthenticatedPost('/api/auth/login', JSON.stringify(user))
     .then(token=>{
       console.log('token is');console.log(JSON.stringify(token));
       this.token = token;
