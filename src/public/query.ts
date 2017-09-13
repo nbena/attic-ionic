@@ -122,6 +122,33 @@ export class Query {
   'and new.userid=userid; ' +
   'end;'
 
+  static readonly CREATE_TRIGGER_DELETE_NOTE_COMPRESSION_2=
+  'create trigger if not exists deleteNoteCompression2 '+
+'after update of mustbedeleted on notes '+
+'for each row '+
+'when exists '+
+		'('+
+		'select *'+
+		'from logs_sequence '+
+		'where action <> \'delete\' '+
+		'and notetitle=old.title '+
+		'and userid=old.userid) '+
+	'and not exists ('+
+		'select * '+
+		//'-- because this is done by  the other trigger '+
+		'from logs_sequence '+
+		'where action = \'create\' '+
+		'and notetitle=old.title '+
+		'and userid=old.userid) '+
+	'and new.mustbedeleted=\'true\' '+
+	'begin '+
+		'delete '+
+		'from logs_sequence '+
+		'where notetitle = old.title '+
+		'and userid=old.userid '+
+		'and action <> \'delete\'; '+
+	'end; '
+
   static readonly CREATE_VIEW_COUNTS = ' create view if not exists counts(count, type, userid) as select count(*), \'notes\', userid from notes where mustbedeleted=\'false\' union select count(*), \'tags\', userid from tags where mustbedeleted=\'false\' union select count(*), \'logs\', userid from logs_sequence;';
   // static readonly GET_LOGS_COUNT = 'select count(*) as count from logs_sequence where userid=?';
   // static readonly GET_NOTES_COUNT = 'select count(*) as count from notes where mustbedeleted=\'false\' and userid=?';

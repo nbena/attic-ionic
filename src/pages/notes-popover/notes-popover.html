@@ -35,14 +35,14 @@
   [disabled]="!btnFilterByIsDoneEnabled"
   >Search by 'is done'</button>
   <button
-  [class.generic-gray]="!btnFilterByTextEnabled"
-  ion-item (click)="filterByText()"
-  [disabled]="!btnFilterByTextEnabled"
-  >Search by text</button>
-  <button
   [class.generic-gray]="!btnFilterByTagsEnabled"
   ion-item (click)="filterByTagsNoRole()"
   [disabled]="!btnFilterByTagsEnabled"
   >Search by tags</button>
+  <button
+  [class.generic-gray]="!btnFilterByTextEnabled"
+  ion-item (click)="filterByText()"
+  [disabled]="!btnFilterByTextEnabled"
+  >Search by text</button>
   <!--<button ion-item (click)="filterByTagsWithRole()">Search by tags (advanced)</button>-->
 </ion-list>

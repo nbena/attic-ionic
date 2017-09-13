@@ -716,7 +716,7 @@ export class NoteDetailsPage {
 
     if(this.haveToTouchTags()){
       this.events.publish('invalidate-tags');
-      this.events.publish('invalidate-full-tag', this.note.forceCastToNoteExtraMin());
+      //this.events.publish('invalidate-full-tag', this.note.forceCastToNoteExtraMin());
     }
 
 

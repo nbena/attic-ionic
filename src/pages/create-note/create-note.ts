@@ -228,7 +228,9 @@ export class CreateNotePage {
             this.tryingToSubmit=false;
 
             this.events.publish('change-tab',0, this.newNote.forceCastToNoteExtraMinWithDate());
-            this.events.publish('invalidate-tags');
+            if(this.newNote.hasSomeTag()){
+              this.events.publish('invalidate-tags');
+            }
           })
           .catch(error=>{
             console.log(JSON.stringify(error));console.log(JSON.stringify(error.message));

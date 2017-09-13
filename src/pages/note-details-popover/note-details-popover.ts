@@ -50,6 +50,8 @@ export class NoteDetailsPopoverPage {
       //   this.btnChangeTitleEnabled = true;
       // }
       // this.title =this.navParams.get('title');
+
+
       this.note=this.navParams.get('note');
       // let ind=this.navParams.get('index');s
       // if(ind!=-1 && ind!=null){

@@ -324,7 +324,7 @@ export class AtticNotes {
           this.atticCache.pushNoteFullToAll(note);
           //console.log('pushed to note full');
           // this.addTagsToNote(necessaryTags.slice(), note.forceCastToNoteExtraMin());
-          if(note.maintags.length+note.othertags.length>0){
+          if(note.hasSomeTag()){
             //this.atticCache.invalidateTags();
             this.events.publish('invalidate-full-cached-tags');
           }

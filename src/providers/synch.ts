@@ -80,7 +80,7 @@ export class Synch {
     ) {
 
     console.log('Hello Synch Provider');
-    setInterval(900000,this.synch);
+    // setInterval(900000,this.synch);
 
   }
 

@@ -44,7 +44,7 @@ export class HttpProvider {
           }
           let data = res.json();
           if(data.ok==false){
-            throw new Error(data.msg);
+            reject(data.msg);
           }
           resolve(data.result);
         },(err)=>{

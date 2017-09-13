@@ -51,10 +51,10 @@ export class TabsPage {
       this.tabs.select(2);
     });
 
-    this.events.subscribe('go-to-notes-and-replace', ()=>{
-      // this.notesParams = {newnote, oldnote};
-      this.tabs.select(0);
-    });
+    // this.events.subscribe('go-to-notes-and-replace', ()=>{
+    //   // this.notesParams = {newnote, oldnote};
+    //   this.tabs.select(0);
+    // });
 
     this.events.subscribe('go-to-tags-and-remove', ()=>{
       // console.log('I received the noticeeeeee');

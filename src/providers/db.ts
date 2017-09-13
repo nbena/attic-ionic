@@ -107,6 +107,7 @@ export class Db {
                         );
                         tx.executeSql(Query.CREATE_TRIGGER_CHANGE_NOTE_TITLE_LOGS,[]);
                         tx.executeSql(Query.CREATE_TRIGGER_CHANGE_TAG_TITLE_LOGS,[]);
+                        tx.executeSql(Query.CREATE_TRIGGER_DELETE_NOTE_COMPRESSION_2,[]);
                         tx.executeSql(Query.CREATE_INDEX_NOTE_1,[]);
                         tx.executeSql(Query.CREATE_INDEX_NOTE_2,[]);
                         tx.executeSql(Query.CREATE_INDEX_LOGS,[]);
