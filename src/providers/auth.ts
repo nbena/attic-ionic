@@ -12,7 +12,7 @@ import 'rxjs/add/operator/map';
 
 //import { Const } from '../public/const';
 import { User } from '../models/user';
-import { Db } from './db';
+import { DbProvider } from './db';
 //import { Platform } from 'ionic-angular';
 import { HttpProvider} from './http';
 // import { AtticCache } from './attic-cache';
@@ -28,14 +28,14 @@ import { Events } from 'ionic-angular';
   for more info on providers and Angular 2 DI.
 */
 @Injectable()
-export class Auth {
+export class AuthProvider {
 
   public token: any;
   public userid: string;
 
 
   constructor(private http: HttpProvider/*, private platform: Platform,
-    public storage: Storage, */,private db: Db,
+    public storage: Storage, */,private db: DbProvider,
     //private atticCache: AtticCache,
     private events:Events
   ) {

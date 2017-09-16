@@ -3,7 +3,7 @@ import { NavController/*, NavParams, AlertController*/,Events } from 'ionic-angu
 
 
 import { /*TagExtraMi, TagMin, */TagFull, TagAlmostMin } from '../../models/tags';
-import { AtticTags } from '../../providers/attic-tags';
+import { AtticTagsProvider } from '../../providers/attic-tags';
 import { TagDetailsPage } from '../tag-details/tag-details';
 import { NotesPage } from '../notes/notes';
 import { FilterNs } from '../../public/const';
@@ -37,7 +37,7 @@ export class TagsPage {
 
   constructor(public navCtrl: NavController,
     // public alertCtrl: AlertController,
-    private atticTags: AtticTags,
+    private atticTags: AtticTagsProvider,
     private graphicProvider:GraphicProvider,
     private events:Events
   ) {

@@ -27,15 +27,15 @@ import { LoginPage } from '../pages/login/login';
 import { TabsPage } from '../pages/tabs/tabs';
 
 //providers
-import { AtticNotes } from '../providers/attic-notes';
-import { AtticTags } from '../providers/attic-tags';
-import { Db } from '../providers/db';
-import { Synch } from '../providers/synch';
-import { Auth } from '../providers/auth';
-import { NetManager } from '../providers/net-manager';
+import { AtticNotesProvider } from '../providers/attic-notes';
+import { AtticTagsProvider } from '../providers/attic-tags';
+import { DbProvider } from '../providers/db';
+import { SynchProvider } from '../providers/synch';
+import { AuthProvider } from '../providers/auth';
+import { NetManagerProvider } from '../providers/net-manager';
 import { AtticUserProvider } from '../providers/attic-user';
 
-import { AtticCache } from '../providers/attic-cache';
+import { AtticCacheProvider } from '../providers/attic-cache';
 import { HttpProvider } from '../providers/http';
 import { GraphicProvider } from '../providers/graphic';
 
@@ -101,14 +101,14 @@ import { InAppBrowser } from '@ionic-native/in-app-browser';
     {provide: ErrorHandler, useClass: IonicErrorHandler},
     /*Storage,*/
     Network,
-    AtticNotes,
-    AtticTags,
-    Auth,
-    Db,
-    Synch,
-    NetManager,
+    AtticNotesProvider,
+    AtticTagsProvider,
+    AuthProvider,
+    DbProvider,
+    SynchProvider,
+    NetManagerProvider,
     AtticUserProvider,
-    AtticCache,
+    AtticCacheProvider,
     HttpProvider,
     GraphicProvider,
     SplashScreen,

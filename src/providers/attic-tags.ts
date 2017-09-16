@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 //import {  Headers } from '@angular/http';
 import 'rxjs/add/operator/map';
 
-import { Auth } from './auth';
+import { AuthProvider } from './auth';
 // import { Const } from '../public/const';
 // import { NoteExtraMin, NoteSmart, NoteFull } from '../models/notes';
 // import { TagExtraMin, TagMin, TagFull } from '../models/tags';
@@ -10,12 +10,12 @@ import { Utils } from '../public/utils';
 
 import { TagExtraMin, TagAlmostMin, TagFull } from '../models/tags';
 import {/*NoteExtraMin, */NoteFull} from '../models/notes';
-import { Db } from './db';
-import { NetManager } from './net-manager';
-import { Synch } from './synch';
+import { DbProvider } from './db';
+import { NetManagerProvider } from './net-manager';
+import { SynchProvider } from './synch';
 import { DbActionNs/*, Const*/ } from '../public/const';
 
-import { AtticCache } from './attic-cache';
+import { AtticCacheProvider } from './attic-cache';
 import { HttpProvider } from './http';
 
 import { AtticError } from '../public/errors';
@@ -29,16 +29,16 @@ import { Events } from 'ionic-angular';
   for more info on providers and Angular 2 DI.
 */
 @Injectable()
-export class AtticTags {
+export class AtticTagsProvider {
 
   // private cachedAlmostMinTag:TagAlmostMin[]=null;
   //private cachedFullTag:TagFull[]=null;
 
-  constructor(private http: HttpProvider, public auth: Auth,
-    private db: Db,
-    private netManager: NetManager,
-    private synch: Synch,
-    private atticCache: AtticCache,
+  constructor(private http: HttpProvider, public auth: AuthProvider,
+    private db: DbProvider,
+    private netManager: NetManagerProvider,
+    private synch: SynchProvider,
+    private atticCache: AtticCacheProvider,
     private events:Events
   ) {
     console.log('Hello AtticTags Provider');

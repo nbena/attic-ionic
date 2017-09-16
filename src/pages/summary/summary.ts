@@ -1,13 +1,13 @@
 import { Component } from '@angular/core';
 // import { /*IonicPage, NavController, NavParams*/ToastController, AlertController } from 'ionic-angular';
 import { AtticUserProvider } from '../../providers/attic-user';
-import { Synch } from '../../providers/synch';
+import { SynchProvider } from '../../providers/synch';
 import { UserSummary } from '../../models/user_summary';
 import { Const } from '../../public/const';
 import { GraphicProvider} from '../../providers/graphic'
 import { NavController,ViewController, App } from 'ionic-angular';
 import { LoginPage } from '../login/login';
-import { Auth } from '../../providers/auth';
+import { AuthProvider } from '../../providers/auth';
 
 /**
  * Generated class for the SummaryPage page.
@@ -45,9 +45,9 @@ export class SummaryPage {
     //  private alertCtrl: AlertController,
       private app: App,
      private atticUser: AtticUserProvider,
-     private synch: Synch,
+     private synch: SynchProvider,
      private graphicProvider:GraphicProvider,
-     private auth: Auth
+     private auth: AuthProvider
    ) {
 
       // this.load(false);

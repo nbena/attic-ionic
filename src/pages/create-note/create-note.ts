@@ -6,8 +6,8 @@ import { NavController, NavParams, /*AlertController,*/ Events
 
 import { FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms'
 
-import { AtticNotes } from '../../providers/attic-notes';
-import { AtticTags } from '../../providers/attic-tags';
+import { AtticNotesProvider } from '../../providers/attic-notes';
+import { AtticTagsProvider } from '../../providers/attic-tags';
 import { NoteFull/*, NoteSmart, NoteMin, NoteExtraMin*/ } from '../../models/notes';
 import { /*TagExtraMin, TagFull,*/ TagAlmostMin } from '../../models/tags';
 // import { Utils } from '../../public/utils'
@@ -53,8 +53,8 @@ export class CreateNotePage {
 
   constructor(public navCtrl: NavController, public navParams: NavParams,
     // private alertCtrl: AlertController,
-    private atticNotes: AtticNotes,
-    private atticTags: AtticTags,
+    private atticNotes: AtticNotesProvider,
+    private atticTags: AtticTagsProvider,
     private events: Events,
     private graphicProvider:GraphicProvider,
     // private viewCtrl: ViewController,
@@ -66,8 +66,8 @@ export class CreateNotePage {
       this.createNotePageForm = this.formBuilder.group({
         title:['', Validators.compose([Validators.required, Validators.minLength(2), Validators.maxLength(64)])],
         text: ['', Validators.compose([Validators.required, Validators.minLength(2)])],
-        mainTags:[[], AtticNotes.areMainTagsArrayValid],
-        otherTags:[[],AtticNotes.areOtherTagsArrayValid],
+        mainTags:[[], AtticNotesProvider.areMainTagsArrayValid],
+        otherTags:[[],AtticNotesProvider.areOtherTagsArrayValid],
         isDone:[false]
       })
 
@@ -217,7 +217,7 @@ export class CreateNotePage {
 
   private createNote(){
     this.tryingToSubmit=true;
-    if(AtticNotes.verifyMainTagsOtherTagsValid(this.createNotePageForm.value.mainTags,
+    if(AtticNotesProvider.verifyMainTagsOtherTagsValid(this.createNotePageForm.value.mainTags,
       this.createNotePageForm.value.otherTags)==false){
         this.graphicProvider.showErrorAlert(AtticError.getDuplicateTagsError());
         //console.log('not valid');

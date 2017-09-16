@@ -12,7 +12,7 @@ import { Network } from '@ionic-native/network';
   for more info on providers and Angular 2 DI.
 */
 @Injectable()
-export class NetManager {
+export class NetManagerProvider {
 
   public isConnected: boolean = true;
   disconnectedSubscription : any;

@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { NavController, NavParams, PopoverController/*,Events*/ } from 'ionic-angular';
 
 import { /*TagFull, TagExtraMin, *//*TagMin*/TagFull,TagAlmostMin } from '../../models/tags';
-import { AtticTags } from '../../providers/attic-tags';
+import { AtticTagsProvider } from '../../providers/attic-tags';
 import { NoteDetailsPage } from '../note-details/note-details';
 import { TagDetailsPopoverPage } from '../tag-details-popover/tag-details-popover';
 import {GraphicProvider} from '../../providers/graphic';
@@ -36,7 +36,7 @@ export class TagDetailsPage {
 
   constructor(public navCtrl: NavController, public navParams: NavParams,
     private popoverCtrl: PopoverController,
-    private atticTags: AtticTags,
+    private atticTags: AtticTagsProvider,
     private graphicProvider:GraphicProvider,
     // private events:Events
   ) {

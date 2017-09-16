@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
-import { Auth } from './auth';
-import { NetManager } from './net-manager';
+import { AuthProvider } from './auth';
+import { NetManagerProvider } from './net-manager';
 import { UserSummary } from '../models/user_summary';
 // import { AtticCache } from './attic-cache';
-import { Db } from './db';
+import { DbProvider } from './db';
 import 'rxjs/add/operator/map';
 import {HttpProvider} from './http';
 // import { FormControl  } from '@angular/forms';
@@ -19,9 +19,9 @@ import { Events } from 'ionic-angular';
 export class AtticUserProvider {
 
   constructor(public http: HttpProvider,
-    private auth: Auth,
-    private netManager: NetManager,
-    private db: Db,
+    private auth: AuthProvider,
+    private netManager: NetManagerProvider,
+    private db: DbProvider,
     // private atticCache: AtticCache,
     private events: Events
   ) {

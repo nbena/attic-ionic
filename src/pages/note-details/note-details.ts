@@ -5,8 +5,8 @@ import { NavController, NavParams, PopoverController,
 
 import { /*NoteExtraMin, */NoteFull/*, NoteMin, NoteSmart*/, NoteExtraMinWithDate } from '../../models/notes';
 
-import { AtticNotes } from '../../providers/attic-notes';
-import { AtticTags } from '../../providers/attic-tags';
+import { AtticNotesProvider } from '../../providers/attic-notes';
+import { AtticTagsProvider } from '../../providers/attic-tags';
 
 import { TagExtraMin } from '../../models/tags';
 import { TagDetailsPage } from '../tag-details/tag-details';
@@ -117,7 +117,7 @@ export class NoteDetailsPage {
 
   constructor(public navCtrl: NavController, public navParams: NavParams,
     public popoverCtrl: PopoverController,
-    private atticNotes: AtticNotes, private atticTags: AtticTags,
+    private atticNotes: AtticNotesProvider, private atticTags: AtticTagsProvider,
     private graphicProvider:GraphicProvider,
     private iab: InAppBrowser,
     private events:Events

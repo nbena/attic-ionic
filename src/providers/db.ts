@@ -49,7 +49,7 @@ export class LogObjSmart{
   for more info on providers and Angular 2 DI.
 */
 @Injectable()
-export class Db {
+export class DbProvider {
 
   open : boolean = false; /*to be sure everything is ok.*/
   //private db : SQLite;
@@ -593,14 +593,14 @@ private getLogsByNote(title:string, userid:string, tx?:any):Promise<LogObjSmart[
     if(tx!=null){
       tx.executeSql(Query.GET_LOGS_BY_NOTE, [userid, title],
         (tx:any, res:any)=>{
-          logs = Db.getArrayOfLogsByNoteFromRes(res);
+          logs = DbProvider.getArrayOfLogsByNoteFromRes(res);
           resolve(logs);
         },(tx:any, error:any)=>{console.log('error in get logs by notes');console.log(JSON.stringify(error));}
       )
     }else{
       this.db.executeSql(Query.GET_LOGS_BY_NOTE, [userid, title])
       .then(res=>{
-        logs = Db.getArrayOfLogsByNoteFromRes(res);
+        logs = DbProvider.getArrayOfLogsByNoteFromRes(res);
         resolve(logs);
       })
       .catch(error=>{
@@ -1150,7 +1150,7 @@ private getNotesFullByTitle(notes:NoteExtraMin[], usedNotes:NoteFull[], userid:s
         .then((res)=>{
           if(usedNotes==null){usedNotes=[]}
           //let t = this.getNoteF
-          let array:NoteFull[]=Db.getNotesFullFromResArray(res);
+          let array:NoteFull[]=DbProvider.getNotesFullFromResArray(res);
           usedNotes=usedNotes.concat(array);
           resolve();
         })
@@ -1934,7 +1934,7 @@ public getNotesMin(userid: string):Promise<NoteExtraMinWithDate[]>{
       //   array.push(note);
       // }
       // console.log('the array is:');console.log(JSON.stringify(array));
-      array = Db.getArrayOfNotexExtraMinWithDateFromRes(result);
+      array = DbProvider.getArrayOfNotexExtraMinWithDateFromRes(result);
       resolve(array);
     })
     .catch(error=>{
@@ -2431,9 +2431,9 @@ private static getArrayOfNotexExtraMinWithDateFromRes(res:any):NoteExtraMinWithD
 private static getRegexForTags(tags:TagAlmostMin[],and:boolean):string{
   let res:string = '';
   if(and){
-    res = Db.expandTagsRegexAnd(tags);
+    res = DbProvider.expandTagsRegexAnd(tags);
   }else{
-    res = Db.expandTagsRegexOr(tags);
+    res = DbProvider.expandTagsRegexOr(tags);
   }
   return res;
 }
@@ -2461,7 +2461,7 @@ private static getQueryForRegexTags(and:boolean, full:boolean):string{
 private static getArrayOfNotesFullFromRes(res:any):NoteFull[]{
   let array:NoteFull[]=[];
   for(let i=0;i<res.rows.length;i++){
-    let raw = Db.getNoteFullFromRes(res,i);
+    let raw = DbProvider.getNoteFullFromRes(res,i);
     if(raw!=null){
       array.push(raw);
     }
@@ -2471,13 +2471,13 @@ private static getArrayOfNotesFullFromRes(res:any):NoteFull[]{
 
 //her sister with a transaction is not used so I commented it.
 private getNotesExtraMinWithDateByTagsNoRoleCoreNoTx(tags:TagAlmostMin[], userid:string, and:boolean):Promise<NoteExtraMinWithDate[]>{
-  let secondParam:string =Db.getRegexForTags(tags, and);
-  let query:string = Db.getQueryForRegexTags(and,false);
+  let secondParam:string =DbProvider.getRegexForTags(tags, and);
+  let query:string = DbProvider.getQueryForRegexTags(and,false);
   return new Promise<NoteExtraMinWithDate[]>((resolve, reject)=>{
     // console.log('2');
     this.db.executeSql(query,[userid, secondParam])
     .then(res=>{
-      resolve(Db.getArrayOfNotexExtraMinWithDateFromRes(res));
+      resolve(DbProvider.getArrayOfNotexExtraMinWithDateFromRes(res));
     })
     .catch(error=>{
       console.log('error in get notes by tags'); console.log(JSON.stringify(error));
@@ -2487,13 +2487,13 @@ private getNotesExtraMinWithDateByTagsNoRoleCoreNoTx(tags:TagAlmostMin[], userid
 }
 
 private getNotesFullByTagsNoRoleCoreNoTx(tags:TagAlmostMin[], userid:string, and:boolean):Promise<NoteFull[]>{
-  let secondParam:string =Db.getRegexForTags(tags, and);
-  let query:string = Db.getQueryForRegexTags(and,true);
+  let secondParam:string =DbProvider.getRegexForTags(tags, and);
+  let query:string = DbProvider.getQueryForRegexTags(and,true);
   return new Promise<NoteFull[]>((resolve, reject)=>{
     // console.log('2');
     this.db.executeSql(query,[userid, secondParam])
     .then(res=>{
-      resolve(Db.getArrayOfNotesFullFromRes(res));
+      resolve(DbProvider.getArrayOfNotesFullFromRes(res));
     })
     .catch(error=>{
       console.log('error in get notes by tags'); console.log(JSON.stringify(error));
@@ -2611,7 +2611,7 @@ public getNotesByTags(tags: TagAlmostMin[], userid: string, and:boolean, nullify
         //     // note.title=result.rows.item(i).title;
         //     notes.push(NoteExtraMinWithDate.safeNewNoteFromJsObject({title: result.rows.item(i).title, lastmodificationdate: result.rows.item(i).lastmodificationdate}));
         //   }
-          notes = Db.getArrayOfNotexExtraMinWithDateFromRes(result);
+          notes = DbProvider.getArrayOfNotexExtraMinWithDateFromRes(result);
           if(nullify && notes.length==0){
             resolve(null);
           }else{
@@ -2643,7 +2643,7 @@ public getNotesByTags(tags: TagAlmostMin[], userid: string, and:boolean, nullify
         //     // note.title=result.rows.item(i).title;
         //     notes.push(NoteExtraMinWithDate.safeNewNoteFromJsObject({title: result.rows.item(i).title, lastmodificationdate: result.rows.item(i).lastmodificationdate}));
         //   }
-          notes = Db.getArrayOfNotexExtraMinWithDateFromRes(result);
+          notes = DbProvider.getArrayOfNotexExtraMinWithDateFromRes(result);
           if(nullify && notes.length==0){
             resolve(null);
           }else{
@@ -5513,7 +5513,7 @@ private static getUserSummaryFromRes(res:any, summary:UserSummary):UserSummary{
   summary.data.tagscount = ((summary.data.tagscount)==null) ? 0 : summary.data.tagscount;
   summary.data.logscount = ((summary.data.logscount)==null) ? 0 : summary.data.logscount;
 
-  summary = Db.mkSummaryAvailable(summary);
+  summary = DbProvider.mkSummaryAvailable(summary);
 
   // console.log('the summary here'),
   // console.log(JSON.stringify(summary));
@@ -5531,7 +5531,7 @@ getUserSummary(userid: string):Promise<UserSummary>{
         console.log('error in summary');
         reject(new Error('view is not as long as expected'));
       }else{
-        summary = Db.getUserSummaryFromRes(result, summary);
+        summary = DbProvider.getUserSummaryFromRes(result, summary);
         resolve(summary);
       }
     })

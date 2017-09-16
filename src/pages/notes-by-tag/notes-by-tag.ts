@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { NavController, NavParams,/*ViewController, */Events } from 'ionic-angular';
-import { AtticTags } from '../../providers/attic-tags';
+import { AtticTagsProvider } from '../../providers/attic-tags';
 import { TagAlmostMin, TagExtraMin } from '../../models/tags';
 // import { NotesPage } from '../notes/notes';
 import { FilterNs } from '../../public/const';
@@ -44,7 +44,7 @@ export class NotesByTagPage {
   private showSpinner: boolean = false;
 
   constructor(public navCtrl: NavController, public navParams: NavParams,
-    private atticTags: AtticTags,
+    private atticTags: AtticTagsProvider,
     //private viewCtrl: ViewController,
     private graphicProvider:GraphicProvider,
     private events:Events

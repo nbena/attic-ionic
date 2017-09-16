@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { NavController, NavParams, /*ToastController, AlertController,*/ ViewController/*, App,*/, Events } from 'ionic-angular';
 import { TagFull,/*, TagExtraMin, */TagAlmostMin } from '../../models/tags';
-import { AtticTags } from '../../providers/attic-tags';
+import { AtticTagsProvider } from '../../providers/attic-tags';
 // import { Utils } from '../../public/utils';
 // import { TagsPage } from '../tags/tags';
 import { GraphicProvider} from '../../providers/graphic'
@@ -28,7 +28,7 @@ export class TagDetailsPopoverPage {
     // private toastCtrl: ToastController, private alertCtrl: AlertController,
     // private app: App,
     private viewCtrl: ViewController,
-    private atticTags: AtticTags,
+    private atticTags: AtticTagsProvider,
     private graphicProvider:GraphicProvider,
     private events:Events
   ) {

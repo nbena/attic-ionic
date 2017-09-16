@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 // import { Http } from '@angular/http';
 import 'rxjs/add/operator/map';
-import { Db/*, LogObject */, LogObjSmart} from './db';
-import { Auth } from './auth';
+import { DbProvider/*, LogObject */, LogObjSmart} from './db';
+import { AuthProvider } from './auth';
 // import { AtticTags } from './attic-tags';
 // import { AtticNotes } from './attic-notes';
 ///import { /*NoteExtraMin, */NoteFull, /*NoteSQLite, NoteMin*/ } from '../models/notes';
@@ -13,7 +13,7 @@ import { Auth } from './auth';
 // import { Platform } from 'ionic-angular';
 // import { Utils } from '../public/utils';
 
-import { NetManager } from './net-manager';
+import { NetManagerProvider } from './net-manager';
 import { HttpProvider} from './http';
 import { AtticError } from '../public/errors';
 
@@ -34,7 +34,7 @@ very important to decide the order!
 
 
 @Injectable()
-export class Synch {
+export class SynchProvider {
 
   private isStarted: boolean = false;
 
@@ -70,11 +70,11 @@ export class Synch {
 
   private someSynchError:boolean = false;
 
-  constructor(/*private network: Network,*/ private db: Db,
-    private netManager: NetManager,
+  constructor(/*private network: Network,*/ private db: DbProvider,
+    private netManager: NetManagerProvider,
     // private atticNotes: AtticNotes,
     // private atticTags: AtticTags,
-    private auth: Auth,
+    private auth: AuthProvider,
     public http: HttpProvider,
     // private platform: Platform
     ) {

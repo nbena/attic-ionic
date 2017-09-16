@@ -15,7 +15,7 @@ import { Events } from 'ionic-angular';
   for more info on providers and Angular DI.
 */
 @Injectable()
-export class AtticCache {
+export class AtticCacheProvider {
 
   private cachedExtraMinNotes: NoteExtraMin[] = null;
   private cachedFullNotes: NoteFull[] = null;

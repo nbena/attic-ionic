@@ -1,18 +1,18 @@
 import { Injectable } from '@angular/core';
 // import { Http, Headers } from '@angular/http';
 /* importing auth because I need the token. */
-import { Auth } from './auth';
+import { AuthProvider } from './auth';
 import { DbActionNs/*, Const */} from '../public/const';
 import { NoteExtraMin/*, NoteSmart,*/, NoteFull,/*NoteMin,/*, NoteBarebon,*/ NoteExtraMinWithDate } from '../models/notes';
 import { Utils } from '../public/utils';
-import { Db/*, LogObject*/ } from './db';
-import { NetManager } from './net-manager';
+import { DbProvider/*, LogObject*/ } from './db';
+import { NetManagerProvider } from './net-manager';
 
-import { Synch } from './synch';
+import { SynchProvider } from './synch';
 // import { AtticTags } from './attic-tags';
 import { TagAlmostMin, TagExtraMin, TagFull } from '../models/tags';
 
-import { AtticCache } from './attic-cache';
+import { AtticCacheProvider } from './attic-cache';
 import { HttpProvider } from './http';
 
 import { AtticError } from '../public/errors';
@@ -30,16 +30,17 @@ import { Events } from 'ionic-angular';
   for more info on providers and Angular 2 DI.
 */
 @Injectable()
-export class AtticNotes {
+export class AtticNotesProvider {
 
   // private cachedExtraMinNote: NoteExtraMin[] = null;
   // private cachedFullNote: NoteFull[] = null;
 
-  constructor(public auth: Auth,
+  constructor(public auth: AuthProvider,
     // private atticTags: AtticTags,
-    private atticCache: AtticCache,
-    private db: Db, private netManager: NetManager,
-    private synch: Synch,
+    private atticCache: AtticCacheProvider,
+    private db: DbProvider,
+    private netManager: NetManagerProvider,
+    private synch: SynchProvider,
     private http:HttpProvider,
     private events:Events
   ) {
@@ -396,7 +397,7 @@ export class AtticNotes {
   private notesByTags_loadFromNetwork(tags:TagAlmostMin[], and:boolean):Promise<NoteExtraMinWithDate[]>{
     return new Promise<NoteExtraMinWithDate[]>((resolve, reject)=>{
         let res:NoteExtraMinWithDate[]=[];
-        this.http.post(AtticNotes.getAPINotesByTags(and), JSON.stringify({note:{tags: tags.map((tag)=>{return tag.title})}}))
+        this.http.post(AtticNotesProvider.getAPINotesByTags(and), JSON.stringify({note:{tags: tags.map((tag)=>{return tag.title})}}))
         .then(result=>{
           if(result!=null){
             res=result.map(obj=>{return NoteExtraMinWithDate.safeNewNoteFromJsObject(obj)});

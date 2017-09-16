@@ -2,7 +2,7 @@ import { Component/*, Directive */} from '@angular/core';
 import { NavController, NavParams/*, ToastController*/, Events } from 'ionic-angular';
 
 import { NoteFull,NoteExtraMinWithDate } from '../../models/notes';
-import { AtticNotes } from '../../providers/attic-notes';
+import { AtticNotesProvider } from '../../providers/attic-notes';
 // import { Utils } from '../../public/utils';
 import { GraphicProvider} from '../../providers/graphic'
 import { FormBuilder, FormGroup, Validators } from '@angular/forms'
@@ -31,7 +31,7 @@ export class NoteEditTextPage {
 
 
   constructor(public navCtrl: NavController, public navParams: NavParams,
-    private atticNotes: AtticNotes,
+    private atticNotes: AtticNotesProvider,
     private graphicProvider:GraphicProvider,
     private formBuilder: FormBuilder,
     private events:Events

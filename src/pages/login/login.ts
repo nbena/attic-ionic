@@ -4,7 +4,7 @@ import { NavController/*, NavParams */,Loading} from 'ionic-angular';
 //import { LoadingController/*, ToastController*/ } from 'ionic-angular';
 
 import { User } from '../../models/user';
-import { Auth } from '../../providers/auth';
+import { AuthProvider } from '../../providers/auth';
 // import { NotesPage } from '../notes/notes';
 // import { RegisterPage } from '../register/register';
 
@@ -44,7 +44,7 @@ export class LoginPage {
 
   // constructor(public navCtrl: NavController, public navParams: NavParams) {}
   constructor(public navCtrl: NavController,/* private toastCtrl: ToastController,*/
-    private auth: Auth,
+    private auth: AuthProvider,
     //public loadingCtrl: LoadingController/*, private db: Db,*/,
     private graphicProvider:GraphicProvider,
     private formBuilder:FormBuilder

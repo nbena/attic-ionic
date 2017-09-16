@@ -4,7 +4,7 @@ import { /*NavController, */NavParams, ViewController/*, ToastController, AlertC
   ,Events } from 'ionic-angular';
 import { NoteFull, NoteExtraMinWithDate/*, NoteExtraMin*/ } from '../../models/notes';
 import { NoteEditTextPage } from '../note-edit-text/note-edit-text';
-import { AtticNotes } from '../../providers/attic-notes';
+import { AtticNotesProvider } from '../../providers/attic-notes';
 // import { Utils } from '../../public/utils';
 //import { NotesPage } from '../notes/notes';
 import { GraphicProvider} from '../../providers/graphic'
@@ -38,7 +38,7 @@ export class NoteDetailsPopoverPage {
     public viewCtrl: ViewController, /*public alertCtrl: AlertController,*/
     // private app: App,
     private events:Events,
-    /*public toastCtrl: ToastController*/ private atticNotes: AtticNotes,
+    /*public toastCtrl: ToastController*/ private atticNotes: AtticNotesProvider,
     private graphicProvider: GraphicProvider,
     private app:App
   ) {
