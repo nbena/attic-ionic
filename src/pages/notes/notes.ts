@@ -329,12 +329,12 @@ export class NotesPage {
 
   private loadByFilter(/*firsTime:boolean*/force: boolean, refresher?:any){
     console.log('im going to set');
-    if(refresher!=null){
-      this.showSpinner=false;
-    }else{
+    if(refresher==null){
       this.showSpinner=true;
     }
-    this.shownNotes=[];
+    if(this.currentFilter!=FilterNs.Filter.None){
+      this.shownNotes=[];
+    }
     let p:Promise<void>
     switch(this.currentFilter){
       case FilterNs.Filter.Tags:
@@ -352,16 +352,14 @@ export class NotesPage {
       this.setIsThereSomethingToShow();
       if(refresher!=null){
           refresher.complete();
-      }
-      else{
+      }else{
         this.showSpinner=false;
       }
     })
     .catch(error=>{
       if(refresher!=null){
         refresher.complete();
-      }
-      else{
+      }else{
         this.showSpinner=false;
       }
       this.setIsThereSomethingToShow();

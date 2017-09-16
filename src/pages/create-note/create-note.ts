@@ -48,6 +48,8 @@ export class CreateNotePage {
   // otherTagsString: string[];
   private isLinkValid: boolean = true;
 
+  private showSpinner: boolean = false;
+
 
   constructor(public navCtrl: NavController, public navParams: NavParams,
     // private alertCtrl: AlertController,
@@ -91,14 +93,21 @@ export class CreateNotePage {
 
 
   private load(force:boolean, refresher?:any):void{
+    if(refresher==null){
+      this.showSpinner=true;
+    }
     this.loadMinTags(force)
     .then(()=>{
       if(refresher!=null){
         refresher.complete();
+      }else{
+        this.showSpinner=false;
       }
     }).catch(error=>{
       if(refresher!=null){
         refresher.complete();
+      }else{
+        this.showSpinner=false;
       }
       console.log(JSON.stringify(error.message));
       this.graphicProvider.showErrorAlert(error, ' and so I cannot load/update tags');

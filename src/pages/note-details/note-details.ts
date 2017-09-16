@@ -94,7 +94,9 @@ export class NoteDetailsPage {
   private addMainTagsEnabled: boolean = true;
   private addOtherTagsEnabled: boolean = true;
 
-  private isNoteLoaded: boolean = false;
+  //private isNoteLoaded: boolean = false;
+
+  //these two are used in the HTML
   private isNoteReallyLoaded: boolean = false;
 
   private areTagsReallyLoaded: boolean = false;
@@ -108,6 +110,8 @@ export class NoteDetailsPage {
   private firstTime:boolean = true;
 
   private isLinkValid:boolean = true;
+
+  private showSpinner: boolean = false;
 
 
 
@@ -230,16 +234,23 @@ export class NoteDetailsPage {
   // }
 
   private load(force:boolean, refresher?:any):void{
+    if(refresher==null){
+      this.showSpinner=true;
+    }
     Promise.all([this.noteByTitle(force), this.loadTags(force)])
     .then(()=>{
       if(refresher!=null){
           refresher.complete();
-      }
+        }else{
+          this.showSpinner=false;
+        }
     })
     .catch(error=>{
       if(refresher!=null){
           refresher.complete();
-      }
+        }else{
+          this.showSpinner=false;
+        }
       this.graphicProvider.showErrorAlert(error);
     })
   }
@@ -266,7 +277,7 @@ export class NoteDetailsPage {
 
             this.lastmod = this.note.lastmodificationdate;
 
-          this.isNoteLoaded = true;
+          //this.isNoteLoaded = true;
           this.isNoteReallyLoaded = true;
 
           console.log('the note is');console.log(JSON.stringify(this.note));
@@ -284,13 +295,15 @@ export class NoteDetailsPage {
 
           console.log('load note error');console.log(JSON.stringify(error.messsage));console.log(JSON.stringify(error));
           //console.log(error.toString());
+          //console.log(error.toString());
           // this.graphicProvider.showErrorAlert(err);
           //console.log('set note loaded to true');
-          this.isNoteLoaded = true;
+          //this.isNoteLoaded = true;
           // if(this.note==null){
           //   this.isNoteReallyLoaded = false;
           // }
-          this.isNoteReallyLoaded = (this.note==null) ? false : true;
+          //this.isNoteReallyLoaded = (this.note==null) ? false : true;
+          this.isNoteReallyLoaded=false;
           // console.log(this.isNoteReallyLoaded);
           reject(error);
         })
@@ -385,11 +398,14 @@ export class NoteDetailsPage {
   private showPopover(event){
     // console.log('click and');console.log(this.isNoteLoaded);
     // console.log('so this note is');console.log(JSON.stringify(this.note));
-    if(this.isNoteLoaded){
+    if(this.isNoteReallyLoaded){
       let popover=this.popoverCtrl.create(NoteDetailsPopoverPage, {note: this.note});
       popover.present({
         ev: event
       });
+    }else{
+      this.graphicProvider.alertMessage('Error', 'You cannot activate this popover '+
+        'when the note is not loaded');
     }
   }
 

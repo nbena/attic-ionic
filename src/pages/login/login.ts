@@ -40,6 +40,8 @@ export class LoginPage {
 
   private loading: Loading;
 
+  private showSpinner: boolean = false;
+
   // constructor(public navCtrl: NavController, public navParams: NavParams) {}
   constructor(public navCtrl: NavController,/* private toastCtrl: ToastController,*/
     private auth: Auth,

@@ -187,6 +187,7 @@ export class AtticNotes {
         /*inserting in the DB.*/
         let note:NoteFull = null;
         if(result.note!=null){
+          //console.log('get here is');console.log(JSON.stringify(result.note));
           note=NoteFull.safeNewNoteFromJsObject(result.note);
           // console.log('the safe result is: ');console.log(JSON.stringify(note));
           if(!this.synch.isNoteFullyLocked()){

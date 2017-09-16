@@ -103,6 +103,15 @@ export class GraphicProvider {
     return alert.present();
 }
 
+public alertMessage(title:string, message:string):Promise<any>{
+  let alert = this.alertCtrl.create({
+    title:title,
+    message:message,
+    buttons:['Ok']
+  });
+  return alert.present();
+}
+
 // public altertRadio(title:string, inputs:{label:string, value:string}[], callback:((_:any)=>void)):Promise<any>{
 //   let alert = this.alertCtrl.create();
 //   alert.setTitle(title);
@@ -131,12 +140,13 @@ export class GraphicProvider {
       let msg:string;
       msg = ((error.isSpecific) ? error.error.message : 'Something went wrong');
       if(otherMsg!=null){msg+=otherMsg}
-      let alert = this.alertCtrl.create({
-        title: 'Error',
-        buttons: ['OK'],
-        message:msg
-      });
-      return alert.present();
+      // let alert = this.alertCtrl.create({
+      //   title: 'Error',
+      //   buttons: ['OK'],
+      //   message:msg
+      // });
+      // return alert.present();
+      return this.alertMessage('Error', msg);
   }
 
 

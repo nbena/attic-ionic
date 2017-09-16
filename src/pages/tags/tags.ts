@@ -31,6 +31,8 @@ export class TagsPage {
 
   private isThereSomethingToShow: boolean = false;
 
+  private showSpinner: boolean = false;
+
   private firstTime: boolean = true;
 
   constructor(public navCtrl: NavController,
@@ -155,6 +157,9 @@ export class TagsPage {
   // }
 
   private load(force:boolean, title?:string, refresher?:any):void{
+    if(refresher==null){
+      this.showSpinner=true;
+    }
     let p:Promise<void>;
     if(title==null){
       p=this.loadAlmostMin(force);
@@ -165,11 +170,15 @@ export class TagsPage {
       this.setIsThereSomethingToShow();
       if(refresher!=null){
           refresher.complete();
+      }else{
+          this.showSpinner=false;
       }
     })
     .catch(error=>{
       if(refresher!=null){
         refresher.complete();
+      }else{
+        this.showSpinner=false;
       }
       this.setIsThereSomethingToShow();
       console.log('load error');console.log(JSON.stringify(error.message));

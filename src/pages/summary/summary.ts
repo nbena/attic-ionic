@@ -35,6 +35,8 @@ export class SummaryPage {
 
   private firstTime: boolean = true;
 
+  private showSpinner: boolean = false;
+
    constructor(
      public navCtrl: NavController,
      private viewCtrl: ViewController,
@@ -81,15 +83,22 @@ export class SummaryPage {
   }
 
   private load(force:boolean, refresher?:any){
+    if(refresher==null){
+      this.showSpinner=true;
+    }
     this.loadData(force)
     .then(()=>{
       if(refresher!=null){
         refresher.complete();
+      }else{
+        this.showSpinner=false;
       }
     })
     .catch(error=>{
       if(refresher!=null){
         refresher.complete();
+      }else{
+        this.showSpinner=false;
       }
       this.graphicProvider.showErrorAlert(error);
     })

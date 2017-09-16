@@ -12,7 +12,8 @@
       <ion-icon name="menu"></ion-icon>
     </button> -->
     <ion-buttons start>
-      <button ion-button icon-only right (click)="showPopover($event)">
+      <button ion-button icon-only right (click)="showPopover($event)"
+        >
         <ion-icon name="more"></ion-icon>
       </button>
     </ion-buttons>
@@ -31,6 +32,10 @@
 <ion-refresher (ionRefresh)="refresh($event)">
   <ion-refresher-content></ion-refresher-content>
 </ion-refresher>
+
+<div *ngIf="showSpinner" text-center>
+  <ion-spinner></ion-spinner>
+</div>
 
 <ion-card>
 

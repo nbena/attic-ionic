@@ -31,6 +31,8 @@ export class TagDetailsPage {
 
   private firstTime: boolean = true;
 
+  private showSpinner: boolean = false;
+
 
   constructor(public navCtrl: NavController, public navParams: NavParams,
     private popoverCtrl: PopoverController,
@@ -131,7 +133,8 @@ export class TagDetailsPage {
         .catch(error=>{
           console.log('tag by title error:');console.log(JSON.stringify(error));console.log(JSON.stringify(error.message));
           // this.graphicProvider.showErrorAlert(error);
-          this.isTagLoaded=true;
+          //this.isTagLoaded=true;
+          this.isTagLoaded=false;
           //this.tag = null;
           reject(error);
         })
@@ -152,16 +155,23 @@ export class TagDetailsPage {
   }
 
   private load(force:boolean, refresher?:any){
+    if(refresher==null){
+      this.showSpinner=true;
+    }
     this.tagByTitle(force)
     .then(()=>{
       //console.log('ok tag by title');
       if(refresher!=null){
         refresher.complete();
+      }else{
+        this.showSpinner=false;
       }
     })
     .catch(error=>{
       if(refresher!=null){
         refresher.complete();
+      }else{
+        this.showSpinner=false;
       }
       this.graphicProvider.showErrorAlert(error);
     })
@@ -173,6 +183,9 @@ export class TagDetailsPage {
       popover.present({
         ev:event
       });
+    }else{
+      this.graphicProvider.alertMessage('Error', 'You cannot activate this popover '+
+        'when the tag is not loaded');
     }
   }
 

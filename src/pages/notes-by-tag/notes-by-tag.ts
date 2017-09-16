@@ -41,6 +41,8 @@ export class NotesByTagPage {
 
   private firstTime:boolean = true;
 
+  private showSpinner: boolean = false;
+
   constructor(public navCtrl: NavController, public navParams: NavParams,
     private atticTags: AtticTags,
     //private viewCtrl: ViewController,
@@ -93,15 +95,22 @@ export class NotesByTagPage {
   }
 
   private load(force:boolean, refresher?:any):void{
+    if(refresher==null){
+      this.showSpinner=true;
+    }
     this.loadAlmostMin(force)
     .then(()=>{
       if(refresher!=null){
         refresher.complete();
+      }else{
+        this.showSpinner=false;
       }
       this.setIsThereSomethingToShow();
     }).catch(error=>{
       if(refresher!=null){
         refresher.complete();
+      }else{
+        this.showSpinner=false;
       }
       console.log('load tags error: '+JSON.stringify(error.message));
       this.graphicProvider.showErrorAlert(error);
