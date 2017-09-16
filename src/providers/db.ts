@@ -2597,7 +2597,7 @@ public getNotesByTags(tags: TagAlmostMin[], userid: string, and:boolean, nullify
   //   })
   // }
 
-  getNotesByText(text: string, userid: string):Promise<NoteExtraMinWithDate[]>{
+  getNotesByText(text: string, userid: string, nullify:boolean):Promise<NoteExtraMinWithDate[]>{
     return new Promise<NoteExtraMinWithDate[]>((resolve, reject)=>{
       text = '%'+text+'%';
       this.db.executeSql(Query.SELECT_NOTES_EXTRA_MIN_WITH_DATE_BY_TEXT, [text, userid])
@@ -2612,7 +2612,11 @@ public getNotesByTags(tags: TagAlmostMin[], userid: string, and:boolean, nullify
         //     notes.push(NoteExtraMinWithDate.safeNewNoteFromJsObject({title: result.rows.item(i).title, lastmodificationdate: result.rows.item(i).lastmodificationdate}));
         //   }
           notes = Db.getArrayOfNotexExtraMinWithDateFromRes(result);
-          resolve(notes);
+          if(nullify && notes.length==0){
+            resolve(null);
+          }else{
+            resolve(notes);
+          }
       })
       .catch(error=>{
         console.log('error in notes by text');
@@ -2624,7 +2628,7 @@ public getNotesByTags(tags: TagAlmostMin[], userid: string, and:boolean, nullify
 
 
 
-  getNotesByIsDone(isdone:boolean, userid:string):Promise<NoteExtraMinWithDate[]>{
+  getNotesByIsDone(isdone:boolean, userid:string, nullify:boolean):Promise<NoteExtraMinWithDate[]>{
     return new Promise<NoteExtraMinWithDate[]>((resolve, reject)=>{
       let param:string = '"isdone":'+isdone.valueOf();
       param = '%'+param+'%';
@@ -2640,7 +2644,11 @@ public getNotesByTags(tags: TagAlmostMin[], userid: string, and:boolean, nullify
         //     notes.push(NoteExtraMinWithDate.safeNewNoteFromJsObject({title: result.rows.item(i).title, lastmodificationdate: result.rows.item(i).lastmodificationdate}));
         //   }
           notes = Db.getArrayOfNotexExtraMinWithDateFromRes(result);
-          resolve(notes);
+          if(nullify && notes.length==0){
+            resolve(null);
+          }else{
+            resolve(notes);
+          }
       })
       .catch(error=>{
         console.log('error in notes by is done');

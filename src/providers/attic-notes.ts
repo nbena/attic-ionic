@@ -392,13 +392,13 @@ export class AtticNotes {
     return res;
   }
 
-  private notesByTags_loadFromNetworkAndInsert(tags:TagAlmostMin[], and:boolean):Promise<NoteExtraMinWithDate[]>{
+  private notesByTags_loadFromNetwork(tags:TagAlmostMin[], and:boolean):Promise<NoteExtraMinWithDate[]>{
     return new Promise<NoteExtraMinWithDate[]>((resolve, reject)=>{
         let res:NoteExtraMinWithDate[]=[];
         this.http.post(AtticNotes.getAPINotesByTags(and), JSON.stringify({note:{tags: tags.map((tag)=>{return tag.title})}}))
         .then(result=>{
           if(result!=null){
-            res=result.map(obj=>{return NoteExtraMin.safeNewNoteFromJsObject(obj)});
+            res=result.map(obj=>{return NoteExtraMinWithDate.safeNewNoteFromJsObject(obj)});
           }
           resolve(res);
         })
@@ -434,7 +434,7 @@ export class AtticNotes {
         }else{
           console.log('no notes, using the network');
           //p= this.http.post(AtticNotes.getAPINotesByTags(and), JSON.stringify({note:{tags: tags.map((tag)=>{return tag.title})}}));
-          p=this.notesByTags_loadFromNetworkAndInsert(tags, and);
+          p=this.notesByTags_loadFromNetwork(tags, and);
         }
         return p;
       })
@@ -444,7 +444,7 @@ export class AtticNotes {
           return Promise.resolve(fetchingResult);
         }else if(fetchingResult==null && useDb){
           console.log('trying to load from network');
-          return this.notesByTags_loadFromNetworkAndInsert(tags, and);
+          return this.notesByTags_loadFromNetwork(tags, and);
         }
       })
       .then(lastAttempt=>{
@@ -475,6 +475,22 @@ export class AtticNotes {
     });
   }
 
+  private notesByText_loadFromNetwork(text:string):Promise<NoteExtraMinWithDate[]>{
+    return new Promise<NoteExtraMinWithDate[]>((resolve, reject)=>{
+      let res:NoteExtraMinWithDate[]=[];
+      this.http.post('/api/notes/by-text/with-date', JSON.stringify({note:{text:text}}))
+      .then(result=>{
+        if(result!=null){
+          res=result.map(obj=>{return NoteExtraMinWithDate.safeNewNoteFromJsObject(obj)});
+        }
+        resolve(res);
+      })
+      .catch(error=>{
+        reject(error);
+      })
+    })
+  }
+
 
 
   notesByText(text: string, force: boolean):Promise<NoteExtraMin[]>{
@@ -492,25 +508,52 @@ export class AtticNotes {
         console.log('usedb note: ');console.log(JSON.stringify(useDb));
         let p:Promise<NoteExtraMin[]>;
         if(useDb){
-          p=this.db.getNotesByText(text, this.auth.userid);
+          p=this.db.getNotesByText(text, this.auth.userid, true);
         }else{
           console.log('no notes, using the network');
-          p= this.http.post('/api/notes/by-text', JSON.stringify({note:{text:text}}));
+          //p= this.http.post('/api/notes/by-text', JSON.stringify({note:{text:text}}));
+          p=this.notesByText_loadFromNetwork(text);
         }
         return p;
       })
       .then(fetchingResult=>{
-        let res:NoteExtraMin[];
-        if(!useDb){
-          res = fetchingResult.map(obj=>{return NoteExtraMin.safeNewNoteFromJsObject(obj);});
-        }else{res=fetchingResult;}
-        console.log('the notes by text are: ');console.log(JSON.stringify(res));
-        resolve(res);
+        if(fetchingResult!=null){
+          resolve(fetchingResult);
+          return Promise.resolve(fetchingResult);
+        }else if(fetchingResult==null && useDb){
+          console.log('trying to load from network');
+          return this.notesByText_loadFromNetwork(text);
+        }
+      })
+      .then(lastAttempt=>{
+        console.log(JSON.stringify(lastAttempt));
+        if(lastAttempt==null){
+          reject(AtticError.getNewNetworkError());
+        }else{
+          resolve(lastAttempt);
+        }
       })
       .catch(error=>{
         console.log('error in getting text');
         console.log(JSON.stringify(error));
         reject(/*AtticError.getError(error)*/error);
+      })
+    })
+  }
+
+
+  private notesByIsDone_loadFromNetwork(isdone: boolean):Promise<NoteExtraMinWithDate[]>{
+    return new Promise<NoteExtraMinWithDate[]>((resolve, reject)=>{
+      let res:NoteExtraMinWithDate[]=[];
+      this.http.post('/api/notes/by-isdone/with-date', JSON.stringify({note:{isdone:isdone}}))
+      .then(result=>{
+        if(result!=null){
+          res=result.map(obj=>{return NoteExtraMinWithDate.safeNewNoteFromJsObject(obj)});
+        }
+        resolve(res);
+      })
+      .catch(error=>{
+        reject(error);
       })
     })
   }
@@ -532,20 +575,29 @@ export class AtticNotes {
         console.log('usedb note: ');console.log(JSON.stringify(useDb));
         let p:Promise<NoteExtraMin[]>;
         if(useDb){
-          p=this.db.getNotesByIsDone(isdone, this.auth.userid);
+          p=this.db.getNotesByIsDone(isdone, this.auth.userid, true);
         }else{
           console.log('no notes, using the network');
-          p= this.http.post('/api/notes/by-is-done', JSON.stringify({note:{isdone:isdone}}));
+          //p= this.http.post('/api/notes/by-is-done', JSON.stringify({note:{isdone:isdone}}));
+          p=this.notesByIsDone_loadFromNetwork(isdone);
         }
         return p;
       })
       .then(fetchingResult=>{
-        let res:NoteExtraMin[];
-        if(!useDb){
-          res = fetchingResult.map(obj=>{return NoteExtraMin.safeNewNoteFromJsObject(obj);});
-        }else{res=fetchingResult;}
-        console.log('the notes by is done are: ');console.log(JSON.stringify(res));
-        resolve(res);
+        if(fetchingResult!=null){
+          resolve(fetchingResult);
+          return Promise.resolve(fetchingResult);
+        }else if(fetchingResult==null && useDb){
+          console.log('trying to load from network');
+          return this.notesByIsDone_loadFromNetwork(isdone);
+        }
+      })
+      .then(lastAttempt=>{
+        if(lastAttempt==null){
+          reject(AtticError.getNewNetworkError());
+        }else{
+          resolve(lastAttempt);
+        }
       })
       .catch(error=>{
         console.log('error in getting by is done');
