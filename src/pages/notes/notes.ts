@@ -67,6 +67,8 @@ export class NotesPage {
 
   private firstTime: boolean = true;
 
+  private showSpinner: boolean = false;
+
   /*post - deleting an angular error appears but I can figure out why, try catch on each method doesn't work.
   So I remove them.
   */
@@ -327,6 +329,12 @@ export class NotesPage {
 
   private loadByFilter(/*firsTime:boolean*/force: boolean, refresher?:any){
     console.log('im going to set');
+    if(refresher!=null){
+      this.showSpinner=false;
+    }else{
+      this.showSpinner=true;
+    }
+    this.shownNotes=[];
     let p:Promise<void>
     switch(this.currentFilter){
       case FilterNs.Filter.Tags:
@@ -345,10 +353,16 @@ export class NotesPage {
       if(refresher!=null){
           refresher.complete();
       }
+      else{
+        this.showSpinner=false;
+      }
     })
     .catch(error=>{
       if(refresher!=null){
         refresher.complete();
+      }
+      else{
+        this.showSpinner=false;
       }
       this.setIsThereSomethingToShow();
       console.log('load error');console.log(JSON.stringify(error.message));console.log(JSON.stringify(error));
