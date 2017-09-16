@@ -392,6 +392,22 @@ export class AtticNotes {
     return res;
   }
 
+  private notesByTags_loadFromNetworkAndInsert(tags:TagAlmostMin[], and:boolean):Promise<NoteExtraMinWithDate[]>{
+    return new Promise<NoteExtraMinWithDate[]>((resolve, reject)=>{
+        let res:NoteExtraMinWithDate[]=[];
+        this.http.post(AtticNotes.getAPINotesByTags(and), JSON.stringify({note:{tags: tags.map((tag)=>{return tag.title})}}))
+        .then(result=>{
+          if(result!=null){
+            res=result.map(obj=>{return NoteExtraMin.safeNewNoteFromJsObject(obj)});
+          }
+          resolve(res);
+        })
+        .catch(error=>{
+          reject(error);
+        })
+    })
+  }
+
   //THIS IS DONE THROUGH THE CACHE.
   //please remember that the research is done by AND.
   notesByTag2(tags:TagAlmostMin[], and: boolean, force: boolean):Promise<NoteExtraMin[]>{
@@ -414,21 +430,29 @@ export class AtticNotes {
         console.log('usedb note: ');console.log(JSON.stringify(useDb));
         let p:Promise<NoteExtraMin[]>;
         if(useDb){
-          p= this.db.getNotesByTags(tags, this.auth.userid, and);
+          p= this.db.getNotesByTags(tags, this.auth.userid, and, true);
         }else{
           console.log('no notes, using the network');
-          p= this.http.post(AtticNotes.getAPINotesByTags(and), JSON.stringify({note:{tags: tags.map((tag)=>{return tag.title})}}));
+          //p= this.http.post(AtticNotes.getAPINotesByTags(and), JSON.stringify({note:{tags: tags.map((tag)=>{return tag.title})}}));
+          p=this.notesByTags_loadFromNetworkAndInsert(tags, and);
         }
         return p;
       })
       .then(fetchingResult=>{
-        // console.log('fetchingResult is');
-        // console.log(JSON.stringify(fetchingResult));
-        let res:NoteExtraMin[];
-        if(!useDb){
-          res = fetchingResult.map(obj=>{return NoteExtraMin.safeNewNoteFromJsObject(obj);});
-        }else{res=fetchingResult;}
-        resolve(res)
+        if(fetchingResult!=null){
+          resolve(fetchingResult);
+          return Promise.resolve(fetchingResult);
+        }else if(fetchingResult==null && useDb){
+          console.log('trying to load from network');
+          return this.notesByTags_loadFromNetworkAndInsert(tags, and);
+        }
+      })
+      .then(lastAttempt=>{
+        if(lastAttempt==null){
+          reject(AtticError.getNewNetworkError());
+        }else{
+          resolve(lastAttempt);
+        }
       })
       .catch(error=>{
         console.log('error notes:');

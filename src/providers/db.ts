@@ -2542,8 +2542,21 @@ private getNotesFullByTagsNoRoleCoreNoTx(tags:TagAlmostMin[], userid:string, and
 // }
 
 
-public getNotesByTags(tags: TagAlmostMin[], userid: string, and:boolean):Promise<NoteExtraMinWithDate[]>{
-  return this.getNotesExtraMinWithDateByTagsNoRoleCoreNoTx(tags, userid, and);
+public getNotesByTags(tags: TagAlmostMin[], userid: string, and:boolean, nullify:boolean):Promise<NoteExtraMinWithDate[]>{
+  return new Promise<NoteExtraMinWithDate[]>((resolve, reject)=>{
+    this.getNotesExtraMinWithDateByTagsNoRoleCoreNoTx(tags, userid, and)
+    .then(notes=>{
+      if(nullify && notes.length==0){
+        resolve(null);
+      }else{
+        resolve(notes);
+      }
+    })
+    .catch(error=>{
+      reject(error);
+    })
+  })
+
 }
 
 
@@ -5299,7 +5312,7 @@ private rollbackSetLink(note:NoteExtraMin, userid:string):Promise<void>{
       let p:Promise<any>;
       let isUserR:boolean = AtticError.isUserReachedMaxErrorFromArray(error);
       if(isUserR){ /*if user have reached max we have to remove it.*/
-        p=this.getNotesByTags([new TagAlmostMin({title:tag.title})], userid, false);
+        p=this.getNotesByTags([new TagAlmostMin({title:tag.title})], userid, false, false);
       }else{
         p=Promise.resolve();
       }
