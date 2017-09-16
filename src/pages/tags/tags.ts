@@ -154,7 +154,7 @@ export class TagsPage {
   //     })
   // }
 
-  load(force:boolean, title?:string, refresher?:any):void{
+  private load(force:boolean, title?:string, refresher?:any):void{
     let p:Promise<void>;
     if(title==null){
       p=this.loadAlmostMin(force);
@@ -259,7 +259,7 @@ export class TagsPage {
   }
 
 
-  createNewTag(){
+  private createNewTag(){
     // let prompt = this.alertCtrl.create({
     //   title: 'New tag',
     //   message: 'Enter a name for the new tag',
@@ -293,7 +293,7 @@ export class TagsPage {
     )
   }
 
-  createNewTagAPI(title: string){
+  private createNewTagAPI(title: string){
     title = title.trim();
     let tag:TagFull = new TagFull({title:title});
     // tag.notes=[];
@@ -333,7 +333,9 @@ export class TagsPage {
     let filterType = FilterNs.Filter.Tags;
     // console.log("proper event fired");
     // console.log("is array: "+(tags instanceof Array).toString());
-    this.navCtrl.push(NotesPage, {filterType: filterType, filterValue: tags});
+    //this.navCtrl.push(NotesPage, {filterType: filterType, filterValue: tags});
+    this.events.publish('go-to-notes-and-filter',{filterType: FilterNs.Filter.Tags,
+      filterValue: {tags:tags, and: false}});
   }
 
 

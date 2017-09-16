@@ -417,7 +417,7 @@ export class AtticNotes {
           p= this.db.getNotesByTags(tags, this.auth.userid, and);
         }else{
           console.log('no notes, using the network');
-          p= this.http.post(AtticNotes.getAPINotesByTags(and), JSON.stringify({tags: tags.map((tag)=>{return tag.title})}));
+          p= this.http.post(AtticNotes.getAPINotesByTags(and), JSON.stringify({note:{tags: tags.map((tag)=>{return tag.title})}}));
         }
         return p;
       })
