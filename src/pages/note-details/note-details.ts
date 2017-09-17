@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { NavController, NavParams, PopoverController,
-  Events
+  Events, Loading
 /*AlertController, ToastController*/ } from 'ionic-angular';
 
 import { /*NoteExtraMin, */NoteFull/*, NoteMin, NoteSmart*/, NoteExtraMinWithDate } from '../../models/notes';
@@ -112,6 +112,8 @@ export class NoteDetailsPage {
   private isLinkValid:boolean = true;
 
   private showSpinner: boolean = false;
+
+  private loading:Loading;
 
 
 
@@ -714,6 +716,12 @@ export class NoteDetailsPage {
     return this.haveToRemoveTags || this.haveToAddMainTags  || this.haveToAddOtherTags;
   }
 
+  private hideLoadingIfNecessary():void{
+    if(this.haveToDoSomething()){
+      this.graphicProvider.dismissLoading(this.loading);
+    }
+  }
+
 
   private submit(){
     /*decide which actions must be taken.*/
@@ -726,7 +734,8 @@ export class NoteDetailsPage {
       this.note.lastmodificationdate=new Date();
       this.events.publish('notes-replace',
         new NoteExtraMinWithDate({title:this.note.title, lastmodificationdate: this.lastmod}),
-        this.note.forceCastToNoteExtraMinWithDate())
+        this.note.forceCastToNoteExtraMinWithDate());
+      this.loading = this.graphicProvider.showLoading();
     }
     //can't be done here, if so, the cache won't be able to find it.
 
@@ -744,10 +753,12 @@ export class NoteDetailsPage {
         this.graphicProvider.presentToast('tags removed');
         this.haveToRemoveTags = false;
         this.submitChangeEnabled=false;
+        this.hideLoadingIfNecessary();
       })
       .catch(error=>{
         this.revertToOldDate();
         console.log('remove tags error: '+JSON.stringify(error));
+        this.hideLoadingIfNecessary();
         this.graphicProvider.showErrorAlert(error);
         this.submitChangeEnabled=true;
       })
@@ -761,12 +772,15 @@ export class NoteDetailsPage {
         this.haveToAddMainTags = false;
         this.haveToAddOtherTags = false;
         this.submitChangeEnabled=false;
+        this.hideLoadingIfNecessary();
       })
       .catch(error=>{
         this.revertToOldDate();
         console.log('add tags error: '+JSON.stringify(error.message));
+        this.hideLoadingIfNecessary();
         this.graphicProvider.showErrorAlert(error);
         this.submitChangeEnabled=true;
+        // this.hideLoadingIfNecessary();
       })
     }
 
@@ -776,12 +790,15 @@ export class NoteDetailsPage {
           this.graphicProvider.presentToast('tags added');
           this.haveToAddMainTags = false;
           this.submitChangeEnabled=false;
+          this.hideLoadingIfNecessary();
         })
         .catch(error=>{
           this.revertToOldDate();
           console.log('add tags error: '+JSON.stringify(error.message));
+          this.hideLoadingIfNecessary();
           this.graphicProvider.showErrorAlert(error);
           this.submitChangeEnabled=true;
+          // this.hideLoadingIfNecessary();
         })
     }
 
@@ -791,12 +808,15 @@ export class NoteDetailsPage {
           this.graphicProvider.presentToast('tags added');
           this.haveToAddOtherTags = false;
           this.submitChangeEnabled=false;
+          this.hideLoadingIfNecessary();
         })
         .catch(error=>{
           this.revertToOldDate();
           console.log('add tags error: '+JSON.stringify(error.message));
+          this.hideLoadingIfNecessary();
           this.graphicProvider.showErrorAlert(error);
           this.submitChangeEnabled=true;
+          // this.hideLoadingIfNecessary();
         })
     }
 
@@ -806,12 +826,15 @@ export class NoteDetailsPage {
       this.graphicProvider.presentToast('links changed');
       this.haveToChangeLinks = false;
       this.submitChangeEnabled=false;
+      this.hideLoadingIfNecessary();
     })
     .catch(error=>{
       this.revertToOldDate();
       console.log('change links error: '+JSON.stringify(error.message));
+      this.hideLoadingIfNecessary();
       this.graphicProvider.showErrorAlert(error);
       this.submitChangeEnabled=true;
+      // this.hideLoadingIfNecessary();
     })
   }
 
@@ -821,12 +844,15 @@ export class NoteDetailsPage {
           this.graphicProvider.presentToast('\'done\' modified');
           this.isDoneChanged =  false;
           this.submitChangeEnabled=false;
+          this.hideLoadingIfNecessary();
         })
         .catch(error=>{
           this.revertToOldDate();
           console.log('set done error: '+JSON.stringify(error.message));
+          this.hideLoadingIfNecessary();
           this.graphicProvider.showErrorAlert(error);
           this.submitChangeEnabled=true;
+          // this.hideLoadingIfNecessary();
         })
     }
     // useless because it's synchronous.

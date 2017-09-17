@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { /*NavController, */NavParams, ViewController/*, ToastController, AlertController*/
   , App
-  ,Events } from 'ionic-angular';
+  ,Events, Loading } from 'ionic-angular';
 import { NoteFull, NoteExtraMinWithDate/*, NoteExtraMin*/ } from '../../models/notes';
 import { NoteEditTextPage } from '../note-edit-text/note-edit-text';
 import { AtticNotesProvider } from '../../providers/attic-notes';
@@ -30,6 +30,8 @@ export class NoteDetailsPopoverPage {
   private btnChangeTitleEnabled:boolean = false;
 
   private lastmod: Date;
+
+  private loading: Loading;
 
 
   //private oldTitle:string;
@@ -165,7 +167,8 @@ export class NoteDetailsPopoverPage {
 
     this.viewCtrl.dismiss()
     .then(()=>{
-      this.graphicProvider.presentToast('Changing title...',1200);
+      //this.graphicProvider.presentToast('Changing title...',1200);
+      this.loading = this.graphicProvider.showLoading();
       return this.atticNotes.changeTitle(this.note, title, this.lastmod);
     })
     .then(()=>{
@@ -176,6 +179,7 @@ export class NoteDetailsPopoverPage {
       //we try to do the best as possible to make user not refresh
 
       this.events.publish('notes-replace', oldNote, newNote);
+      this.graphicProvider.dismissLoading(this.loading);
 
       /*return */this.graphicProvider.presentToast('Title updated');
     })
@@ -190,6 +194,7 @@ export class NoteDetailsPopoverPage {
       .catch(error=>{
         //Utils.showErrorAlert(this.alertCtrl, error);
         this.note.lastmodificationdate=this.lastmod;
+        this.graphicProvider.dismissLoading(this.loading);
         this.graphicProvider.showErrorAlert(error);
         console.log('change title error: '+JSON.stringify(error));console.log(JSON.stringify(error.message))
       });

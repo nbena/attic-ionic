@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, /*ToastController, AlertController,*/ ViewController/*, App,*/, Events } from 'ionic-angular';
+import { NavController, NavParams, /*ToastController, AlertController,*/ ViewController/*, App,*/, Events, Loading } from 'ionic-angular';
 import { TagFull,/*, TagExtraMin, */TagAlmostMin } from '../../models/tags';
 import { AtticTagsProvider } from '../../providers/attic-tags';
 // import { Utils } from '../../public/utils';
@@ -23,6 +23,8 @@ export class TagDetailsPopoverPage {
   // private index:number=-1;
 
   //private oldTitle:string;
+
+  private loading:Loading;
 
   constructor(public navCtrl: NavController, public navParams: NavParams,
     // private toastCtrl: ToastController, private alertCtrl: AlertController,
@@ -85,7 +87,8 @@ export class TagDetailsPopoverPage {
     let newTag = new TagAlmostMin({title:newTitle, noteslength:this.tag.noteslength});
     this.viewCtrl.dismiss()
     .then(()=>{
-      this.graphicProvider.presentToast('Chanching title...', 1200);
+      //this.graphicProvider.presentToast('Chanching title...', 1200);
+      this.loading = this.graphicProvider.showLoading();
       return this.atticTags.changeTitle(this.tag, newTitle)
     })
     .then(()=>{
@@ -93,11 +96,13 @@ export class TagDetailsPopoverPage {
       //this.events.publish('invalidate-full-note', new TagExtraMin(this.oldTitle));
       /*return */
       this.events.publish('tags-replace', oldTag, newTag);
+      this.graphicProvider.dismissLoading(this.loading);
       this.graphicProvider.presentToast('Title updated');
     })
     .catch(error=>{
       // console.log('some errors happen');
-      console.log('error change title '+JSON.stringify(error))
+      console.log('error change title '+JSON.stringify(error));
+      this.graphicProvider.dismissLoading(this.loading);
       this.graphicProvider.showErrorAlert(error);
     })
   }
