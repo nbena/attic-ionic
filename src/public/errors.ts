@@ -2,11 +2,17 @@ import {DbActionNs} from './const';
 export class AtticError{
 
 
-  public static getSynchingError(action:DbActionNs.DbAction):string{
+  private static getSynchingErrorString(action:DbActionNs.DbAction):string{
     let result:string = 'cannot ';
     result+=DbActionNs.getHumandReadableAction(action);
     result+='while there is synching in action';
     return result;
+  }
+
+  public static getSynchingError(action:DbActionNs.DbAction):Error{
+    let ret:Error = new Error(/*AtticError.getSynchingErrorString(action)*/);
+    ret.message = AtticError.getSynchingErrorString(action);
+    return ret;
   }
 
 
@@ -21,7 +27,8 @@ export class AtticError{
   public static readonly SQLITE_FINAL_DUPLICATE_KEY_TAGS:string='Another tag with the same title already exists';
   public static readonly SQLITE_FINAL_DUPLICATE_KEY_AUTH:string='User is already here';
 
-  private static getBetterSqliteErrorString(error:string):string{
+  private static getBetterSqliteErrorString(errorIn:any):string{
+    let error:string = (errorIn.message!=null) ? errorIn.message : errorIn;
     let returnedError:string = error;
     switch(error){
       case AtticError.SQLITE_DUPLICATE_KEY_AUTH:
@@ -35,7 +42,8 @@ export class AtticError{
   }
 
 
-  private static isSqliteError(error:string):boolean{
+  private static isSqliteError(errorIn:any):boolean{
+    let error:string = (errorIn.message!=null) ? errorIn.message : errorIn;
     let ret:boolean=false;
     if(error == AtticError.SQLITE_DUPLICATE_KEY_AUTH ||
       error == AtticError.SQLITE_DUPLICATE_KEY_TAGS ||
@@ -47,11 +55,14 @@ export class AtticError{
     return ret;
   }
 
-private  static getBetterSqliteError(error:any):any{
-  let ret:any = error;
-  if(error.message!=null){
-    ret.message = AtticError.getBetterSqliteErrorString(error.message);
-  }
+private  static getBetterSqliteError(error:any):Error{
+  // let ret:any = error;
+  // if(error.message!=null){
+  //   ret.message = AtticError.getBetterSqliteErrorString(error.message);
+  // }
+  // return ret;
+  let ret:Error = new Error(/*AtticError.getBetterSqliteErrorString(error)*/);
+  ret.message = AtticError.getBetterSqliteErrorString(error);
   return ret;
 }
 
@@ -105,7 +116,8 @@ public static getBetterNetworkError(error:any):any{
 }
 
 public static getNewNetworkError():Error{
-  let ret:Error = new Error(AtticError.NET_ERROR);
+  let ret:Error = new Error(/*AtticError.NET_ERROR*/);
+  ret.message = AtticError.NET_ERROR;
   return ret;
 }
 
@@ -123,7 +135,10 @@ public static readonly POSTGRES_USER_REACHED_MAX_TAGS:string = 'DbError a free u
 public static readonly POSTGRES_MAINTAGS_LIMIT:string = 'DbError maintags cannot be more than 3';
 public static readonly POSTGRES_OTHERTAGS_LIMIT:string = 'DbError othetags cannot be more than 15';
 public static readonly POSTGRES_FINAL_TAGS_FKEY:string = 'DbError tags not found'; /*whe trying to add a not-found tags*/
-public static readonly POSTGRES_FINAL_NOTES_FKEY:string = 'DbError note not found';
+public static readonly POSTGRES_FINAL_NOTES_FKEY:string = 'DbError notes not found';
+
+public static readonly POSTGRES_NOTE_NOT_FOUND:string ='DbError note not found';
+public static readonly POSTGRES_TAG_NOT_FOUND:string='DbError tag not found';
 /*public static readonly POSTGRES_FINAL*/
 /*
 private  static getBetterSqliteError(error:any):any{
@@ -135,19 +150,45 @@ private  static getBetterSqliteError(error:any):any{
 }
 */
 
-private static getBetterPostgresError(error:any):string{
-  let ret:any = error;
-  if(error.message!=null){
-    ret.message = error.message;
-    ret.message = ret.message.replace('DbError ','');
+private static getBetterPostgresErrorString(errorIn:any):string{
+  //let ret:any = errorIn;
+
+  let error:string = (errorIn.message!=null) ? errorIn.message : errorIn;
+  let ret=error;
+  if(error!=null){
+
+    if(error==AtticError.POSTGRES_NOTE_NOT_FOUND){
+      ret = 'Note not found: please try to reload your notes list';
+    }else if(error==AtticError.POSTGRES_TAG_NOT_FOUND){
+      ret = 'Tag not founf: please try to reload your tags list';
+    }else{
+      ret = ret.replace('DbError ','');
+    }
   }
+  // let ret:string = error;
+  // ret=ret.replace('DbError ','');
+  // console.log('the ret: ');console.log(JSON.stringify(ret));console.log(JSON.stringify(ret.message));
+  return ret;
+}
+
+private static getBetterPostgresError(errorIn:any):Error{
+  //let ret:any = errorIn;
+  // let ret:Error = new Error();
+  // let error:string = (errorIn.message!=null) ? errorIn.message : errorIn;
+  // if(error!=null){
+  //   ret.message = error;
+  //   ret.message = ret.message.replace('DbError ','');
+  // }
+  let ret:Error = new Error(/*AtticError.getBetterPostgresString(errorIn)*/);
+  ret.message = AtticError.getBetterPostgresErrorString(errorIn);
   // let ret:string = error;
   // ret=ret.replace('DbError ','');
   console.log('the ret: ');console.log(JSON.stringify(ret));console.log(JSON.stringify(ret.message));
   return ret;
 }
 
-public static isPostgresError(error:string):boolean{
+public static isPostgresError(errorIn:any):boolean{
+  let error:string = (errorIn.message!=null) ? errorIn.message : errorIn;
   let ret:boolean = false;
   if(error==AtticError.POSTGRES_DUPLICATE_KEY_NOTES || error==AtticError.POSTGRES_DUPLICATE_KEY_NOTES_TAGS
     || error==AtticError.POSTGRES_DUPLICATE_KEY_TAGS || error==AtticError.POSTGRES_FINAL_TAGS_FKEY
@@ -155,6 +196,22 @@ public static isPostgresError(error:string):boolean{
     || error==AtticError.POSTGRES_USER_REACHED_MAX_NOTES || error==AtticError.POSTGRES_USER_REACHED_MAX_TAGS
     || error==AtticError.POSTGRES_DUPLICATE_KEY_USERS || error==AtticError.POSTGRES_FINAL_NOTES_FKEY
     //|| error.startsWith('JsonError') no thins because is a paramter that should NEVER happen.
+  ){
+    ret=true;
+  }
+  return ret;
+}
+
+public static isPostgresErrorAdvanced(errorIn:any):boolean{
+  let ret:boolean = false;
+  let error:string = (errorIn.message!=null) ? errorIn.message : errorIn;
+  if(error==AtticError.POSTGRES_DUPLICATE_KEY_NOTES || error==AtticError.POSTGRES_DUPLICATE_KEY_NOTES_TAGS
+    || error==AtticError.POSTGRES_DUPLICATE_KEY_TAGS || error==AtticError.POSTGRES_FINAL_TAGS_FKEY
+    || error==AtticError.POSTGRES_MAINTAGS_LIMIT || error==AtticError.POSTGRES_OTHERTAGS_LIMIT
+    || error==AtticError.POSTGRES_USER_REACHED_MAX_NOTES || error==AtticError.POSTGRES_USER_REACHED_MAX_TAGS
+    || error==AtticError.POSTGRES_DUPLICATE_KEY_USERS || error==AtticError.POSTGRES_FINAL_NOTES_FKEY
+    //|| error.startsWith('JsonError') no thins because is a paramter that should NEVER happen.
+    || error==AtticError.POSTGRES_NOTE_NOT_FOUND || error==AtticError.POSTGRES_TAG_NOT_FOUND
   ){
     ret=true;
   }
@@ -260,12 +317,39 @@ public static getDuplicateTagsError():Error{
   return new Error(AtticError.DUPLICATE_TAGS_ERROR);
 }
 
-private static isDuplicateTagsError(msg:string):boolean{
-  return msg==AtticError.DUPLICATE_TAGS_ERROR;
+private static isDuplicateTagsError(errorIn:any):boolean{
+  let error:string = (errorIn.message!=null) ? errorIn.message : errorIn;
+  return error==AtticError.DUPLICATE_TAGS_ERROR;
+}
+
+public static getNewError(error:any):ErrData{
+  let basic = (error.message!=null) ? error.message : error;
+  let errorOut:ErrData;
+  let errData:any;
+  let isSpecific:boolean = false;
+
+    if(AtticError.isSqliteError(basic)){
+      errData=AtticError.getBetterSqliteError(error);
+      isSpecific = true;
+    }else if(AtticError.isPostgresErrorAdvanced(error)){
+      errData = AtticError.getBetterPostgresError(error);
+      isSpecific = true;
+    }else if(AtticError.isDuplicateTagsError(error)){
+      errData = error;
+      isSpecific=true;
+    }
+    else if(AtticError.isNetworkError(error)){
+      errData=AtticError.getBetterNetworkError(error);
+      isSpecific = true;
+    }
+  //}
+  errorOut = new ErrData({errorIn:errData, isSpecific:isSpecific});
+  return errorOut;
 }
 
 
-  public static getNewError(error:any):ErrData{
+  public static getNewError2(error:any):ErrData{
+    console.log('error in is'+JSON.stringify(error));
     let errorOut:ErrData;
     let errData:any;
     let isSpecific:boolean = false;
@@ -276,7 +360,7 @@ private static isDuplicateTagsError(msg:string):boolean{
         // console.log('the better sqlite error is:');console.log(JSON.stringify(errData));
         isSpecific = true;
         // console.log('is specific sqlite error');
-      }else if(AtticError.isPostgresError(error.message)){
+      }else if(AtticError.isPostgresErrorAdvanced(error.message)){
         errData = AtticError.getBetterPostgresError(error);
         isSpecific = true;
         //console.log('is postgres');
