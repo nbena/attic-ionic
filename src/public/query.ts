@@ -175,7 +175,7 @@ export class Query {
   static readonly GET_LOGS_COUNT = 'select case when not exists(select * from counts where userid=? and type=\'logs\') then 0 else count end as count from counts where type=\'logs\'';
 
   static readonly GET_SUMMARY = 'select count, type from counts where userid=?';
-  static readonly GET_SMART_SUMMARY = 'select count, type from counts where userid=? union select \'is_free\', free from auth where userid=?';
+  static readonly GET_SMART_SUMMARY = 'select count, type from counts where userid=? union select free, \'is_free\' from auth where userid=?';
 
   // static readonly GET_NOTES_MIN = 'select title from notes where mustbedeleted=\'false\' and userid=?';
   /*postgres:select title, count(tagTitle)::integer as notesLength

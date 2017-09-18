@@ -44,9 +44,10 @@ export class HttpProvider {
           }
           let data = res.json();
           if(data.ok==false){
-            reject(data.msg);
+            reject(new Error(data.msg));
+          }else{
+            resolve(data.result);
           }
-          resolve(data.result);
         },(err)=>{
           // console.log('get error');
           // console.log(JSON.stringify(err));
@@ -76,12 +77,12 @@ export class HttpProvider {
 
           let data = res.json();
           if(data.ok==false){
-            reject(data.msg);
+            reject(new Error(data.msg));
           }
           if(data.result){
             resolve(data.result);
           }else{
-            resolve(true);
+            resolve();
           }
 
         },(err)=>{
@@ -108,7 +109,7 @@ export class HttpProvider {
 
               let data = res.json();
               if(data.ok!=true){
-                reject(data.msg);
+                reject(new Error(data.msg));
               }else{
                 resolve(data.result);
               }
@@ -144,7 +145,7 @@ export class HttpProvider {
 
                let data = res.json();
                if(data.ok!=true){
-                 reject(data.msg);
+                 reject(new Error(data.msg));
                }else{
                  resolve(data.result);
                }
@@ -181,12 +182,12 @@ export class HttpProvider {
 
           let data = res.json();
           if(data.ok==false){
-            reject(data.msg);
+            reject(new Error(data.msg));
           }
           if(data.result){
             resolve(data.result);
           }else{
-            resolve(true);
+            resolve();
           }
         },(err)=>{
           reject(err);
@@ -209,12 +210,12 @@ export class HttpProvider {
 
           let data = res.json();
           if(data.ok==false){
-            reject(data.msg);
+            reject(new Error(data.msg));
           }
           if(data.result){
             resolve(data.result);
           }else{
-            resolve(true);
+            resolve();
           }
         },(err)=>{
           reject(err);

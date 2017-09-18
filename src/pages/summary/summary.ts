@@ -66,6 +66,8 @@ export class SummaryPage {
       .then(summary=>{
         this.summary = summary;
 
+        // console.log('the summary is: '+JSON.stringify(summary));
+
         this.profileType = (this.summary.data.isfree) ? 'Free' : 'Premium';
         this.availableNotes = (this.summary.data.isfree) ? this.summary.data.availablenotes.toString() : 'Unlimited';
         this.availableTags = (this.summary.data.isfree) ? this.summary.data.availabletags.toString() : 'Unlimited';
@@ -205,7 +207,7 @@ private emptyAPI(){
 
 
   private logout(){
-    this.graphicProvider.askConfirm('Question', 'Do you really want to logout?',
+    this.graphicProvider.askConfirm('Question', 'Do you really want to logout? You\'ll lost your unsaved changes',
       (confirmed:boolean)=>{
         if(confirmed){
           this.logoutAPI();

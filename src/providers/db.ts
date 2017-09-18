@@ -5485,35 +5485,40 @@ public rollbackModification(logObj: LogObjSmart,userid:string, errorArray?:boole
 
 /*think about remove notes_tags.*/
 
-private static mkSummaryAvailable(summary: UserSummary):UserSummary{
-  if(summary.data.isfree){
-    summary.data.availablenotes = Const.NOTES_LIMIT-summary.data.notescount;
-    summary.data.availabletags = Const.TAGS_LIMIT-summary.data.tagscount;
-  }else{
-    summary.data.availablenotes = Number.POSITIVE_INFINITY;
-    summary.data.availabletags = Number.POSITIVE_INFINITY;
-  }
-  return summary;
-}
+// private static mkSummaryAvailable(summary: UserSummary):UserSummary{
+//   if(summary.data.isfree){
+//     summary.data.availablenotes = Const.NOTES_LIMIT-summary.data.notescount;
+//     summary.data.availabletags = Const.TAGS_LIMIT-summary.data.tagscount;
+//   }else{
+//     summary.data.availablenotes = Number.POSITIVE_INFINITY;
+//     summary.data.availabletags = Number.POSITIVE_INFINITY;
+//   }
+//   return summary;
+// }
 
-private static getUserSummaryFromRes(res:any, summary:UserSummary):UserSummary{
+private static getUserSummaryFromRes(res:any, userid:string):UserSummary{
+  let summary:UserSummary = new UserSummary();
+  summary.userid=userid;
   for(let i=0;i<res.rows.length;i++){
+    // console.log('the current rows is '+JSON.stringify(res.rows.item(i)));
     if(res.rows.item(i).type=='logs'){
       summary.data.logscount = res.rows.item(i).count;
-    }
-    else if(res.rows.item(i).type=='notes'){
+    }else if(res.rows.item(i).type=='notes'){
       summary.data.notescount = res.rows.item(i).count;
     }else if(res.rows.item(i).type=='tags'){
       summary.data.tagscount = res.rows.item(i).count;
-    }else{
-      summary.data.isfree = res.rows.item(i).free;
+    }else if(res.rows.item(i).type=='is_free'){
+      summary.data.isfree = res.rows.item(i).count;
     }
   }
   summary.data.notescount = ((summary.data.notescount)==null) ? 0 : summary.data.notescount;
   summary.data.tagscount = ((summary.data.tagscount)==null) ? 0 : summary.data.tagscount;
   summary.data.logscount = ((summary.data.logscount)==null) ? 0 : summary.data.logscount;
 
-  summary = DbProvider.mkSummaryAvailable(summary);
+  // console.log('summary post first '+JSON.stringify(summary));
+
+//summary = DbProvider.mkSummaryAvailable(summary);
+  summary.makeAvailable();
 
   // console.log('the summary here'),
   // console.log(JSON.stringify(summary));
@@ -5525,13 +5530,13 @@ getUserSummary(userid: string):Promise<UserSummary>{
   return new Promise<UserSummary>((resolve, reject)=>{
     this.db.executeSql(Query.GET_SMART_SUMMARY, [userid, userid])
     .then(result=>{
-      let summary:UserSummary = new UserSummary();
-      summary.userid=userid;
+      // let summary:UserSummary;
+      // summary.userid=userid;
       if(result.rows.length>4){
         console.log('error in summary');
         reject(new Error('view is not as long as expected'));
       }else{
-        summary = DbProvider.getUserSummaryFromRes(result, summary);
+        let summary:UserSummary = DbProvider.getUserSummaryFromRes(result, userid);
         resolve(summary);
       }
     })

@@ -1,3 +1,4 @@
+import {Const} from '../public/const';
 export class UserSummary{
   userid: string;
   data: data;
@@ -17,6 +18,16 @@ export class UserSummary{
       ret = data.dataEquals(arg0.data, arg1.data);
     }
     return ret;
+  }
+
+  public makeAvailable(){
+    if(this.data.isfree){
+      this.data.availablenotes = Const.NOTES_LIMIT-this.data.notescount;
+      this.data.availabletags = Const.TAGS_LIMIT-this.data.tagscount;
+    }else{
+      this.data.availablenotes = Number.POSITIVE_INFINITY;
+      this.data.availabletags = Number.POSITIVE_INFINITY;
+    }
   }
 
 }

@@ -120,7 +120,7 @@ export class LoginPage {
     if(this.loginPageForm.valid){
       this.loading=this.graphicProvider.showLoading('Authenticating'); //maybe I'll remove it.
 
-      var user = new User(
+      let user = new User(
         this.loginPageForm.value.email,
         this.loginPageForm.value.password
       );
@@ -136,7 +136,7 @@ export class LoginPage {
         this.navCtrl.setRoot(TabsPage);
       })
       .catch(error=>{
-        console.log('auth error');console.log(JSON.stringify(error));
+        console.log('auth error login');console.log(JSON.stringify(error));
         this.makeEmptyJustUserid();
         this.graphicProvider.dismissLoading(this.loading)
         .then(()=>{
@@ -165,7 +165,7 @@ export class LoginPage {
     if(this.loginPageForm.valid){
       this.loading=this.graphicProvider.showLoading('Authenticating'); //maybe I'll remove it.
 
-      var user = new User(
+      let user = new User(
         // this.e_mail,
         // this.password
         this.loginPageForm.value.email,
@@ -180,16 +180,16 @@ export class LoginPage {
         this.navCtrl.setRoot(TabsPage);
       })
       .catch(error=>{
-        console.log('auth error');console.log(JSON.stringify(error.message));console.log(JSON.stringify(error));
-        if(error.message.search('same')>=0){
+        console.log('auth error register');console.log(JSON.stringify(error.message));console.log(JSON.stringify(error));
+        if(error.message!=null && error.message.search('same')>=0){
           this.makeEmptyAll();
         }else{
           this.makeEmptyJustUserid();
         }
         this.graphicProvider.dismissLoading(this.loading)
-        .then(()=>{
+        //.then(()=>{
           this.graphicProvider.showErrorAlert(/*'error while creating account'*/error)
-        })
+        //})
       })
     }
   }

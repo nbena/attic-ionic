@@ -265,6 +265,14 @@ public static isNoteNotFoundError(error:string):boolean{
   return ret;
 }
 
+public static isMainTagsOrOtherTagsLimitError(error:string):boolean{
+  let ret:boolean = false;
+  if(error==AtticError.POSTGRES_MAINTAGS_LIMIT || error==AtticError.POSTGRES_OTHERTAGS_LIMIT){
+    ret = true;
+  }
+  return ret;
+}
+
 
 
 public static getPostgresErrorArray(error:string):boolean[]{
@@ -274,6 +282,7 @@ public static getPostgresErrorArray(error:string):boolean[]{
   ret.push(AtticError.isUserReachedMaxError(error));
   ret.push(AtticError.isTagNotFoundError(error));
   ret.push(AtticError.isNoteNotFoundError(error));
+  ret.push(AtticError.isMainTagsOrOtherTagsLimitError(error));
   return ret;
 }
 
