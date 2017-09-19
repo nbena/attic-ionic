@@ -44,5 +44,6 @@ export class AutosizeDirective implements OnInit{
     area.style.overflow = 'hidden';
     area.style.height = 'auto';
     area.style.height = area.scrollHeight + "px";
+
   }
 }

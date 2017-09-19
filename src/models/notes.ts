@@ -568,10 +568,13 @@ export class NoteFull extends NoteBarebon{
 
   public getMinifiedVersionForCreation():NoteFull{
     let tmpNote:NoteFull = this.clone();
+    // console.log('the maintags pre min: '+JSON.stringify(tmpNote.maintags));
     let maintags:TagExtraMin[]=tmpNote.maintags.map(obj=>{return new TagExtraMin(obj.title)});
     let othertags:TagExtraMin[]=tmpNote.othertags.map(obj=>{return new TagExtraMin(obj.title)});
+    // console.log('the maintags post min: '+JSON.stringify(maintags));
     tmpNote.maintags=maintags;
     tmpNote.othertags=othertags;
+    // console.log('the note is: '+JSON.stringify(tmpNote));
     return tmpNote;
   }
 
@@ -659,7 +662,7 @@ export class NoteFull extends NoteBarebon{
 
   public hasSomeTag():boolean{
     let ret:boolean = false;
-    if(this.maintags.length>0 && this.othertags.length>0){
+    if(this.maintags.length>0 || this.othertags.length>0){
       ret=true;
     }
     return ret;

@@ -328,7 +328,8 @@ export class AtticNotesProvider {
           // this.addTagsToNote(necessaryTags.slice(), note.forceCastToNoteExtraMin());
           if(note.hasSomeTag()){
             //this.atticCache.invalidateTags();
-            this.events.publish('invalidate-full-cached-tags');
+            //this.events.publish('invalidate-full-cached-tags');
+            this.events.publish('invalidate-cached-tags');
           }
           resolve();
         })
@@ -414,6 +415,7 @@ export class AtticNotesProvider {
   //please remember that the research is done by AND.
   notesByTag2(tags:TagAlmostMin[], and: boolean, force: boolean):Promise<NoteExtraMin[]>{
     return new Promise<NoteExtraMin[]>((resolve, reject)=>{
+      // console.log('the tags to search: '+JSON.stringify(tags));
       let isNteworkAvailable: boolean = this.netManager.isConnected;
       let areThereNotesInTheDb: boolean;
       // let useCache: boolean = false;
@@ -430,7 +432,7 @@ export class AtticNotesProvider {
         // console.log('the numberof notes is');console.log(number);
         useDb = Utils.shouldUseDb(isNteworkAvailable, areThereNotesInTheDb, force/*, this.synch.isSynching()*/);
         console.log('usedb note: ');console.log(JSON.stringify(useDb));
-        let p:Promise<NoteExtraMin[]>;
+        let p:Promise<NoteExtraMinWithDate[]>;
         if(useDb){
           p= this.db.getNotesByTags(tags, this.auth.userid, and, true);
         }else{

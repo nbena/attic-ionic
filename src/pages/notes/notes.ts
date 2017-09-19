@@ -221,7 +221,11 @@ export class NotesPage {
 
 
   private unshiftIfPossible(note:NoteExtraMinWithDate){
-    if(note!=null && this.allNotes!=null && this.shownNotes!=null){
+    if(note!=null/* && this.allNotes!=null && this.shownNotes!=null*/){
+
+      this.allNotes=Utils.makeArraySafe(this.allNotes);
+      this.shownNotes=Utils.makeArraySafe(this.shownNotes);
+
       this.allNotes.unshift(note);
       this.shownNotes.unshift(note);
       this.setIsThereSomethingToShow();
@@ -332,9 +336,9 @@ export class NotesPage {
     if(refresher==null){
       this.showSpinner=true;
     }
-    if(this.currentFilter!=FilterNs.Filter.None){
-      this.shownNotes=[];
-    }
+    // if(this.currentFilter!=FilterNs.Filter.None){
+    //   this.shownNotes=[];
+    // }
     let p:Promise<void>
     switch(this.currentFilter){
       case FilterNs.Filter.Tags:

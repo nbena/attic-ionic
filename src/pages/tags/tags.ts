@@ -311,6 +311,9 @@ export class TagsPage {
       .then(result=>{
         //it needs to be done.
 
+        this.allTags=Utils.makeArraySafe(this.allTags);
+        this.shownTags=Utils.makeArraySafe(this.shownTags);
+
         Utils.binaryArrayInsert(this.allTags, tag, TagAlmostMin.descendingCompare);
         Utils.binaryArrayInsert(this.shownTags, tag, TagAlmostMin.descendingCompare);
 

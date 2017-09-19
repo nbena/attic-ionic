@@ -1293,6 +1293,7 @@ public createNewNote2(note:NoteFull, userid:string, usedTag?:TagFull[]):Promise<
   // console.log('received as help');
   // console.log(JSON.stringify(usedTag));
   usedTag = Utils.makeArraySafe(usedTag);
+  console.log('note to create is: '+JSON.stringify(note));
   // console.log('usedTag post');console.log(JSON.stringify(usedTag));
   // console.log(JSON.stringify(note));
 
@@ -2095,7 +2096,7 @@ public setText(note :NoteFull, userid: string):Promise<void>{
   I can only update it.
   If the note is already in the server, I need to write modification to the log.
   */
-  console.log('the note here in the db');console.log(JSON.stringify(note));
+  // console.log('the note here in the db');console.log(JSON.stringify(note));
   return new Promise<void>((resolve, reject)=>{
     //let inTheServer: boolean = false;
     this.db.executeSql(Query.IS_NOTE_NOT_IN_THE_SERVER, [note.title, userid])
@@ -2420,6 +2421,7 @@ private static expandTagsRegexAnd(tags:TagAlmostMin[]):string{
 private static getArrayOfNotexExtraMinWithDateFromRes(res:any):NoteExtraMinWithDate[]{
   let array:NoteExtraMinWithDate[]=[];
   for(let i=0;i<res.rows.length;i++){
+    console.log('the row here is: '+JSON.stringify(res.rows.item(i)));
     array.push(NoteExtraMinWithDate.safeNewNoteFromJsObject({
       title:res.rows.item(i).title,
       lastmodificationdate:res.rows.item(i).lastmodificationdate
@@ -2546,6 +2548,7 @@ public getNotesByTags(tags: TagAlmostMin[], userid: string, and:boolean, nullify
   return new Promise<NoteExtraMinWithDate[]>((resolve, reject)=>{
     this.getNotesExtraMinWithDateByTagsNoRoleCoreNoTx(tags, userid, and)
     .then(notes=>{
+      // console.log('the notesbytags here in the db '+JSON.stringify(notes));
       if(nullify && notes.length==0){
         resolve(null);
       }else{
