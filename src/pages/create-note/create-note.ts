@@ -50,6 +50,8 @@ export class CreateNotePage {
 
   private showSpinner: boolean = false;
 
+  private firstTime: boolean = true;
+
 
   constructor(public navCtrl: NavController, public navParams: NavParams,
     // private alertCtrl: AlertController,
@@ -153,7 +155,9 @@ export class CreateNotePage {
 
 
   private refresh(refresher){
-    this.load(true, refresher);
+    //this.load(true, refresher);
+    this.load(!this.firstTime, refresher);
+    this.firstTime=false;
   }
 
   // getNote(){

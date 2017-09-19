@@ -717,7 +717,7 @@ export class NoteDetailsPage {
   }
 
   private hideLoadingIfNecessary():void{
-    if(this.haveToDoSomething()){
+    if(!this.haveToDoSomething()){
       this.graphicProvider.dismissLoading(this.loading);
     }
   }
@@ -758,7 +758,8 @@ export class NoteDetailsPage {
       .catch(error=>{
         this.revertToOldDate();
         console.log('remove tags error: '+JSON.stringify(error));
-        this.hideLoadingIfNecessary();
+        //this.hideLoadingIfNecessary();
+        this.graphicProvider.dismissLoading(this.loading);
         this.graphicProvider.showErrorAlert(error);
         this.submitChangeEnabled=true;
       })
@@ -777,7 +778,8 @@ export class NoteDetailsPage {
       .catch(error=>{
         this.revertToOldDate();
         console.log('add tags error: '+JSON.stringify(error.message));
-        this.hideLoadingIfNecessary();
+        //this.hideLoadingIfNecessary();
+        this.graphicProvider.dismissLoading(this.loading);
         this.graphicProvider.showErrorAlert(error);
         this.submitChangeEnabled=true;
         // this.hideLoadingIfNecessary();
@@ -795,7 +797,8 @@ export class NoteDetailsPage {
         .catch(error=>{
           this.revertToOldDate();
           console.log('add tags error: '+JSON.stringify(error.message));
-          this.hideLoadingIfNecessary();
+          //this.hideLoadingIfNecessary();
+          this.graphicProvider.dismissLoading(this.loading);
           this.graphicProvider.showErrorAlert(error);
           this.submitChangeEnabled=true;
           // this.hideLoadingIfNecessary();
@@ -813,7 +816,8 @@ export class NoteDetailsPage {
         .catch(error=>{
           this.revertToOldDate();
           console.log('add tags error: '+JSON.stringify(error.message));
-          this.hideLoadingIfNecessary();
+          //this.hideLoadingIfNecessary();
+          this.graphicProvider.dismissLoading(this.loading);
           this.graphicProvider.showErrorAlert(error);
           this.submitChangeEnabled=true;
           // this.hideLoadingIfNecessary();
@@ -831,7 +835,8 @@ export class NoteDetailsPage {
     .catch(error=>{
       this.revertToOldDate();
       console.log('change links error: '+JSON.stringify(error.message));
-      this.hideLoadingIfNecessary();
+      //this.hideLoadingIfNecessary();
+      this.graphicProvider.dismissLoading(this.loading);
       this.graphicProvider.showErrorAlert(error);
       this.submitChangeEnabled=true;
       // this.hideLoadingIfNecessary();
@@ -849,7 +854,8 @@ export class NoteDetailsPage {
         .catch(error=>{
           this.revertToOldDate();
           console.log('set done error: '+JSON.stringify(error.message));
-          this.hideLoadingIfNecessary();
+          //this.hideLoadingIfNecessary();
+          this.graphicProvider.dismissLoading(this.loading);
           this.graphicProvider.showErrorAlert(error);
           this.submitChangeEnabled=true;
           // this.hideLoadingIfNecessary();
