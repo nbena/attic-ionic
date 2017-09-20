@@ -221,14 +221,17 @@ export class NotesPage {
 
 
   private unshiftIfPossible(note:NoteExtraMinWithDate){
-    if(note!=null/* && this.allNotes!=null && this.shownNotes!=null*/){
+    if(this.currentFilter==FilterNs.Filter.None){
+      //add only if there's no filtering
+      if(note!=null/* && this.allNotes!=null && this.shownNotes!=null*/){
 
-      this.allNotes=Utils.makeArraySafe(this.allNotes);
-      this.shownNotes=Utils.makeArraySafe(this.shownNotes);
+        this.allNotes=Utils.makeArraySafe(this.allNotes);
+        this.shownNotes=Utils.makeArraySafe(this.shownNotes);
 
-      this.allNotes.unshift(note);
-      this.shownNotes.unshift(note);
-      this.setIsThereSomethingToShow();
+        this.allNotes.unshift(note);
+        this.shownNotes.unshift(note);
+        this.setIsThereSomethingToShow();
+      }
     }
   }
 
@@ -242,6 +245,9 @@ export class NotesPage {
       //   this.setIsThereSomethingToShow();
       // }
     // }catch(e){console.log('error in remove if possible');console.log(JSON.stringify(e));console.log(JSON.stringify(e.message))}
+
+    //deletion (?) can be done no matters filtering.
+
     let ind1:number =-1;
     let ind2:number =-1;
 
@@ -268,6 +274,8 @@ export class NotesPage {
   private removeAndAddIfPossible(oldNote:NoteExtraMinWithDate, newNote:NoteExtraMinWithDate):void{
     let ind1:number =-1;
     let ind2:number =-1;
+
+    //same here.
 
     // console.log('here we have');console.log(JSON.stringify({old:oldNote, new:newNote}));
     // console.log('shown notes');console.log(JSON.stringify(this.shownNotes));
@@ -332,7 +340,7 @@ export class NotesPage {
   }
 
   private loadByFilter(/*firsTime:boolean*/force: boolean, refresher?:any){
-    console.log('im going to set');
+    //console.log('im going to set');
     if(refresher==null){
       this.showSpinner=true;
     }
