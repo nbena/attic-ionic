@@ -39,7 +39,7 @@
   "devDependencies": {
     "@ionic/app-scripts": "1.3.8",
     "@types/valid-url": "^1.0.2",
-    "ionic": "3.9.2",
+    "ionic": "3.10.3",
     "typescript": "2.3.4"
   },
   "cordovaPlugins": [

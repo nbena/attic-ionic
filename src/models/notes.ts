@@ -568,15 +568,24 @@ export class NoteFull extends NoteBarebon{
 
   public getMinifiedVersionForCreation():NoteFull{
     let tmpNote:NoteFull = this.clone();
+    // console.log('note pre min: '+JSON.stringify(tmpNote));
     // console.log('the maintags pre min: '+JSON.stringify(tmpNote.maintags));
-    let maintags:TagExtraMin[]=tmpNote.maintags.map(obj=>{return new TagExtraMin(obj.title)});
-    let othertags:TagExtraMin[]=tmpNote.othertags.map(obj=>{return new TagExtraMin(obj.title)});
+    let maintags:TagExtraMin[]=this.maintags.map(obj=>{return new TagExtraMin(obj.title)});
+    let othertags:TagExtraMin[]=this.othertags.map(obj=>{return new TagExtraMin(obj.title)});
     // console.log('the maintags post min: '+JSON.stringify(maintags));
     tmpNote.maintags=maintags;
     tmpNote.othertags=othertags;
+
+    //adding a securify for tags.
+    tmpNote.maintags=Utils.makeArraySafe(tmpNote.maintags);
+    tmpNote.othertags=Utils.makeArraySafe(tmpNote.othertags);
+
+    console.log('note post min: '+JSON.stringify(tmpNote));
+
     // console.log('the note is: '+JSON.stringify(tmpNote));
     return tmpNote;
   }
+
 
 
   public clone():NoteFull{

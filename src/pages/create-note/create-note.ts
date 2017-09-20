@@ -233,6 +233,8 @@ export class CreateNotePage {
         this.getNote2();
         this.atticNotes.createNote2(this.newNote/*, this.mainTags.concat(this.otherTags)*/)
           .then(result=>{
+            console.log('note created here');
+            console.log('the note is: '+JSON.stringify(this.newNote));
             let title:string = this.newNote.title;
 
             this.graphicProvider.presentToast('Note created');
@@ -240,8 +242,11 @@ export class CreateNotePage {
             this.makeCompletelyEmpty();
             this.tryingToSubmit=false;
 
+            console.log('ok till here');
+
             this.events.publish('change-tab',0, this.newNote.forceCastToNoteExtraMinWithDate());
             if(this.newNote.hasSomeTag()){
+              console.log('has some tag');
               this.events.publish('invalidate-tags');
             }
           })

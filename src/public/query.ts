@@ -628,6 +628,8 @@ export class Query {
   static readonly SELECT_NOTES_EXTRA_MIN_WITH_DATE_BY_ISDONE = 'select title, lastmodificationdate from notes where json_object like ? and mustbedeleted=\'false\' and userid=? order by lastmodificationdate desc, title asc';
 
 
+  static readonly LOGOUT = 'delete from auth';
+
 
   public static prepareQueryTagExistAndAreFull(length: number): string {
     let result: string = Query.TAGS_EXIST_AND_ARE_FULL;

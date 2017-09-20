@@ -53,11 +53,25 @@ export class AtticNotesProvider {
   */
 
   public static areMainTagsArrayValid(control: /*FormControl*/AbstractControl):any{
-    return ((control.value.length <= 3) ? null : {error: true});
+    let ret:any = {error:true};
+    if(control.value!=null){
+      if(control.value.length<=3){
+        ret = null;
+      }
+    }
+    return ret;
+    //return ((control.value.length <= 3) ? null : {error: true});
   }
 
   public static areOtherTagsArrayValid(control:/*FormControl*/AbstractControl):any{
-      return ((control.value.length) <= 10 ? null : {error:true});
+    let ret:any = {error:true};
+    if(control.value!=null){
+      if(control.value.length<=10){
+        ret = null;
+      }
+    }
+    return ret;
+    //return ((control.value.length <= 10) ? null : {error: true});
   }
 
   public static verifyMainTagsOtherTagsValid(mainTags:TagExtraMin[], otherTags:TagExtraMin[]):boolean{
@@ -666,7 +680,13 @@ export class AtticNotesProvider {
         if(isAllowed){
           this.atticCache.changeNoteTitle(note, newTitle/*, false*/,lastmod);
           //this.atticCache.invalidateTags();
-          this.events.publish('invalidate-full-cached-tags');
+
+          if(note.hasSomeTag()){
+            this.events.publish('clean-cache');
+          }else{
+            this.events.publish('invalidate-cached-notes');
+          }
+          //this.events.publish('invalidate-full-cached-tags');
           resolve();
         }
       })
@@ -694,7 +714,7 @@ export class AtticNotesProvider {
           //this.atticCache.updateNote(note, true, true, oldlastmod);
           //no need to update the cache because the note returned is the same.
           //this.atticCache.invalidateTags();
-          this.events.publish('invalidate-cached-tags');
+          /*this.events.publish('invalidate-cached-tags');*/this.events.publish('clean-cache');
           resolve();
         })
         .catch(error=>{
@@ -719,7 +739,7 @@ export class AtticNotesProvider {
         .then(()=>{
           //this.atticCache.updateNote(note, true, true, oldlastmod);
           //this.atticCache.invalidateTags();
-          this.events.publish('invalidate-cached-tags');
+          /*this.events.publish('invalidate-cached-tags');*/this.events.publish('clean-cache');
           resolve();
         })
         .catch(error=>{
@@ -743,7 +763,7 @@ export class AtticNotesProvider {
         .then(()=>{
           //this.atticCache.updateNote(note, true, true, oldlastmod);
           //this.atticCache.invalidateTags();
-          this.events.publish('invalidate-cached-tags');
+          /*this.events.publish('invalidate-cached-tags');*/this.events.publish('clean-cache');
           resolve();
         })
         .catch(error=>{
@@ -792,6 +812,7 @@ export class AtticNotesProvider {
         this.db.setLinks(note, this.auth.userid)
         .then(()=>{
           //this.atticCache.updateNote(note, true, true, oldlastmod);
+          this.events.publish('invalidate-cached-notes');
           resolve();
         })
         .catch(error=>{
@@ -814,6 +835,7 @@ export class AtticNotesProvider {
         this.db.setText(note, this.auth.userid)
         .then(()=>{
           //this.atticCache.updateNote(note, true, true, oldlastmod);
+          this.events.publish('invalidate-cached-notes');
           resolve();
         })
         .catch(error=>{
@@ -837,6 +859,7 @@ export class AtticNotesProvider {
         this.db.setDone(note, this.auth.userid)
         .then(()=>{
           //this.atticCache.updateNote(note, true, true, oldlastmod);
+          this.events.publish('invalidate-cached-notes');
           resolve();
         })
         .catch(error=>{
@@ -865,10 +888,11 @@ export class AtticNotesProvider {
            this.db.deleteNote(note, this.auth.userid, necessaryTags)
            .then(()=>{
              this.atticCache.removeNote(note);
-             if(note.maintags.length+note.othertags.length>0){
+             if(note.hasSomeTag()){
                //this.atticCache.invalidateTags();
                this.events.publish('invalidate-cached-tags');
              }
+             this.events.publish('invalidate-cached-notes');
              resolve();
            })
            .catch(error=>{

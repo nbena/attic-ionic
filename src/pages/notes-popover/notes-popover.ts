@@ -107,8 +107,13 @@ export class NotesPopoverPage {
     // .then(()=>{
     //   this.viewCtrl.dismiss();
     // })
-    this.app.getActiveNav().push(NotesByTagPage)
-    .then(()=>{this.viewCtrl.dismiss()})
+
+
+    // this.app.getActiveNav().push(NotesByTagPage)
+    // .then(()=>{this.viewCtrl.dismiss()})
+
+    this.viewCtrl.dismiss();
+    this.app.getActiveNav().push(NotesByTagPage);
   }
 
   private filterByIsDone(){

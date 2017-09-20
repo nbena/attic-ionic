@@ -1288,12 +1288,34 @@ private getTagsFullByNote(note:NoteFull|NoteMin, usedTag:TagFull[], userid:strin
   })
 }
 
+private static forceMinify(note:NoteFull):NoteFull{
+  let newNote:NoteFull = new NoteFull({
+    title: note.title,
+    text: note.text,
+    isdone:note.isdone,
+    links:note.links,
+    creationdate: note.creationdate,
+    lastmodificationdate: note.lastmodificationdate
+  });
+  newNote.maintags=[];
+  newNote.othertags=[];
+  note.maintags.forEach(tag=>{
+    let t: TagExtraMin = new TagExtraMin(tag.title);
+    newNote.maintags.push(t);
+  })
+  note.othertags.forEach(tag=>{
+    let t: TagExtraMin = new TagExtraMin(tag.title);
+    newNote.othertags.push(t);
+  })
+  return newNote;
+}
+
 //usedTag contains the tagfull found in the cache, so I just have to update them and not get from the db.
 public createNewNote2(note:NoteFull, userid:string, usedTag?:TagFull[]):Promise<void>{
   // console.log('received as help');
   // console.log(JSON.stringify(usedTag));
   usedTag = Utils.makeArraySafe(usedTag);
-  console.log('note to create is: '+JSON.stringify(note));
+  // console.log('note to create is: '+JSON.stringify(note));
   // console.log('usedTag post');console.log(JSON.stringify(usedTag));
   // console.log(JSON.stringify(note));
 
@@ -1302,9 +1324,10 @@ public createNewNote2(note:NoteFull, userid:string, usedTag?:TagFull[]):Promise<
 
     this.getTagsFullByNote(note, usedTag, userid)
     .then(tags=>{
-      console.log('the tags to update are');console.log(JSON.stringify(tags));
+      // console.log('the tags to update are');console.log(JSON.stringify(tags));
       return this.db.transaction(tx=>{
-        let jsonNote:string = JSON.stringify(note);
+        let jsonNote:string = JSON.stringify(/*DbProvider.forceMinify(*/note/*)*/);
+        console.log('json note: '+jsonNote);
         let extraMin:NoteExtraMin=note.forceCastToNoteExtraMin();
 
         this.addTagsToNoteUpdateOnlyTagsCore(extraMin, userid, tags, tx);
@@ -5503,7 +5526,7 @@ private static getUserSummaryFromRes(res:any, userid:string):UserSummary{
   let summary:UserSummary = new UserSummary();
   summary.userid=userid;
   for(let i=0;i<res.rows.length;i++){
-    // console.log('the current rows is '+JSON.stringify(res.rows.item(i)));
+    console.log('the current rows is '+JSON.stringify(res.rows.item(i)));
     if(res.rows.item(i).type=='logs'){
       summary.data.logscount = res.rows.item(i).count;
     }else if(res.rows.item(i).type=='notes'){
@@ -5511,19 +5534,24 @@ private static getUserSummaryFromRes(res:any, userid:string):UserSummary{
     }else if(res.rows.item(i).type=='tags'){
       summary.data.tagscount = res.rows.item(i).count;
     }else if(res.rows.item(i).type=='is_free'){
-      summary.data.isfree = res.rows.item(i).count;
+      if(res.rows.item(i).count==false || res.rows.item(i).count=='false'){
+        summary.data.isfree=false;
+      }else{
+        summary.data.isfree=true;
+      }
+      //summary.data.isfree = res.rows.item(i).count;
     }
   }
   summary.data.notescount = ((summary.data.notescount)==null) ? 0 : summary.data.notescount;
   summary.data.tagscount = ((summary.data.tagscount)==null) ? 0 : summary.data.tagscount;
   summary.data.logscount = ((summary.data.logscount)==null) ? 0 : summary.data.logscount;
 
-  // console.log('summary post first '+JSON.stringify(summary));
+  console.log('summary post first '+JSON.stringify(summary));
 
 //summary = DbProvider.mkSummaryAvailable(summary);
   summary.makeAvailable();
 
-  // console.log('the summary here'),
+  console.log('the summary here '+JSON.stringify(summary));
   // console.log(JSON.stringify(summary));
   return summary;
 }
@@ -5572,7 +5600,7 @@ insertSetFree(free:boolean, userid:string):Promise<void>{
 
 logout(userid:string):Promise<void>{
   return new Promise<void>((resolve, reject)=>{
-    this.db.executeSql(Query.DELETE_TOKEN, [userid])
+    this.db.executeSql(Query.LOGOUT, [/*userid*/])
     .then(()=>{
       console.log('ok delete token');
       resolve();
