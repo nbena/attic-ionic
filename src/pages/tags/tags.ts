@@ -77,11 +77,15 @@ export class TagsPage {
 
     this.searchCtrl.valueChanges.debounceTime(700).subscribe(event=>{
       if(this.searchTerm.trim()===''){
-        this.shownTags = this.allTags.slice();
-        this.setIsThereSomethingToShow();
+
+        // this.shownTags = this.allTags.slice();
+        // this.setIsThereSomethingToShow();
+        this.load(false);
+
       }else{
-        // this.loadByTitle(this.searchTerm);
-        this.loadByTitle(this.searchTerm);
+
+        this.load(false, this.searchTerm);
+        //this.loadByTitle(this.searchTerm);
       }
     });
   }

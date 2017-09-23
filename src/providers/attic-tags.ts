@@ -218,7 +218,7 @@ export class AtticTagsProvider {
 
   filterTagByTitle(tags: TagAlmostMin[], title: string):TagAlmostMin[]{
     return tags.filter((tag)=>{
-      return tag.title.indexOf(title.toLowerCase())>-1;
+      return tag.title.toLowerCase().indexOf(title.toLowerCase())>-1;
     });
   }
 

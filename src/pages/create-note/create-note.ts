@@ -9,7 +9,7 @@ import { FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms'
 import { AtticNotesProvider } from '../../providers/attic-notes';
 import { AtticTagsProvider } from '../../providers/attic-tags';
 import { NoteFull/*, NoteSmart, NoteMin, NoteExtraMin*/ } from '../../models/notes';
-import { /*TagExtraMin, TagFull,*/ TagAlmostMin } from '../../models/tags';
+import { /*TagExtraMin, TagFull,*/ TagAlmostMin, TagExtraMin } from '../../models/tags';
 // import { Utils } from '../../public/utils'
 import {GraphicProvider} from '../../providers/graphic';
 import { isWebUri } from 'valid-url';
@@ -193,15 +193,17 @@ export class CreateNotePage {
     this.newNote = new NoteFull({
       title:this.createNotePageForm.value.title.trim(),
       text:this.createNotePageForm.value.text,
-      maintags:this.createNotePageForm.value.mainTags,
-      othertags:this.createNotePageForm.value.otherTags,
+
+      maintags:this.createNotePageForm.value.mainTags.map(obj=>{return new TagExtraMin(obj.title)}),
+      othertags:this.createNotePageForm.value.otherTags.map(obj=>{return new TagExtraMin(obj.title)}),
       isdone:this.createNotePageForm.value.isDone,
+
       creationdate:date,
       lastmodificationdate: date,
       links:this.links
     })
-    console.log('the new note is:');
-    console.log(JSON.stringify(this.newNote));
+    //this.newNote=this.newNote.getMinifiedVersionForCreation();
+    console.log('the new note is: '+JSON.stringify(this.newNote));
   }
 
   // private validateTags():boolean{
@@ -233,8 +235,8 @@ export class CreateNotePage {
         this.getNote2();
         this.atticNotes.createNote2(this.newNote/*, this.mainTags.concat(this.otherTags)*/)
           .then(result=>{
-            console.log('note created here');
-            console.log('the note is: '+JSON.stringify(this.newNote));
+            // console.log('note created here');
+            // console.log('the note is: '+JSON.stringify(this.newNote));
             let title:string = this.newNote.title;
 
             this.graphicProvider.presentToast('Note created');
@@ -242,11 +244,11 @@ export class CreateNotePage {
             this.makeCompletelyEmpty();
             this.tryingToSubmit=false;
 
-            console.log('ok till here');
+            // console.log('ok till here');
 
             this.events.publish('change-tab',0, this.newNote.forceCastToNoteExtraMinWithDate());
             if(this.newNote.hasSomeTag()){
-              console.log('has some tag');
+              // console.log('has some tag');
               this.events.publish('invalidate-tags');
             }
           })

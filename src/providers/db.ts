@@ -1288,27 +1288,27 @@ private getTagsFullByNote(note:NoteFull|NoteMin, usedTag:TagFull[], userid:strin
   })
 }
 
-private static forceMinify(note:NoteFull):NoteFull{
-  let newNote:NoteFull = new NoteFull({
-    title: note.title,
-    text: note.text,
-    isdone:note.isdone,
-    links:note.links,
-    creationdate: note.creationdate,
-    lastmodificationdate: note.lastmodificationdate
-  });
-  newNote.maintags=[];
-  newNote.othertags=[];
-  note.maintags.forEach(tag=>{
-    let t: TagExtraMin = new TagExtraMin(tag.title);
-    newNote.maintags.push(t);
-  })
-  note.othertags.forEach(tag=>{
-    let t: TagExtraMin = new TagExtraMin(tag.title);
-    newNote.othertags.push(t);
-  })
-  return newNote;
-}
+// private static forceMinify(note:NoteFull):NoteFull{
+//   let newNote:NoteFull = new NoteFull({
+//     title: note.title,
+//     text: note.text,
+//     isdone:note.isdone,
+//     links:note.links,
+//     creationdate: note.creationdate,
+//     lastmodificationdate: note.lastmodificationdate
+//   });
+//   newNote.maintags=[];
+//   newNote.othertags=[];
+//   note.maintags.forEach(tag=>{
+//     let t: TagExtraMin = new TagExtraMin(tag.title);
+//     newNote.maintags.push(t);
+//   })
+//   note.othertags.forEach(tag=>{
+//     let t: TagExtraMin = new TagExtraMin(tag.title);
+//     newNote.othertags.push(t);
+//   })
+//   return newNote;
+// }
 
 //usedTag contains the tagfull found in the cache, so I just have to update them and not get from the db.
 public createNewNote2(note:NoteFull, userid:string, usedTag?:TagFull[]):Promise<void>{
@@ -1327,12 +1327,13 @@ public createNewNote2(note:NoteFull, userid:string, usedTag?:TagFull[]):Promise<
       // console.log('the tags to update are');console.log(JSON.stringify(tags));
       return this.db.transaction(tx=>{
         let jsonNote:string = JSON.stringify(/*DbProvider.forceMinify(*/note/*)*/);
-        console.log('json note: '+jsonNote);
+        //console.log('json note: '+jsonNote);
         let extraMin:NoteExtraMin=note.forceCastToNoteExtraMin();
 
         this.addTagsToNoteUpdateOnlyTagsCore(extraMin, userid, tags, tx);
 
         //skip lastmodificationdate cause it(should be) is done by the db.
+        console.log('json note: '+jsonNote);
         tx.executeSql(Query.INSERT_NOTE_2, [note.title, note.text,jsonNote,note.lastmodificationdate.toISOString(), userid],
           (tx:any, res:any)=>{console.log('inserted new note')},
           (tx:any, error:any)=>{console.log('error in insert new note');console.log(JSON.stringify(error))}
@@ -2444,7 +2445,7 @@ private static expandTagsRegexAnd(tags:TagAlmostMin[]):string{
 private static getArrayOfNotexExtraMinWithDateFromRes(res:any):NoteExtraMinWithDate[]{
   let array:NoteExtraMinWithDate[]=[];
   for(let i=0;i<res.rows.length;i++){
-    console.log('the row here is: '+JSON.stringify(res.rows.item(i)));
+    //console.log('the row here is: '+JSON.stringify(res.rows.item(i)));
     array.push(NoteExtraMinWithDate.safeNewNoteFromJsObject({
       title:res.rows.item(i).title,
       lastmodificationdate:res.rows.item(i).lastmodificationdate

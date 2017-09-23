@@ -309,16 +309,23 @@ export class NotesPage {
     this.searchCtrl.valueChanges.debounceTime(700).subscribe(event=>{
       // console.log('allnotes');console.log(JSON.stringify(this.allNotes));
       // console.log('shownnotes');console.log(JSON.stringify(this.shownNotes));
-      this.currentFilterValue=this.searchTerm;
-      this.currentFilter=FilterNs.Filter.Title;
+      // this.currentFilterValue=this.searchTerm;
+      // this.currentFilter=FilterNs.Filter.Title;
       if(this.searchTerm.trim()===''){
-        this.shownNotes=this.allNotes.slice();
-        // console.log('is blank');
-        // console.log('allnotes');console.log(JSON.stringify(this.allNotes));
-        // console.log('shownnotes');console.log(JSON.stringify(this.shownNotes));
-        this.setIsThereSomethingToShow();
+        // console.log('allNotes: '+JSON.stringify(this.allNotes));
+        // console.log('showNotes: '+JSON.stringify(this.shownNotes));
+        //this.shownNotes=this.allNotes.slice();
+        //this.setIsThereSomethingToShow();
+
+        //this should remove all of the bugs
+        this.currentFilterValue='';
+        this.currentFilter=FilterNs.Filter.None;
+        this.loadByFilter(false);
       }else{
-        this.loadByTitle(this.searchTerm);
+        //this.loadByTitle(this.searchTerm);
+        this.currentFilterValue=this.searchTerm;
+        this.currentFilter=FilterNs.Filter.Title;
+        this.loadByFilter(false);
       }
     });
 
@@ -563,7 +570,9 @@ export class NotesPage {
     //   .catch(error=>{
     //     console.log(JSON.stringify(error));
     //   })
-    this.shownNotes = this.atticNotes.filterNotesByTitle(this.shownNotes, this.searchTerm);
+
+    //maybe fix the bug?
+    this.shownNotes = this.atticNotes.filterNotesByTitle(this.shownNotes, this.searchTerm).slice();
     // this.setIsThereSomethingToShow();
     return Promise.resolve();
   }

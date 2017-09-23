@@ -489,7 +489,7 @@ export class AtticNotesProvider {
 
   filterNotesByTitle(notes: NoteExtraMinWithDate[], term: string):NoteExtraMinWithDate[]{
     return notes.filter((note)=>{
-      return note.title.indexOf(term.toLowerCase())>-1;
+      return note.title.toLowerCase().indexOf(term.toLowerCase())>-1;
     });
   }
 
@@ -704,9 +704,18 @@ export class AtticNotesProvider {
     return p;
   }
 
+  private static securifyTags(tags:TagExtraMin[]):TagExtraMin[]{
+    let array:TagExtraMin[]=tags.map(obj=>{return new TagExtraMin(obj.title)});
+    return array;
+  }
+
 
   addTags(note: NoteFull, mainTags: TagExtraMin[], otherTags: TagExtraMin[]/*, oldlastmod: Date*/){
     let p:Promise<void>;
+
+    mainTags=AtticNotesProvider.securifyTags(mainTags);
+    otherTags=AtticNotesProvider.securifyTags(otherTags);
+
     if(!this.synch.isNoteFullyLocked()){
       p=new Promise<void>((resolve, reject)=>{
         this.db.addTags(note, this.auth.userid, mainTags, otherTags)
@@ -733,6 +742,9 @@ export class AtticNotesProvider {
 
   addMainTags(note: NoteFull, mainTags: TagExtraMin[]/*, oldlastmod: Date*/){
     let p:Promise<void>;
+
+    mainTags=AtticNotesProvider.securifyTags(mainTags);
+
     if(!this.synch.isNoteFullyLocked()){
       p=new Promise<void>((resolve, reject)=>{
         this.db.addTags(note, this.auth.userid, mainTags)
@@ -757,6 +769,9 @@ export class AtticNotesProvider {
 
   addOtherTags(note: NoteFull, otherTags: TagExtraMin[]/*, oldlastmod: Date*/){
     let p:Promise<void>;
+
+    otherTags=AtticNotesProvider.securifyTags(otherTags);
+
     if(!this.synch.isNoteFullyLocked()){
       p=new Promise<void>((resolve, reject)=>{
         this.db.addTags(note, this.auth.userid, null, otherTags)
@@ -809,7 +824,7 @@ export class AtticNotesProvider {
     let p:Promise<void>;
     if(!this.synch.isNoteFullyLocked()){
       p=new Promise<void>((resolve, reject)=>{
-        this.db.setLinks(note, this.auth.userid)
+        this.db.setLinks(note/*.getMinifiedVersionForCreation()*/, this.auth.userid)
         .then(()=>{
           //this.atticCache.updateNote(note, true, true, oldlastmod);
           this.events.publish('invalidate-cached-notes');

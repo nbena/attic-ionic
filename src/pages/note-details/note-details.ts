@@ -678,7 +678,7 @@ export class NoteDetailsPage {
   private addOtherTagsAPI():Promise<void>{
     // this.note.othertags = this.note.othertags.concat(this.otherTagsToAdd);
     // done in the db.
-    return this.atticNotes.addOtherTags(this.note, this.otherTagsToAdd/*, this.lastmod*/);
+    return this.atticNotes.addOtherTags(this.note, this.otherTagsToAdd   /*, this.lastmod*/);
   }
 
 
@@ -736,6 +736,8 @@ export class NoteDetailsPage {
         new NoteExtraMinWithDate({title:this.note.title, lastmodificationdate: this.lastmod}),
         this.note.forceCastToNoteExtraMinWithDate());
       this.loading = this.graphicProvider.showLoading();
+
+      this.note=this.note.getMinifiedVersionForCreation();
     }
     //can't be done here, if so, the cache won't be able to find it.
 
