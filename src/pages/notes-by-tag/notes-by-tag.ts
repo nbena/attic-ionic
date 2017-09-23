@@ -73,19 +73,25 @@ export class NotesByTagPage {
 
     this.searchCtrl.valueChanges.debounceTime(700).subscribe(event=>{
       if(this.searchTerm.trim()===''){
-        this.shownTags = this.allTags.slice();
-        this.setIsThereSomethingToShow();
+
+        // this.shownTags = this.allTags.slice();
+        // this.setIsThereSomethingToShow();
+
+        this.load(false);
+
       }else{
+
+        this.load(false, this.searchTerm);
         // this.loadByTitle(this.searchTerm);
-        this.loadByTitle(this.searchTerm);
       }
     });
   }
 
-  private loadByTitle(title: string):void{
+  private loadByTitle(title: string):Promise<void>{
     this.shownTags = this.atticTags.filterTagByTitle(this.shownTags, title);
     this.mkIsChecked();
-    this.setIsThereSomethingToShow();
+    // this.setIsThereSomethingToShow();
+    return Promise.resolve();
   }
 
   private mkIsChecked():void{
@@ -94,18 +100,26 @@ export class NotesByTagPage {
     }
   }
 
-  private load(force:boolean, refresher?:any):void{
+  private load(force:boolean, title?:string, refresher?:any):void{
     if(refresher==null){
       this.showSpinner=true;
     }
-    this.loadAlmostMin(force)
-    .then(()=>{
+    let p:Promise<void>;
+    if(title==null){
+      p=this.loadAlmostMin(force);
+    }else{
+      p=this.loadByTitle(title);
+    }
+    p.then(()=>{
+      this.setIsThereSomethingToShow();
+      if(this.shownTags.length==0){
+        this.btnEnabled=false;
+      }
       if(refresher!=null){
         refresher.complete();
       }else{
         this.showSpinner=false;
       }
-      this.setIsThereSomethingToShow();
     }).catch(error=>{
       if(refresher!=null){
         refresher.complete();

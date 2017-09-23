@@ -80,6 +80,7 @@ export class TagsPage {
 
         // this.shownTags = this.allTags.slice();
         // this.setIsThereSomethingToShow();
+
         this.load(false);
 
       }else{

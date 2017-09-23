@@ -26,13 +26,13 @@
   <ion-searchbar [(ngModel)]="searchTerm" [formControl]="searchCtrl">
   </ion-searchbar>
 
-  <form (ngSubmit)="searchNotesByTags()">
+  <!-- <form (ngSubmit)="searchNotesByTags()"> -->
   <!-- <form [formGroup]="searchPageForm"> -->
     <div text-center>
-      <button ion-button type="submit" [disabled]="!btnEnabled && isThereSomethingToShow">Search</button>
+      <button ion-button (click)="searchNotesByTags()" [disabled]="!btnEnabled && isThereSomethingToShow">Search</button>
       <!-- <button ion-button (click)="search()">Search</button> -->
     </div>
-  </form>
+  <!-- </form> -->
 
 
   <!-- <ion-list>
